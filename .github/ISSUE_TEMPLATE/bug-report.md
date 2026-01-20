@@ -1,0 +1,60 @@
+---
+name: Bug Report
+about: Create a report to help us improve
+title: "[BUG]"
+labels: bug
+assignees: ''
+
+---
+
+## Bug Summary
+<!-- Short, clear description of the bug -->
+**Describe the bug briefly.**
+
+---
+
+## Steps to Reproduce
+<!-- List exact steps so the bug can be reproduced -->
+1. 
+2. 
+3. 
+4. 
+
+---
+
+## Expected Behavior
+<!-- What should have happened -->
+Describe the expected behavior.
+
+---
+
+## Actual Behavior
+<!-- What actually happened -->
+Describe what actually happened.
+
+---
+
+## Severity
+<!-- Choose one -->
+- [ ] Critical (crash, data loss)
+- [ ] High (major feature broken)
+- [ ] Medium (partial functionality)
+- [ ] Low (minor / cosmetic)
+
+---
+
+## Environment
+<!-- OS, device, app version -->
+- OS:
+- Device:
+- App version:
+- Build type (Debug/Release):
+
+---
+
+## Logs / Screenshots
+<!-- Paste logs or attach screenshots -->
+
+## Additional Context
+<!-- Anything else useful -->
+Add any other context about the problem here.
