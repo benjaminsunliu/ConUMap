@@ -20,6 +20,10 @@ Briefly describe what needs to be implemented or changed.
 **Context / Link**  
 Related to: US<EPIC_ID>.<STORY_ID>
 
+**Dependencies**  
+- Depends on: <Task IDs or links>  
+- Blocks: <Task IDs or links>
+
 **Implementation Checklist**
 - [ ] Item 1
 - [ ] Item 2
