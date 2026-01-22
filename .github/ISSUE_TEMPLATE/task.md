@@ -28,6 +28,12 @@ Related to: US<EPIC_ID>.<STORY_ID>
 - [ ] Item 1
 - [ ] Item 2
 
+**Task Acceptance / Testing Criteria**
+<!-- Fill these with task-specific, verifiable conditions -->
+- [ ] Primary behavior to verify (manual or automated)
+- [ ] Edge case / failure mode to verify
+- [ ] Regression check (what must remain unaffected)
+
 **Definition of Done**
 - [ ] Code implemented and committed
 - [ ] Relevant tests added or updated

@@ -3,7 +3,7 @@
 
 ## Related Issues
 <!-- Link task / user story -->
-Closes: TSK<id>
+Closes: TSK<id> #issue
 
 ## Changes Made
 - 
