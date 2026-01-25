@@ -11,6 +11,10 @@
     "lint": "expo lint",
     "test": "jest --coverage"
   },
+  "jest": {
+    "preset": "jest-expo",
+    "testEnvironment": "node"
+  },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
     "@react-navigation/bottom-tabs": "^7.4.0",
@@ -44,7 +48,7 @@
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "jest": "^30.2.0",
-    "ts-jest": "^29.4.6",
+    "jest-expo": "^54.0.16",
     "typescript": "~5.9.2"
   },
   "private": true
