@@ -11,10 +11,6 @@
     "lint": "expo lint",
     "test": "jest --coverage"
   },
-  "jest": {
-    "preset": "jest-expo",
-    "testEnvironment": "node"
-  },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
     "@react-navigation/bottom-tabs": "^7.4.0",
