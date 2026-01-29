@@ -1,13 +1,21 @@
 import * as LocationPermissions from "expo-location";
 import React, { useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import MapView from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
+
+import { Building, buildings } from "../../data/building-info-data";
+import BuildingInfoCard from "./building-info-card";
 import LocationButton, { LocationButtonProps } from "./location-button";
 
 interface Props {
   latitudeDelta?: number;
   longitudeDelta?: number;
 }
+
+type Location = {
+  latitude: number;
+  longitude: number;
+};
 
 export default function Map({
   latitudeDelta = 0.00922,
@@ -16,6 +24,10 @@ export default function Map({
   const [location, setLocation] = useState<Location | null>(null);
   const [locationState, setLocationState] =
     useState<LocationButtonProps["state"]>("off");
+
+  const [selectedBuilding, setSelectedBuilding] =
+    useState<Building | null>(null);
+
   const mapViewRef = useRef<MapView>(null);
 
   const askLocationPermission = async () => {
@@ -60,22 +72,33 @@ export default function Map({
             setLocationState("on");
           }
         }}
+        onPress={() => setSelectedBuilding(null)}
         onUserLocationChange={({ nativeEvent: { coordinate } }) => {
-          if (coordinate) {
-            setLocation(coordinate);
-          }
-          if (!location) {
-            setLocationState("on");
-          }
-        }}
-      />
+          if (coordinate) setLocation(coordinate);
+          if (!location) setLocationState("on");
+        }}>
+          
+        {buildings.map((building) => (
+        <Marker
+          key={building.id}
+          coordinate={{
+            latitude: building.latitude,
+            longitude: building.longitude,
+          }}
+          onPress={() => setSelectedBuilding(building)}
+        />
+        ))}
+      </MapView>
+
+      <BuildingInfoCard building={selectedBuilding} />
+
       <LocationButton
         state={locationState}
         onPress={async () => {
           if (locationState === "on") {
             centerLocation();
           } else if (locationState === "off") {
-            askLocationPermission();
+            await askLocationPermission();
           }
         }}
       />
@@ -91,14 +114,4 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  locationButton: {
-    position: "absolute",
-    bottom: 1,
-    right: 1,
-  },
 });
-
-type Location = {
-  latitude: number;
-  longitude: number;
-};
