@@ -98,7 +98,7 @@ export default function Map({
       >
         {CAMPUS_LOCATIONS.map((building) => {
           if (building.type === "point") {
-            return <Marker coordinate={building.marker} />;
+            return <Marker coordinate={building.location} />;
           } else {
             return building.polygon.map((polygon, i) => (
               <Polygon
