@@ -4,11 +4,16 @@ import { Pressable, StyleSheet, View } from "react-native";
 export interface LocationButtonProps {
   state: "on" | "off" | "centered";
   onPress: () => void;
+  position?: {
+    bottom: number;
+    right: number;
+  };
 }
 
 export default function LocationButton({
   state,
   onPress,
+  position = { bottom: 40, right: 20 },
 }: LocationButtonProps) {
   let icon = null;
   switch (state) {
@@ -40,7 +45,12 @@ export default function LocationButton({
       );
   }
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { bottom: position.bottom, right: position.right },
+      ]}
+    >
       <Pressable onPress={onPress}>{icon}</Pressable>
     </View>
   );

@@ -14,7 +14,7 @@ export default function BuildingInfoCard({ building }: Props) {
       <Text>{building.description}</Text>
       <View style={styles.rule}/>
       <Text style={styles.line}>Hours: {building.openingHours} </Text>
-      <Text style={styles.line}>Contact: {building.contactInfo} </Text>
+      <Text style={styles.line}>Contact: {building.email} </Text>
     </View>
   );
 }

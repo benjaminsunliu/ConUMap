@@ -1,15 +1,17 @@
+import { CAMPUS_LOCATIONS } from "@/constants/mapData";
+import { Coordinate } from "@/types/map";
 import * as LocationPermissions from "expo-location";
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import MapView, { Marker } from "react-native-maps";
-
 import { Building, buildings } from "../../data/building-info-data";
 import BuildingInfoCard from "./building-info-card";
+import MapView, { MapPressEvent, Marker, Polygon } from "react-native-maps";
 import LocationButton, { LocationButtonProps } from "./location-button";
+import LocationModal from "./location-modal";
 
 interface Props {
-  latitudeDelta?: number;
-  longitudeDelta?: number;
+  focusDelta?: CoordinateDelta;
+  initialRegion?: Region;
 }
 
 type Location = {
@@ -18,66 +20,107 @@ type Location = {
 };
 
 export default function Map({
-  latitudeDelta = 0.00922,
-  longitudeDelta = 0.00421,
+  focusDelta = { latitudeDelta: 0.00922, longitudeDelta: 0.00421 },
+  initialRegion,
 }: Props) {
-  const [location, setLocation] = useState<Location | null>(null);
+  const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] =
     useState<LocationButtonProps["state"]>("off");
 
   const [selectedBuilding, setSelectedBuilding] =
     useState<Building | null>(null);
+    
+  const [modalOpen, setModalOpen] = useState(false);
 
   const mapViewRef = useRef<MapView>(null);
 
   const askLocationPermission = async () => {
-    if (location) {
+    if (userLocation) {
+      return false;
+    }
+    const locationEnabled = await LocationPermissions.hasServicesEnabledAsync();
+    if (!locationEnabled) {
+      setModalOpen(true);
       return false;
     }
     const { status } =
       await LocationPermissions.requestForegroundPermissionsAsync();
     if (status !== "granted") {
+      console.log("Location wasn't grandted");
       return false;
     }
-    centerLocation();
+    const location = await LocationPermissions.getCurrentPositionAsync();
+    console.log("Go the current location manually");
+    console.log(location);
+    setUserLocation({
+      longitude: location.coords.latitude,
+      latitude: location.coords.latitude,
+    });
+    setLocationState("on");
     return true;
   };
 
   const centerLocation = () => {
-    if (!location) {
+    console.log("centering location");
+    if (!userLocation) {
+      console.log("can't center the location since there is no location");
       return;
     }
     setLocationState("centered");
-    const region = { ...location, latitudeDelta, longitudeDelta };
+    const region = {
+      ...userLocation,
+      latitudeDelta: focusDelta.latitudeDelta,
+      longitudeDelta: focusDelta.longitudeDelta,
+    };
     mapViewRef.current?.animateToRegion(region);
   };
 
-  const initialRegion = {
-    latitude: 45.49575,
-    longitude: -73.5793055556,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0922,
+  const onMapPress = (event: MapPressEvent) => {
+    setSelectedBuilding(null)
+    const coordinates = event.nativeEvent.coordinate;
+    console.log(coordinates);
   };
+
+  const bannex = CAMPUS_LOCATIONS[0];
 
   return (
     <View style={styles.container}>
       <MapView
         ref={mapViewRef}
         style={styles.map}
-        initialRegion={initialRegion}
-        showsUserLocation={true}
+        initialRegion={initialRegion || defaultInitialRegion}
+        showsUserLocation={userLocation !== null}
         followsUserLocation={locationState === "centered"}
+        onPress={onMapPress}
         onPanDrag={() => {
-          if (location) {
+          if (userLocation) {
             setLocationState("on");
           }
         }}
-        onPress={() => setSelectedBuilding(null)}
         onUserLocationChange={({ nativeEvent: { coordinate } }) => {
-          if (coordinate) setLocation(coordinate);
-          if (!location) setLocationState("on");
-        }}>
-          
+          console.log("Location changed");
+          if (!coordinate) {
+            return;
+          }
+          if (!userLocation) {
+            setLocationState("on");
+          }
+          setUserLocation(coordinate);
+        }}
+      >
+        {CAMPUS_LOCATIONS.map((building) => {
+          if (building.type === "point") {
+            return <Marker coordinate={building.location} key={building.code} />;
+          } else {
+            return building.polygon.map((polygon, i) => (
+              <Polygon
+                key={building.code + i}
+                fillColor="rgba(255,0,0,0.5)"
+                coordinates={polygon}
+              />
+            ));
+          }
+        })}
         {buildings.map((building) => (
         <Marker
           key={building.id}
@@ -89,9 +132,7 @@ export default function Map({
         />
         ))}
       </MapView>
-
       <BuildingInfoCard building={selectedBuilding} />
-
       <LocationButton
         state={locationState}
         onPress={async () => {
@@ -101,6 +142,10 @@ export default function Map({
             await askLocationPermission();
           }
         }}
+      />
+      <LocationModal
+        onRequestClose={() => setModalOpen(false)}
+        visible={modalOpen}
       />
     </View>
   );
@@ -114,4 +159,23 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
+  locationButton: {
+    position: "absolute",
+    bottom: 1,
+    right: 1,
+  },
 });
+
+type CoordinateDelta = {
+  latitudeDelta: number;
+  longitudeDelta: number;
+};
+
+type Region = Coordinate & CoordinateDelta;
+
+const defaultInitialRegion: Region = {
+  latitude: 45.49575,
+  longitude: -73.5793055556,
+  latitudeDelta: 0.0922,
+  longitudeDelta: 0.0922,
+};

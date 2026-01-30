@@ -1,0 +1,317 @@
+[
+  {
+    "buildingCode": "B",
+    "buildingName": "B Annex",
+    "address": "2160 Bishop St, Montreal, QC"
+  },
+  {
+    "buildingCode": "CI",
+    "buildingName": "CI Annex",
+    "address": "2149 Mackay St., Montreal, QC"
+  },
+  {
+    "buildingCode": "CL",
+    "buildingName": "CL Annex",
+    "address": "1665 Ste-Catherine St. W., Montreal, QC"
+  },
+  {
+    "buildingCode": "D",
+    "buildingName": "D Annex",
+    "address": "2140 Bishop St., Montreal, QC"
+  },
+  {
+    "buildingCode": "EN",
+    "buildingName": "EN Annex",
+    "address": "2070 Mackay St., Montreal, QC"
+  },
+  {
+    "buildingCode": "ER",
+    "buildingName": "ER Building",
+    "address": "2155 Guy St., Montreal, QC"
+  },
+  {
+    "buildingCode": "EV",
+    "buildingName": "Engineering, Computer Science and Visual Arts Integrated Complex",
+    "address": "1515 Ste-Catherine St. W., Montreal, QC"
+  },
+  {
+    "buildingCode": "FA",
+    "buildingName": "FA Annex",
+    "address": "2060 Mackay St., Montreal, QC"
+  },
+  {
+    "buildingCode": "FB",
+    "buildingName": "Faubourg Building",
+    "address": "1250 Guy St.1600 Ste-Catherine St. W., Montreal, QC"
+  },
+  {
+    "buildingCode": "FG",
+    "buildingName": "Faubourg Ste-Catherine Building",
+    "address": "1610 Ste-Catherine St. W., Montreal, QC"
+  },
+  {
+    "buildingCode": "GA",
+    "buildingName": "Grey Nuns Annex",
+    "address": "1211-1215 St-Mathieu St., Montreal, QC"
+  },
+  {
+    "buildingCode": "GM",
+    "buildingName": "Guy-De Maisonneuve Building",
+    "address": "1550 De Maisonneuve Blvd. W., Montreal, QC"
+  },
+  {
+    "buildingCode": "GN",
+    "buildingName": "Grey Nuns Building",
+    "address": "1190 Guy St.1175 St-Mathieu St., Montreal, QC"
+  },
+  {
+    "buildingCode": "GS",
+    "buildingName": "GS Building",
+    "address": "1538 Sherbrooke St. W., Montreal, QC"
+  },
+  {
+    "buildingCode": "H",
+    "buildingName": "Henry F. Hall Building",
+    "address": "1455 De Maisonneuve Blvd. W., Montreal, QC"
+  },
+  {
+    "buildingCode": "K",
+    "buildingName": "K Annex",
+    "address": "2150 Bishop St., Montreal, QC"
+  },
+  {
+    "buildingCode": "LB",
+    "buildingName": "J.W. McConnell Building",
+    "address": "1400 De Maisonneuve Blvd. W., Montreal, QC"
+  },
+  {
+    "buildingCode": "LD",
+    "buildingName": "LD Building",
+    "address": "1424 Bishop St., Montreal, QC"
+  },
+  {
+    "buildingCode": "LS",
+    "buildingName": "Learning Square",
+    "address": "1535 De Maisonneuve Blvd. W., Montreal, QC"
+  },
+  {
+    "buildingCode": "M",
+    "buildingName": "M Annex",
+    "address": "2135 Mackay St., Montreal, QC"
+  },
+  {
+    "buildingCode": "MB",
+    "buildingName": "John Molson Building",
+    "address": "1450 Guy St., Montreal, QC"
+  },
+  {
+    "buildingCode": "MI",
+    "buildingName": "MI Annex",
+    "address": "2130 Bishop St., Montreal, QC"
+  },
+  {
+    "buildingCode": "MU",
+    "buildingName": "MU Annex",
+    "address": "2170 Bishop St., Montreal, QC"
+  },
+  {
+    "buildingCode": "P",
+    "buildingName": "P Annex",
+    "address": "2020 Mackay St., Montreal, QC"
+  },
+  {
+    "buildingCode": "PR",
+    "buildingName": "PR Annex",
+    "address": "2100 Mackay St., Montreal, QC"
+  },
+  {
+    "buildingCode": "Q",
+    "buildingName": "Q Annex",
+    "address": "2010 Mackay St., Montreal, QC"
+  },
+  {
+    "buildingCode": "R",
+    "buildingName": "R Annex",
+    "address": "2050 Mackay St., Montreal, QC"
+  },
+  {
+    "buildingCode": "RR",
+    "buildingName": "RR Annex",
+    "address": "2040 Mackay St., Montreal, QC"
+  },
+  {
+    "buildingCode": "S",
+    "buildingName": "S Annex",
+    "address": "2145 Mackay St., Montreal, QC"
+  },
+  {
+    "buildingCode": "SB",
+    "buildingName": "Samuel Bronfman Building",
+    "address": "1590 Docteur-Penfield, Montreal, QC"
+  },
+  {
+    "buildingCode": "T",
+    "buildingName": "T Annex",
+    "address": "2030 Mackay St., Montreal, QC"
+  },
+  {
+    "buildingCode": "TD",
+    "buildingName": "Toronto-Dominion Building",
+    "address": "1410 Guy St., Montreal, QC"
+  },
+  {
+    "buildingCode": "V",
+    "buildingName": "V Annex",
+    "address": "2110 Mackay St., Montreal, QC"
+  },
+  {
+    "buildingCode": "VA",
+    "buildingName": "Visual Arts Building",
+    "address": "1395 René-Lévesque Blvd. W., Montreal, QC"
+  },
+  {
+    "buildingCode": "X",
+    "buildingName": "X Annex",
+    "address": "2080 Mackay St., Montreal, QC"
+  },
+  {
+    "buildingCode": "Z",
+    "buildingName": "Z Annex",
+    "address": "2090 Mackay St., Montreal, QC"
+  },
+  {
+    "buildingCode": "AD",
+    "buildingName": "Administration Building",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "BB",
+    "buildingName": "BB Annex",
+    "address": "3502 Belmore Ave., Montreal QC"
+  },
+  {
+    "buildingCode": "BH",
+    "buildingName": "BH Annex",
+    "address": "3500 Belmore Ave., Montreal QC"
+  },
+  {
+    "buildingCode": "CC",
+    "buildingName": "Central Building",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "CJ",
+    "buildingName": "Communication Studies and Journalism Building",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "DO",
+    "buildingName": "Stinger Dome",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "FC",
+    "buildingName": "F.C. Smith Building",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "GE",
+    "buildingName": "Centre for Structural and Functional Genomics",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "HA",
+    "buildingName": "Hingston Hall, wing HA",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "HB",
+    "buildingName": "Hingston Hall, wing HB",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "HC",
+    "buildingName": "Hingston Hall, wing HC",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "HU",
+    "buildingName": "Applied Science Hub",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "JR",
+    "buildingName": "Jesuit Residence",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "PC",
+    "buildingName": "PERFORM Centre",
+    "address": "7200 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "PS",
+    "buildingName": "Physical Services Building",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "PT",
+    "buildingName": "Oscar Peterson Concert Hall",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "PY",
+    "buildingName": "Psychology Building",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "QA",
+    "buildingName": "Quadrangle",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "RA",
+    "buildingName": "Recreation and Athletics Complex",
+    "address": "7200 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "RF",
+    "buildingName": "Loyola Jesuit Hall and Conference Centre",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "SC",
+    "buildingName": "Student Centre",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "SH",
+    "buildingName": "Future Buildings Laboratory",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "SI",
+    "buildingName": "St. Ignatius of Loyola Church",
+    "address": "4455 West Broadway St., Montreal QC"
+  },
+  {
+    "buildingCode": "SP",
+    "buildingName": "Richard J. Renaud Science Complex",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "TA",
+    "buildingName": "Terrebonne Building",
+    "address": "7079 de Terrebonne St., Montreal QC"
+  },
+  {
+    "buildingCode": "VE",
+    "buildingName": "Vanier Extension",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  },
+  {
+    "buildingCode": "VL",
+    "buildingName": "Vanier Library Building",
+    "address": "7141 Sherbrooke St. W., Montreal QC"
+  }
+]
