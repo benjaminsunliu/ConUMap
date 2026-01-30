@@ -54,7 +54,7 @@ export default function Map({
     console.log("Go the current location manually");
     console.log(location);
     setUserLocation({
-      longitude: location.coords.latitude,
+      longitude: location.coords.longitude,
       latitude: location.coords.latitude,
     });
     setLocationState("on");
@@ -135,7 +135,7 @@ export default function Map({
                 <Polygon
                   key={building.code + i}
                   coordinates={polygon}
-                  fillColor={isNearest ? "rgba(0,255,0,0.4)" : "rgba(255,0,0,0.5)"}
+                  fillColor={isNearest ? "rgb(0, 4, 255)" : "rgba(255,0,0,0.5)"}
                   strokeColor={isNearest ? "green" : "black"}
                   strokeWidth={1}
                   tappable
