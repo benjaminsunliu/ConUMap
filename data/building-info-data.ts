@@ -7,7 +7,9 @@ export type Building = {
   latitude: number;
   longitude: number;
   openingHours: string;
-  contactInfo: string;
+  email: string;
+  phone: string;
+  address: string;
   campus: CampusId;
 };
 
@@ -19,7 +21,9 @@ export const buildings: Building[] = [
     latitude: 45.4971,
     longitude: -73.5792,
     openingHours: "7:00 AM – 11:00 PM",
-    contactInfo: "hall@concordia.ca",
+    email: "hall@concordia.ca",
+    phone: "",
+    address: "123 tree avenue",
     campus: "SGW",
   },
   {
@@ -29,7 +33,9 @@ export const buildings: Building[] = [
     latitude: 45.4959,
     longitude: -73.5786,
     openingHours: "24/7",
-    contactInfo: "library@concordia.ca",
+    email: "library@concordia.ca",
+    phone: "514-111-1111",
+    address: "123 tree avenue",
     campus: "SGW",
-  },
-];
+  }
+]
