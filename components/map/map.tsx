@@ -8,6 +8,7 @@ import BuildingInfoCard from "./building-info-card";
 import MapView, { MapPressEvent, Marker, Polygon } from "react-native-maps";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
+import { getDistanceKm } from "@/utils/distance-formulas";
 
 interface Props {
   focusDelta?: CoordinateDelta;
@@ -83,6 +84,22 @@ export default function Map({
 
   const bannex = CAMPUS_LOCATIONS[0];
 
+  const nearestBuilding = userLocation
+  ? buildings.reduce((nearest, b) => {
+      const distance = getDistanceKm(
+        userLocation.latitude,
+        userLocation.longitude,
+        b.latitude,
+        b.longitude
+      );
+      if (!nearest || distance < nearest.distance) {
+        return { building: b, distance };
+      }
+      return nearest;
+    }, null as { building: Building; distance: number } | null)?.building
+  : null;
+
+
   return (
     <View style={styles.container}>
       <MapView
@@ -112,13 +129,20 @@ export default function Map({
           if (building.type === "point") {
             return <Marker coordinate={building.location} key={building.code} />;
           } else {
-            return building.polygon.map((polygon, i) => (
-              <Polygon
-                key={building.code + i}
-                fillColor="rgba(255,0,0,0.5)"
-                coordinates={polygon}
-              />
-            ));
+            return building.polygon.map((polygon, i) => {
+              const isNearest = nearestBuilding?.id === building.code;
+              return (
+                <Polygon
+                  key={building.code + i}
+                  coordinates={polygon}
+                  fillColor={isNearest ? "rgba(0,255,0,0.4)" : "rgba(255,0,0,0.5)"}
+                  strokeColor={isNearest ? "green" : "black"}
+                  strokeWidth={1}
+                  tappable
+                  onPress={() => setSelectedBuilding(building as unknown as Building)}
+                />
+              );
+            });
           }
         })}
         {buildings.map((building) => (
