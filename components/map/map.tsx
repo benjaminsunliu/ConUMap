@@ -60,6 +60,17 @@ export default function Map({
     return true;
   };
 
+  const onBuildingPress = (building: Building) => {
+    setSelectedBuilding(building);
+  
+    mapViewRef.current?.animateToRegion({
+      latitude: building.latitude,
+      longitude: building.longitude,
+      latitudeDelta: 0.004,
+      longitudeDelta: 0.004,
+    }, 300);
+  };
+
   const centerLocation = () => {
     console.log("centering location");
     if (!userLocation) {
@@ -92,6 +103,7 @@ export default function Map({
         showsUserLocation={userLocation !== null}
         followsUserLocation={locationState === "centered"}
         onPress={onMapPress}
+        moveOnMarkerPress={false} 
         onPanDrag={() => {
           if (userLocation) {
             setLocationState("on");
@@ -128,7 +140,12 @@ export default function Map({
             latitude: building.latitude,
             longitude: building.longitude,
           }}
-          onPress={() => setSelectedBuilding(building)}
+          onPress={() => {
+            onBuildingPress(building)
+            setSelectedBuilding(building)
+            }
+          }
+          tracksViewChanges={false}
         />
         ))}
       </MapView>
