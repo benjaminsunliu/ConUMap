@@ -19,12 +19,10 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="map"
+        name="map-tab"
         options={{
           title: "Map",
-          tabBarIcon: ({ color }) => (
-            <Feather name="map" size={24} color={color} />
-          ),
+          tabBarIcon: ({ color }) => <Feather name="map" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -40,9 +38,7 @@ export default function TabLayout() {
         name="calendar"
         options={{
           title: "Calendar",
-          tabBarIcon: ({ color }) => (
-            <Feather name="calendar" size={24} color={color} />
-          ),
+          tabBarIcon: ({ color }) => <Feather name="calendar" size={24} color={color} />,
         }}
       />
     </Tabs>

@@ -15,35 +15,7 @@ export default function LocationButton({
   onPress,
   position = { bottom: 40, right: 20 },
 }: LocationButtonProps) {
-  let icon = null;
-  switch (state) {
-    case "off":
-      icon = (
-        <MaterialIcons
-          name="explore-off"
-          size={styles.icon.width}
-          color="black"
-        />
-      );
-      break;
-    case "centered":
-      icon = (
-        <MaterialIcons
-          name="my-location"
-          size={styles.icon.width}
-          color="black"
-        />
-      );
-      break;
-    case "on":
-      icon = (
-        <MaterialIcons
-          name="location-searching"
-          size={styles.icon.width}
-          color="black"
-        />
-      );
-  }
+  const icon = iconFromButtonState(state);
   return (
     <View
       style={[
@@ -54,6 +26,36 @@ export default function LocationButton({
       <Pressable onPress={onPress}>{icon}</Pressable>
     </View>
   );
+}
+
+function iconFromButtonState(state: LocationButtonProps["state"]) {
+  if (state == "off") {
+    return (
+      <MaterialIcons
+        name="explore-off"
+        size={styles.icon.width}
+        color="black"
+      />
+    );
+  }
+  if (state == "centered") {
+    return (
+      <MaterialIcons
+        name="my-location"
+        size={styles.icon.width}
+        color="black"
+      />
+    );
+  }
+  if (state == "on") {
+    return (
+      <MaterialIcons
+        name="location-searching"
+        size={styles.icon.width}
+        color="black"
+      />
+    );
+  }
 }
 
 const styles = StyleSheet.create({

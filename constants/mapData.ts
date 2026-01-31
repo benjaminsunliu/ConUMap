@@ -1,8 +1,8 @@
-import { Building, BuildingPolygon, Campus, Coordinate } from "@/types/map";
-import buildingData from "./buildings_with_polygons.json";
+import { Building, Polygon, Campus, Coordinate } from "@/types/mapTypes";
+import allBuildingData from "./buildings_with_polygons.json";
 
 function arrayToBuildingPolygon(polygon: number[][]) {
-  const buildingPolygon: BuildingPolygon = polygon.map((coordinate) => {
+  const buildingPolygon: Polygon = polygon.map((coordinate) => {
     const position: Coordinate = {
       latitude: coordinate[1],
       longitude: coordinate[0],
@@ -12,14 +12,19 @@ function arrayToBuildingPolygon(polygon: number[][]) {
   return buildingPolygon;
 }
 
-export const CAMPUS_LOCATIONS: Campus = buildingData.map((buildingInfo) => {
+export const CAMPUS_LOCATIONS: Campus = allBuildingData.map((buildingInfo) => {
   const maybeBuildings = buildingInfo.buildings;
+  const location: Coordinate = {
+    latitude: buildingInfo.geometry.location.lat,
+    longitude: buildingInfo.geometry.location.lng,
+  };
+
   if (!maybeBuildings) {
-    const location = buildingInfo.geometry.location;
+    console.log(buildingInfo.buildingCode);
     return {
       code: buildingInfo.buildingCode,
       type: "point",
-      location: { latitude: location.lat, longitude: location.lng },
+      location,
     };
   }
 
@@ -27,10 +32,8 @@ export const CAMPUS_LOCATIONS: Campus = buildingData.map((buildingInfo) => {
     maybeBuildings[0].building_outlines[0].display_polygon.type === "Polygon";
   const multipleCoordinates =
     maybeBuildings[0].building_outlines[0].display_polygon.coordinates;
-  console.log("an actual real building");
-  console.log(buildingInfo.buildingCode);
 
-  const buildingPolygons: BuildingPolygon[] = [];
+  const buildingPolygons: Polygon[] = [];
   multipleCoordinates.forEach((buildingsCoordinates) => {
     if (isPolygon) {
       const oneBuildingCoordinates = buildingsCoordinates as number[][];
@@ -44,10 +47,12 @@ export const CAMPUS_LOCATIONS: Campus = buildingData.map((buildingInfo) => {
       });
     }
   });
+
   const building: Building = {
     code: buildingInfo.buildingCode,
     type: "polygon",
-    polygon: buildingPolygons,
+    polygons: buildingPolygons,
+    location,
   };
   return building;
 });

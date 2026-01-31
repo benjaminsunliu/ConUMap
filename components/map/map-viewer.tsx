@@ -1,5 +1,5 @@
 import { CAMPUS_LOCATIONS } from "@/constants/mapData";
-import { Coordinate } from "@/types/map";
+import { Coordinate } from "@/types/mapTypes";
 import * as LocationPermissions from "expo-location";
 import { useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -12,18 +12,16 @@ interface Props {
   initialRegion?: Region;
 }
 
-export default function Map({
-  focusDelta = { latitudeDelta: 0.00922, longitudeDelta: 0.00421 },
-  initialRegion,
+export default function MapViewer({
+  focusDelta = defaultFocusDelta,
+  initialRegion = defaultInitialRegion,
 }: Props) {
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
-  const [locationState, setLocationState] =
-    useState<LocationButtonProps["state"]>("off");
+  const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
   const [modalOpen, setModalOpen] = useState(false);
-
   const mapViewRef = useRef<MapView>(null);
 
-  const askLocationPermission = async () => {
+  const requestLocation = async () => {
     if (userLocation) {
       return false;
     }
@@ -32,15 +30,11 @@ export default function Map({
       setModalOpen(true);
       return false;
     }
-    const { status } =
-      await LocationPermissions.requestForegroundPermissionsAsync();
+    const { status } = await LocationPermissions.requestForegroundPermissionsAsync();
     if (status !== "granted") {
-      console.log("Location wasn't grandted");
       return false;
     }
     const location = await LocationPermissions.getCurrentPositionAsync();
-    console.log("Go the current location manually");
-    console.log(location);
     setUserLocation({
       longitude: location.coords.latitude,
       latitude: location.coords.latitude,
@@ -50,9 +44,7 @@ export default function Map({
   };
 
   const centerLocation = () => {
-    console.log("centering location");
     if (!userLocation) {
-      console.log("can't center the location since there is no location");
       return;
     }
     setLocationState("centered");
@@ -69,24 +61,17 @@ export default function Map({
     console.log(coordinates);
   };
 
-  const bannex = CAMPUS_LOCATIONS[0];
-
   return (
     <View style={styles.container}>
       <MapView
         ref={mapViewRef}
         style={styles.map}
-        initialRegion={initialRegion || defaultInitialRegion}
+        initialRegion={initialRegion}
         showsUserLocation={userLocation !== null}
         followsUserLocation={locationState === "centered"}
         onPress={onMapPress}
-        onPanDrag={() => {
-          if (userLocation) {
-            setLocationState("on");
-          }
-        }}
+        onPanDrag={() => (userLocation ? setLocationState("on") : null)}
         onUserLocationChange={({ nativeEvent: { coordinate } }) => {
-          console.log("Location changed");
           if (!coordinate) {
             return;
           }
@@ -96,16 +81,12 @@ export default function Map({
           setUserLocation(coordinate);
         }}
       >
-        {CAMPUS_LOCATIONS.map((building) => {
+        {CAMPUS_LOCATIONS.map((building, i) => {
           if (building.type === "point") {
-            return <Marker coordinate={building.location} />;
+            return <Marker key={i} coordinate={building.location} />;
           } else {
-            return building.polygon.map((polygon, i) => (
-              <Polygon
-                key={building.code + i}
-                fillColor="rgba(255,0,0,0.5)"
-                coordinates={polygon}
-              />
+            return building.polygons.map((polygon, i) => (
+              <Polygon key={i} fillColor="rgba(255,0,0,0.5)" coordinates={polygon} />
             ));
           }
         })}
@@ -116,14 +97,11 @@ export default function Map({
           if (locationState === "on") {
             centerLocation();
           } else if (locationState === "off") {
-            askLocationPermission();
+            requestLocation();
           }
         }}
       />
-      <LocationModal
-        onRequestClose={() => setModalOpen(false)}
-        visible={modalOpen}
-      />
+      <LocationModal onRequestClose={() => setModalOpen(false)} visible={modalOpen} />
     </View>
   );
 }
@@ -136,11 +114,6 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  locationButton: {
-    position: "absolute",
-    bottom: 1,
-    right: 1,
-  },
 });
 
 type CoordinateDelta = {
@@ -149,6 +122,11 @@ type CoordinateDelta = {
 };
 
 type Region = Coordinate & CoordinateDelta;
+
+const defaultFocusDelta: CoordinateDelta = {
+  latitudeDelta: 0.00922,
+  longitudeDelta: 0.00421,
+};
 
 const defaultInitialRegion: Region = {
   latitude: 45.49575,

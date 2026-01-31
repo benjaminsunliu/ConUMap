@@ -3,12 +3,14 @@ export type Coordinate = {
   longitude: number;
 };
 
-export type BuildingPolygon = Coordinate[];
+export type Polygon = Coordinate[];
+
 export type Building =
   | {
-      polygon: BuildingPolygon[];
+      polygons: Polygon[];
       code: string;
       type: "polygon";
+      location: Coordinate;
     }
   | {
       code: string;
