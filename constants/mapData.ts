@@ -13,44 +13,33 @@ function arrayToBuildingPolygon(polygon: number[][]) {
 }
 
 export const CAMPUS_LOCATIONS: Campus = allBuildingData.map((buildingInfo) => {
-  const maybeBuildings = buildingInfo.buildings;
+  const display_polygon = buildingInfo.buildings[0].building_outlines[0].display_polygon;
   const location: Coordinate = {
     latitude: buildingInfo.geometry.location.lat,
     longitude: buildingInfo.geometry.location.lng,
   };
 
-  if (!maybeBuildings) {
-    console.log(buildingInfo.buildingCode);
-    return {
-      code: buildingInfo.buildingCode,
-      type: "point",
-      location,
-    };
-  }
-
-  const isPolygon =
-    maybeBuildings[0].building_outlines[0].display_polygon.type === "Polygon";
-  const multipleCoordinates =
-    maybeBuildings[0].building_outlines[0].display_polygon.coordinates;
-
+  const isPolygon = display_polygon.type === "MultiPolygon";
+  const multipleCoordinates = display_polygon.coordinates;
   const buildingPolygons: Polygon[] = [];
+
+  // sometimes a "building" can have multiple polygons that represent it
   multipleCoordinates.forEach((buildingsCoordinates) => {
     if (isPolygon) {
-      const oneBuildingCoordinates = buildingsCoordinates as number[][];
-      const polygon = arrayToBuildingPolygon(oneBuildingCoordinates);
-      buildingPolygons.push(polygon);
-    } else {
       const manyBuildings = buildingsCoordinates as number[][][];
       manyBuildings.forEach((buildingCoordinates) => {
         const polygon = arrayToBuildingPolygon(buildingCoordinates);
         buildingPolygons.push(polygon);
       });
+    } else {
+      const oneBuildingCoordinates = buildingsCoordinates as number[][];
+      const polygon = arrayToBuildingPolygon(oneBuildingCoordinates);
+      buildingPolygons.push(polygon);
     }
   });
 
   const building: Building = {
     code: buildingInfo.buildingCode,
-    type: "polygon",
     polygons: buildingPolygons,
     location,
   };

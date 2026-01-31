@@ -6,8 +6,6 @@ dotenv.config({ quiet: true });
 
 const OUTPUT_FILE_NAME = "constants/buildings_with_polygons.json";
 
-type Coordinates = [number, number][];
-
 type Building = {
   formatted_address: "7200 Rue Sherbrooke O, Montréal, QC H4B 2A4, Canada";
   geometry: {
@@ -37,17 +35,15 @@ type Building = {
       };
     };
   };
-  buildings: [
-    {
-      building_outlines: {
-        display_polygon: {
-          coordinates: [[number, number][]];
-          type: "Polygon" | "MultiPolygon";
-        };
-      }[];
-      place_id: string;
-    },
-  ];
+  buildings: {
+    building_outlines: {
+      display_polygon: {
+        coordinates: [[number, number][]];
+        type: "Polygon" | "MultiPolygon";
+      };
+    }[];
+    place_id?: string;
+  }[];
   navigation_points: {
     location: {
       latitude: number;
@@ -57,20 +53,8 @@ type Building = {
   }[];
   place_id: string;
   types: string[];
+  address_components?: object[];
 };
-
-// APROXIMATE: do not use as real type
-// type Building = {
-//   building_outlines: [
-//     {
-//       display_polygon: {
-//         coordinates: Coordinates[];
-//         type: "Polygon";
-//       };
-//     },
-//   ];
-//   place_id: string;
-// };
 
 type FromConcordia = {
   buildingCode: string;
@@ -79,10 +63,7 @@ type FromConcordia = {
 };
 
 type APIResponse = {
-  results: ({
-    buildings: Building[];
-    address_components?: object[];
-  } & FromConcordia)[];
+  results: (Building & FromConcordia)[];
 };
 
 async function fetchBuildingPolygon(address: string) {
@@ -159,10 +140,31 @@ function injectManualData(info: APIResponse["results"][number]) {
       [-73.64252619445324, 45.45787936331917],
       [-73.64269752055407, 45.457954148563125],
     ],
+    CL: [
+      [-73.57927903532982, 45.49446736090339],
+      [-73.5789367184043, 45.49426218699242],
+      [-73.57903998345137, 45.494165592830484],
+      [-73.57940107584, 45.49437711267723],
+    ],
+    GS: [
+      [-73.580865226686, 45.49642458372708],
+      [-73.5807941481471, 45.49652939945684],
+      [-73.58135774731636, 45.496751015929185],
+      [-73.58145363628864, 45.49660742359537],
+    ],
   };
   if (info.buildingCode in missingData) {
-    info.buildings[0].buildings[0].building_outlines[0].display_polygon.coordinates = [
-      missingData[info.buildingCode],
+    info.buildings = [
+      {
+        building_outlines: [
+          {
+            display_polygon: {
+              coordinates: [missingData[info.buildingCode]],
+              type: "Polygon",
+            },
+          },
+        ],
+      },
     ];
   }
 }
@@ -172,6 +174,7 @@ async function main() {
     const result = (await fetchBuildingPolygon(info.address)).results[0];
     delete result["address_components"];
     Object.assign(result, info);
+    injectManualData(result);
     return result;
   });
   const outputData = await Promise.all(addressesWithPolygons);

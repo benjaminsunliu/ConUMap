@@ -82,13 +82,9 @@ export default function MapViewer({
         }}
       >
         {CAMPUS_LOCATIONS.map((building, i) => {
-          if (building.type === "point") {
-            return <Marker key={i} coordinate={building.location} />;
-          } else {
-            return building.polygons.map((polygon, i) => (
-              <Polygon key={i} fillColor="rgba(255,0,0,0.5)" coordinates={polygon} />
-            ));
-          }
+          return building.polygons.map((polygon, i) => (
+            <Polygon key={i} fillColor="rgba(255,0,0,0.5)" coordinates={polygon} />
+          ));
         })}
       </MapView>
       <LocationButton

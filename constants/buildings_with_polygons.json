@@ -148,6 +148,15 @@
         }
       }
     ],
+    "place_id": "ChIJDXIZ768byUwREzc7Hw-SM4E",
+    "plus_code": {
+      "compound_code": "GCCW+VQ Montreal, QC, Canada",
+      "global_code": "87Q8GCCW+VQ"
+    },
+    "types": ["street_address"],
+    "buildingCode": "CL",
+    "buildingName": "CL Annex",
+    "address": "1665 Ste-Catherine St. W., Montreal, QC",
     "buildings": [
       {
         "building_outlines": [
@@ -164,19 +173,9 @@
               "type": "Polygon"
             }
           }
-        ],
-        "place_id": "ChIJgw61m2oayUwRulc2telYQak"
+        ]
       }
-    ],
-    "place_id": "ChIJDXIZ768byUwREzc7Hw-SM4E",
-    "plus_code": {
-      "compound_code": "GCCW+VQ Montreal, QC, Canada",
-      "global_code": "87Q8GCCW+VQ"
-    },
-    "types": ["street_address"],
-    "buildingCode": "CL",
-    "buildingName": "CL Annex",
-    "address": "1665 Ste-Catherine St. W., Montreal, QC"
+    ]
   },
   {
     "buildings": [
@@ -728,6 +727,11 @@
         }
       }
     ],
+    "place_id": "ChIJ8fD7w2sayUwRk2Nl0N9Leyo",
+    "types": ["street_address", "subpremise"],
+    "buildingCode": "FG",
+    "buildingName": "Faubourg Ste-Catherine Building",
+    "address": "1610 Ste-Catherine St. W., Montreal, QC",
     "buildings": [
       {
         "building_outlines": [
@@ -764,15 +768,9 @@
               "type": "Polygon"
             }
           }
-        ],
-        "place_id": "ChIJnaT6wmsayUwRyMiU1oua_cg"
+        ]
       }
-    ],
-    "place_id": "ChIJ8fD7w2sayUwRk2Nl0N9Leyo",
-    "types": ["street_address", "subpremise"],
-    "buildingCode": "FG",
-    "buildingName": "Faubourg Ste-Catherine Building",
-    "address": "1610 Ste-Catherine St. W., Montreal, QC"
+    ]
   },
   {
     "buildings": [
@@ -954,6 +952,11 @@
         }
       }
     ],
+    "place_id": "EjUxNTUwIE1haXNvbm5ldXZlIEJsdmQgVywgTW9udHJlYWwsIFFDIEgzRyAxTTksIENhbmFkYSIxEi8KFAoSCTmILldqGslMEVM_8pTZEYa1EI4MKhQKEgmNNNilThrJTBGCgE9m9h7pxw",
+    "types": ["street_address"],
+    "buildingCode": "GM",
+    "buildingName": "Guy-De Maisonneuve Building",
+    "address": "1550 De Maisonneuve Blvd. W., Montreal, QC",
     "buildings": [
       {
         "building_outlines": [
@@ -970,15 +973,9 @@
               "type": "Polygon"
             }
           }
-        ],
-        "place_id": "ChIJnaT6wmsayUwRyMiU1oua_cg"
+        ]
       }
-    ],
-    "place_id": "EjUxNTUwIE1haXNvbm5ldXZlIEJsdmQgVywgTW9udHJlYWwsIFFDIEgzRyAxTTksIENhbmFkYSIxEi8KFAoSCTmILldqGslMEVM_8pTZEYa1EI4MKhQKEgmNNNilThrJTBGCgE9m9h7pxw",
-    "types": ["street_address"],
-    "buildingCode": "GM",
-    "buildingName": "Guy-De Maisonneuve Building",
-    "address": "1550 De Maisonneuve Blvd. W., Montreal, QC"
+    ]
   },
   {
     "buildings": [
@@ -1134,6 +1131,19 @@
         }
       }
     },
+    "navigation_points": [
+      {
+        "location": {
+          "latitude": 45.4966803,
+          "longitude": -73.58154069999999
+        }
+      }
+    ],
+    "place_id": "ChIJl2pawWoayUwRRjhrMTtJhQw",
+    "types": ["street_address", "subpremise"],
+    "buildingCode": "GS",
+    "buildingName": "GS Building",
+    "address": "1538 Sherbrooke St. W., Montreal, QC",
     "buildings": [
       {
         "building_outlines": [
@@ -1150,23 +1160,9 @@
               "type": "Polygon"
             }
           }
-        ],
-        "place_id": "ChIJnaT6wmsayUwRyMiU1oua_cg"
+        ]
       }
-    ],
-    "navigation_points": [
-      {
-        "location": {
-          "latitude": 45.4966803,
-          "longitude": -73.58154069999999
-        }
-      }
-    ],
-    "place_id": "ChIJl2pawWoayUwRRjhrMTtJhQw",
-    "types": ["street_address", "subpremise"],
-    "buildingCode": "GS",
-    "buildingName": "GS Building",
-    "address": "1538 Sherbrooke St. W., Montreal, QC"
+    ]
   },
   {
     "buildings": [
@@ -1567,6 +1563,20 @@
         }
       }
     },
+    "navigation_points": [
+      {
+        "location": {
+          "latitude": 45.4962332,
+          "longitude": -73.5791832
+        }
+      }
+    ],
+    "partial_match": true,
+    "place_id": "EjExNTM1IE1haXNvbm5ldXZlIEJsdmQgVywgTW9udHJlYWwsIFFDIEgzRywgQ2FuYWRhIjESLwoUChIJbVWnXmoayUwRKjQdUrhpk24Q_wsqFAoSCY002KVOGslMEYKAT2b2HunH",
+    "types": ["street_address"],
+    "buildingCode": "LS",
+    "buildingName": "Learning Square",
+    "address": "1535 De Maisonneuve Blvd. W., Montreal, QC",
     "buildings": [
       {
         "building_outlines": [
@@ -1585,24 +1595,9 @@
               "type": "Polygon"
             }
           }
-        ],
-        "place_id": "ChIJXesHE2oayUwR_TryAMUYRfw"
+        ]
       }
-    ],
-    "navigation_points": [
-      {
-        "location": {
-          "latitude": 45.4962332,
-          "longitude": -73.5791832
-        }
-      }
-    ],
-    "partial_match": true,
-    "place_id": "EjExNTM1IE1haXNvbm5ldXZlIEJsdmQgVywgTW9udHJlYWwsIFFDIEgzRywgQ2FuYWRhIjESLwoUChIJbVWnXmoayUwRKjQdUrhpk24Q_wsqFAoSCY002KVOGslMEYKAT2b2HunH",
-    "types": ["street_address"],
-    "buildingCode": "LS",
-    "buildingName": "Learning Square",
-    "address": "1535 De Maisonneuve Blvd. W., Montreal, QC"
+    ]
   },
   {
     "buildings": [
@@ -4437,26 +4432,6 @@
         }
       }
     },
-    "buildings": [
-      {
-        "building_outlines": [
-          {
-            "display_polygon": {
-              "coordinates": [
-                [
-                  [-73.63698575645685, 45.456683256284016],
-                  [-73.63676983863115, 45.45694571528955],
-                  [-73.63762143999338, 45.457278490856524],
-                  [-73.63783199340105, 45.457017914819666]
-                ]
-              ],
-              "type": "Polygon"
-            }
-          }
-        ],
-        "place_id": "ChIJEXkslDEXyUwRfwbOOWg4yoM"
-      }
-    ],
     "navigation_points": [
       {
         "location": {
@@ -4477,7 +4452,26 @@
     "types": ["premise", "street_address"],
     "buildingCode": "PC",
     "buildingName": "PERFORM Centre",
-    "address": "7200 Sherbrooke St. W., Montreal QC"
+    "address": "7200 Sherbrooke St. W., Montreal QC",
+    "buildings": [
+      {
+        "building_outlines": [
+          {
+            "display_polygon": {
+              "coordinates": [
+                [
+                  [-73.63698575645685, 45.456683256284016],
+                  [-73.63676983863115, 45.45694571528955],
+                  [-73.63762143999338, 45.457278490856524],
+                  [-73.63783199340105, 45.457017914819666]
+                ]
+              ],
+              "type": "Polygon"
+            }
+          }
+        ]
+      }
+    ]
   },
   {
     "buildings": [
@@ -5048,6 +5042,27 @@
         }
       }
     },
+    "navigation_points": [
+      {
+        "location": {
+          "latitude": 45.4581223,
+          "longitude": -73.6383904
+        },
+        "restricted_travel_modes": ["WALK"]
+      },
+      {
+        "location": {
+          "latitude": 45.4577347,
+          "longitude": -73.63707149999999
+        },
+        "restricted_travel_modes": ["DRIVE"]
+      }
+    ],
+    "place_id": "ChIJ23AyJmEXyUwR4-j3EGOCz1A",
+    "types": ["premise", "street_address"],
+    "buildingCode": "RA",
+    "buildingName": "Recreation and Athletics Complex",
+    "address": "7200 Sherbrooke St. W., Montreal QC",
     "buildings": [
       {
         "building_outlines": [
@@ -5069,31 +5084,9 @@
               "type": "Polygon"
             }
           }
-        ],
-        "place_id": "ChIJ4TThimoayUwRtbw8uRUKZH8"
+        ]
       }
-    ],
-    "navigation_points": [
-      {
-        "location": {
-          "latitude": 45.4581223,
-          "longitude": -73.6383904
-        },
-        "restricted_travel_modes": ["WALK"]
-      },
-      {
-        "location": {
-          "latitude": 45.4577347,
-          "longitude": -73.63707149999999
-        },
-        "restricted_travel_modes": ["DRIVE"]
-      }
-    ],
-    "place_id": "ChIJ23AyJmEXyUwR4-j3EGOCz1A",
-    "types": ["premise", "street_address"],
-    "buildingCode": "RA",
-    "buildingName": "Recreation and Athletics Complex",
-    "address": "7200 Sherbrooke St. W., Montreal QC"
+    ]
   },
   {
     "buildings": [
@@ -5519,6 +5512,19 @@
         }
       }
     },
+    "navigation_points": [
+      {
+        "location": {
+          "latitude": 45.4574974,
+          "longitude": -73.6425519
+        }
+      }
+    ],
+    "place_id": "ChIJq9xZyi8XyUwRw2OjU--vZiQ",
+    "types": ["street_address", "subpremise"],
+    "buildingCode": "SI",
+    "buildingName": "St. Ignatius of Loyola Church",
+    "address": "4455 West Broadway St., Montreal QC",
     "buildings": [
       {
         "building_outlines": [
@@ -5537,23 +5543,9 @@
               "type": "Polygon"
             }
           }
-        ],
-        "place_id": "ChIJEXkslDEXyUwRfwbOOWg4yoM"
+        ]
       }
-    ],
-    "navigation_points": [
-      {
-        "location": {
-          "latitude": 45.4574974,
-          "longitude": -73.6425519
-        }
-      }
-    ],
-    "place_id": "ChIJq9xZyi8XyUwRw2OjU--vZiQ",
-    "types": ["street_address", "subpremise"],
-    "buildingCode": "SI",
-    "buildingName": "St. Ignatius of Loyola Church",
-    "address": "4455 West Broadway St., Montreal QC"
+    ]
   },
   {
     "buildings": [
