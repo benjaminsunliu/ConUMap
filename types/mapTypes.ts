@@ -12,3 +12,10 @@ export type Building = {
 };
 
 export type Campus = Building[];
+
+export type CoordinateDelta = {
+  latitudeDelta: number;
+  longitudeDelta: number;
+};
+
+export type Region = Coordinate & CoordinateDelta;

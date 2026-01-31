@@ -1,20 +1,24 @@
 import { CAMPUS_LOCATIONS } from "@/constants/mapData";
-import { Coordinate } from "@/types/mapTypes";
+import { Coordinate, CoordinateDelta } from "@/types/mapTypes";
 import * as LocationPermissions from "expo-location";
 import { useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import MapView, { Polygon } from "react-native-maps";
+import MapView, { Polygon, Region } from "react-native-maps";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
 
 interface Props {
-  focusDelta?: CoordinateDelta;
+  userLocationDelta?: CoordinateDelta;
   initialRegion?: Region;
+  polygonFillColor?: string;
+  polygonStrokeColor?: string;
 }
 
 export default function MapViewer({
-  focusDelta = defaultFocusDelta,
+  userLocationDelta = defaultFocusDelta,
   initialRegion = defaultInitialRegion,
+  polygonFillColor = "rgba(255,0,0,0.5)",
+  polygonStrokeColor = "black",
 }: Props) {
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
@@ -23,24 +27,24 @@ export default function MapViewer({
 
   const requestLocation = async () => {
     if (userLocation) {
-      return false;
+      return;
     }
     const locationEnabled = await LocationPermissions.hasServicesEnabledAsync();
     if (!locationEnabled) {
       setModalOpen(true);
-      return false;
+      return;
     }
     const { status } = await LocationPermissions.requestForegroundPermissionsAsync();
     if (status !== "granted") {
-      return false;
+      return;
     }
     const location = await LocationPermissions.getCurrentPositionAsync();
     setUserLocation({
-      longitude: location.coords.latitude,
+      longitude: location.coords.longitude,
       latitude: location.coords.latitude,
     });
     setLocationState("on");
-    return true;
+    return;
   };
 
   const centerLocation = () => {
@@ -50,8 +54,8 @@ export default function MapViewer({
     setLocationState("centered");
     const region = {
       ...userLocation,
-      latitudeDelta: focusDelta.latitudeDelta,
-      longitudeDelta: focusDelta.longitudeDelta,
+      latitudeDelta: userLocationDelta.latitudeDelta,
+      longitudeDelta: userLocationDelta.longitudeDelta,
     };
     mapViewRef.current?.animateToRegion(region);
   };
@@ -77,7 +81,12 @@ export default function MapViewer({
       >
         {CAMPUS_LOCATIONS.map((building, i) => {
           return building.polygons.map((polygon, i) => (
-            <Polygon key={i} fillColor="rgba(255,0,0,0.5)" coordinates={polygon} />
+            <Polygon
+              key={i}
+              fillColor={polygonFillColor}
+              strokeColor={polygonStrokeColor}
+              coordinates={polygon}
+            />
           ));
         })}
       </MapView>
@@ -105,13 +114,6 @@ const styles = StyleSheet.create({
     height: "100%",
   },
 });
-
-type CoordinateDelta = {
-  latitudeDelta: number;
-  longitudeDelta: number;
-};
-
-type Region = Coordinate & CoordinateDelta;
 
 const defaultFocusDelta: CoordinateDelta = {
   latitudeDelta: 0.00922,
