@@ -3,7 +3,7 @@ import { Coordinate } from "@/types/mapTypes";
 import * as LocationPermissions from "expo-location";
 import { useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import MapView, { MapPressEvent, Marker, Polygon } from "react-native-maps";
+import MapView, { Polygon } from "react-native-maps";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
 
@@ -56,11 +56,6 @@ export default function MapViewer({
     mapViewRef.current?.animateToRegion(region);
   };
 
-  const onMapPress = (event: MapPressEvent) => {
-    const coordinates = event.nativeEvent.coordinate;
-    console.log(coordinates);
-  };
-
   return (
     <View style={styles.container}>
       <MapView
@@ -69,7 +64,6 @@ export default function MapViewer({
         initialRegion={initialRegion}
         showsUserLocation={userLocation !== null}
         followsUserLocation={locationState === "centered"}
-        onPress={onMapPress}
         onPanDrag={() => (userLocation ? setLocationState("on") : null)}
         onUserLocationChange={({ nativeEvent: { coordinate } }) => {
           if (!coordinate) {

@@ -1,10 +1,10 @@
 import fs from "fs";
-import buildingInfo from "./building-addresses.json";
+import buildingInfo from "@/data/building-addresses.json";
 import dotenv from "dotenv";
 
 dotenv.config({ quiet: true });
 
-const OUTPUT_FILE_NAME = "constants/buildings_with_polygons.json";
+const OUTPUT_FILE_NAME = "data/buildings-polygons.json";
 
 type Building = {
   formatted_address: "7200 Rue Sherbrooke O, Montréal, QC H4B 2A4, Canada";
@@ -66,9 +66,12 @@ type APIResponse = {
   results: (Building & FromConcordia)[];
 };
 
-async function fetchBuildingPolygon(address: string) {
+async function fetchBuildingPolygon(address: string, place_id?: string) {
   const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&extra_computations=BUILDING_AND_ENTRANCES&key=${GOOGLE_API_KEY}`;
+  const identifier = place_id
+    ? `place_id=${encodeURIComponent(place_id)}`
+    : `address=${encodeURIComponent(address)}`;
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?${identifier}&extra_computations=BUILDING_AND_ENTRANCES&key=${GOOGLE_API_KEY}`;
   const data = (await (await fetch(url)).json()) as APIResponse;
   return data;
 }
@@ -152,6 +155,13 @@ function injectManualData(info: APIResponse["results"][number]) {
       [-73.58135774731636, 45.496751015929185],
       [-73.58145363628864, 45.49660742359537],
     ],
+    DO: [
+      [-73.6352242, 45.4579249],
+      [-73.6359626, 45.4583538],
+      [-73.6370915, 45.4573846],
+      [-73.6363623, 45.4569612],
+      [-73.6352242, 45.4579249],
+    ],
   };
   if (info.buildingCode in missingData) {
     info.buildings = [
@@ -171,7 +181,7 @@ function injectManualData(info: APIResponse["results"][number]) {
 
 async function main() {
   const addressesWithPolygons = buildingInfo.map(async (info) => {
-    const result = (await fetchBuildingPolygon(info.address)).results[0];
+    const result = (await fetchBuildingPolygon(info.address, info.place_id)).results[0];
     delete result["address_components"];
     Object.assign(result, info);
     injectManualData(result);

@@ -1,5 +1,5 @@
 import { Building, Polygon, Campus, Coordinate } from "@/types/mapTypes";
-import allBuildingData from "./buildings_with_polygons.json";
+import buildingPolygons from "@/data/buildings-polygons.json";
 
 function arrayToBuildingPolygon(polygon: number[][]) {
   const buildingPolygon: Polygon = polygon.map((coordinate) => {
@@ -12,7 +12,7 @@ function arrayToBuildingPolygon(polygon: number[][]) {
   return buildingPolygon;
 }
 
-export const CAMPUS_LOCATIONS: Campus = allBuildingData.map((buildingInfo) => {
+export const CAMPUS_LOCATIONS: Campus = buildingPolygons.map((buildingInfo) => {
   const display_polygon = buildingInfo.buildings[0].building_outlines[0].display_polygon;
   const location: Coordinate = {
     latitude: buildingInfo.geometry.location.lat,

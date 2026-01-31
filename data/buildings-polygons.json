@@ -60,7 +60,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "B",
     "buildingName": "B Annex",
-    "address": "2160 Bishop St, Montreal, QC"
+    "address": "2160 Bishop St, Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -119,7 +120,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "CI",
     "buildingName": "CI Annex",
-    "address": "2149 Mackay St., Montreal, QC"
+    "address": "2149 Mackay St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "formatted_address": "1665 Rue Sainte-Catherine E, Montréal, QC H2L 2J5, Canada",
@@ -157,6 +159,7 @@
     "buildingCode": "CL",
     "buildingName": "CL Annex",
     "address": "1665 Ste-Catherine St. W., Montreal, QC",
+    "campus": "SGW",
     "buildings": [
       {
         "building_outlines": [
@@ -241,7 +244,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "D",
     "buildingName": "D Annex",
-    "address": "2140 Bishop St., Montreal, QC"
+    "address": "2140 Bishop St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -317,7 +321,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "EN",
     "buildingName": "EN Annex",
-    "address": "2070 Mackay St., Montreal, QC"
+    "address": "2070 Mackay St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -411,7 +416,8 @@
     "types": ["street_address", "subpremise"],
     "buildingCode": "ER",
     "buildingName": "ER Building",
-    "address": "2155 Guy St., Montreal, QC"
+    "address": "2155 Guy St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -528,7 +534,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "EV",
     "buildingName": "Engineering, Computer Science and Visual Arts Integrated Complex",
-    "address": "1515 Ste-Catherine St. W., Montreal, QC"
+    "address": "1515 Ste-Catherine St. W., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -602,7 +609,8 @@
     "types": ["street_address", "subpremise"],
     "buildingCode": "FA",
     "buildingName": "FA Annex",
-    "address": "2060 Mackay St., Montreal, QC"
+    "address": "2060 Mackay St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -698,7 +706,8 @@
     "types": ["street_address", "subpremise"],
     "buildingCode": "FB",
     "buildingName": "Faubourg Building",
-    "address": "1250 Guy St.1600 Ste-Catherine St. W., Montreal, QC"
+    "address": "1250 Guy St.1600 Ste-Catherine St. W., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "formatted_address": "1610 Rue Sainte-Catherine O, Montréal, QC H3H 1L7, Canada",
@@ -732,6 +741,7 @@
     "buildingCode": "FG",
     "buildingName": "Faubourg Ste-Catherine Building",
     "address": "1610 Ste-Catherine St. W., Montreal, QC",
+    "campus": "SGW",
     "buildings": [
       {
         "building_outlines": [
@@ -923,7 +933,8 @@
     "types": ["street_address", "subpremise"],
     "buildingCode": "GA",
     "buildingName": "Grey Nuns Annex",
-    "address": "1211-1215 St-Mathieu St., Montreal, QC"
+    "address": "1211-1215 St-Mathieu St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "formatted_address": "1550 Maisonneuve Blvd W, Montreal, QC H3G 1M9, Canada",
@@ -957,6 +968,7 @@
     "buildingCode": "GM",
     "buildingName": "Guy-De Maisonneuve Building",
     "address": "1550 De Maisonneuve Blvd. W., Montreal, QC",
+    "campus": "SGW",
     "buildings": [
       {
         "building_outlines": [
@@ -1110,7 +1122,8 @@
     "types": ["street_address", "subpremise"],
     "buildingCode": "GN",
     "buildingName": "Grey Nuns Building",
-    "address": "1190 Guy St.1175 St-Mathieu St., Montreal, QC"
+    "address": "1190 Guy St.1175 St-Mathieu St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "formatted_address": "1538 Rue Sherbrooke O, Montréal, QC H3G 1L3, Canada",
@@ -1144,6 +1157,7 @@
     "buildingCode": "GS",
     "buildingName": "GS Building",
     "address": "1538 Sherbrooke St. W., Montreal, QC",
+    "campus": "SGW",
     "buildings": [
       {
         "building_outlines": [
@@ -1172,121 +1186,99 @@
             "display_polygon": {
               "coordinates": [
                 [
-                  [-73.5785791067169, 45.4967290356968],
-                  [-73.5785308839501, 45.4967061329409],
-                  [-73.5785665996882, 45.4966684315951],
-                  [-73.577698780706, 45.4962551742886],
-                  [-73.577464874399, 45.4964959113351],
-                  [-73.5776511440844, 45.4965831527425],
-                  [-73.5776013590509, 45.4966370883208],
-                  [-73.5775564169593, 45.4966155543521],
-                  [-73.5772933087358, 45.496892296862],
-                  [-73.577538644865, 45.4970083219392],
-                  [-73.577567672881, 45.4969774601587],
-                  [-73.5776118596604, 45.4969978494418],
-                  [-73.5776207950782, 45.4969882404829],
-                  [-73.5776310443142, 45.4969937370459],
-                  [-73.5775879481697, 45.4970408336724],
-                  [-73.5777475406371, 45.4971154337745],
-                  [-73.5777925242258, 45.497070682136],
-                  [-73.577806886371, 45.4970775229245],
-                  [-73.5777993682524, 45.4970854213868],
-                  [-73.5778478596577, 45.497108216581],
-                  [-73.577816906224, 45.4971413047383],
-                  [-73.5780578215289, 45.4972596303715],
-                  [-73.578295484113, 45.4970184079805],
-                  [-73.5782573500428, 45.4970012731094],
-                  [-73.5782954868039, 45.4969646664758],
-                  [-73.5782471800773, 45.4969408652714],
-                  [-73.5782915948847, 45.4968949963946],
-                  [-73.5783299726621, 45.4969127577037],
-                  [-73.5783709572706, 45.4968688933457],
-                  [-73.5784152833381, 45.496890779169],
-                  [-73.5785791067169, 45.4967290356968]
+                  [-73.5788489042803, 45.4968299107234],
+                  [-73.5783380857457, 45.4973732706121],
+                  [-73.5790334928957, 45.4977094511199],
+                  [-73.5795441094622, 45.4971650215363],
+                  [-73.5788489042803, 45.4968299107234]
                 ]
               ],
               "type": "Polygon"
             }
           }
         ],
-        "place_id": "ChIJz2SwbmoayUwR5_D4CXsr5eM"
+        "place_id": "ChIJtd6Zh2oayUwRAu_CnRIfoBw"
       }
     ],
     "entrances": [
       {
-        "building_place_id": "ChIJz2SwbmoayUwR5_D4CXsr5eM",
+        "building_place_id": "ChIJtd6Zh2oayUwRAu_CnRIfoBw",
         "location": {
-          "lat": 45.49698919999999,
-          "lng": -73.57827
+          "lat": 45.4970696,
+          "lng": -73.5793462
         }
       },
       {
-        "building_place_id": "ChIJz2SwbmoayUwR5_D4CXsr5eM",
+        "building_place_id": "ChIJtd6Zh2oayUwRAu_CnRIfoBw",
         "location": {
-          "lat": 45.4965827,
-          "lng": -73.5783865
+          "lat": 45.4976729,
+          "lng": -73.5789578
         }
       },
       {
-        "building_place_id": "ChIJz2SwbmoayUwR5_D4CXsr5eM",
+        "building_place_id": "ChIJtd6Zh2oayUwRAu_CnRIfoBw",
         "location": {
-          "lat": 45.49651129999999,
-          "lng": -73.5782366
+          "lat": 45.4970028,
+          "lng": -73.5786863
         }
       },
       {
-        "building_place_id": "ChIJz2SwbmoayUwR5_D4CXsr5eM",
+        "building_place_id": "ChIJtd6Zh2oayUwRAu_CnRIfoBw",
         "location": {
-          "lat": 45.4972435,
-          "lng": -73.5780249
+          "lat": 45.49743230000001,
+          "lng": -73.5784601
         }
       },
       {
-        "building_place_id": "ChIJz2SwbmoayUwR5_D4CXsr5eM",
+        "building_place_id": "ChIJtd6Zh2oayUwRAu_CnRIfoBw",
         "location": {
-          "lat": 45.4970774,
-          "lng": -73.5776662
-        }
-      },
-      {
-        "building_place_id": "ChIJz2SwbmoayUwR5_D4CXsr5eM",
-        "location": {
-          "lat": 45.4970929,
-          "lng": -73.577197
+          "lat": 45.4969608,
+          "lng": -73.5787259
         }
       }
     ],
-    "formatted_address": "1455 Maisonneuve Blvd W, Montreal, QC H3G 1M8, Canada",
+    "formatted_address": "1455 Blvd. De Maisonneuve Ouest, Montreal, QC H3G 1M8, Canada",
     "geometry": {
+      "bounds": {
+        "northeast": {
+          "lat": 45.4977095,
+          "lng": -73.5783381
+        },
+        "southwest": {
+          "lat": 45.49682989999999,
+          "lng": -73.57954409999999
+        }
+      },
       "location": {
-        "lat": 45.4967191,
-        "lng": -73.5785557
+        "lat": 45.4973223,
+        "lng": -73.5790288
       },
       "location_type": "ROOFTOP",
       "viewport": {
         "northeast": {
-          "lat": 45.4980227802915,
-          "lng": -73.5771757697085
+          "lat": 45.49861868029149,
+          "lng": -73.57759211970848
         },
         "southwest": {
-          "lat": 45.4953248197085,
-          "lng": -73.57987373029151
+          "lat": 45.49592071970849,
+          "lng": -73.58029008029149
         }
       }
     },
     "navigation_points": [
       {
         "location": {
-          "latitude": 45.4967405,
-          "longitude": -73.578605
+          "latitude": 45.4969698,
+          "longitude": -73.5786093
         }
       }
     ],
-    "place_id": "ChIJTVM2bGoayUwRp29BFQ15ELI",
-    "types": ["street_address", "subpremise"],
+    "place_id": "ChIJtd6Zh2oayUwRAu_CnRIfoBw",
+    "types": ["premise", "street_address"],
     "buildingCode": "H",
     "buildingName": "Henry F. Hall Building",
-    "address": "1455 De Maisonneuve Blvd. W., Montreal, QC"
+    "address": "1455 Blvd. De Maisonneuve Ouest, Montreal, QC H3G 1M8",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -1340,7 +1332,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "K",
     "buildingName": "K Annex",
-    "address": "2150 Bishop St., Montreal, QC"
+    "address": "2150 Bishop St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -1476,7 +1469,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "LB",
     "buildingName": "J.W. McConnell Building",
-    "address": "1400 De Maisonneuve Blvd. W., Montreal, QC"
+    "address": "1400 De Maisonneuve Blvd. W., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -1542,7 +1536,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "LD",
     "buildingName": "LD Building",
-    "address": "1424 Bishop St., Montreal, QC"
+    "address": "1424 Bishop St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "formatted_address": "1535 Maisonneuve Blvd W, Montreal, QC H3G, Canada",
@@ -1577,6 +1572,7 @@
     "buildingCode": "LS",
     "buildingName": "Learning Square",
     "address": "1535 De Maisonneuve Blvd. W., Montreal, QC",
+    "campus": "SGW",
     "buildings": [
       {
         "building_outlines": [
@@ -1661,7 +1657,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "M",
     "buildingName": "M Annex",
-    "address": "2135 Mackay St., Montreal, QC"
+    "address": "2135 Mackay St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -1737,7 +1734,8 @@
     "types": ["street_address", "subpremise"],
     "buildingCode": "MB",
     "buildingName": "John Molson Building",
-    "address": "1450 Guy St., Montreal, QC"
+    "address": "1450 Guy St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -1801,7 +1799,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "MI",
     "buildingName": "MI Annex",
-    "address": "2130 Bishop St., Montreal, QC"
+    "address": "2130 Bishop St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -1864,7 +1863,8 @@
     "types": ["street_address", "subpremise"],
     "buildingCode": "MU",
     "buildingName": "MU Annex",
-    "address": "2170 Bishop St., Montreal, QC"
+    "address": "2170 Bishop St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -1928,7 +1928,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "P",
     "buildingName": "P Annex",
-    "address": "2020 Mackay St., Montreal, QC"
+    "address": "2020 Mackay St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -2002,7 +2003,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "PR",
     "buildingName": "PR Annex",
-    "address": "2100 Mackay St., Montreal, QC"
+    "address": "2100 Mackay St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -2065,7 +2067,8 @@
     "types": ["street_address", "subpremise"],
     "buildingCode": "Q",
     "buildingName": "Q Annex",
-    "address": "2010 Mackay St., Montreal, QC"
+    "address": "2010 Mackay St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -2140,7 +2143,8 @@
     "types": ["street_address", "subpremise"],
     "buildingCode": "R",
     "buildingName": "R Annex",
-    "address": "2050 Mackay St., Montreal, QC"
+    "address": "2050 Mackay St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -2204,7 +2208,8 @@
     "types": ["street_address", "subpremise"],
     "buildingCode": "RR",
     "buildingName": "RR Annex",
-    "address": "2040 Mackay St., Montreal, QC"
+    "address": "2040 Mackay St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -2270,7 +2275,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "S",
     "buildingName": "S Annex",
-    "address": "2145 Mackay St., Montreal, QC"
+    "address": "2145 Mackay St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -2355,7 +2361,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "SB",
     "buildingName": "Samuel Bronfman Building",
-    "address": "1590 Docteur-Penfield, Montreal, QC"
+    "address": "1590 Docteur-Penfield, Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -2419,7 +2426,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "T",
     "buildingName": "T Annex",
-    "address": "2030 Mackay St., Montreal, QC"
+    "address": "2030 Mackay St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -2501,7 +2509,8 @@
     "types": ["street_address", "subpremise"],
     "buildingCode": "TD",
     "buildingName": "Toronto-Dominion Building",
-    "address": "1410 Guy St., Montreal, QC"
+    "address": "1410 Guy St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -2575,7 +2584,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "V",
     "buildingName": "V Annex",
-    "address": "2110 Mackay St., Montreal, QC"
+    "address": "2110 Mackay St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -2651,7 +2661,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "VA",
     "buildingName": "Visual Arts Building",
-    "address": "1395 René-Lévesque Blvd. W., Montreal, QC"
+    "address": "1395 René-Lévesque Blvd. W., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -2732,7 +2743,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "X",
     "buildingName": "X Annex",
-    "address": "2080 Mackay St., Montreal, QC"
+    "address": "2080 Mackay St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -2808,7 +2820,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "Z",
     "buildingName": "Z Annex",
-    "address": "2090 Mackay St., Montreal, QC"
+    "address": "2090 Mackay St., Montreal, QC",
+    "campus": "SGW"
   },
   {
     "buildings": [
@@ -2943,7 +2956,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "AD",
     "buildingName": "Administration Building",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
+    "address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+    "campus": "LOYOLA"
   },
   {
     "buildings": [
@@ -2997,7 +3011,8 @@
     "types": ["street_address", "subpremise"],
     "buildingCode": "BB",
     "buildingName": "BB Annex",
-    "address": "3502 Belmore Ave., Montreal QC"
+    "address": "3502 Belmore Ave., Montreal QC",
+    "campus": "LOYOLA"
   },
   {
     "buildings": [
@@ -3051,7 +3066,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "BH",
     "buildingName": "BH Annex",
-    "address": "3500 Belmore Ave., Montreal QC"
+    "address": "3500 Belmore Ave., Montreal QC",
+    "campus": "LOYOLA"
   },
   {
     "buildings": [
@@ -3186,7 +3202,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "CC",
     "buildingName": "Central Building",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
+    "address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+    "campus": "LOYOLA"
   },
   {
     "buildings": [
@@ -3196,267 +3213,178 @@
             "display_polygon": {
               "coordinates": [
                 [
-                  [
-                    [-73.6408772869513, 45.4585890444863],
-                    [-73.6407985119765, 45.4586801381204],
-                    [-73.6410434135512, 45.4587656349228],
-                    [-73.6410337817405, 45.4587851652835],
-                    [-73.6411307292453, 45.4588225485177],
-                    [-73.641145397086, 45.4588024297448],
-                    [-73.6411619356442, 45.4588079540898],
-                    [-73.6412836990154, 45.4586467679607],
-                    [-73.6412704836223, 45.4586411413492],
-                    [-73.641376403155, 45.4585062439627],
-                    [-73.6413154218922, 45.4584840209662],
-                    [-73.6412767428744, 45.4585370462476],
-                    [-73.6412461196636, 45.4585235554084],
-                    [-73.6412288337043, 45.4585453547232],
-                    [-73.6411366941731, 45.4585098572153],
-                    [-73.6412021937158, 45.4584281724403],
-                    [-73.6410774329832, 45.4583815457209],
-                    [-73.6410079055759, 45.4584725211565],
-                    [-73.6408517473394, 45.458413027044],
-                    [-73.6408116759182, 45.4584611281071],
-                    [-73.6407504451182, 45.4584372457533],
-                    [-73.6407102295275, 45.4584887179595],
-                    [-73.6407733946252, 45.4585134741824],
-                    [-73.6407529936233, 45.4585395360268],
-                    [-73.6408772869513, 45.4585890444863]
-                  ]
-                ],
-                [
-                  [
-                    [-73.640685034277, 45.4585208608007],
-                    [-73.6407957736703, 45.4583791494107],
-                    [-73.6405590484041, 45.458288067748],
-                    [-73.640564372429, 45.4582807370996],
-                    [-73.6402606533331, 45.4581655166129],
-                    [-73.6402556996114, 45.4581718691469],
-                    [-73.6400146981164, 45.4580776515112],
-                    [-73.6399947518581, 45.4581036322558],
-                    [-73.6399668476527, 45.4580924575034],
-                    [-73.6399436219669, 45.4581219391978],
-                    [-73.6399074228682, 45.4581082196506],
-                    [-73.6399223691219, 45.4580900595336],
-                    [-73.6399135855623, 45.4580862631194],
-                    [-73.6400076738254, 45.4579642333517],
-                    [-73.6400664064559, 45.4579871594348],
-                    [-73.6401266871755, 45.4579119371099],
-                    [-73.6398312888425, 45.4577985269392],
-                    [-73.6397706190755, 45.4578764941739],
-                    [-73.6398149533159, 45.4578930300438],
-                    [-73.6398066969935, 45.4579036174965],
-                    [-73.6398351180342, 45.4579163430144],
-                    [-73.6397535448525, 45.4580219205454],
-                    [-73.639741129547, 45.4580208358951],
-                    [-73.6396715170233, 45.4579983776984],
-                    [-73.6396309215869, 45.4580654273612],
-                    [-73.6396882783852, 45.4580865293883],
-                    [-73.6396887773383, 45.4580898474012],
-                    [-73.6396951868686, 45.4580959502411],
-                    [-73.6396166169914, 45.4582019689471],
-                    [-73.6395811225177, 45.4581898275843],
-                    [-73.6395737199856, 45.4581996554648],
-                    [-73.6395088037371, 45.4581730191629],
-                    [-73.6394429805971, 45.4582552453557],
-                    [-73.6397634323295, 45.4583770539877],
-                    [-73.639823318343, 45.4582976433774],
-                    [-73.6397656937339, 45.458276649559],
-                    [-73.6398615938007, 45.4581522303785],
-                    [-73.6398702925016, 45.4581551294048],
-                    [-73.6398811620684, 45.4581418281119],
-                    [-73.63991569451, 45.4581545656232],
-                    [-73.6399458518892, 45.4581660710766],
-                    [-73.6399018618318, 45.4582187587328],
-                    [-73.6401444564348, 45.4583151280049],
-                    [-73.6401414600105, 45.4583216203185],
-                    [-73.640445805528, 45.45843855574],
-                    [-73.6404494963462, 45.4584315753495],
-                    [-73.640685034277, 45.4585208608007]
-                  ]
+                  [-73.6395707307278, 45.4587524574089],
+                  [-73.6396243670305, 45.4587420402227],
+                  [-73.6396848840896, 45.4586653764305],
+                  [-73.6396643641565, 45.4586246069113],
+                  [-73.6395899843982, 45.4585977615507],
+                  [-73.6395962141031, 45.4585892363662],
+                  [-73.6395746754239, 45.458580765559],
+                  [-73.6395944628225, 45.4585550562265],
+                  [-73.6395881896347, 45.4585386489181],
+                  [-73.6395621909924, 45.4585280486355],
+                  [-73.6394412181106, 45.4584833031166],
+                  [-73.6394219527025, 45.4585115963593],
+                  [-73.6394116206148, 45.4585090475233],
+                  [-73.63940530087, 45.4585156420792],
+                  [-73.6393640831852, 45.4585007432302],
+                  [-73.6393667993793, 45.4584971595996],
+                  [-73.6393537769075, 45.4584925934929],
+                  [-73.6393505488723, 45.4584956595269],
+                  [-73.6393011391218, 45.4584773459625],
+                  [-73.6393040147974, 45.4584734907581],
+                  [-73.639291259832, 45.4584688164138],
+                  [-73.6392885719179, 45.4584726991747],
+                  [-73.6392451474402, 45.458456001484],
+                  [-73.6392564160759, 45.4584420212414],
+                  [-73.6391891767186, 45.4584172560544],
+                  [-73.6391802923983, 45.4584309962593],
+                  [-73.6391613593123, 45.4584236452531],
+                  [-73.639155039517, 45.4584302397788],
+                  [-73.6390988318417, 45.4584085685455],
+                  [-73.6390861380838, 45.4584270593353],
+                  [-73.6390548770209, 45.4584146541332],
+                  [-73.6390711975491, 45.458392418394],
+                  [-73.6390387070329, 45.4583807176959],
+                  [-73.6389334862162, 45.4585182233793],
+                  [-73.6389654418592, 45.4585301406129],
+                  [-73.6389823772455, 45.4585075525861],
+                  [-73.6390145489247, 45.4585197964935],
+                  [-73.6390015541737, 45.458537063215],
+                  [-73.6390561802114, 45.4585586498975],
+                  [-73.6390484301903, 45.4585687218298],
+                  [-73.6390633920311, 45.4585751950328],
+                  [-73.6390572548322, 45.4585807839344],
+                  [-73.6390652535539, 45.4586046716848],
+                  [-73.6390958434636, 45.4586168309186],
+                  [-73.6391264775006, 45.4586108550832],
+                  [-73.639134847366, 45.4586014640797],
+                  [-73.6392941475257, 45.4586618646879],
+                  [-73.6392878096929, 45.4586702265167],
+                  [-73.6393156295101, 45.4586805042116],
+                  [-73.6393029821371, 45.4586975270165],
+                  [-73.6393145874374, 45.4587027701023],
+                  [-73.6392945887863, 45.4587291859564],
+                  [-73.6393338776471, 45.4587442442684],
+                  [-73.6393537167925, 45.4587180999757],
+                  [-73.6393594860284, 45.4587193891809],
+                  [-73.6393724574525, 45.4587028564004],
+                  [-73.6394123893075, 45.4587178615528],
+                  [-73.639418562505, 45.4587087380864],
+                  [-73.6394849201245, 45.4587339637691],
+                  [-73.6394932513336, 45.4587222071707],
+                  [-73.6395707307278, 45.4587524574089]
                 ]
               ],
-              "type": "MultiPolygon"
+              "type": "Polygon"
             }
           }
         ],
-        "place_id": "ChIJERHb3zEXyUwRPdbqFL-zXAU"
+        "place_id": "ChIJAcTa3zEXyUwRAHQnQj9LdGg"
       }
     ],
-    "formatted_address": "7141 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
+    "formatted_address": "7141 Sherbrooke Street Ouest, 1 422 CJ, Montreal, QC H4B 1R6, Canada",
     "geometry": {
       "location": {
-        "lat": 45.4579826,
-        "lng": -73.6397985
+        "lat": 45.4585769,
+        "lng": -73.639326
       },
       "location_type": "ROOFTOP",
       "viewport": {
         "northeast": {
-          "lat": 45.4592959302915,
-          "lng": -73.63838886970849
+          "lat": 45.4599466302915,
+          "lng": -73.63779311970849
         },
         "southwest": {
-          "lat": 45.4565979697085,
-          "lng": -73.6410868302915
+          "lat": 45.45724866970851,
+          "lng": -73.6404910802915
         }
       }
     },
     "navigation_points": [
       {
         "location": {
-          "latitude": 45.4578596,
-          "longitude": -73.6395856
+          "latitude": 45.4585984,
+          "longitude": -73.6390009
         },
         "restricted_travel_modes": ["WALK"]
       },
       {
         "location": {
-          "latitude": 45.4580038,
-          "longitude": -73.63985319999999
+          "latitude": 45.4585432,
+          "longitude": -73.6391512
         },
         "restricted_travel_modes": ["DRIVE"]
       }
     ],
-    "place_id": "ChIJgUsq1S8XyUwRwBeW4QytuE0",
-    "types": ["premise", "street_address"],
+    "place_id": "ChIJwdYJaRgbyUwRdKTrL7X--bE",
+    "plus_code": {
+      "compound_code": "F956+C7 Montreal, QC, Canada",
+      "global_code": "87Q8F956+C7"
+    },
+    "types": ["book_store", "establishment", "point_of_interest", "store"],
     "buildingCode": "CJ",
     "buildingName": "Communication Studies and Journalism Building",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
+    "address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+    "campus": "LOYOLA"
   },
   {
-    "buildings": [
-      {
-        "building_outlines": [
-          {
-            "display_polygon": {
-              "coordinates": [
-                [
-                  [
-                    [-73.6408772869513, 45.4585890444863],
-                    [-73.6407985119765, 45.4586801381204],
-                    [-73.6410434135512, 45.4587656349228],
-                    [-73.6410337817405, 45.4587851652835],
-                    [-73.6411307292453, 45.4588225485177],
-                    [-73.641145397086, 45.4588024297448],
-                    [-73.6411619356442, 45.4588079540898],
-                    [-73.6412836990154, 45.4586467679607],
-                    [-73.6412704836223, 45.4586411413492],
-                    [-73.641376403155, 45.4585062439627],
-                    [-73.6413154218922, 45.4584840209662],
-                    [-73.6412767428744, 45.4585370462476],
-                    [-73.6412461196636, 45.4585235554084],
-                    [-73.6412288337043, 45.4585453547232],
-                    [-73.6411366941731, 45.4585098572153],
-                    [-73.6412021937158, 45.4584281724403],
-                    [-73.6410774329832, 45.4583815457209],
-                    [-73.6410079055759, 45.4584725211565],
-                    [-73.6408517473394, 45.458413027044],
-                    [-73.6408116759182, 45.4584611281071],
-                    [-73.6407504451182, 45.4584372457533],
-                    [-73.6407102295275, 45.4584887179595],
-                    [-73.6407733946252, 45.4585134741824],
-                    [-73.6407529936233, 45.4585395360268],
-                    [-73.6408772869513, 45.4585890444863]
-                  ]
-                ],
-                [
-                  [
-                    [-73.640685034277, 45.4585208608007],
-                    [-73.6407957736703, 45.4583791494107],
-                    [-73.6405590484041, 45.458288067748],
-                    [-73.640564372429, 45.4582807370996],
-                    [-73.6402606533331, 45.4581655166129],
-                    [-73.6402556996114, 45.4581718691469],
-                    [-73.6400146981164, 45.4580776515112],
-                    [-73.6399947518581, 45.4581036322558],
-                    [-73.6399668476527, 45.4580924575034],
-                    [-73.6399436219669, 45.4581219391978],
-                    [-73.6399074228682, 45.4581082196506],
-                    [-73.6399223691219, 45.4580900595336],
-                    [-73.6399135855623, 45.4580862631194],
-                    [-73.6400076738254, 45.4579642333517],
-                    [-73.6400664064559, 45.4579871594348],
-                    [-73.6401266871755, 45.4579119371099],
-                    [-73.6398312888425, 45.4577985269392],
-                    [-73.6397706190755, 45.4578764941739],
-                    [-73.6398149533159, 45.4578930300438],
-                    [-73.6398066969935, 45.4579036174965],
-                    [-73.6398351180342, 45.4579163430144],
-                    [-73.6397535448525, 45.4580219205454],
-                    [-73.639741129547, 45.4580208358951],
-                    [-73.6396715170233, 45.4579983776984],
-                    [-73.6396309215869, 45.4580654273612],
-                    [-73.6396882783852, 45.4580865293883],
-                    [-73.6396887773383, 45.4580898474012],
-                    [-73.6396951868686, 45.4580959502411],
-                    [-73.6396166169914, 45.4582019689471],
-                    [-73.6395811225177, 45.4581898275843],
-                    [-73.6395737199856, 45.4581996554648],
-                    [-73.6395088037371, 45.4581730191629],
-                    [-73.6394429805971, 45.4582552453557],
-                    [-73.6397634323295, 45.4583770539877],
-                    [-73.639823318343, 45.4582976433774],
-                    [-73.6397656937339, 45.458276649559],
-                    [-73.6398615938007, 45.4581522303785],
-                    [-73.6398702925016, 45.4581551294048],
-                    [-73.6398811620684, 45.4581418281119],
-                    [-73.63991569451, 45.4581545656232],
-                    [-73.6399458518892, 45.4581660710766],
-                    [-73.6399018618318, 45.4582187587328],
-                    [-73.6401444564348, 45.4583151280049],
-                    [-73.6401414600105, 45.4583216203185],
-                    [-73.640445805528, 45.45843855574],
-                    [-73.6404494963462, 45.4584315753495],
-                    [-73.640685034277, 45.4585208608007]
-                  ]
-                ]
-              ],
-              "type": "MultiPolygon"
-            }
-          }
-        ],
-        "place_id": "ChIJERHb3zEXyUwRPdbqFL-zXAU"
-      }
-    ],
-    "formatted_address": "7141 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
+    "formatted_address": "7200 Rue Sherbrooke O, Montréal, QC H4B 1R3, Canada",
     "geometry": {
       "location": {
-        "lat": 45.4579826,
-        "lng": -73.6397985
+        "lat": 45.4576754,
+        "lng": -73.6361431
       },
       "location_type": "ROOFTOP",
       "viewport": {
         "northeast": {
-          "lat": 45.4592959302915,
-          "lng": -73.63838886970849
+          "lat": 45.45879043029149,
+          "lng": -73.63439701970849
         },
         "southwest": {
-          "lat": 45.4565979697085,
-          "lng": -73.6410868302915
+          "lat": 45.45609246970849,
+          "lng": -73.63709498029151
         }
       }
     },
     "navigation_points": [
       {
         "location": {
-          "latitude": 45.4578596,
-          "longitude": -73.6395856
-        },
-        "restricted_travel_modes": ["WALK"]
-      },
-      {
-        "location": {
-          "latitude": 45.4580038,
-          "longitude": -73.63985319999999
-        },
-        "restricted_travel_modes": ["DRIVE"]
+          "latitude": 45.4572581,
+          "longitude": -73.63540239999999
+        }
       }
     ],
-    "place_id": "ChIJgUsq1S8XyUwRwBeW4QytuE0",
-    "types": ["premise", "street_address"],
+    "place_id": "ChIJ21EFhy0XyUwREYJNMiBWO_8",
+    "plus_code": {
+      "compound_code": "F957+3G Montreal, QC, Canada",
+      "global_code": "87Q8F957+3G"
+    },
+    "types": ["establishment", "point_of_interest"],
     "buildingCode": "DO",
     "buildingName": "Stinger Dome",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
+    "address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+    "campus": "LOYOLA",
+    "buildings": [
+      {
+        "building_outlines": [
+          {
+            "display_polygon": {
+              "coordinates": [
+                [
+                  [-73.6352242, 45.4579249],
+                  [-73.6359626, 45.4583538],
+                  [-73.6370915, 45.4573846],
+                  [-73.6363623, 45.4569612],
+                  [-73.6352242, 45.4579249]
+                ]
+              ],
+              "type": "Polygon"
+            }
+          }
+        ]
+      }
+    ]
   },
   {
     "buildings": [
@@ -3466,132 +3394,120 @@
             "display_polygon": {
               "coordinates": [
                 [
-                  [
-                    [-73.6408772869513, 45.4585890444863],
-                    [-73.6407985119765, 45.4586801381204],
-                    [-73.6410434135512, 45.4587656349228],
-                    [-73.6410337817405, 45.4587851652835],
-                    [-73.6411307292453, 45.4588225485177],
-                    [-73.641145397086, 45.4588024297448],
-                    [-73.6411619356442, 45.4588079540898],
-                    [-73.6412836990154, 45.4586467679607],
-                    [-73.6412704836223, 45.4586411413492],
-                    [-73.641376403155, 45.4585062439627],
-                    [-73.6413154218922, 45.4584840209662],
-                    [-73.6412767428744, 45.4585370462476],
-                    [-73.6412461196636, 45.4585235554084],
-                    [-73.6412288337043, 45.4585453547232],
-                    [-73.6411366941731, 45.4585098572153],
-                    [-73.6412021937158, 45.4584281724403],
-                    [-73.6410774329832, 45.4583815457209],
-                    [-73.6410079055759, 45.4584725211565],
-                    [-73.6408517473394, 45.458413027044],
-                    [-73.6408116759182, 45.4584611281071],
-                    [-73.6407504451182, 45.4584372457533],
-                    [-73.6407102295275, 45.4584887179595],
-                    [-73.6407733946252, 45.4585134741824],
-                    [-73.6407529936233, 45.4585395360268],
-                    [-73.6408772869513, 45.4585890444863]
-                  ]
-                ],
-                [
-                  [
-                    [-73.640685034277, 45.4585208608007],
-                    [-73.6407957736703, 45.4583791494107],
-                    [-73.6405590484041, 45.458288067748],
-                    [-73.640564372429, 45.4582807370996],
-                    [-73.6402606533331, 45.4581655166129],
-                    [-73.6402556996114, 45.4581718691469],
-                    [-73.6400146981164, 45.4580776515112],
-                    [-73.6399947518581, 45.4581036322558],
-                    [-73.6399668476527, 45.4580924575034],
-                    [-73.6399436219669, 45.4581219391978],
-                    [-73.6399074228682, 45.4581082196506],
-                    [-73.6399223691219, 45.4580900595336],
-                    [-73.6399135855623, 45.4580862631194],
-                    [-73.6400076738254, 45.4579642333517],
-                    [-73.6400664064559, 45.4579871594348],
-                    [-73.6401266871755, 45.4579119371099],
-                    [-73.6398312888425, 45.4577985269392],
-                    [-73.6397706190755, 45.4578764941739],
-                    [-73.6398149533159, 45.4578930300438],
-                    [-73.6398066969935, 45.4579036174965],
-                    [-73.6398351180342, 45.4579163430144],
-                    [-73.6397535448525, 45.4580219205454],
-                    [-73.639741129547, 45.4580208358951],
-                    [-73.6396715170233, 45.4579983776984],
-                    [-73.6396309215869, 45.4580654273612],
-                    [-73.6396882783852, 45.4580865293883],
-                    [-73.6396887773383, 45.4580898474012],
-                    [-73.6396951868686, 45.4580959502411],
-                    [-73.6396166169914, 45.4582019689471],
-                    [-73.6395811225177, 45.4581898275843],
-                    [-73.6395737199856, 45.4581996554648],
-                    [-73.6395088037371, 45.4581730191629],
-                    [-73.6394429805971, 45.4582552453557],
-                    [-73.6397634323295, 45.4583770539877],
-                    [-73.639823318343, 45.4582976433774],
-                    [-73.6397656937339, 45.458276649559],
-                    [-73.6398615938007, 45.4581522303785],
-                    [-73.6398702925016, 45.4581551294048],
-                    [-73.6398811620684, 45.4581418281119],
-                    [-73.63991569451, 45.4581545656232],
-                    [-73.6399458518892, 45.4581660710766],
-                    [-73.6399018618318, 45.4582187587328],
-                    [-73.6401444564348, 45.4583151280049],
-                    [-73.6401414600105, 45.4583216203185],
-                    [-73.640445805528, 45.45843855574],
-                    [-73.6404494963462, 45.4584315753495],
-                    [-73.640685034277, 45.4585208608007]
-                  ]
+                  [-73.6395707307278, 45.4587524574089],
+                  [-73.6396243670305, 45.4587420402227],
+                  [-73.6396848840896, 45.4586653764305],
+                  [-73.6396643641565, 45.4586246069113],
+                  [-73.6395899843982, 45.4585977615507],
+                  [-73.6395962141031, 45.4585892363662],
+                  [-73.6395746754239, 45.458580765559],
+                  [-73.6395944628225, 45.4585550562265],
+                  [-73.6395881896347, 45.4585386489181],
+                  [-73.6395621909924, 45.4585280486355],
+                  [-73.6394412181106, 45.4584833031166],
+                  [-73.6394219527025, 45.4585115963593],
+                  [-73.6394116206148, 45.4585090475233],
+                  [-73.63940530087, 45.4585156420792],
+                  [-73.6393640831852, 45.4585007432302],
+                  [-73.6393667993793, 45.4584971595996],
+                  [-73.6393537769075, 45.4584925934929],
+                  [-73.6393505488723, 45.4584956595269],
+                  [-73.6393011391218, 45.4584773459625],
+                  [-73.6393040147974, 45.4584734907581],
+                  [-73.639291259832, 45.4584688164138],
+                  [-73.6392885719179, 45.4584726991747],
+                  [-73.6392451474402, 45.458456001484],
+                  [-73.6392564160759, 45.4584420212414],
+                  [-73.6391891767186, 45.4584172560544],
+                  [-73.6391802923983, 45.4584309962593],
+                  [-73.6391613593123, 45.4584236452531],
+                  [-73.639155039517, 45.4584302397788],
+                  [-73.6390988318417, 45.4584085685455],
+                  [-73.6390861380838, 45.4584270593353],
+                  [-73.6390548770209, 45.4584146541332],
+                  [-73.6390711975491, 45.458392418394],
+                  [-73.6390387070329, 45.4583807176959],
+                  [-73.6389334862162, 45.4585182233793],
+                  [-73.6389654418592, 45.4585301406129],
+                  [-73.6389823772455, 45.4585075525861],
+                  [-73.6390145489247, 45.4585197964935],
+                  [-73.6390015541737, 45.458537063215],
+                  [-73.6390561802114, 45.4585586498975],
+                  [-73.6390484301903, 45.4585687218298],
+                  [-73.6390633920311, 45.4585751950328],
+                  [-73.6390572548322, 45.4585807839344],
+                  [-73.6390652535539, 45.4586046716848],
+                  [-73.6390958434636, 45.4586168309186],
+                  [-73.6391264775006, 45.4586108550832],
+                  [-73.639134847366, 45.4586014640797],
+                  [-73.6392941475257, 45.4586618646879],
+                  [-73.6392878096929, 45.4586702265167],
+                  [-73.6393156295101, 45.4586805042116],
+                  [-73.6393029821371, 45.4586975270165],
+                  [-73.6393145874374, 45.4587027701023],
+                  [-73.6392945887863, 45.4587291859564],
+                  [-73.6393338776471, 45.4587442442684],
+                  [-73.6393537167925, 45.4587180999757],
+                  [-73.6393594860284, 45.4587193891809],
+                  [-73.6393724574525, 45.4587028564004],
+                  [-73.6394123893075, 45.4587178615528],
+                  [-73.639418562505, 45.4587087380864],
+                  [-73.6394849201245, 45.4587339637691],
+                  [-73.6394932513336, 45.4587222071707],
+                  [-73.6395707307278, 45.4587524574089]
                 ]
               ],
-              "type": "MultiPolygon"
+              "type": "Polygon"
             }
           }
         ],
-        "place_id": "ChIJERHb3zEXyUwRPdbqFL-zXAU"
+        "place_id": "ChIJAcTa3zEXyUwRAHQnQj9LdGg"
       }
     ],
-    "formatted_address": "7141 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
+    "formatted_address": "7141 Sherbrooke Street Ouest, 1 422 CJ, Montreal, QC H4B 1R6, Canada",
     "geometry": {
       "location": {
-        "lat": 45.4579826,
-        "lng": -73.6397985
+        "lat": 45.4585769,
+        "lng": -73.639326
       },
       "location_type": "ROOFTOP",
       "viewport": {
         "northeast": {
-          "lat": 45.4592959302915,
-          "lng": -73.63838886970849
+          "lat": 45.4599466302915,
+          "lng": -73.63779311970849
         },
         "southwest": {
-          "lat": 45.4565979697085,
-          "lng": -73.6410868302915
+          "lat": 45.45724866970851,
+          "lng": -73.6404910802915
         }
       }
     },
     "navigation_points": [
       {
         "location": {
-          "latitude": 45.4578596,
-          "longitude": -73.6395856
+          "latitude": 45.4585984,
+          "longitude": -73.6390009
         },
         "restricted_travel_modes": ["WALK"]
       },
       {
         "location": {
-          "latitude": 45.4580038,
-          "longitude": -73.63985319999999
+          "latitude": 45.4585432,
+          "longitude": -73.6391512
         },
         "restricted_travel_modes": ["DRIVE"]
       }
     ],
-    "place_id": "ChIJgUsq1S8XyUwRwBeW4QytuE0",
-    "types": ["premise", "street_address"],
+    "place_id": "ChIJwdYJaRgbyUwRdKTrL7X--bE",
+    "plus_code": {
+      "compound_code": "F956+C7 Montreal, QC, Canada",
+      "global_code": "87Q8F956+C7"
+    },
+    "types": ["book_store", "establishment", "point_of_interest", "store"],
     "buildingCode": "FC",
     "buildingName": "F.C. Smith Building",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
+    "address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+    "campus": "LOYOLA"
   },
   {
     "buildings": [
@@ -3601,132 +3517,62 @@
             "display_polygon": {
               "coordinates": [
                 [
-                  [
-                    [-73.6408772869513, 45.4585890444863],
-                    [-73.6407985119765, 45.4586801381204],
-                    [-73.6410434135512, 45.4587656349228],
-                    [-73.6410337817405, 45.4587851652835],
-                    [-73.6411307292453, 45.4588225485177],
-                    [-73.641145397086, 45.4588024297448],
-                    [-73.6411619356442, 45.4588079540898],
-                    [-73.6412836990154, 45.4586467679607],
-                    [-73.6412704836223, 45.4586411413492],
-                    [-73.641376403155, 45.4585062439627],
-                    [-73.6413154218922, 45.4584840209662],
-                    [-73.6412767428744, 45.4585370462476],
-                    [-73.6412461196636, 45.4585235554084],
-                    [-73.6412288337043, 45.4585453547232],
-                    [-73.6411366941731, 45.4585098572153],
-                    [-73.6412021937158, 45.4584281724403],
-                    [-73.6410774329832, 45.4583815457209],
-                    [-73.6410079055759, 45.4584725211565],
-                    [-73.6408517473394, 45.458413027044],
-                    [-73.6408116759182, 45.4584611281071],
-                    [-73.6407504451182, 45.4584372457533],
-                    [-73.6407102295275, 45.4584887179595],
-                    [-73.6407733946252, 45.4585134741824],
-                    [-73.6407529936233, 45.4585395360268],
-                    [-73.6408772869513, 45.4585890444863]
-                  ]
-                ],
-                [
-                  [
-                    [-73.640685034277, 45.4585208608007],
-                    [-73.6407957736703, 45.4583791494107],
-                    [-73.6405590484041, 45.458288067748],
-                    [-73.640564372429, 45.4582807370996],
-                    [-73.6402606533331, 45.4581655166129],
-                    [-73.6402556996114, 45.4581718691469],
-                    [-73.6400146981164, 45.4580776515112],
-                    [-73.6399947518581, 45.4581036322558],
-                    [-73.6399668476527, 45.4580924575034],
-                    [-73.6399436219669, 45.4581219391978],
-                    [-73.6399074228682, 45.4581082196506],
-                    [-73.6399223691219, 45.4580900595336],
-                    [-73.6399135855623, 45.4580862631194],
-                    [-73.6400076738254, 45.4579642333517],
-                    [-73.6400664064559, 45.4579871594348],
-                    [-73.6401266871755, 45.4579119371099],
-                    [-73.6398312888425, 45.4577985269392],
-                    [-73.6397706190755, 45.4578764941739],
-                    [-73.6398149533159, 45.4578930300438],
-                    [-73.6398066969935, 45.4579036174965],
-                    [-73.6398351180342, 45.4579163430144],
-                    [-73.6397535448525, 45.4580219205454],
-                    [-73.639741129547, 45.4580208358951],
-                    [-73.6396715170233, 45.4579983776984],
-                    [-73.6396309215869, 45.4580654273612],
-                    [-73.6396882783852, 45.4580865293883],
-                    [-73.6396887773383, 45.4580898474012],
-                    [-73.6396951868686, 45.4580959502411],
-                    [-73.6396166169914, 45.4582019689471],
-                    [-73.6395811225177, 45.4581898275843],
-                    [-73.6395737199856, 45.4581996554648],
-                    [-73.6395088037371, 45.4581730191629],
-                    [-73.6394429805971, 45.4582552453557],
-                    [-73.6397634323295, 45.4583770539877],
-                    [-73.639823318343, 45.4582976433774],
-                    [-73.6397656937339, 45.458276649559],
-                    [-73.6398615938007, 45.4581522303785],
-                    [-73.6398702925016, 45.4581551294048],
-                    [-73.6398811620684, 45.4581418281119],
-                    [-73.63991569451, 45.4581545656232],
-                    [-73.6399458518892, 45.4581660710766],
-                    [-73.6399018618318, 45.4582187587328],
-                    [-73.6401444564348, 45.4583151280049],
-                    [-73.6401414600105, 45.4583216203185],
-                    [-73.640445805528, 45.45843855574],
-                    [-73.6404494963462, 45.4584315753495],
-                    [-73.640685034277, 45.4585208608007]
-                  ]
+                  [-73.6407407641922, 45.4569453065756],
+                  [-73.6406692043837, 45.4569188764311],
+                  [-73.640688534775, 45.4568932484358],
+                  [-73.6406295416664, 45.4568714647194],
+                  [-73.6406110651085, 45.4568963330836],
+                  [-73.6403467909331, 45.4567987024899],
+                  [-73.6401650980098, 45.4570407576262],
+                  [-73.6404419407738, 45.4571430357757],
+                  [-73.6404514723854, 45.4571302758573],
+                  [-73.6405691920397, 45.4571739519857],
+                  [-73.6407407641922, 45.4569453065756]
                 ]
               ],
-              "type": "MultiPolygon"
+              "type": "Polygon"
             }
           }
         ],
-        "place_id": "ChIJERHb3zEXyUwRPdbqFL-zXAU"
+        "place_id": "ChIJiVlgbC4XyUwRxyHT0huuxeI"
       }
     ],
     "formatted_address": "7141 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
     "geometry": {
       "location": {
-        "lat": 45.4579826,
-        "lng": -73.6397985
+        "lat": 45.456969,
+        "lng": -73.6404347
       },
       "location_type": "ROOFTOP",
       "viewport": {
         "northeast": {
-          "lat": 45.4592959302915,
-          "lng": -73.63838886970849
+          "lat": 45.4582227302915,
+          "lng": -73.63887871970849
         },
         "southwest": {
-          "lat": 45.4565979697085,
-          "lng": -73.6410868302915
+          "lat": 45.4555247697085,
+          "lng": -73.6415766802915
         }
       }
     },
     "navigation_points": [
       {
         "location": {
-          "latitude": 45.4578596,
-          "longitude": -73.6395856
-        },
-        "restricted_travel_modes": ["WALK"]
-      },
-      {
-        "location": {
-          "latitude": 45.4580038,
-          "longitude": -73.63985319999999
-        },
-        "restricted_travel_modes": ["DRIVE"]
+          "latitude": 45.4568131,
+          "longitude": -73.6400958
+        }
       }
     ],
-    "place_id": "ChIJgUsq1S8XyUwRwBeW4QytuE0",
-    "types": ["premise", "street_address"],
+    "place_id": "ChIJhwIFcC4XyUwRjjIXKLk338Q",
+    "plus_code": {
+      "compound_code": "F945+QR Montreal, QC, Canada",
+      "global_code": "87Q8F945+QR"
+    },
+    "types": ["establishment", "point_of_interest", "university"],
     "buildingCode": "GE",
     "buildingName": "Centre for Structural and Functional Genomics",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
+    "address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+    "campus": "LOYOLA"
   },
   {
     "buildings": [
@@ -3736,132 +3582,74 @@
             "display_polygon": {
               "coordinates": [
                 [
-                  [
-                    [-73.6408772869513, 45.4585890444863],
-                    [-73.6407985119765, 45.4586801381204],
-                    [-73.6410434135512, 45.4587656349228],
-                    [-73.6410337817405, 45.4587851652835],
-                    [-73.6411307292453, 45.4588225485177],
-                    [-73.641145397086, 45.4588024297448],
-                    [-73.6411619356442, 45.4588079540898],
-                    [-73.6412836990154, 45.4586467679607],
-                    [-73.6412704836223, 45.4586411413492],
-                    [-73.641376403155, 45.4585062439627],
-                    [-73.6413154218922, 45.4584840209662],
-                    [-73.6412767428744, 45.4585370462476],
-                    [-73.6412461196636, 45.4585235554084],
-                    [-73.6412288337043, 45.4585453547232],
-                    [-73.6411366941731, 45.4585098572153],
-                    [-73.6412021937158, 45.4584281724403],
-                    [-73.6410774329832, 45.4583815457209],
-                    [-73.6410079055759, 45.4584725211565],
-                    [-73.6408517473394, 45.458413027044],
-                    [-73.6408116759182, 45.4584611281071],
-                    [-73.6407504451182, 45.4584372457533],
-                    [-73.6407102295275, 45.4584887179595],
-                    [-73.6407733946252, 45.4585134741824],
-                    [-73.6407529936233, 45.4585395360268],
-                    [-73.6408772869513, 45.4585890444863]
-                  ]
-                ],
-                [
-                  [
-                    [-73.640685034277, 45.4585208608007],
-                    [-73.6407957736703, 45.4583791494107],
-                    [-73.6405590484041, 45.458288067748],
-                    [-73.640564372429, 45.4582807370996],
-                    [-73.6402606533331, 45.4581655166129],
-                    [-73.6402556996114, 45.4581718691469],
-                    [-73.6400146981164, 45.4580776515112],
-                    [-73.6399947518581, 45.4581036322558],
-                    [-73.6399668476527, 45.4580924575034],
-                    [-73.6399436219669, 45.4581219391978],
-                    [-73.6399074228682, 45.4581082196506],
-                    [-73.6399223691219, 45.4580900595336],
-                    [-73.6399135855623, 45.4580862631194],
-                    [-73.6400076738254, 45.4579642333517],
-                    [-73.6400664064559, 45.4579871594348],
-                    [-73.6401266871755, 45.4579119371099],
-                    [-73.6398312888425, 45.4577985269392],
-                    [-73.6397706190755, 45.4578764941739],
-                    [-73.6398149533159, 45.4578930300438],
-                    [-73.6398066969935, 45.4579036174965],
-                    [-73.6398351180342, 45.4579163430144],
-                    [-73.6397535448525, 45.4580219205454],
-                    [-73.639741129547, 45.4580208358951],
-                    [-73.6396715170233, 45.4579983776984],
-                    [-73.6396309215869, 45.4580654273612],
-                    [-73.6396882783852, 45.4580865293883],
-                    [-73.6396887773383, 45.4580898474012],
-                    [-73.6396951868686, 45.4580959502411],
-                    [-73.6396166169914, 45.4582019689471],
-                    [-73.6395811225177, 45.4581898275843],
-                    [-73.6395737199856, 45.4581996554648],
-                    [-73.6395088037371, 45.4581730191629],
-                    [-73.6394429805971, 45.4582552453557],
-                    [-73.6397634323295, 45.4583770539877],
-                    [-73.639823318343, 45.4582976433774],
-                    [-73.6397656937339, 45.458276649559],
-                    [-73.6398615938007, 45.4581522303785],
-                    [-73.6398702925016, 45.4581551294048],
-                    [-73.6398811620684, 45.4581418281119],
-                    [-73.63991569451, 45.4581545656232],
-                    [-73.6399458518892, 45.4581660710766],
-                    [-73.6399018618318, 45.4582187587328],
-                    [-73.6401444564348, 45.4583151280049],
-                    [-73.6401414600105, 45.4583216203185],
-                    [-73.640445805528, 45.45843855574],
-                    [-73.6404494963462, 45.4584315753495],
-                    [-73.640685034277, 45.4585208608007]
-                  ]
+                  [-73.6408687943941, 45.4595003354675],
+                  [-73.6413464049925, 45.4596910748883],
+                  [-73.6415474946086, 45.4594416727387],
+                  [-73.6414545399991, 45.4594044330773],
+                  [-73.6414628242831, 45.4593941442679],
+                  [-73.6411511972266, 45.4592697997904],
+                  [-73.6411429128496, 45.4592800885425],
+                  [-73.6410698874647, 45.459250935449],
+                  [-73.6408687943941, 45.4595003354675]
                 ]
               ],
-              "type": "MultiPolygon"
+              "type": "Polygon"
             }
           }
         ],
-        "place_id": "ChIJERHb3zEXyUwRPdbqFL-zXAU"
+        "place_id": "ChIJ15NUMzAXyUwRMoIkjm8hhQ4"
       }
     ],
-    "formatted_address": "7141 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
+    "formatted_address": "Hingston Hall A, Montreal, QC H4B 1E1, Canada",
     "geometry": {
+      "bounds": {
+        "northeast": {
+          "lat": 45.4596911,
+          "lng": -73.64086879999999
+        },
+        "southwest": {
+          "lat": 45.4592509,
+          "lng": -73.6415475
+        }
+      },
       "location": {
-        "lat": 45.4579826,
-        "lng": -73.6397985
+        "lat": 45.4593893,
+        "lng": -73.6411729
       },
       "location_type": "ROOFTOP",
       "viewport": {
         "northeast": {
-          "lat": 45.4592959302915,
-          "lng": -73.63838886970849
+          "lat": 45.46080283029151,
+          "lng": -73.63985916970849
         },
         "southwest": {
-          "lat": 45.4565979697085,
-          "lng": -73.6410868302915
+          "lat": 45.45810486970851,
+          "lng": -73.6425571302915
         }
       }
     },
     "navigation_points": [
       {
         "location": {
-          "latitude": 45.4578596,
-          "longitude": -73.6395856
+          "latitude": 45.4592675,
+          "longitude": -73.64129919999999
         },
         "restricted_travel_modes": ["WALK"]
       },
       {
         "location": {
-          "latitude": 45.4580038,
-          "longitude": -73.63985319999999
+          "latitude": 45.4592913,
+          "longitude": -73.641153
         },
         "restricted_travel_modes": ["DRIVE"]
       }
     ],
-    "place_id": "ChIJgUsq1S8XyUwRwBeW4QytuE0",
+    "place_id": "ChIJ15NUMzAXyUwRMoIkjm8hhQ4",
     "types": ["premise", "street_address"],
     "buildingCode": "HA",
     "buildingName": "Hingston Hall, wing HA",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
+    "address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+    "campus": "LOYOLA"
   },
   {
     "buildings": [
@@ -3871,132 +3659,83 @@
             "display_polygon": {
               "coordinates": [
                 [
-                  [
-                    [-73.6408772869513, 45.4585890444863],
-                    [-73.6407985119765, 45.4586801381204],
-                    [-73.6410434135512, 45.4587656349228],
-                    [-73.6410337817405, 45.4587851652835],
-                    [-73.6411307292453, 45.4588225485177],
-                    [-73.641145397086, 45.4588024297448],
-                    [-73.6411619356442, 45.4588079540898],
-                    [-73.6412836990154, 45.4586467679607],
-                    [-73.6412704836223, 45.4586411413492],
-                    [-73.641376403155, 45.4585062439627],
-                    [-73.6413154218922, 45.4584840209662],
-                    [-73.6412767428744, 45.4585370462476],
-                    [-73.6412461196636, 45.4585235554084],
-                    [-73.6412288337043, 45.4585453547232],
-                    [-73.6411366941731, 45.4585098572153],
-                    [-73.6412021937158, 45.4584281724403],
-                    [-73.6410774329832, 45.4583815457209],
-                    [-73.6410079055759, 45.4584725211565],
-                    [-73.6408517473394, 45.458413027044],
-                    [-73.6408116759182, 45.4584611281071],
-                    [-73.6407504451182, 45.4584372457533],
-                    [-73.6407102295275, 45.4584887179595],
-                    [-73.6407733946252, 45.4585134741824],
-                    [-73.6407529936233, 45.4585395360268],
-                    [-73.6408772869513, 45.4585890444863]
-                  ]
+                  [-73.6422436438324, 45.4591399912472],
+                  [-73.6422713426249, 45.4591049702739],
+                  [-73.6419063705945, 45.4589627714889],
+                  [-73.6418792578238, 45.4589971408267],
+                  [-73.6418103176288, 45.4589700627892],
+                  [-73.641495100383, 45.4593683495053],
+                  [-73.6419795323706, 45.459556841626],
+                  [-73.642003263324, 45.4595268428534],
+                  [-73.6419418430954, 45.4595029331161],
+                  [-73.6420567168413, 45.4593579895672],
+                  [-73.6420695003405, 45.459362962778],
+                  [-73.6420883290704, 45.4593388819682],
+                  [-73.6421444864352, 45.4593609868397],
+                  [-73.6423014110025, 45.459162479683],
+                  [-73.6422436438324, 45.4591399912472]
                 ],
                 [
-                  [
-                    [-73.640685034277, 45.4585208608007],
-                    [-73.6407957736703, 45.4583791494107],
-                    [-73.6405590484041, 45.458288067748],
-                    [-73.640564372429, 45.4582807370996],
-                    [-73.6402606533331, 45.4581655166129],
-                    [-73.6402556996114, 45.4581718691469],
-                    [-73.6400146981164, 45.4580776515112],
-                    [-73.6399947518581, 45.4581036322558],
-                    [-73.6399668476527, 45.4580924575034],
-                    [-73.6399436219669, 45.4581219391978],
-                    [-73.6399074228682, 45.4581082196506],
-                    [-73.6399223691219, 45.4580900595336],
-                    [-73.6399135855623, 45.4580862631194],
-                    [-73.6400076738254, 45.4579642333517],
-                    [-73.6400664064559, 45.4579871594348],
-                    [-73.6401266871755, 45.4579119371099],
-                    [-73.6398312888425, 45.4577985269392],
-                    [-73.6397706190755, 45.4578764941739],
-                    [-73.6398149533159, 45.4578930300438],
-                    [-73.6398066969935, 45.4579036174965],
-                    [-73.6398351180342, 45.4579163430144],
-                    [-73.6397535448525, 45.4580219205454],
-                    [-73.639741129547, 45.4580208358951],
-                    [-73.6396715170233, 45.4579983776984],
-                    [-73.6396309215869, 45.4580654273612],
-                    [-73.6396882783852, 45.4580865293883],
-                    [-73.6396887773383, 45.4580898474012],
-                    [-73.6396951868686, 45.4580959502411],
-                    [-73.6396166169914, 45.4582019689471],
-                    [-73.6395811225177, 45.4581898275843],
-                    [-73.6395737199856, 45.4581996554648],
-                    [-73.6395088037371, 45.4581730191629],
-                    [-73.6394429805971, 45.4582552453557],
-                    [-73.6397634323295, 45.4583770539877],
-                    [-73.639823318343, 45.4582976433774],
-                    [-73.6397656937339, 45.458276649559],
-                    [-73.6398615938007, 45.4581522303785],
-                    [-73.6398702925016, 45.4581551294048],
-                    [-73.6398811620684, 45.4581418281119],
-                    [-73.63991569451, 45.4581545656232],
-                    [-73.6399458518892, 45.4581660710766],
-                    [-73.6399018618318, 45.4582187587328],
-                    [-73.6401444564348, 45.4583151280049],
-                    [-73.6401414600105, 45.4583216203185],
-                    [-73.640445805528, 45.45843855574],
-                    [-73.6404494963462, 45.4584315753495],
-                    [-73.640685034277, 45.4585208608007]
-                  ]
+                  [-73.6420270234696, 45.4592897678687],
+                  [-73.641803150824, 45.4592024915459],
+                  [-73.6419267585927, 45.4590461464361],
+                  [-73.6421508179797, 45.4591334496977],
+                  [-73.6420270234696, 45.4592897678687]
                 ]
               ],
-              "type": "MultiPolygon"
+              "type": "Polygon"
             }
           }
         ],
-        "place_id": "ChIJERHb3zEXyUwRPdbqFL-zXAU"
+        "place_id": "ChIJE8wlLjAXyUwRezsUA8TGpPk"
       }
     ],
-    "formatted_address": "7141 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
+    "entrances": [
+      {
+        "building_place_id": "ChIJE8wlLjAXyUwRezsUA8TGpPk",
+        "entrance_tags": ["PREFERRED"],
+        "location": {
+          "lat": 45.459301,
+          "lng": -73.64154839999999
+        }
+      }
+    ],
+    "formatted_address": "Hingston Hall B, Montreal, QC H4B, Canada, Canada",
     "geometry": {
       "location": {
-        "lat": 45.4579826,
-        "lng": -73.6397985
+        "lat": 45.4594409,
+        "lng": -73.6419039
       },
       "location_type": "ROOFTOP",
       "viewport": {
         "northeast": {
-          "lat": 45.4592959302915,
-          "lng": -73.63838886970849
+          "lat": 45.4606946802915,
+          "lng": -73.6403438197085
         },
         "southwest": {
-          "lat": 45.4565979697085,
-          "lng": -73.6410868302915
+          "lat": 45.4579967197085,
+          "lng": -73.64304178029151
         }
       }
     },
     "navigation_points": [
       {
         "location": {
-          "latitude": 45.4578596,
-          "longitude": -73.6395856
-        },
-        "restricted_travel_modes": ["WALK"]
-      },
-      {
-        "location": {
-          "latitude": 45.4580038,
-          "longitude": -73.63985319999999
-        },
-        "restricted_travel_modes": ["DRIVE"]
+          "latitude": 45.45930509999999,
+          "longitude": -73.6414817
+        }
       }
     ],
-    "place_id": "ChIJgUsq1S8XyUwRwBeW4QytuE0",
-    "types": ["premise", "street_address"],
+    "place_id": "ChIJi-hJSlsXyUwRhOdWfkzNBqs",
+    "plus_code": {
+      "compound_code": "F955+Q6 Montreal, QC, Canada",
+      "global_code": "87Q8F955+Q6"
+    },
+    "types": ["establishment", "point_of_interest"],
     "buildingCode": "HB",
     "buildingName": "Hingston Hall, wing HB",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
+    "address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+    "campus": "LOYOLA"
   },
   {
     "buildings": [
@@ -4006,132 +3745,62 @@
             "display_polygon": {
               "coordinates": [
                 [
-                  [
-                    [-73.6408772869513, 45.4585890444863],
-                    [-73.6407985119765, 45.4586801381204],
-                    [-73.6410434135512, 45.4587656349228],
-                    [-73.6410337817405, 45.4587851652835],
-                    [-73.6411307292453, 45.4588225485177],
-                    [-73.641145397086, 45.4588024297448],
-                    [-73.6411619356442, 45.4588079540898],
-                    [-73.6412836990154, 45.4586467679607],
-                    [-73.6412704836223, 45.4586411413492],
-                    [-73.641376403155, 45.4585062439627],
-                    [-73.6413154218922, 45.4584840209662],
-                    [-73.6412767428744, 45.4585370462476],
-                    [-73.6412461196636, 45.4585235554084],
-                    [-73.6412288337043, 45.4585453547232],
-                    [-73.6411366941731, 45.4585098572153],
-                    [-73.6412021937158, 45.4584281724403],
-                    [-73.6410774329832, 45.4583815457209],
-                    [-73.6410079055759, 45.4584725211565],
-                    [-73.6408517473394, 45.458413027044],
-                    [-73.6408116759182, 45.4584611281071],
-                    [-73.6407504451182, 45.4584372457533],
-                    [-73.6407102295275, 45.4584887179595],
-                    [-73.6407733946252, 45.4585134741824],
-                    [-73.6407529936233, 45.4585395360268],
-                    [-73.6408772869513, 45.4585890444863]
-                  ]
-                ],
-                [
-                  [
-                    [-73.640685034277, 45.4585208608007],
-                    [-73.6407957736703, 45.4583791494107],
-                    [-73.6405590484041, 45.458288067748],
-                    [-73.640564372429, 45.4582807370996],
-                    [-73.6402606533331, 45.4581655166129],
-                    [-73.6402556996114, 45.4581718691469],
-                    [-73.6400146981164, 45.4580776515112],
-                    [-73.6399947518581, 45.4581036322558],
-                    [-73.6399668476527, 45.4580924575034],
-                    [-73.6399436219669, 45.4581219391978],
-                    [-73.6399074228682, 45.4581082196506],
-                    [-73.6399223691219, 45.4580900595336],
-                    [-73.6399135855623, 45.4580862631194],
-                    [-73.6400076738254, 45.4579642333517],
-                    [-73.6400664064559, 45.4579871594348],
-                    [-73.6401266871755, 45.4579119371099],
-                    [-73.6398312888425, 45.4577985269392],
-                    [-73.6397706190755, 45.4578764941739],
-                    [-73.6398149533159, 45.4578930300438],
-                    [-73.6398066969935, 45.4579036174965],
-                    [-73.6398351180342, 45.4579163430144],
-                    [-73.6397535448525, 45.4580219205454],
-                    [-73.639741129547, 45.4580208358951],
-                    [-73.6396715170233, 45.4579983776984],
-                    [-73.6396309215869, 45.4580654273612],
-                    [-73.6396882783852, 45.4580865293883],
-                    [-73.6396887773383, 45.4580898474012],
-                    [-73.6396951868686, 45.4580959502411],
-                    [-73.6396166169914, 45.4582019689471],
-                    [-73.6395811225177, 45.4581898275843],
-                    [-73.6395737199856, 45.4581996554648],
-                    [-73.6395088037371, 45.4581730191629],
-                    [-73.6394429805971, 45.4582552453557],
-                    [-73.6397634323295, 45.4583770539877],
-                    [-73.639823318343, 45.4582976433774],
-                    [-73.6397656937339, 45.458276649559],
-                    [-73.6398615938007, 45.4581522303785],
-                    [-73.6398702925016, 45.4581551294048],
-                    [-73.6398811620684, 45.4581418281119],
-                    [-73.63991569451, 45.4581545656232],
-                    [-73.6399458518892, 45.4581660710766],
-                    [-73.6399018618318, 45.4582187587328],
-                    [-73.6401444564348, 45.4583151280049],
-                    [-73.6401414600105, 45.4583216203185],
-                    [-73.640445805528, 45.45843855574],
-                    [-73.6404494963462, 45.4584315753495],
-                    [-73.640685034277, 45.4585208608007]
-                  ]
+                  [-73.6418795252247, 45.4597160619138],
+                  [-73.6421070482814, 45.4598037268178],
+                  [-73.6422443845596, 45.4596271221891],
+                  [-73.6420168626765, 45.4595394579799],
+                  [-73.6418795252247, 45.4597160619138]
                 ]
               ],
-              "type": "MultiPolygon"
+              "type": "Polygon"
             }
           }
         ],
-        "place_id": "ChIJERHb3zEXyUwRPdbqFL-zXAU"
+        "place_id": "ChIJH9e_OTAXyUwRHXYtNjcDQQU"
       }
     ],
-    "formatted_address": "7141 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
+    "formatted_address": "Hingston Hall C, Montreal, QC H4B 2B7, Canada",
     "geometry": {
+      "bounds": {
+        "northeast": {
+          "lat": 45.45980369999999,
+          "lng": -73.6418795
+        },
+        "southwest": {
+          "lat": 45.4595395,
+          "lng": -73.6422444
+        }
+      },
       "location": {
-        "lat": 45.4579826,
-        "lng": -73.6397985
+        "lat": 45.4596694,
+        "lng": -73.6420526
       },
       "location_type": "ROOFTOP",
       "viewport": {
         "northeast": {
-          "lat": 45.4592959302915,
-          "lng": -73.63838886970849
+          "lat": 45.4610205802915,
+          "lng": -73.64055096970849
         },
         "southwest": {
-          "lat": 45.4565979697085,
-          "lng": -73.6410868302915
+          "lat": 45.4583226197085,
+          "lng": -73.6432489302915
         }
       }
     },
     "navigation_points": [
       {
         "location": {
-          "latitude": 45.4578596,
-          "longitude": -73.6395856
-        },
-        "restricted_travel_modes": ["WALK"]
-      },
-      {
-        "location": {
-          "latitude": 45.4580038,
-          "longitude": -73.63985319999999
-        },
-        "restricted_travel_modes": ["DRIVE"]
+          "latitude": 45.4595935,
+          "longitude": -73.6416359
+        }
       }
     ],
-    "place_id": "ChIJgUsq1S8XyUwRwBeW4QytuE0",
+    "place_id": "ChIJH9e_OTAXyUwRHXYtNjcDQQU",
     "types": ["premise", "street_address"],
     "buildingCode": "HC",
     "buildingName": "Hingston Hall, wing HC",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
+    "address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+    "campus": "LOYOLA"
   },
   {
     "buildings": [
@@ -4141,132 +3810,56 @@
             "display_polygon": {
               "coordinates": [
                 [
-                  [
-                    [-73.6408772869513, 45.4585890444863],
-                    [-73.6407985119765, 45.4586801381204],
-                    [-73.6410434135512, 45.4587656349228],
-                    [-73.6410337817405, 45.4587851652835],
-                    [-73.6411307292453, 45.4588225485177],
-                    [-73.641145397086, 45.4588024297448],
-                    [-73.6411619356442, 45.4588079540898],
-                    [-73.6412836990154, 45.4586467679607],
-                    [-73.6412704836223, 45.4586411413492],
-                    [-73.641376403155, 45.4585062439627],
-                    [-73.6413154218922, 45.4584840209662],
-                    [-73.6412767428744, 45.4585370462476],
-                    [-73.6412461196636, 45.4585235554084],
-                    [-73.6412288337043, 45.4585453547232],
-                    [-73.6411366941731, 45.4585098572153],
-                    [-73.6412021937158, 45.4584281724403],
-                    [-73.6410774329832, 45.4583815457209],
-                    [-73.6410079055759, 45.4584725211565],
-                    [-73.6408517473394, 45.458413027044],
-                    [-73.6408116759182, 45.4584611281071],
-                    [-73.6407504451182, 45.4584372457533],
-                    [-73.6407102295275, 45.4584887179595],
-                    [-73.6407733946252, 45.4585134741824],
-                    [-73.6407529936233, 45.4585395360268],
-                    [-73.6408772869513, 45.4585890444863]
-                  ]
-                ],
-                [
-                  [
-                    [-73.640685034277, 45.4585208608007],
-                    [-73.6407957736703, 45.4583791494107],
-                    [-73.6405590484041, 45.458288067748],
-                    [-73.640564372429, 45.4582807370996],
-                    [-73.6402606533331, 45.4581655166129],
-                    [-73.6402556996114, 45.4581718691469],
-                    [-73.6400146981164, 45.4580776515112],
-                    [-73.6399947518581, 45.4581036322558],
-                    [-73.6399668476527, 45.4580924575034],
-                    [-73.6399436219669, 45.4581219391978],
-                    [-73.6399074228682, 45.4581082196506],
-                    [-73.6399223691219, 45.4580900595336],
-                    [-73.6399135855623, 45.4580862631194],
-                    [-73.6400076738254, 45.4579642333517],
-                    [-73.6400664064559, 45.4579871594348],
-                    [-73.6401266871755, 45.4579119371099],
-                    [-73.6398312888425, 45.4577985269392],
-                    [-73.6397706190755, 45.4578764941739],
-                    [-73.6398149533159, 45.4578930300438],
-                    [-73.6398066969935, 45.4579036174965],
-                    [-73.6398351180342, 45.4579163430144],
-                    [-73.6397535448525, 45.4580219205454],
-                    [-73.639741129547, 45.4580208358951],
-                    [-73.6396715170233, 45.4579983776984],
-                    [-73.6396309215869, 45.4580654273612],
-                    [-73.6396882783852, 45.4580865293883],
-                    [-73.6396887773383, 45.4580898474012],
-                    [-73.6396951868686, 45.4580959502411],
-                    [-73.6396166169914, 45.4582019689471],
-                    [-73.6395811225177, 45.4581898275843],
-                    [-73.6395737199856, 45.4581996554648],
-                    [-73.6395088037371, 45.4581730191629],
-                    [-73.6394429805971, 45.4582552453557],
-                    [-73.6397634323295, 45.4583770539877],
-                    [-73.639823318343, 45.4582976433774],
-                    [-73.6397656937339, 45.458276649559],
-                    [-73.6398615938007, 45.4581522303785],
-                    [-73.6398702925016, 45.4581551294048],
-                    [-73.6398811620684, 45.4581418281119],
-                    [-73.63991569451, 45.4581545656232],
-                    [-73.6399458518892, 45.4581660710766],
-                    [-73.6399018618318, 45.4582187587328],
-                    [-73.6401444564348, 45.4583151280049],
-                    [-73.6401414600105, 45.4583216203185],
-                    [-73.640445805528, 45.45843855574],
-                    [-73.6404494963462, 45.4584315753495],
-                    [-73.640685034277, 45.4585208608007]
-                  ]
+                  [-73.6415036446775, 45.4585771279425],
+                  [-73.6419054527768, 45.4587270927744],
+                  [-73.6421195451855, 45.458443026293],
+                  [-73.6417179281964, 45.4582930909286],
+                  [-73.6415036446775, 45.4585771279425]
                 ]
               ],
-              "type": "MultiPolygon"
+              "type": "Polygon"
             }
           }
         ],
-        "place_id": "ChIJERHb3zEXyUwRPdbqFL-zXAU"
+        "place_id": "ChIJg0sq1S8XyUwRKcVBcMVPblk"
       }
     ],
     "formatted_address": "7141 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
     "geometry": {
       "location": {
-        "lat": 45.4579826,
-        "lng": -73.6397985
+        "lat": 45.4585642,
+        "lng": -73.6418664
       },
       "location_type": "ROOFTOP",
       "viewport": {
         "northeast": {
-          "lat": 45.4592959302915,
-          "lng": -73.63838886970849
+          "lat": 45.4597886302915,
+          "lng": -73.64061441970848
         },
         "southwest": {
-          "lat": 45.4565979697085,
-          "lng": -73.6410868302915
+          "lat": 45.4570906697085,
+          "lng": -73.64331238029149
         }
       }
     },
     "navigation_points": [
       {
         "location": {
-          "latitude": 45.4578596,
-          "longitude": -73.6395856
-        },
-        "restricted_travel_modes": ["WALK"]
-      },
-      {
-        "location": {
-          "latitude": 45.4580038,
-          "longitude": -73.63985319999999
-        },
-        "restricted_travel_modes": ["DRIVE"]
+          "latitude": 45.4583704,
+          "longitude": -73.64201729999999
+        }
       }
     ],
-    "place_id": "ChIJgUsq1S8XyUwRwBeW4QytuE0",
-    "types": ["premise", "street_address"],
+    "place_id": "ChIJGz0xAAsXyUwRAEJgG33sYjg",
+    "plus_code": {
+      "compound_code": "F955+C7 Montreal, QC, Canada",
+      "global_code": "87Q8F955+C7"
+    },
+    "types": ["establishment", "point_of_interest", "university"],
     "buildingCode": "HU",
     "buildingName": "Applied Science Hub",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
+    "address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+    "campus": "LOYOLA"
   },
   {
     "buildings": [
@@ -4276,132 +3869,76 @@
             "display_polygon": {
               "coordinates": [
                 [
-                  [
-                    [-73.6408772869513, 45.4585890444863],
-                    [-73.6407985119765, 45.4586801381204],
-                    [-73.6410434135512, 45.4587656349228],
-                    [-73.6410337817405, 45.4587851652835],
-                    [-73.6411307292453, 45.4588225485177],
-                    [-73.641145397086, 45.4588024297448],
-                    [-73.6411619356442, 45.4588079540898],
-                    [-73.6412836990154, 45.4586467679607],
-                    [-73.6412704836223, 45.4586411413492],
-                    [-73.641376403155, 45.4585062439627],
-                    [-73.6413154218922, 45.4584840209662],
-                    [-73.6412767428744, 45.4585370462476],
-                    [-73.6412461196636, 45.4585235554084],
-                    [-73.6412288337043, 45.4585453547232],
-                    [-73.6411366941731, 45.4585098572153],
-                    [-73.6412021937158, 45.4584281724403],
-                    [-73.6410774329832, 45.4583815457209],
-                    [-73.6410079055759, 45.4584725211565],
-                    [-73.6408517473394, 45.458413027044],
-                    [-73.6408116759182, 45.4584611281071],
-                    [-73.6407504451182, 45.4584372457533],
-                    [-73.6407102295275, 45.4584887179595],
-                    [-73.6407733946252, 45.4585134741824],
-                    [-73.6407529936233, 45.4585395360268],
-                    [-73.6408772869513, 45.4585890444863]
-                  ]
-                ],
-                [
-                  [
-                    [-73.640685034277, 45.4585208608007],
-                    [-73.6407957736703, 45.4583791494107],
-                    [-73.6405590484041, 45.458288067748],
-                    [-73.640564372429, 45.4582807370996],
-                    [-73.6402606533331, 45.4581655166129],
-                    [-73.6402556996114, 45.4581718691469],
-                    [-73.6400146981164, 45.4580776515112],
-                    [-73.6399947518581, 45.4581036322558],
-                    [-73.6399668476527, 45.4580924575034],
-                    [-73.6399436219669, 45.4581219391978],
-                    [-73.6399074228682, 45.4581082196506],
-                    [-73.6399223691219, 45.4580900595336],
-                    [-73.6399135855623, 45.4580862631194],
-                    [-73.6400076738254, 45.4579642333517],
-                    [-73.6400664064559, 45.4579871594348],
-                    [-73.6401266871755, 45.4579119371099],
-                    [-73.6398312888425, 45.4577985269392],
-                    [-73.6397706190755, 45.4578764941739],
-                    [-73.6398149533159, 45.4578930300438],
-                    [-73.6398066969935, 45.4579036174965],
-                    [-73.6398351180342, 45.4579163430144],
-                    [-73.6397535448525, 45.4580219205454],
-                    [-73.639741129547, 45.4580208358951],
-                    [-73.6396715170233, 45.4579983776984],
-                    [-73.6396309215869, 45.4580654273612],
-                    [-73.6396882783852, 45.4580865293883],
-                    [-73.6396887773383, 45.4580898474012],
-                    [-73.6396951868686, 45.4580959502411],
-                    [-73.6396166169914, 45.4582019689471],
-                    [-73.6395811225177, 45.4581898275843],
-                    [-73.6395737199856, 45.4581996554648],
-                    [-73.6395088037371, 45.4581730191629],
-                    [-73.6394429805971, 45.4582552453557],
-                    [-73.6397634323295, 45.4583770539877],
-                    [-73.639823318343, 45.4582976433774],
-                    [-73.6397656937339, 45.458276649559],
-                    [-73.6398615938007, 45.4581522303785],
-                    [-73.6398702925016, 45.4581551294048],
-                    [-73.6398811620684, 45.4581418281119],
-                    [-73.63991569451, 45.4581545656232],
-                    [-73.6399458518892, 45.4581660710766],
-                    [-73.6399018618318, 45.4582187587328],
-                    [-73.6401444564348, 45.4583151280049],
-                    [-73.6401414600105, 45.4583216203185],
-                    [-73.640445805528, 45.45843855574],
-                    [-73.6404494963462, 45.4584315753495],
-                    [-73.640685034277, 45.4585208608007]
-                  ]
+                  [-73.6433481748265, 45.4585591499338],
+                  [-73.6434014499521, 45.4584941068952],
+                  [-73.6433283981106, 45.4584646569441],
+                  [-73.6433412642807, 45.4584489935071],
+                  [-73.6432425098978, 45.4584091351866],
+                  [-73.6432279129406, 45.4584270519682],
+                  [-73.6431541101892, 45.458397491732],
+                  [-73.643096280091, 45.4584682082598],
+                  [-73.6431224663152, 45.4584788351096],
+                  [-73.6431130101163, 45.4584904267042],
+                  [-73.6430992598496, 45.4584850168532],
+                  [-73.643055013337, 45.458538847918],
+                  [-73.6431312624657, 45.458569799674],
+                  [-73.6431197796985, 45.4585834537778],
+                  [-73.6432203324316, 45.4586237236778],
+                  [-73.6432354360966, 45.4586052912001],
+                  [-73.6433083004756, 45.4586347137707],
+                  [-73.6433647183882, 45.4585657070598],
+                  [-73.6433481748265, 45.4585591499338]
                 ]
               ],
-              "type": "MultiPolygon"
+              "type": "Polygon"
             }
           }
         ],
-        "place_id": "ChIJERHb3zEXyUwRPdbqFL-zXAU"
+        "place_id": "ChIJp3MoHy4XyUwRs6lNreW0-fE"
       }
     ],
-    "formatted_address": "7141 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
+    "formatted_address": "Jesuit Residence, 7141 Sherbrooke St W, Montreal, QC H4B 1R6, Canada",
     "geometry": {
+      "bounds": {
+        "northeast": {
+          "lat": 45.4586347,
+          "lng": -73.64305499999999
+        },
+        "southwest": {
+          "lat": 45.4583975,
+          "lng": -73.6434014
+        }
+      },
       "location": {
-        "lat": 45.4579826,
-        "lng": -73.6397985
+        "lat": 45.4585225,
+        "lng": -73.6432361
       },
       "location_type": "ROOFTOP",
       "viewport": {
         "northeast": {
-          "lat": 45.4592959302915,
-          "lng": -73.63838886970849
+          "lat": 45.4598650802915,
+          "lng": -73.6417720197085
         },
         "southwest": {
-          "lat": 45.4565979697085,
-          "lng": -73.6410868302915
+          "lat": 45.4571671197085,
+          "lng": -73.6444699802915
         }
       }
     },
     "navigation_points": [
       {
         "location": {
-          "latitude": 45.4578596,
-          "longitude": -73.6395856
-        },
-        "restricted_travel_modes": ["WALK"]
-      },
-      {
-        "location": {
-          "latitude": 45.4580038,
-          "longitude": -73.63985319999999
-        },
-        "restricted_travel_modes": ["DRIVE"]
+          "latitude": 45.4584514,
+          "longitude": -73.64291879999999
+        }
       }
     ],
-    "place_id": "ChIJgUsq1S8XyUwRwBeW4QytuE0",
+    "place_id": "ChIJp3MoHy4XyUwRs6lNreW0-fE",
     "types": ["premise", "street_address"],
     "buildingCode": "JR",
     "buildingName": "Jesuit Residence",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
+    "address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+    "campus": "LOYOLA"
   },
   {
     "formatted_address": "7200 Rue Sherbrooke O, Montréal, QC H4B 2A4, Canada",
@@ -4453,6 +3990,7 @@
     "buildingCode": "PC",
     "buildingName": "PERFORM Centre",
     "address": "7200 Sherbrooke St. W., Montreal QC",
+    "campus": "LOYOLA",
     "buildings": [
       {
         "building_outlines": [
@@ -4481,132 +4019,86 @@
             "display_polygon": {
               "coordinates": [
                 [
-                  [
-                    [-73.6408772869513, 45.4585890444863],
-                    [-73.6407985119765, 45.4586801381204],
-                    [-73.6410434135512, 45.4587656349228],
-                    [-73.6410337817405, 45.4587851652835],
-                    [-73.6411307292453, 45.4588225485177],
-                    [-73.641145397086, 45.4588024297448],
-                    [-73.6411619356442, 45.4588079540898],
-                    [-73.6412836990154, 45.4586467679607],
-                    [-73.6412704836223, 45.4586411413492],
-                    [-73.641376403155, 45.4585062439627],
-                    [-73.6413154218922, 45.4584840209662],
-                    [-73.6412767428744, 45.4585370462476],
-                    [-73.6412461196636, 45.4585235554084],
-                    [-73.6412288337043, 45.4585453547232],
-                    [-73.6411366941731, 45.4585098572153],
-                    [-73.6412021937158, 45.4584281724403],
-                    [-73.6410774329832, 45.4583815457209],
-                    [-73.6410079055759, 45.4584725211565],
-                    [-73.6408517473394, 45.458413027044],
-                    [-73.6408116759182, 45.4584611281071],
-                    [-73.6407504451182, 45.4584372457533],
-                    [-73.6407102295275, 45.4584887179595],
-                    [-73.6407733946252, 45.4585134741824],
-                    [-73.6407529936233, 45.4585395360268],
-                    [-73.6408772869513, 45.4585890444863]
-                  ]
-                ],
-                [
-                  [
-                    [-73.640685034277, 45.4585208608007],
-                    [-73.6407957736703, 45.4583791494107],
-                    [-73.6405590484041, 45.458288067748],
-                    [-73.640564372429, 45.4582807370996],
-                    [-73.6402606533331, 45.4581655166129],
-                    [-73.6402556996114, 45.4581718691469],
-                    [-73.6400146981164, 45.4580776515112],
-                    [-73.6399947518581, 45.4581036322558],
-                    [-73.6399668476527, 45.4580924575034],
-                    [-73.6399436219669, 45.4581219391978],
-                    [-73.6399074228682, 45.4581082196506],
-                    [-73.6399223691219, 45.4580900595336],
-                    [-73.6399135855623, 45.4580862631194],
-                    [-73.6400076738254, 45.4579642333517],
-                    [-73.6400664064559, 45.4579871594348],
-                    [-73.6401266871755, 45.4579119371099],
-                    [-73.6398312888425, 45.4577985269392],
-                    [-73.6397706190755, 45.4578764941739],
-                    [-73.6398149533159, 45.4578930300438],
-                    [-73.6398066969935, 45.4579036174965],
-                    [-73.6398351180342, 45.4579163430144],
-                    [-73.6397535448525, 45.4580219205454],
-                    [-73.639741129547, 45.4580208358951],
-                    [-73.6396715170233, 45.4579983776984],
-                    [-73.6396309215869, 45.4580654273612],
-                    [-73.6396882783852, 45.4580865293883],
-                    [-73.6396887773383, 45.4580898474012],
-                    [-73.6396951868686, 45.4580959502411],
-                    [-73.6396166169914, 45.4582019689471],
-                    [-73.6395811225177, 45.4581898275843],
-                    [-73.6395737199856, 45.4581996554648],
-                    [-73.6395088037371, 45.4581730191629],
-                    [-73.6394429805971, 45.4582552453557],
-                    [-73.6397634323295, 45.4583770539877],
-                    [-73.639823318343, 45.4582976433774],
-                    [-73.6397656937339, 45.458276649559],
-                    [-73.6398615938007, 45.4581522303785],
-                    [-73.6398702925016, 45.4581551294048],
-                    [-73.6398811620684, 45.4581418281119],
-                    [-73.63991569451, 45.4581545656232],
-                    [-73.6399458518892, 45.4581660710766],
-                    [-73.6399018618318, 45.4582187587328],
-                    [-73.6401444564348, 45.4583151280049],
-                    [-73.6401414600105, 45.4583216203185],
-                    [-73.640445805528, 45.45843855574],
-                    [-73.6404494963462, 45.4584315753495],
-                    [-73.640685034277, 45.4585208608007]
-                  ]
+                  [-73.640201341293, 45.4599882339157],
+                  [-73.6402030878094, 45.4599890802148],
+                  [-73.640239858259, 45.4598698426124],
+                  [-73.6402297881855, 45.4598661523182],
+                  [-73.6403408856113, 45.4597144594813],
+                  [-73.6401582825607, 45.4596475424707],
+                  [-73.640174142253, 45.459624353395],
+                  [-73.6396800081021, 45.4594311833373],
+                  [-73.6396538594478, 45.4594552221463],
+                  [-73.6395474393349, 45.459410694611],
+                  [-73.6396001483967, 45.4593483705756],
+                  [-73.6394530372725, 45.4592925612444],
+                  [-73.6392287121414, 45.4595842736695],
+                  [-73.63936036578, 45.4596361924694],
+                  [-73.6393286811032, 45.4596790357383],
+                  [-73.6396936209979, 45.4598237482288],
+                  [-73.6399167215764, 45.4599057544473],
+                  [-73.6399217964911, 45.4599075317161],
+                  [-73.6399217784911, 45.4599092990249],
+                  [-73.6399419907126, 45.4599203776549],
+                  [-73.6399458772755, 45.4599203580648],
+                  [-73.6399724247668, 45.459927941579],
+                  [-73.6399606210943, 45.4599421388314],
+                  [-73.6399669924006, 45.459945876309],
+                  [-73.6399723887717, 45.4599314761984],
+                  [-73.6400688919695, 45.4599651084416],
+                  [-73.6400949916417, 45.4599366371958],
+                  [-73.6401971847091, 45.4599932287521],
+                  [-73.640201341293, 45.4599882339157]
                 ]
               ],
-              "type": "MultiPolygon"
+              "type": "Polygon"
             }
           }
         ],
-        "place_id": "ChIJERHb3zEXyUwRPdbqFL-zXAU"
+        "place_id": "ChIJhwdpvzEXyUwReUM8wFnsnb8"
       }
     ],
-    "formatted_address": "7141 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
+    "formatted_address": "Physical Services, Montreal, QC H4B 2B9, Canada",
     "geometry": {
+      "bounds": {
+        "northeast": {
+          "lat": 45.4599932,
+          "lng": -73.63922869999999
+        },
+        "southwest": {
+          "lat": 45.4592926,
+          "lng": -73.6403409
+        }
+      },
       "location": {
-        "lat": 45.4579826,
-        "lng": -73.6397985
+        "lat": 45.45963709999999,
+        "lng": -73.6397743
       },
       "location_type": "ROOFTOP",
       "viewport": {
         "northeast": {
-          "lat": 45.4592959302915,
-          "lng": -73.63838886970849
+          "lat": 45.4609918802915,
+          "lng": -73.63843581970849
         },
         "southwest": {
-          "lat": 45.4565979697085,
-          "lng": -73.6410868302915
+          "lat": 45.4582939197085,
+          "lng": -73.6411337802915
         }
       }
     },
     "navigation_points": [
       {
         "location": {
-          "latitude": 45.4578596,
-          "longitude": -73.6395856
-        },
-        "restricted_travel_modes": ["WALK"]
-      },
-      {
-        "location": {
-          "latitude": 45.4580038,
-          "longitude": -73.63985319999999
-        },
-        "restricted_travel_modes": ["DRIVE"]
+          "latitude": 45.4594838,
+          "longitude": -73.6398966
+        }
       }
     ],
-    "place_id": "ChIJgUsq1S8XyUwRwBeW4QytuE0",
+    "place_id": "ChIJhwdpvzEXyUwReUM8wFnsnb8",
     "types": ["premise", "street_address"],
     "buildingCode": "PS",
     "buildingName": "Physical Services Building",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
+    "address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+    "campus": "LOYOLA"
   },
   {
     "buildings": [
@@ -4616,132 +4108,110 @@
             "display_polygon": {
               "coordinates": [
                 [
-                  [
-                    [-73.6408772869513, 45.4585890444863],
-                    [-73.6407985119765, 45.4586801381204],
-                    [-73.6410434135512, 45.4587656349228],
-                    [-73.6410337817405, 45.4587851652835],
-                    [-73.6411307292453, 45.4588225485177],
-                    [-73.641145397086, 45.4588024297448],
-                    [-73.6411619356442, 45.4588079540898],
-                    [-73.6412836990154, 45.4586467679607],
-                    [-73.6412704836223, 45.4586411413492],
-                    [-73.641376403155, 45.4585062439627],
-                    [-73.6413154218922, 45.4584840209662],
-                    [-73.6412767428744, 45.4585370462476],
-                    [-73.6412461196636, 45.4585235554084],
-                    [-73.6412288337043, 45.4585453547232],
-                    [-73.6411366941731, 45.4585098572153],
-                    [-73.6412021937158, 45.4584281724403],
-                    [-73.6410774329832, 45.4583815457209],
-                    [-73.6410079055759, 45.4584725211565],
-                    [-73.6408517473394, 45.458413027044],
-                    [-73.6408116759182, 45.4584611281071],
-                    [-73.6407504451182, 45.4584372457533],
-                    [-73.6407102295275, 45.4584887179595],
-                    [-73.6407733946252, 45.4585134741824],
-                    [-73.6407529936233, 45.4585395360268],
-                    [-73.6408772869513, 45.4585890444863]
-                  ]
-                ],
-                [
-                  [
-                    [-73.640685034277, 45.4585208608007],
-                    [-73.6407957736703, 45.4583791494107],
-                    [-73.6405590484041, 45.458288067748],
-                    [-73.640564372429, 45.4582807370996],
-                    [-73.6402606533331, 45.4581655166129],
-                    [-73.6402556996114, 45.4581718691469],
-                    [-73.6400146981164, 45.4580776515112],
-                    [-73.6399947518581, 45.4581036322558],
-                    [-73.6399668476527, 45.4580924575034],
-                    [-73.6399436219669, 45.4581219391978],
-                    [-73.6399074228682, 45.4581082196506],
-                    [-73.6399223691219, 45.4580900595336],
-                    [-73.6399135855623, 45.4580862631194],
-                    [-73.6400076738254, 45.4579642333517],
-                    [-73.6400664064559, 45.4579871594348],
-                    [-73.6401266871755, 45.4579119371099],
-                    [-73.6398312888425, 45.4577985269392],
-                    [-73.6397706190755, 45.4578764941739],
-                    [-73.6398149533159, 45.4578930300438],
-                    [-73.6398066969935, 45.4579036174965],
-                    [-73.6398351180342, 45.4579163430144],
-                    [-73.6397535448525, 45.4580219205454],
-                    [-73.639741129547, 45.4580208358951],
-                    [-73.6396715170233, 45.4579983776984],
-                    [-73.6396309215869, 45.4580654273612],
-                    [-73.6396882783852, 45.4580865293883],
-                    [-73.6396887773383, 45.4580898474012],
-                    [-73.6396951868686, 45.4580959502411],
-                    [-73.6396166169914, 45.4582019689471],
-                    [-73.6395811225177, 45.4581898275843],
-                    [-73.6395737199856, 45.4581996554648],
-                    [-73.6395088037371, 45.4581730191629],
-                    [-73.6394429805971, 45.4582552453557],
-                    [-73.6397634323295, 45.4583770539877],
-                    [-73.639823318343, 45.4582976433774],
-                    [-73.6397656937339, 45.458276649559],
-                    [-73.6398615938007, 45.4581522303785],
-                    [-73.6398702925016, 45.4581551294048],
-                    [-73.6398811620684, 45.4581418281119],
-                    [-73.63991569451, 45.4581545656232],
-                    [-73.6399458518892, 45.4581660710766],
-                    [-73.6399018618318, 45.4582187587328],
-                    [-73.6401444564348, 45.4583151280049],
-                    [-73.6401414600105, 45.4583216203185],
-                    [-73.640445805528, 45.45843855574],
-                    [-73.6404494963462, 45.4584315753495],
-                    [-73.640685034277, 45.4585208608007]
-                  ]
+                  [-73.6384670350639, 45.458630439266],
+                  [-73.6383986331803, 45.4587177447613],
+                  [-73.6383633721909, 45.4587041622279],
+                  [-73.6382369027117, 45.458865688604],
+                  [-73.638202500656, 45.4588523795509],
+                  [-73.6381749048765, 45.4588875623709],
+                  [-73.6381262969821, 45.4588689233369],
+                  [-73.6381001930414, 45.4589022602197],
+                  [-73.638048416268, 45.4588824185542],
+                  [-73.638026201593, 45.4589108690347],
+                  [-73.6380010385289, 45.4589012758865],
+                  [-73.6378938770783, 45.4590379079377],
+                  [-73.6379154958403, 45.4590462434286],
+                  [-73.6378879793163, 45.4590812905123],
+                  [-73.6378679989784, 45.4590736379824],
+                  [-73.6378456759963, 45.4591019251822],
+                  [-73.637914372618, 45.4591283803455],
+                  [-73.6379194864771, 45.4591217562384],
+                  [-73.6379438986255, 45.4591312392161],
+                  [-73.6379385455363, 45.4591382706944],
+                  [-73.6381321479391, 45.4592128531383],
+                  [-73.6381955174007, 45.4591320352687],
+                  [-73.638662296719, 45.4593120524935],
+                  [-73.638670394265, 45.4593017364144],
+                  [-73.6391354956591, 45.4594835704297],
+                  [-73.6392319979447, 45.4593605637811],
+                  [-73.6392081490052, 45.4593511637581],
+                  [-73.6392211207098, 45.4593346307778],
+                  [-73.6391782302059, 45.4593177162506],
+                  [-73.6392208235631, 45.4592639374046],
+                  [-73.6393244911281, 45.4593048163551],
+                  [-73.6393812852633, 45.4592337999664],
+                  [-73.6393317099037, 45.4592147244697],
+                  [-73.6394178576669, 45.4591065706206],
+                  [-73.6391241802509, 45.4589909017275],
+                  [-73.6390404520442, 45.4590952804424],
+                  [-73.6389972660174, 45.4590781750219],
+                  [-73.6389512899121, 45.459136324394],
+                  [-73.6389844575591, 45.4591493045649],
+                  [-73.6389276110551, 45.4592207554939],
+                  [-73.6387792039197, 45.4591629850965],
+                  [-73.6387843175763, 45.4591563609329],
+                  [-73.6388869329345, 45.4591959059043],
+                  [-73.6389694504627, 45.4590904643475],
+                  [-73.6388646336778, 45.4590501539314],
+                  [-73.6390188825318, 45.4588534704689],
+                  [-73.6389756453386, 45.4588368000629],
+                  [-73.6389817440707, 45.4588288455962],
+                  [-73.6384670350639, 45.458630439266]
                 ]
               ],
-              "type": "MultiPolygon"
+              "type": "Polygon"
             }
           }
         ],
-        "place_id": "ChIJERHb3zEXyUwRPdbqFL-zXAU"
+        "place_id": "ChIJ8Qdo8TEXyUwRqTWc6FcbiBw"
       }
     ],
-    "formatted_address": "7141 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
+    "entrances": [
+      {
+        "building_place_id": "ChIJ8Qdo8TEXyUwRqTWc6FcbiBw",
+        "entrance_tags": ["PREFERRED"],
+        "location": {
+          "lat": 45.45907820000001,
+          "lng": -73.63893759999999
+        }
+      }
+    ],
+    "formatted_address": "Université Concordia, 7141 Rue Sherbrooke O, Montréal, QC H4B 2B9, Canada",
     "geometry": {
       "location": {
-        "lat": 45.4579826,
-        "lng": -73.6397985
+        "lat": 45.45883509999999,
+        "lng": -73.6389447
       },
       "location_type": "ROOFTOP",
       "viewport": {
         "northeast": {
-          "lat": 45.4592959302915,
-          "lng": -73.63838886970849
+          "lat": 45.4601383302915,
+          "lng": -73.6377210197085
         },
         "southwest": {
-          "lat": 45.4565979697085,
-          "lng": -73.6410868302915
+          "lat": 45.4574403697085,
+          "lng": -73.6404189802915
         }
       }
     },
     "navigation_points": [
       {
         "location": {
-          "latitude": 45.4578596,
-          "longitude": -73.6395856
-        },
-        "restricted_travel_modes": ["WALK"]
-      },
-      {
-        "location": {
-          "latitude": 45.4580038,
-          "longitude": -73.63985319999999
-        },
-        "restricted_travel_modes": ["DRIVE"]
+          "latitude": 45.458799,
+          "longitude": -73.6391526
+        }
       }
     ],
-    "place_id": "ChIJgUsq1S8XyUwRwBeW4QytuE0",
-    "types": ["premise", "street_address"],
+    "place_id": "ChIJL7mz8TEXyUwRu9P6P2NMZYU",
+    "plus_code": {
+      "compound_code": "F956+GC Montreal, QC, Canada",
+      "global_code": "87Q8F956+GC"
+    },
+    "types": ["establishment", "point_of_interest"],
     "buildingCode": "PT",
     "buildingName": "Oscar Peterson Concert Hall",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
+    "address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+    "campus": "LOYOLA"
   },
   {
     "buildings": [
@@ -4751,267 +4221,71 @@
             "display_polygon": {
               "coordinates": [
                 [
-                  [
-                    [-73.6408772869513, 45.4585890444863],
-                    [-73.6407985119765, 45.4586801381204],
-                    [-73.6410434135512, 45.4587656349228],
-                    [-73.6410337817405, 45.4587851652835],
-                    [-73.6411307292453, 45.4588225485177],
-                    [-73.641145397086, 45.4588024297448],
-                    [-73.6411619356442, 45.4588079540898],
-                    [-73.6412836990154, 45.4586467679607],
-                    [-73.6412704836223, 45.4586411413492],
-                    [-73.641376403155, 45.4585062439627],
-                    [-73.6413154218922, 45.4584840209662],
-                    [-73.6412767428744, 45.4585370462476],
-                    [-73.6412461196636, 45.4585235554084],
-                    [-73.6412288337043, 45.4585453547232],
-                    [-73.6411366941731, 45.4585098572153],
-                    [-73.6412021937158, 45.4584281724403],
-                    [-73.6410774329832, 45.4583815457209],
-                    [-73.6410079055759, 45.4584725211565],
-                    [-73.6408517473394, 45.458413027044],
-                    [-73.6408116759182, 45.4584611281071],
-                    [-73.6407504451182, 45.4584372457533],
-                    [-73.6407102295275, 45.4584887179595],
-                    [-73.6407733946252, 45.4585134741824],
-                    [-73.6407529936233, 45.4585395360268],
-                    [-73.6408772869513, 45.4585890444863]
-                  ]
-                ],
-                [
-                  [
-                    [-73.640685034277, 45.4585208608007],
-                    [-73.6407957736703, 45.4583791494107],
-                    [-73.6405590484041, 45.458288067748],
-                    [-73.640564372429, 45.4582807370996],
-                    [-73.6402606533331, 45.4581655166129],
-                    [-73.6402556996114, 45.4581718691469],
-                    [-73.6400146981164, 45.4580776515112],
-                    [-73.6399947518581, 45.4581036322558],
-                    [-73.6399668476527, 45.4580924575034],
-                    [-73.6399436219669, 45.4581219391978],
-                    [-73.6399074228682, 45.4581082196506],
-                    [-73.6399223691219, 45.4580900595336],
-                    [-73.6399135855623, 45.4580862631194],
-                    [-73.6400076738254, 45.4579642333517],
-                    [-73.6400664064559, 45.4579871594348],
-                    [-73.6401266871755, 45.4579119371099],
-                    [-73.6398312888425, 45.4577985269392],
-                    [-73.6397706190755, 45.4578764941739],
-                    [-73.6398149533159, 45.4578930300438],
-                    [-73.6398066969935, 45.4579036174965],
-                    [-73.6398351180342, 45.4579163430144],
-                    [-73.6397535448525, 45.4580219205454],
-                    [-73.639741129547, 45.4580208358951],
-                    [-73.6396715170233, 45.4579983776984],
-                    [-73.6396309215869, 45.4580654273612],
-                    [-73.6396882783852, 45.4580865293883],
-                    [-73.6396887773383, 45.4580898474012],
-                    [-73.6396951868686, 45.4580959502411],
-                    [-73.6396166169914, 45.4582019689471],
-                    [-73.6395811225177, 45.4581898275843],
-                    [-73.6395737199856, 45.4581996554648],
-                    [-73.6395088037371, 45.4581730191629],
-                    [-73.6394429805971, 45.4582552453557],
-                    [-73.6397634323295, 45.4583770539877],
-                    [-73.639823318343, 45.4582976433774],
-                    [-73.6397656937339, 45.458276649559],
-                    [-73.6398615938007, 45.4581522303785],
-                    [-73.6398702925016, 45.4581551294048],
-                    [-73.6398811620684, 45.4581418281119],
-                    [-73.63991569451, 45.4581545656232],
-                    [-73.6399458518892, 45.4581660710766],
-                    [-73.6399018618318, 45.4582187587328],
-                    [-73.6401444564348, 45.4583151280049],
-                    [-73.6401414600105, 45.4583216203185],
-                    [-73.640445805528, 45.45843855574],
-                    [-73.6404494963462, 45.4584315753495],
-                    [-73.640685034277, 45.4585208608007]
-                  ]
+                  [-73.6401547927918, 45.4590605941301],
+                  [-73.6405753945147, 45.4592261553974],
+                  [-73.640592869029, 45.4592043834532],
+                  [-73.6406106680324, 45.4592046356388],
+                  [-73.6406330165294, 45.4591766467971],
+                  [-73.6406244022924, 45.4591638781537],
+                  [-73.6406407038891, 45.4591434090388],
+                  [-73.6405981095166, 45.4591266861319],
+                  [-73.6405955010691, 45.4591088991508],
+                  [-73.6408374201194, 45.4588066437309],
+                  [-73.6407597247335, 45.4587760677973],
+                  [-73.6407725641732, 45.4587601055038],
+                  [-73.6405540081979, 45.4586741971207],
+                  [-73.6405353893195, 45.4586975707439],
+                  [-73.6404585532031, 45.4586672682077],
+                  [-73.6404313024865, 45.4587011743893],
+                  [-73.6404200495755, 45.4586967206135],
+                  [-73.640233187068, 45.4589302109954],
+                  [-73.6402528997302, 45.4589379712364],
+                  [-73.6401547927918, 45.4590605941301]
                 ]
               ],
-              "type": "MultiPolygon"
+              "type": "Polygon"
             }
           }
         ],
-        "place_id": "ChIJERHb3zEXyUwRPdbqFL-zXAU"
+        "place_id": "ChIJAcTa3zEXyUwR9_Uj5tJHrmg"
       }
     ],
     "formatted_address": "7141 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
     "geometry": {
       "location": {
-        "lat": 45.4579826,
-        "lng": -73.6397985
+        "lat": 45.4591404,
+        "lng": -73.6403837
       },
       "location_type": "ROOFTOP",
       "viewport": {
         "northeast": {
-          "lat": 45.4592959302915,
-          "lng": -73.63838886970849
+          "lat": 45.4605070802915,
+          "lng": -73.63902061970849
         },
         "southwest": {
-          "lat": 45.4565979697085,
-          "lng": -73.6410868302915
+          "lat": 45.4578091197085,
+          "lng": -73.6417185802915
         }
       }
     },
     "navigation_points": [
       {
         "location": {
-          "latitude": 45.4578596,
-          "longitude": -73.6395856
-        },
-        "restricted_travel_modes": ["WALK"]
-      },
-      {
-        "location": {
-          "latitude": 45.4580038,
-          "longitude": -73.63985319999999
-        },
-        "restricted_travel_modes": ["DRIVE"]
+          "latitude": 45.4591305,
+          "longitude": -73.6403912
+        }
       }
     ],
-    "place_id": "ChIJgUsq1S8XyUwRwBeW4QytuE0",
-    "types": ["premise", "street_address"],
+    "place_id": "ChIJVVVF4zEXyUwRMb9NxsYrXqs",
+    "plus_code": {
+      "compound_code": "F955+MR Montreal, QC, Canada",
+      "global_code": "87Q8F955+MR"
+    },
+    "types": ["establishment", "point_of_interest"],
     "buildingCode": "PY",
     "buildingName": "Psychology Building",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
-  },
-  {
-    "buildings": [
-      {
-        "building_outlines": [
-          {
-            "display_polygon": {
-              "coordinates": [
-                [
-                  [
-                    [-73.6408772869513, 45.4585890444863],
-                    [-73.6407985119765, 45.4586801381204],
-                    [-73.6410434135512, 45.4587656349228],
-                    [-73.6410337817405, 45.4587851652835],
-                    [-73.6411307292453, 45.4588225485177],
-                    [-73.641145397086, 45.4588024297448],
-                    [-73.6411619356442, 45.4588079540898],
-                    [-73.6412836990154, 45.4586467679607],
-                    [-73.6412704836223, 45.4586411413492],
-                    [-73.641376403155, 45.4585062439627],
-                    [-73.6413154218922, 45.4584840209662],
-                    [-73.6412767428744, 45.4585370462476],
-                    [-73.6412461196636, 45.4585235554084],
-                    [-73.6412288337043, 45.4585453547232],
-                    [-73.6411366941731, 45.4585098572153],
-                    [-73.6412021937158, 45.4584281724403],
-                    [-73.6410774329832, 45.4583815457209],
-                    [-73.6410079055759, 45.4584725211565],
-                    [-73.6408517473394, 45.458413027044],
-                    [-73.6408116759182, 45.4584611281071],
-                    [-73.6407504451182, 45.4584372457533],
-                    [-73.6407102295275, 45.4584887179595],
-                    [-73.6407733946252, 45.4585134741824],
-                    [-73.6407529936233, 45.4585395360268],
-                    [-73.6408772869513, 45.4585890444863]
-                  ]
-                ],
-                [
-                  [
-                    [-73.640685034277, 45.4585208608007],
-                    [-73.6407957736703, 45.4583791494107],
-                    [-73.6405590484041, 45.458288067748],
-                    [-73.640564372429, 45.4582807370996],
-                    [-73.6402606533331, 45.4581655166129],
-                    [-73.6402556996114, 45.4581718691469],
-                    [-73.6400146981164, 45.4580776515112],
-                    [-73.6399947518581, 45.4581036322558],
-                    [-73.6399668476527, 45.4580924575034],
-                    [-73.6399436219669, 45.4581219391978],
-                    [-73.6399074228682, 45.4581082196506],
-                    [-73.6399223691219, 45.4580900595336],
-                    [-73.6399135855623, 45.4580862631194],
-                    [-73.6400076738254, 45.4579642333517],
-                    [-73.6400664064559, 45.4579871594348],
-                    [-73.6401266871755, 45.4579119371099],
-                    [-73.6398312888425, 45.4577985269392],
-                    [-73.6397706190755, 45.4578764941739],
-                    [-73.6398149533159, 45.4578930300438],
-                    [-73.6398066969935, 45.4579036174965],
-                    [-73.6398351180342, 45.4579163430144],
-                    [-73.6397535448525, 45.4580219205454],
-                    [-73.639741129547, 45.4580208358951],
-                    [-73.6396715170233, 45.4579983776984],
-                    [-73.6396309215869, 45.4580654273612],
-                    [-73.6396882783852, 45.4580865293883],
-                    [-73.6396887773383, 45.4580898474012],
-                    [-73.6396951868686, 45.4580959502411],
-                    [-73.6396166169914, 45.4582019689471],
-                    [-73.6395811225177, 45.4581898275843],
-                    [-73.6395737199856, 45.4581996554648],
-                    [-73.6395088037371, 45.4581730191629],
-                    [-73.6394429805971, 45.4582552453557],
-                    [-73.6397634323295, 45.4583770539877],
-                    [-73.639823318343, 45.4582976433774],
-                    [-73.6397656937339, 45.458276649559],
-                    [-73.6398615938007, 45.4581522303785],
-                    [-73.6398702925016, 45.4581551294048],
-                    [-73.6398811620684, 45.4581418281119],
-                    [-73.63991569451, 45.4581545656232],
-                    [-73.6399458518892, 45.4581660710766],
-                    [-73.6399018618318, 45.4582187587328],
-                    [-73.6401444564348, 45.4583151280049],
-                    [-73.6401414600105, 45.4583216203185],
-                    [-73.640445805528, 45.45843855574],
-                    [-73.6404494963462, 45.4584315753495],
-                    [-73.640685034277, 45.4585208608007]
-                  ]
-                ]
-              ],
-              "type": "MultiPolygon"
-            }
-          }
-        ],
-        "place_id": "ChIJERHb3zEXyUwRPdbqFL-zXAU"
-      }
-    ],
-    "formatted_address": "7141 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
-    "geometry": {
-      "location": {
-        "lat": 45.4579826,
-        "lng": -73.6397985
-      },
-      "location_type": "ROOFTOP",
-      "viewport": {
-        "northeast": {
-          "lat": 45.4592959302915,
-          "lng": -73.63838886970849
-        },
-        "southwest": {
-          "lat": 45.4565979697085,
-          "lng": -73.6410868302915
-        }
-      }
-    },
-    "navigation_points": [
-      {
-        "location": {
-          "latitude": 45.4578596,
-          "longitude": -73.6395856
-        },
-        "restricted_travel_modes": ["WALK"]
-      },
-      {
-        "location": {
-          "latitude": 45.4580038,
-          "longitude": -73.63985319999999
-        },
-        "restricted_travel_modes": ["DRIVE"]
-      }
-    ],
-    "place_id": "ChIJgUsq1S8XyUwRwBeW4QytuE0",
-    "types": ["premise", "street_address"],
-    "buildingCode": "QA",
-    "buildingName": "Quadrangle",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
+    "address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+    "campus": "LOYOLA"
   },
   {
     "formatted_address": "7200 Rue Sherbrooke O, Montréal, QC H4B 2A4, Canada",
@@ -5063,6 +4337,7 @@
     "buildingCode": "RA",
     "buildingName": "Recreation and Athletics Complex",
     "address": "7200 Sherbrooke St. W., Montreal QC",
+    "campus": "LOYOLA",
     "buildings": [
       {
         "building_outlines": [
@@ -5183,45 +4458,42 @@
         "place_id": "ChIJERHb3zEXyUwRPdbqFL-zXAU"
       }
     ],
-    "formatted_address": "7141 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
+    "formatted_address": "7141 Rue Sherbrooke O, Montréal, QC H4B 1E1, Canada",
     "geometry": {
       "location": {
-        "lat": 45.4579826,
-        "lng": -73.6397985
+        "lat": 45.4586562,
+        "lng": -73.64099279999999
       },
       "location_type": "ROOFTOP",
       "viewport": {
         "northeast": {
-          "lat": 45.4592959302915,
-          "lng": -73.63838886970849
+          "lat": 45.46004978029151,
+          "lng": -73.6397623697085
         },
         "southwest": {
-          "lat": 45.4565979697085,
-          "lng": -73.6410868302915
+          "lat": 45.45735181970851,
+          "lng": -73.64246033029151
         }
       }
     },
     "navigation_points": [
       {
         "location": {
-          "latitude": 45.4578596,
-          "longitude": -73.6395856
-        },
-        "restricted_travel_modes": ["WALK"]
-      },
-      {
-        "location": {
-          "latitude": 45.4580038,
-          "longitude": -73.63985319999999
-        },
-        "restricted_travel_modes": ["DRIVE"]
+          "latitude": 45.4587156,
+          "longitude": -73.64115079999999
+        }
       }
     ],
-    "place_id": "ChIJgUsq1S8XyUwRwBeW4QytuE0",
-    "types": ["premise", "street_address"],
+    "place_id": "ChIJ5-iCkyQXyUwRsbQ9j4Ylcyw",
+    "plus_code": {
+      "compound_code": "F955+FJ Montreal, QC, Canada",
+      "global_code": "87Q8F955+FJ"
+    },
+    "types": ["establishment", "point_of_interest"],
     "buildingCode": "RF",
     "buildingName": "Loyola Jesuit Hall and Conference Centre",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
+    "address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+    "campus": "LOYOLA"
   },
   {
     "buildings": [
@@ -5231,132 +4503,110 @@
             "display_polygon": {
               "coordinates": [
                 [
-                  [
-                    [-73.6408772869513, 45.4585890444863],
-                    [-73.6407985119765, 45.4586801381204],
-                    [-73.6410434135512, 45.4587656349228],
-                    [-73.6410337817405, 45.4587851652835],
-                    [-73.6411307292453, 45.4588225485177],
-                    [-73.641145397086, 45.4588024297448],
-                    [-73.6411619356442, 45.4588079540898],
-                    [-73.6412836990154, 45.4586467679607],
-                    [-73.6412704836223, 45.4586411413492],
-                    [-73.641376403155, 45.4585062439627],
-                    [-73.6413154218922, 45.4584840209662],
-                    [-73.6412767428744, 45.4585370462476],
-                    [-73.6412461196636, 45.4585235554084],
-                    [-73.6412288337043, 45.4585453547232],
-                    [-73.6411366941731, 45.4585098572153],
-                    [-73.6412021937158, 45.4584281724403],
-                    [-73.6410774329832, 45.4583815457209],
-                    [-73.6410079055759, 45.4584725211565],
-                    [-73.6408517473394, 45.458413027044],
-                    [-73.6408116759182, 45.4584611281071],
-                    [-73.6407504451182, 45.4584372457533],
-                    [-73.6407102295275, 45.4584887179595],
-                    [-73.6407733946252, 45.4585134741824],
-                    [-73.6407529936233, 45.4585395360268],
-                    [-73.6408772869513, 45.4585890444863]
-                  ]
-                ],
-                [
-                  [
-                    [-73.640685034277, 45.4585208608007],
-                    [-73.6407957736703, 45.4583791494107],
-                    [-73.6405590484041, 45.458288067748],
-                    [-73.640564372429, 45.4582807370996],
-                    [-73.6402606533331, 45.4581655166129],
-                    [-73.6402556996114, 45.4581718691469],
-                    [-73.6400146981164, 45.4580776515112],
-                    [-73.6399947518581, 45.4581036322558],
-                    [-73.6399668476527, 45.4580924575034],
-                    [-73.6399436219669, 45.4581219391978],
-                    [-73.6399074228682, 45.4581082196506],
-                    [-73.6399223691219, 45.4580900595336],
-                    [-73.6399135855623, 45.4580862631194],
-                    [-73.6400076738254, 45.4579642333517],
-                    [-73.6400664064559, 45.4579871594348],
-                    [-73.6401266871755, 45.4579119371099],
-                    [-73.6398312888425, 45.4577985269392],
-                    [-73.6397706190755, 45.4578764941739],
-                    [-73.6398149533159, 45.4578930300438],
-                    [-73.6398066969935, 45.4579036174965],
-                    [-73.6398351180342, 45.4579163430144],
-                    [-73.6397535448525, 45.4580219205454],
-                    [-73.639741129547, 45.4580208358951],
-                    [-73.6396715170233, 45.4579983776984],
-                    [-73.6396309215869, 45.4580654273612],
-                    [-73.6396882783852, 45.4580865293883],
-                    [-73.6396887773383, 45.4580898474012],
-                    [-73.6396951868686, 45.4580959502411],
-                    [-73.6396166169914, 45.4582019689471],
-                    [-73.6395811225177, 45.4581898275843],
-                    [-73.6395737199856, 45.4581996554648],
-                    [-73.6395088037371, 45.4581730191629],
-                    [-73.6394429805971, 45.4582552453557],
-                    [-73.6397634323295, 45.4583770539877],
-                    [-73.639823318343, 45.4582976433774],
-                    [-73.6397656937339, 45.458276649559],
-                    [-73.6398615938007, 45.4581522303785],
-                    [-73.6398702925016, 45.4581551294048],
-                    [-73.6398811620684, 45.4581418281119],
-                    [-73.63991569451, 45.4581545656232],
-                    [-73.6399458518892, 45.4581660710766],
-                    [-73.6399018618318, 45.4582187587328],
-                    [-73.6401444564348, 45.4583151280049],
-                    [-73.6401414600105, 45.4583216203185],
-                    [-73.640445805528, 45.45843855574],
-                    [-73.6404494963462, 45.4584315753495],
-                    [-73.640685034277, 45.4585208608007]
-                  ]
+                  [-73.6384670350639, 45.458630439266],
+                  [-73.6383986331803, 45.4587177447613],
+                  [-73.6383633721909, 45.4587041622279],
+                  [-73.6382369027117, 45.458865688604],
+                  [-73.638202500656, 45.4588523795509],
+                  [-73.6381749048765, 45.4588875623709],
+                  [-73.6381262969821, 45.4588689233369],
+                  [-73.6381001930414, 45.4589022602197],
+                  [-73.638048416268, 45.4588824185542],
+                  [-73.638026201593, 45.4589108690347],
+                  [-73.6380010385289, 45.4589012758865],
+                  [-73.6378938770783, 45.4590379079377],
+                  [-73.6379154958403, 45.4590462434286],
+                  [-73.6378879793163, 45.4590812905123],
+                  [-73.6378679989784, 45.4590736379824],
+                  [-73.6378456759963, 45.4591019251822],
+                  [-73.637914372618, 45.4591283803455],
+                  [-73.6379194864771, 45.4591217562384],
+                  [-73.6379438986255, 45.4591312392161],
+                  [-73.6379385455363, 45.4591382706944],
+                  [-73.6381321479391, 45.4592128531383],
+                  [-73.6381955174007, 45.4591320352687],
+                  [-73.638662296719, 45.4593120524935],
+                  [-73.638670394265, 45.4593017364144],
+                  [-73.6391354956591, 45.4594835704297],
+                  [-73.6392319979447, 45.4593605637811],
+                  [-73.6392081490052, 45.4593511637581],
+                  [-73.6392211207098, 45.4593346307778],
+                  [-73.6391782302059, 45.4593177162506],
+                  [-73.6392208235631, 45.4592639374046],
+                  [-73.6393244911281, 45.4593048163551],
+                  [-73.6393812852633, 45.4592337999664],
+                  [-73.6393317099037, 45.4592147244697],
+                  [-73.6394178576669, 45.4591065706206],
+                  [-73.6391241802509, 45.4589909017275],
+                  [-73.6390404520442, 45.4590952804424],
+                  [-73.6389972660174, 45.4590781750219],
+                  [-73.6389512899121, 45.459136324394],
+                  [-73.6389844575591, 45.4591493045649],
+                  [-73.6389276110551, 45.4592207554939],
+                  [-73.6387792039197, 45.4591629850965],
+                  [-73.6387843175763, 45.4591563609329],
+                  [-73.6388869329345, 45.4591959059043],
+                  [-73.6389694504627, 45.4590904643475],
+                  [-73.6388646336778, 45.4590501539314],
+                  [-73.6390188825318, 45.4588534704689],
+                  [-73.6389756453386, 45.4588368000629],
+                  [-73.6389817440707, 45.4588288455962],
+                  [-73.6384670350639, 45.458630439266]
                 ]
               ],
-              "type": "MultiPolygon"
+              "type": "Polygon"
             }
           }
         ],
-        "place_id": "ChIJERHb3zEXyUwRPdbqFL-zXAU"
+        "place_id": "ChIJ8Qdo8TEXyUwRqTWc6FcbiBw"
       }
     ],
-    "formatted_address": "7141 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
+    "entrances": [
+      {
+        "building_place_id": "ChIJ8Qdo8TEXyUwRqTWc6FcbiBw",
+        "entrance_tags": ["PREFERRED"],
+        "location": {
+          "lat": 45.45907820000001,
+          "lng": -73.63893759999999
+        }
+      }
+    ],
+    "formatted_address": "Notre-Dame-de-Grâce, Montreal, QC H4B 2B9, Canada",
     "geometry": {
       "location": {
-        "lat": 45.4579826,
-        "lng": -73.6397985
+        "lat": 45.4592338,
+        "lng": -73.6393801
       },
-      "location_type": "ROOFTOP",
+      "location_type": "GEOMETRIC_CENTER",
       "viewport": {
         "northeast": {
-          "lat": 45.4592959302915,
-          "lng": -73.63838886970849
+          "lat": 45.4605874302915,
+          "lng": -73.6380810197085
         },
         "southwest": {
-          "lat": 45.4565979697085,
-          "lng": -73.6410868302915
+          "lat": 45.4578894697085,
+          "lng": -73.6407789802915
         }
       }
     },
     "navigation_points": [
       {
         "location": {
-          "latitude": 45.4578596,
-          "longitude": -73.6395856
-        },
-        "restricted_travel_modes": ["WALK"]
-      },
-      {
-        "location": {
-          "latitude": 45.4580038,
-          "longitude": -73.63985319999999
-        },
-        "restricted_travel_modes": ["DRIVE"]
+          "latitude": 45.45924309999999,
+          "longitude": -73.6393901
+        }
       }
     ],
-    "place_id": "ChIJgUsq1S8XyUwRwBeW4QytuE0",
-    "types": ["premise", "street_address"],
+    "place_id": "ChIJ5ZDz6ukXyUwRyudTxzJRUSw",
+    "plus_code": {
+      "compound_code": "F956+M6 Montreal, QC, Canada",
+      "global_code": "87Q8F956+M6"
+    },
+    "types": ["establishment", "point_of_interest"],
     "buildingCode": "SC",
     "buildingName": "Student Centre",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
+    "address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+    "campus": "LOYOLA"
   },
   {
     "buildings": [
@@ -5491,7 +4741,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "SH",
     "buildingName": "Future Buildings Laboratory",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
+    "address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+    "campus": "LOYOLA"
   },
   {
     "formatted_address": "St Ignatius, 4455 Rue West Broadway, Montreal, QC H4B 2A7, Canada",
@@ -5525,6 +4776,7 @@
     "buildingCode": "SI",
     "buildingName": "St. Ignatius of Loyola Church",
     "address": "4455 West Broadway St., Montreal QC",
+    "campus": "LOYOLA",
     "buildings": [
       {
         "building_outlines": [
@@ -5555,132 +4807,97 @@
             "display_polygon": {
               "coordinates": [
                 [
-                  [
-                    [-73.6408772869513, 45.4585890444863],
-                    [-73.6407985119765, 45.4586801381204],
-                    [-73.6410434135512, 45.4587656349228],
-                    [-73.6410337817405, 45.4587851652835],
-                    [-73.6411307292453, 45.4588225485177],
-                    [-73.641145397086, 45.4588024297448],
-                    [-73.6411619356442, 45.4588079540898],
-                    [-73.6412836990154, 45.4586467679607],
-                    [-73.6412704836223, 45.4586411413492],
-                    [-73.641376403155, 45.4585062439627],
-                    [-73.6413154218922, 45.4584840209662],
-                    [-73.6412767428744, 45.4585370462476],
-                    [-73.6412461196636, 45.4585235554084],
-                    [-73.6412288337043, 45.4585453547232],
-                    [-73.6411366941731, 45.4585098572153],
-                    [-73.6412021937158, 45.4584281724403],
-                    [-73.6410774329832, 45.4583815457209],
-                    [-73.6410079055759, 45.4584725211565],
-                    [-73.6408517473394, 45.458413027044],
-                    [-73.6408116759182, 45.4584611281071],
-                    [-73.6407504451182, 45.4584372457533],
-                    [-73.6407102295275, 45.4584887179595],
-                    [-73.6407733946252, 45.4585134741824],
-                    [-73.6407529936233, 45.4585395360268],
-                    [-73.6408772869513, 45.4585890444863]
-                  ]
-                ],
-                [
-                  [
-                    [-73.640685034277, 45.4585208608007],
-                    [-73.6407957736703, 45.4583791494107],
-                    [-73.6405590484041, 45.458288067748],
-                    [-73.640564372429, 45.4582807370996],
-                    [-73.6402606533331, 45.4581655166129],
-                    [-73.6402556996114, 45.4581718691469],
-                    [-73.6400146981164, 45.4580776515112],
-                    [-73.6399947518581, 45.4581036322558],
-                    [-73.6399668476527, 45.4580924575034],
-                    [-73.6399436219669, 45.4581219391978],
-                    [-73.6399074228682, 45.4581082196506],
-                    [-73.6399223691219, 45.4580900595336],
-                    [-73.6399135855623, 45.4580862631194],
-                    [-73.6400076738254, 45.4579642333517],
-                    [-73.6400664064559, 45.4579871594348],
-                    [-73.6401266871755, 45.4579119371099],
-                    [-73.6398312888425, 45.4577985269392],
-                    [-73.6397706190755, 45.4578764941739],
-                    [-73.6398149533159, 45.4578930300438],
-                    [-73.6398066969935, 45.4579036174965],
-                    [-73.6398351180342, 45.4579163430144],
-                    [-73.6397535448525, 45.4580219205454],
-                    [-73.639741129547, 45.4580208358951],
-                    [-73.6396715170233, 45.4579983776984],
-                    [-73.6396309215869, 45.4580654273612],
-                    [-73.6396882783852, 45.4580865293883],
-                    [-73.6396887773383, 45.4580898474012],
-                    [-73.6396951868686, 45.4580959502411],
-                    [-73.6396166169914, 45.4582019689471],
-                    [-73.6395811225177, 45.4581898275843],
-                    [-73.6395737199856, 45.4581996554648],
-                    [-73.6395088037371, 45.4581730191629],
-                    [-73.6394429805971, 45.4582552453557],
-                    [-73.6397634323295, 45.4583770539877],
-                    [-73.639823318343, 45.4582976433774],
-                    [-73.6397656937339, 45.458276649559],
-                    [-73.6398615938007, 45.4581522303785],
-                    [-73.6398702925016, 45.4581551294048],
-                    [-73.6398811620684, 45.4581418281119],
-                    [-73.63991569451, 45.4581545656232],
-                    [-73.6399458518892, 45.4581660710766],
-                    [-73.6399018618318, 45.4582187587328],
-                    [-73.6401444564348, 45.4583151280049],
-                    [-73.6401414600105, 45.4583216203185],
-                    [-73.640445805528, 45.45843855574],
-                    [-73.6404494963462, 45.4584315753495],
-                    [-73.640685034277, 45.4585208608007]
-                  ]
+                  [-73.6407647736335, 45.4572499976447],
+                  [-73.6414723634341, 45.4575244789134],
+                  [-73.641169728514, 45.457907931472],
+                  [-73.6411318630395, 45.4578932304326],
+                  [-73.6410642397323, 45.4579788796594],
+                  [-73.6411144047975, 45.4579983354857],
+                  [-73.6408610995721, 45.4583161707973],
+                  [-73.6409214427859, 45.4583394803179],
+                  [-73.6410381860445, 45.458192750888],
+                  [-73.6412013573026, 45.4582559285046],
+                  [-73.6412619490213, 45.4581791286045],
+                  [-73.6413376805619, 45.4582085307675],
+                  [-73.641283454495, 45.4582772679952],
+                  [-73.6414128960257, 45.4583273835942],
+                  [-73.641925074392, 45.4576724722197],
+                  [-73.6418446166943, 45.4576410498015],
+                  [-73.6420037411084, 45.4574384492673],
+                  [-73.6414125410386, 45.4572092219752],
+                  [-73.6414323029863, 45.4571842470099],
+                  [-73.641391457363, 45.4571683714521],
+                  [-73.641382695127, 45.4571794744891],
+                  [-73.6413039848223, 45.4571488981991],
+                  [-73.6412958089382, 45.4571593498403],
+                  [-73.6409931876149, 45.4570419346156],
+                  [-73.6410125229322, 45.4570173396417],
+                  [-73.6409584909684, 45.4569961366528],
+                  [-73.6409358533229, 45.4570249665488],
+                  [-73.6408287050145, 45.4569834322577],
+                  [-73.6406556646887, 45.45720242332],
+                  [-73.6407681839922, 45.4572459260257],
+                  [-73.6407647736335, 45.4572499976447]
                 ]
               ],
-              "type": "MultiPolygon"
+              "type": "Polygon"
             }
           }
         ],
-        "place_id": "ChIJERHb3zEXyUwRPdbqFL-zXAU"
+        "place_id": "ChIJp_rxOS4XyUwRR0dJdyOlMlY"
       }
     ],
-    "formatted_address": "7141 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
+    "entrances": [
+      {
+        "building_place_id": "ChIJp_rxOS4XyUwRR0dJdyOlMlY",
+        "location": {
+          "lat": 45.4582266,
+          "lng": -73.6414917
+        }
+      }
+    ],
+    "formatted_address": "Richard J. Renaud Science Complex, 3475 Rue West Broadway, Montreal, QC H4B 2A7, Canada",
     "geometry": {
+      "bounds": {
+        "northeast": {
+          "lat": 45.4583395,
+          "lng": -73.6406557
+        },
+        "southwest": {
+          "lat": 45.4569834,
+          "lng": -73.6420037
+        }
+      },
       "location": {
-        "lat": 45.4579826,
-        "lng": -73.6397985
+        "lat": 45.4578426,
+        "lng": -73.6415682
       },
       "location_type": "ROOFTOP",
       "viewport": {
         "northeast": {
-          "lat": 45.4592959302915,
-          "lng": -73.63838886970849
+          "lat": 45.4590104302915,
+          "lng": -73.63998071970849
         },
         "southwest": {
-          "lat": 45.4565979697085,
-          "lng": -73.6410868302915
+          "lat": 45.4563124697085,
+          "lng": -73.6426786802915
         }
       }
     },
     "navigation_points": [
       {
         "location": {
-          "latitude": 45.4578596,
-          "longitude": -73.6395856
-        },
-        "restricted_travel_modes": ["WALK"]
-      },
-      {
-        "location": {
-          "latitude": 45.4580038,
-          "longitude": -73.63985319999999
-        },
-        "restricted_travel_modes": ["DRIVE"]
+          "latitude": 45.4582326,
+          "longitude": -73.6415083
+        }
       }
     ],
-    "place_id": "ChIJgUsq1S8XyUwRwBeW4QytuE0",
+    "place_id": "ChIJp_rxOS4XyUwRR0dJdyOlMlY",
     "types": ["premise", "street_address"],
     "buildingCode": "SP",
     "buildingName": "Richard J. Renaud Science Complex",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
+    "address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+    "campus": "LOYOLA"
   },
   {
     "buildings": [
@@ -5754,7 +4971,8 @@
     "types": ["premise", "street_address"],
     "buildingCode": "TA",
     "buildingName": "Terrebonne Building",
-    "address": "7079 de Terrebonne St., Montreal QC"
+    "address": "7079 de Terrebonne St., Montreal QC",
+    "campus": "LOYOLA"
   },
   {
     "buildings": [
@@ -5764,132 +4982,109 @@
             "display_polygon": {
               "coordinates": [
                 [
-                  [
-                    [-73.6408772869513, 45.4585890444863],
-                    [-73.6407985119765, 45.4586801381204],
-                    [-73.6410434135512, 45.4587656349228],
-                    [-73.6410337817405, 45.4587851652835],
-                    [-73.6411307292453, 45.4588225485177],
-                    [-73.641145397086, 45.4588024297448],
-                    [-73.6411619356442, 45.4588079540898],
-                    [-73.6412836990154, 45.4586467679607],
-                    [-73.6412704836223, 45.4586411413492],
-                    [-73.641376403155, 45.4585062439627],
-                    [-73.6413154218922, 45.4584840209662],
-                    [-73.6412767428744, 45.4585370462476],
-                    [-73.6412461196636, 45.4585235554084],
-                    [-73.6412288337043, 45.4585453547232],
-                    [-73.6411366941731, 45.4585098572153],
-                    [-73.6412021937158, 45.4584281724403],
-                    [-73.6410774329832, 45.4583815457209],
-                    [-73.6410079055759, 45.4584725211565],
-                    [-73.6408517473394, 45.458413027044],
-                    [-73.6408116759182, 45.4584611281071],
-                    [-73.6407504451182, 45.4584372457533],
-                    [-73.6407102295275, 45.4584887179595],
-                    [-73.6407733946252, 45.4585134741824],
-                    [-73.6407529936233, 45.4585395360268],
-                    [-73.6408772869513, 45.4585890444863]
-                  ]
-                ],
-                [
-                  [
-                    [-73.640685034277, 45.4585208608007],
-                    [-73.6407957736703, 45.4583791494107],
-                    [-73.6405590484041, 45.458288067748],
-                    [-73.640564372429, 45.4582807370996],
-                    [-73.6402606533331, 45.4581655166129],
-                    [-73.6402556996114, 45.4581718691469],
-                    [-73.6400146981164, 45.4580776515112],
-                    [-73.6399947518581, 45.4581036322558],
-                    [-73.6399668476527, 45.4580924575034],
-                    [-73.6399436219669, 45.4581219391978],
-                    [-73.6399074228682, 45.4581082196506],
-                    [-73.6399223691219, 45.4580900595336],
-                    [-73.6399135855623, 45.4580862631194],
-                    [-73.6400076738254, 45.4579642333517],
-                    [-73.6400664064559, 45.4579871594348],
-                    [-73.6401266871755, 45.4579119371099],
-                    [-73.6398312888425, 45.4577985269392],
-                    [-73.6397706190755, 45.4578764941739],
-                    [-73.6398149533159, 45.4578930300438],
-                    [-73.6398066969935, 45.4579036174965],
-                    [-73.6398351180342, 45.4579163430144],
-                    [-73.6397535448525, 45.4580219205454],
-                    [-73.639741129547, 45.4580208358951],
-                    [-73.6396715170233, 45.4579983776984],
-                    [-73.6396309215869, 45.4580654273612],
-                    [-73.6396882783852, 45.4580865293883],
-                    [-73.6396887773383, 45.4580898474012],
-                    [-73.6396951868686, 45.4580959502411],
-                    [-73.6396166169914, 45.4582019689471],
-                    [-73.6395811225177, 45.4581898275843],
-                    [-73.6395737199856, 45.4581996554648],
-                    [-73.6395088037371, 45.4581730191629],
-                    [-73.6394429805971, 45.4582552453557],
-                    [-73.6397634323295, 45.4583770539877],
-                    [-73.639823318343, 45.4582976433774],
-                    [-73.6397656937339, 45.458276649559],
-                    [-73.6398615938007, 45.4581522303785],
-                    [-73.6398702925016, 45.4581551294048],
-                    [-73.6398811620684, 45.4581418281119],
-                    [-73.63991569451, 45.4581545656232],
-                    [-73.6399458518892, 45.4581660710766],
-                    [-73.6399018618318, 45.4582187587328],
-                    [-73.6401444564348, 45.4583151280049],
-                    [-73.6401414600105, 45.4583216203185],
-                    [-73.640445805528, 45.45843855574],
-                    [-73.6404494963462, 45.4584315753495],
-                    [-73.640685034277, 45.4585208608007]
-                  ]
+                  [-73.6384670350639, 45.458630439266],
+                  [-73.6383986331803, 45.4587177447613],
+                  [-73.6383633721909, 45.4587041622279],
+                  [-73.6382369027117, 45.458865688604],
+                  [-73.638202500656, 45.4588523795509],
+                  [-73.6381749048765, 45.4588875623709],
+                  [-73.6381262969821, 45.4588689233369],
+                  [-73.6381001930414, 45.4589022602197],
+                  [-73.638048416268, 45.4588824185542],
+                  [-73.638026201593, 45.4589108690347],
+                  [-73.6380010385289, 45.4589012758865],
+                  [-73.6378938770783, 45.4590379079377],
+                  [-73.6379154958403, 45.4590462434286],
+                  [-73.6378879793163, 45.4590812905123],
+                  [-73.6378679989784, 45.4590736379824],
+                  [-73.6378456759963, 45.4591019251822],
+                  [-73.637914372618, 45.4591283803455],
+                  [-73.6379194864771, 45.4591217562384],
+                  [-73.6379438986255, 45.4591312392161],
+                  [-73.6379385455363, 45.4591382706944],
+                  [-73.6381321479391, 45.4592128531383],
+                  [-73.6381955174007, 45.4591320352687],
+                  [-73.638662296719, 45.4593120524935],
+                  [-73.638670394265, 45.4593017364144],
+                  [-73.6391354956591, 45.4594835704297],
+                  [-73.6392319979447, 45.4593605637811],
+                  [-73.6392081490052, 45.4593511637581],
+                  [-73.6392211207098, 45.4593346307778],
+                  [-73.6391782302059, 45.4593177162506],
+                  [-73.6392208235631, 45.4592639374046],
+                  [-73.6393244911281, 45.4593048163551],
+                  [-73.6393812852633, 45.4592337999664],
+                  [-73.6393317099037, 45.4592147244697],
+                  [-73.6394178576669, 45.4591065706206],
+                  [-73.6391241802509, 45.4589909017275],
+                  [-73.6390404520442, 45.4590952804424],
+                  [-73.6389972660174, 45.4590781750219],
+                  [-73.6389512899121, 45.459136324394],
+                  [-73.6389844575591, 45.4591493045649],
+                  [-73.6389276110551, 45.4592207554939],
+                  [-73.6387792039197, 45.4591629850965],
+                  [-73.6387843175763, 45.4591563609329],
+                  [-73.6388869329345, 45.4591959059043],
+                  [-73.6389694504627, 45.4590904643475],
+                  [-73.6388646336778, 45.4590501539314],
+                  [-73.6390188825318, 45.4588534704689],
+                  [-73.6389756453386, 45.4588368000629],
+                  [-73.6389817440707, 45.4588288455962],
+                  [-73.6384670350639, 45.458630439266]
                 ]
               ],
-              "type": "MultiPolygon"
+              "type": "Polygon"
             }
           }
         ],
-        "place_id": "ChIJERHb3zEXyUwRPdbqFL-zXAU"
+        "place_id": "ChIJ8Qdo8TEXyUwRqTWc6FcbiBw"
+      }
+    ],
+    "entrances": [
+      {
+        "building_place_id": "ChIJ8Qdo8TEXyUwRqTWc6FcbiBw",
+        "location": {
+          "lat": 45.45907820000001,
+          "lng": -73.63893759999999
+        }
       }
     ],
     "formatted_address": "7141 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
     "geometry": {
       "location": {
-        "lat": 45.4579826,
-        "lng": -73.6397985
+        "lat": 45.45908060000001,
+        "lng": -73.6387088
       },
       "location_type": "ROOFTOP",
       "viewport": {
         "northeast": {
-          "lat": 45.4592959302915,
-          "lng": -73.63838886970849
+          "lat": 45.4602642802915,
+          "lng": -73.63761146970849
         },
         "southwest": {
-          "lat": 45.4565979697085,
-          "lng": -73.6410868302915
+          "lat": 45.4575663197085,
+          "lng": -73.64030943029151
         }
       }
     },
     "navigation_points": [
       {
         "location": {
-          "latitude": 45.4578596,
-          "longitude": -73.6395856
-        },
-        "restricted_travel_modes": ["WALK"]
-      },
-      {
-        "location": {
-          "latitude": 45.4580038,
-          "longitude": -73.63985319999999
-        },
-        "restricted_travel_modes": ["DRIVE"]
+          "latitude": 45.45877369999999,
+          "longitude": -73.6391938
+        }
       }
     ],
-    "place_id": "ChIJgUsq1S8XyUwRwBeW4QytuE0",
-    "types": ["premise", "street_address"],
+    "place_id": "ChIJDbfcNjIXyUwRcocn3RuPPiY",
+    "plus_code": {
+      "compound_code": "F956+JG Montreal, QC, Canada",
+      "global_code": "87Q8F956+JG"
+    },
+    "types": ["establishment", "library", "point_of_interest"],
     "buildingCode": "VE",
     "buildingName": "Vanier Extension",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
+    "address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+    "campus": "LOYOLA"
   },
   {
     "buildings": [
@@ -5899,131 +5094,108 @@
             "display_polygon": {
               "coordinates": [
                 [
-                  [
-                    [-73.6408772869513, 45.4585890444863],
-                    [-73.6407985119765, 45.4586801381204],
-                    [-73.6410434135512, 45.4587656349228],
-                    [-73.6410337817405, 45.4587851652835],
-                    [-73.6411307292453, 45.4588225485177],
-                    [-73.641145397086, 45.4588024297448],
-                    [-73.6411619356442, 45.4588079540898],
-                    [-73.6412836990154, 45.4586467679607],
-                    [-73.6412704836223, 45.4586411413492],
-                    [-73.641376403155, 45.4585062439627],
-                    [-73.6413154218922, 45.4584840209662],
-                    [-73.6412767428744, 45.4585370462476],
-                    [-73.6412461196636, 45.4585235554084],
-                    [-73.6412288337043, 45.4585453547232],
-                    [-73.6411366941731, 45.4585098572153],
-                    [-73.6412021937158, 45.4584281724403],
-                    [-73.6410774329832, 45.4583815457209],
-                    [-73.6410079055759, 45.4584725211565],
-                    [-73.6408517473394, 45.458413027044],
-                    [-73.6408116759182, 45.4584611281071],
-                    [-73.6407504451182, 45.4584372457533],
-                    [-73.6407102295275, 45.4584887179595],
-                    [-73.6407733946252, 45.4585134741824],
-                    [-73.6407529936233, 45.4585395360268],
-                    [-73.6408772869513, 45.4585890444863]
-                  ]
-                ],
-                [
-                  [
-                    [-73.640685034277, 45.4585208608007],
-                    [-73.6407957736703, 45.4583791494107],
-                    [-73.6405590484041, 45.458288067748],
-                    [-73.640564372429, 45.4582807370996],
-                    [-73.6402606533331, 45.4581655166129],
-                    [-73.6402556996114, 45.4581718691469],
-                    [-73.6400146981164, 45.4580776515112],
-                    [-73.6399947518581, 45.4581036322558],
-                    [-73.6399668476527, 45.4580924575034],
-                    [-73.6399436219669, 45.4581219391978],
-                    [-73.6399074228682, 45.4581082196506],
-                    [-73.6399223691219, 45.4580900595336],
-                    [-73.6399135855623, 45.4580862631194],
-                    [-73.6400076738254, 45.4579642333517],
-                    [-73.6400664064559, 45.4579871594348],
-                    [-73.6401266871755, 45.4579119371099],
-                    [-73.6398312888425, 45.4577985269392],
-                    [-73.6397706190755, 45.4578764941739],
-                    [-73.6398149533159, 45.4578930300438],
-                    [-73.6398066969935, 45.4579036174965],
-                    [-73.6398351180342, 45.4579163430144],
-                    [-73.6397535448525, 45.4580219205454],
-                    [-73.639741129547, 45.4580208358951],
-                    [-73.6396715170233, 45.4579983776984],
-                    [-73.6396309215869, 45.4580654273612],
-                    [-73.6396882783852, 45.4580865293883],
-                    [-73.6396887773383, 45.4580898474012],
-                    [-73.6396951868686, 45.4580959502411],
-                    [-73.6396166169914, 45.4582019689471],
-                    [-73.6395811225177, 45.4581898275843],
-                    [-73.6395737199856, 45.4581996554648],
-                    [-73.6395088037371, 45.4581730191629],
-                    [-73.6394429805971, 45.4582552453557],
-                    [-73.6397634323295, 45.4583770539877],
-                    [-73.639823318343, 45.4582976433774],
-                    [-73.6397656937339, 45.458276649559],
-                    [-73.6398615938007, 45.4581522303785],
-                    [-73.6398702925016, 45.4581551294048],
-                    [-73.6398811620684, 45.4581418281119],
-                    [-73.63991569451, 45.4581545656232],
-                    [-73.6399458518892, 45.4581660710766],
-                    [-73.6399018618318, 45.4582187587328],
-                    [-73.6401444564348, 45.4583151280049],
-                    [-73.6401414600105, 45.4583216203185],
-                    [-73.640445805528, 45.45843855574],
-                    [-73.6404494963462, 45.4584315753495],
-                    [-73.640685034277, 45.4585208608007]
-                  ]
+                  [-73.6384670350639, 45.458630439266],
+                  [-73.6383986331803, 45.4587177447613],
+                  [-73.6383633721909, 45.4587041622279],
+                  [-73.6382369027117, 45.458865688604],
+                  [-73.638202500656, 45.4588523795509],
+                  [-73.6381749048765, 45.4588875623709],
+                  [-73.6381262969821, 45.4588689233369],
+                  [-73.6381001930414, 45.4589022602197],
+                  [-73.638048416268, 45.4588824185542],
+                  [-73.638026201593, 45.4589108690347],
+                  [-73.6380010385289, 45.4589012758865],
+                  [-73.6378938770783, 45.4590379079377],
+                  [-73.6379154958403, 45.4590462434286],
+                  [-73.6378879793163, 45.4590812905123],
+                  [-73.6378679989784, 45.4590736379824],
+                  [-73.6378456759963, 45.4591019251822],
+                  [-73.637914372618, 45.4591283803455],
+                  [-73.6379194864771, 45.4591217562384],
+                  [-73.6379438986255, 45.4591312392161],
+                  [-73.6379385455363, 45.4591382706944],
+                  [-73.6381321479391, 45.4592128531383],
+                  [-73.6381955174007, 45.4591320352687],
+                  [-73.638662296719, 45.4593120524935],
+                  [-73.638670394265, 45.4593017364144],
+                  [-73.6391354956591, 45.4594835704297],
+                  [-73.6392319979447, 45.4593605637811],
+                  [-73.6392081490052, 45.4593511637581],
+                  [-73.6392211207098, 45.4593346307778],
+                  [-73.6391782302059, 45.4593177162506],
+                  [-73.6392208235631, 45.4592639374046],
+                  [-73.6393244911281, 45.4593048163551],
+                  [-73.6393812852633, 45.4592337999664],
+                  [-73.6393317099037, 45.4592147244697],
+                  [-73.6394178576669, 45.4591065706206],
+                  [-73.6391241802509, 45.4589909017275],
+                  [-73.6390404520442, 45.4590952804424],
+                  [-73.6389972660174, 45.4590781750219],
+                  [-73.6389512899121, 45.459136324394],
+                  [-73.6389844575591, 45.4591493045649],
+                  [-73.6389276110551, 45.4592207554939],
+                  [-73.6387792039197, 45.4591629850965],
+                  [-73.6387843175763, 45.4591563609329],
+                  [-73.6388869329345, 45.4591959059043],
+                  [-73.6389694504627, 45.4590904643475],
+                  [-73.6388646336778, 45.4590501539314],
+                  [-73.6390188825318, 45.4588534704689],
+                  [-73.6389756453386, 45.4588368000629],
+                  [-73.6389817440707, 45.4588288455962],
+                  [-73.6384670350639, 45.458630439266]
                 ]
               ],
-              "type": "MultiPolygon"
+              "type": "Polygon"
             }
           }
         ],
-        "place_id": "ChIJERHb3zEXyUwRPdbqFL-zXAU"
+        "place_id": "ChIJ8Qdo8TEXyUwRqTWc6FcbiBw"
+      }
+    ],
+    "entrances": [
+      {
+        "building_place_id": "ChIJ8Qdo8TEXyUwRqTWc6FcbiBw",
+        "location": {
+          "lat": 45.45907820000001,
+          "lng": -73.63893759999999
+        }
       }
     ],
     "formatted_address": "7141 Rue Sherbrooke O, Montréal, QC H4B 1R6, Canada",
     "geometry": {
       "location": {
-        "lat": 45.4579826,
-        "lng": -73.6397985
+        "lat": 45.45908060000001,
+        "lng": -73.6387088
       },
       "location_type": "ROOFTOP",
       "viewport": {
         "northeast": {
-          "lat": 45.4592959302915,
-          "lng": -73.63838886970849
+          "lat": 45.4602642802915,
+          "lng": -73.63761146970849
         },
         "southwest": {
-          "lat": 45.4565979697085,
-          "lng": -73.6410868302915
+          "lat": 45.4575663197085,
+          "lng": -73.64030943029151
         }
       }
     },
     "navigation_points": [
       {
         "location": {
-          "latitude": 45.4578596,
-          "longitude": -73.6395856
-        },
-        "restricted_travel_modes": ["WALK"]
-      },
-      {
-        "location": {
-          "latitude": 45.4580038,
-          "longitude": -73.63985319999999
-        },
-        "restricted_travel_modes": ["DRIVE"]
+          "latitude": 45.45877369999999,
+          "longitude": -73.6391938
+        }
       }
     ],
-    "place_id": "ChIJgUsq1S8XyUwRwBeW4QytuE0",
-    "types": ["premise", "street_address"],
+    "place_id": "ChIJDbfcNjIXyUwRcocn3RuPPiY",
+    "plus_code": {
+      "compound_code": "F956+JG Montreal, QC, Canada",
+      "global_code": "87Q8F956+JG"
+    },
+    "types": ["establishment", "library", "point_of_interest"],
     "buildingCode": "VL",
     "buildingName": "Vanier Library Building",
-    "address": "7141 Sherbrooke St. W., Montreal QC"
+    "address": "7141 Sherbrooke St W, Montreal, QC H4B 1R6",
+    "campus": "LOYOLA"
   }
 ]

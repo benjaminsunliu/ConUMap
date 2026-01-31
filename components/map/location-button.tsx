@@ -17,43 +17,22 @@ export default function LocationButton({
 }: LocationButtonProps) {
   const icon = iconFromButtonState(state);
   return (
-    <View
-      style={[
-        styles.container,
-        { bottom: position.bottom, right: position.right },
-      ]}
-    >
+    <View style={[styles.container, { bottom: position.bottom, right: position.right }]}>
       <Pressable onPress={onPress}>{icon}</Pressable>
     </View>
   );
 }
 
 function iconFromButtonState(state: LocationButtonProps["state"]) {
-  if (state == "off") {
-    return (
-      <MaterialIcons
-        name="explore-off"
-        size={styles.icon.width}
-        color="black"
-      />
-    );
+  if (state === "off") {
+    return <MaterialIcons name="explore-off" size={styles.icon.width} color="black" />;
   }
-  if (state == "centered") {
-    return (
-      <MaterialIcons
-        name="my-location"
-        size={styles.icon.width}
-        color="black"
-      />
-    );
+  if (state === "centered") {
+    return <MaterialIcons name="my-location" size={styles.icon.width} color="black" />;
   }
-  if (state == "on") {
+  if (state === "on") {
     return (
-      <MaterialIcons
-        name="location-searching"
-        size={styles.icon.width}
-        color="black"
-      />
+      <MaterialIcons name="location-searching" size={styles.icon.width} color="black" />
     );
   }
 }
