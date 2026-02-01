@@ -7,7 +7,7 @@ dotenv.config({ quiet: true });
 const OUTPUT_FILE_NAME = "data/buildings-polygons.json";
 
 type Building = {
-  formatted_address: "7200 Rue Sherbrooke O, Montréal, QC H4B 2A4, Canada";
+  formatted_address: string;
   geometry: {
     bounds: {
       northeast: {
