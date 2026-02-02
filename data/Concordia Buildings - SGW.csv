@@ -1,29 +1,18 @@
-building code,building name,link,address,latitude,longitude,overview,accessibility,services,departments,venues
+buildingCode,buildingName,link,address,latitude,longitude,overview,accessibility,services,departments,venues
 B,B Annex,https://www.concordia.ca/maps/buildings/b.html,2160 Bishop St.,45.4978837,-73.5820279,"Built between 1890 and 1891, this annex features a limestone façade and understated ornamentation around the windows. It was once a private home and even served as a student housing co-op in the 1960s.
 
 Concordia acquired the annex in 1969, and it now provides offices and shared spaces for student and community services.","This building is not accessible. It is not equipped with an accessibility ramp, automated door, elevator or wheelchair lift.",Engineering and Computer Science Association,,
 CI,CI Annex,https://www.concordia.ca/maps/buildings/ci.html,2149 Mackay St.,45.4974518,-73.5824423,"The CI Annex is a Victorian-era building, forming part of a trio of historic homes just north of the Hall Building. Built around 1884, it showcases grey limestone walls, decorative stonework and a distinctive two-storey bay window with angled sides.
 
 After serving as a private residence and later a restaurant, the building was acquired by the university in 1971.","This building is not accessible. It is not equipped with an accessibility ramp, automated door, elevator or wheelchair lift.",,,
-CL,CL Annex,https://www.concordia.ca/maps/buildings/cl.html,1665 Ste-Catherine St. W.,45.4932232,-73.5827554,"Located on the Sir George Williams Campus, the CL Annex is a dedicated space for learning and academic services. The building is home to classrooms and facilities that support Concordia Continuing Education programs, providing a convenient downtown location for students pursuing professional development and lifelong learning.","Accessible entrance
-This building has an automated accessible entrance door.
-
-
-Accessible building elevator
+CL,CL Annex,https://www.concordia.ca/maps/buildings/cl.html,1665 Ste-Catherine St. W.,45.4932232,-73.5827554,"Located on the Sir George Williams Campus, the CL Annex is a dedicated space for learning and academic services. The building is home to classrooms and facilities that support Concordia Continuing Education programs, providing a convenient downtown location for students pursuing professional development and lifelong learning.","This building has an automated accessible entrance door.
 This building entrance is equipped with an accessible elevator.",,,
 D,D Annex,https://www.concordia.ca/maps/buildings/d.html,2140 Bishop St.,45.49775,-73.5820476,"This row house was built in 1891 as a twin to the neighbouring MI Annex, also featuring red Scottish sandstone and Romanesque-inspired detailing.
 
 After years as a private residence, it was acquired by Concordia in 1971. Its distinct gabled roofline and original bay windows hint at its 19th-century residential roots.","This building is not accessible. It is not equipped with an accessibility ramp, automated door, elevator or wheelchair lift.",,,
 EN,EN Annex,https://www.concordia.ca/maps/buildings/en.html,2070 Mackay St.,45.4968175,-73.5821944,"This four-storey row house was built in 1940. It has an Art Deco flair, with rounded balconies and decorative concrete framing its windows and doors. Acquired in 1971 by the university, it now houses offices and student services.","This building is not accessible. It is not equipped with an accessibility ramp, automated door, elevator or wheelchair lift.",,Research Chair on Gambling,
-ER,ER Building,https://www.concordia.ca/maps/buildings/er.html,2155 Guy St.,45.4963323,-73.582679,"Built in 1954, the ER Building is a 14-storey office tower on Concordia’s Sir George Williams Campus. It houses academic departments and research centres and institutes. Concordia occupies space on 11 floors.","Accessibility ramp  
-This building entrance is equipped with an accessibility ramp.
-
-
-Accessible entrance
+ER,ER Building,https://www.concordia.ca/maps/buildings/er.html,2155 Guy St.,45.4963323,-73.582679,"Built in 1954, the ER Building is a 14-storey office tower on Concordia’s Sir George Williams Campus. It houses academic departments and research centres and institutes. Concordia occupies space on 11 floors.","This building entrance is equipped with an accessibility ramp.
 This building has an automated accessible entrance door.
-
-
-Accessible building elevator
 This building entrance is equipped with an accessible elevator.",,"Applied AI Institute
 Centre for Engineering in Society
 Computer Science and Software Engineering
@@ -41,11 +30,7 @@ The Engineering and Computer Science tower contains over 300 specialized labs, s
 
 The Visual Arts tower houses Studio Arts, Art History and the faculty Dean's Office, with specialized spaces for traditional and digital media. It also boasts an art gallery, a black box theatre and art history amphitheatres.
 
-The complex also includes a fitness and recreation centre, and an underground tunnel to the Guy-De Maisonneuve (GM) Building and Guy-Concordia metro station.","Accessible entrance
-This building has an automated accessible entrance door.
-
-
-Accessible building elevator
+The complex also includes a fitness and recreation centre, and an underground tunnel to the Guy-De Maisonneuve (GM) Building and Guy-Concordia metro station.","This building has an automated accessible entrance door.
 This building entrance is equipped with an accessible elevator.","Le Gym
 Zen Den","Art Education
 Art History
@@ -77,15 +62,8 @@ Today, it’s home to Concordia Continuing Education and the Mel Hoppenheim Scho
 
 The building is part of a larger complex that once hosted a Buick car showroom, bowling alley and the legendary Toe Blake’s Tavern. Its red brick, green aluminum and glass exterior stands out with a distinctive sawtooth pattern along Guy Street.
 
-The Faubourg Building connects to the Faubourg Ste-Catherine (FG) and Grey Nuns Annex (GA) Buildings and offers indoor parking.","Wheelchair lift
-This building is equipped with a wheelchair lift.
-
-
-Accessible entrance
+The Faubourg Building connects to the Faubourg Ste-Catherine (FG) and Grey Nuns Annex (GA) Buildings and offers indoor parking.","This building is equipped with a wheelchair lift.
 This building has an automated accessible entrance door.
-
-
-Accessible building elevator
 This building entrance is equipped with an accessible elevator.","Enrolment Services / Office of the Registrar / Student Recruitment
 Environmental Health and Safety
 Examinations Office
@@ -99,52 +77,25 @@ Mel Hoppenheim School of Cinema
 Theological Studies",District 3 Innovation Hub
 FG,Faubourg Ste-Catherine Building,https://www.concordia.ca/maps/buildings/fg.html,1610 Ste-Catherine St. W.,45.4943472,-73.5833252,"Located on the site of a former auto showroom, the Faubourg Ste-Catherine Building has a colourful history. Built in 1926, the building was originally a McLaughlin-Buick dealership and then later hosted a bowling alley, a pool room and a tavern. In 1985, the building was redeveloped into an indoor urban market inspired by Boston's Faneuil Hall, with an attached tower originally intended as a hotel.
 
-Today, the building houses classrooms as well as the Department of Education's Student Resource Centre. You can also find a selection of restaurants in the building's sunlit atrium.","Wheelchair lift
-This building is equipped with a wheelchair lift.
-
-
-Accessibility ramp  
+Today, the building houses classrooms as well as the Department of Education's Student Resource Centre. You can also find a selection of restaurants in the building's sunlit atrium.","This building is equipped with a wheelchair lift.
 This building entrance is equipped with an accessibility ramp.
-
-
-Accessible entrance
 This building has an automated accessible entrance door.
-
-
-Accessible building elevator
 This building entrance is equipped with an accessible elevator.",Records Management and Archives (RMA) Research Room and Vault,Education,
 GA,Grey Nuns Annex,https://www.concordia.ca/maps/buildings/ga.html,1211-1215 St-Mathieu St.,45.4942046,-73.5803782,"Built in stages between 1869 and 1925, the Grey Nuns Annex originally housed workers for the Grey Nuns’ hospital complex. It once included dorms, a bakery and workshops for painters and carpenters.  
 
 Acquired by Concordia in 2014, the stone building now serves as a research and administrative hub for Concordia’s Department of Education and other university services. Highlights include its preschool education lab and a modern footbridge linking it to the Faubourg (FB) Building.  
 
-With its historic dormers and stone walls, the annex is a rare example of 19th-century institutional architecture preserved on campus. ","Accessibility ramp  
-This building entrance is equipped with an accessibility ramp.
-
-
-Accessible entrance
+With its historic dormers and stone walls, the annex is a rare example of 19th-century institutional architecture preserved on campus. ","This building entrance is equipped with an accessibility ramp.
 This building has an automated accessible entrance door.
-
-
-Accessible building elevator
 This building entrance is equipped with an accessible elevator.",,Education,
 GM,Guy-De Maisonneuve Building,https://www.concordia.ca/maps/buildings/gm.html,1550 De Maisonneuve Blvd. W.,45.4959535,-73.5813423,"Completed in 1966 above the Guy-Concordia metro station, the Guy-De Maisonneuve Building was one of Montreal’s first developments to integrate directly with the city’s expanding metro system. This modernist concrete and glass building originally featured commercial spaces at street level and offices above.
 
 Today, the 11-storey building hosts administrative offices and academic spaces, including studios and classrooms for the Contemporary Dance, Theatre and Music departments. Major renovations in 2011 modernized the exterior with an energy-efficient glass curtain wall and restored a 1966 mural by artist Claude Théberge.
 
-The building is connected to the Engineering, Computer Science and Visual Arts Integrated Complex (EV) and Guy-Concordia metro via underground tunnels.","Accessible entrance
-This building has an automated accessible entrance door.
-
-
-Accessible building elevator
+The building is connected to the Engineering, Computer Science and Visual Arts Integrated Complex (EV) and Guy-Concordia metro via underground tunnels.","This building has an automated accessible entrance door.
 This building entrance is equipped with an accessible elevator.","Accessibility ramp  
 This building entrance is equipped with an accessibility ramp.
-
-
-Accessible entrance
 This building has an automated accessible entrance door.
-
-
-Accessible building elevator
 This building entrance is equipped with an accessible elevator.","Contemporary Dance
 Music
 Theatre",
@@ -156,15 +107,8 @@ GN,Grey Nuns Building,https://www.concordia.ca/maps/buildings/gn.html,"1190 Guy 
 -73.5794834
 -73.5787504","The Sisters of Charity of Montreal, also known as the Grey Nuns, have played an important part in the city’s history. Their former Mother House, built in 1871, was acquired by Concordia in 2007, serving a new purpose while preserving its outstanding heritage.
 
-Today, the five-floor Grey Nuns Building houses approximately 600 undergraduate students and offers a beautiful reading room, an early-childhood observation nursery and a kitchen serving both campuses.","Accessibility ramp  
-This building entrance is equipped with an accessibility ramp.
-
-
-Accessible entrance
+Today, the five-floor Grey Nuns Building houses approximately 600 undergraduate students and offers a beautiful reading room, an early-childhood observation nursery and a kitchen serving both campuses.","This building entrance is equipped with an accessibility ramp.
 This building has an automated accessible entrance door.
-
-
-Accessible building elevator
 This building entrance is equipped with an accessible elevator.","Concordia Daycare (1185 St-Mathieu St.)
 Concordia University Student Parents Centre (CUSP): 1175 St-Mathieu St.
 Grey Nuns Reading Room & Group Study Rooms (1190 Guy St.)
@@ -176,11 +120,7 @@ H,Henry F. Hall Building,https://www.concordia.ca/maps/buildings/h.html,1455 De 
 
 Inside, the building brings together many academic departments — particularly in the social sciences — along with classrooms and engineering teaching and research labs.
 
-Beyond academics, it's a lively centre of student life, home to the Student Success Centre, Concordia Theatre and student spaces like the Hive Café, Reggie's Pub, the People's Potato and student association offices.","Accessible entrance
-This building has an automated accessible entrance door.
-
-
-Accessible building elevator
+Beyond academics, it's a lively centre of student life, home to the Student Success Centre, Concordia Theatre and student spaces like the Hive Café, Reggie's Pub, the People's Potato and student association offices.","This building has an automated accessible entrance door.
 This building entrance is equipped with an accessible elevator.","Campus Safety and Prevention Services
 Concordia Student Union (CSU)
 First Stop
@@ -209,11 +149,7 @@ The lower floors feature a mix of public and student-focused spaces, including a
 
 The second to fifth floors house the R. Howard Webster Library, offering a variety of study spaces and services.
 
-Upper levels contain classrooms, academic department offices and conference spaces.","Accessible entrance
-This building has an automated accessible entrance door.
-
-
-Accessible building elevator
+Upper levels contain classrooms, academic department offices and conference spaces.","This building has an automated accessible entrance door.
 This building entrance is equipped with an accessible elevator.","Birks Student Service Centre
 Concordia Book Stop
 Concordia Print Services
@@ -240,13 +176,7 @@ In 2019, Concordia converted the building into a daycare and nursery for the Con
 LS,Learning Square,https://www.concordia.ca/maps/buildings/ls.html,1535 De Maisonneuve Blvd. W.,45.4963478,-73.5820938,"The Learning Square opened in 2019 to provide extra classroom space while the Henry F. Hall Building underwent renovations. This bright, modular two-storey structure was designed for flexibility and future reuse by Montreal-based firm Lapointe Magne et associés.
 
 It houses eight state-of-the-art classrooms and includes universal accessibility features like gender-neutral washrooms and step-free entry.","The ground floor of this building is wheelchair accessible, including the individual-use washroom.
-
-
-Accessibility ramp  
 This building entrance is equipped with an accessibility ramp.
-
-
-Accessible entrance
 This building has an automated accessible entrance door.",,,
 M,M Annex,https://www.concordia.ca/maps/buildings/m.html,2135 Mackay St.,45.4973613,-73.5823493,"The M Annex is a 3-storey Victorian building located just north of the Hall Building. Built around 1884, it features a grey limestone facade, carved stone details and a distinctive two-storey curved bay window.
 
@@ -255,11 +185,7 @@ MB,John Molson Building,https://www.concordia.ca/maps/buildings/mb.html,1450 Guy
 
 Set on a tight footprint typical of a downtown property, the building is 15 storeys high, with two basement levels. The distinctive design features two-storey stacked atria, a vertically interconnected ground floor concourse, and a tunnel running under Guy Street connecting to the Guy-Concordia metro station and the Engineering, Computer Science and Visual Arts Integrated Complex.
 
-The building was awarded LEED (Leadership in Energy and Environmental Design) Silver level certification for its eco-friendly design.","Accessible entrance
-This building has an automated accessible entrance door.
-
-
-Accessible building elevator
+The building was awarded LEED (Leadership in Energy and Environmental Design) Silver level certification for its eco-friendly design.","This building has an automated accessible entrance door.
 This building entrance is equipped with an accessible elevator.",,,
 MI,MI Annex,https://www.concordia.ca/maps/buildings/mi.html,2130 Bishop St.,45.4977818,-73.5818992,"Built in 1891, this red sandstone house was designed in the Richardsonian Romanesque style with bay windows, ironwork and a bold gabled roof. Concordia acquired it in 1971.
 Once a private home, today the MI Annex hosts union offices.","This building is not accessible. It is not equipped with an accessibility ramp, automated door, elevator or wheelchair lift.",,,
