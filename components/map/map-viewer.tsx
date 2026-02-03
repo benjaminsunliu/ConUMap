@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   },
   marker: {
     backgroundColor: "#200003",
-    paddingHorizontal: 8,
+    paddingHorizontal: 5,
     paddingVertical: 4,
     borderRadius: 12,
     borderWidth: 2,
@@ -188,7 +188,8 @@ const styles = StyleSheet.create({
 
   clusterMarker: {
     backgroundColor: "#701922",
-    padding: 5,
+    paddingHorizontal: 6,
+    paddingVertical: 4,
     borderRadius: 50,
     borderWidth: 2,
     borderColor: "#fff",
