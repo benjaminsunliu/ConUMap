@@ -1,11 +1,14 @@
 import { CAMPUS_LOCATIONS } from "@/constants/mapData";
-import { Coordinate, CoordinateDelta } from "@/types/mapTypes";
+import { Coordinate, CoordinateDelta, Building as MapBuilding } from "@/types/mapTypes";
 import * as LocationPermissions from "expo-location";
 import { useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import MapView, { Polygon, Region } from "react-native-maps";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
+import BuildingInfoPopup from "./building-info-popup";
+import React from "react";
+import { concordiaBuildings } from "@/data/parsedBuildings";
 
 interface Props {
   userLocationDelta?: CoordinateDelta;
@@ -23,6 +26,7 @@ export default function MapViewer({
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
   const [modalOpen, setModalOpen] = useState(false);
+  const [selectedBuilding, setSelectedBuilding] = useState<any | null>(null);
   const mapViewRef = useRef<MapView>(null);
 
   const requestLocation = async () => {
@@ -52,12 +56,20 @@ export default function MapViewer({
       return;
     }
     setLocationState("centered");
-    const region = {
+    mapViewRef.current?.animateToRegion({
       ...userLocation,
       latitudeDelta: userLocationDelta.latitudeDelta,
       longitudeDelta: userLocationDelta.longitudeDelta,
-    };
-    mapViewRef.current?.animateToRegion(region);
+    });
+  };
+
+  const focusBuilding = (building: MapBuilding) => {
+    mapViewRef.current?.animateToRegion({
+      latitude: building.location.latitude,
+      longitude: building.location.longitude,
+      latitudeDelta: 0.002,
+      longitudeDelta: 0.002,
+    });
   };
 
   return (
@@ -69,26 +81,32 @@ export default function MapViewer({
         showsUserLocation={userLocation !== null}
         followsUserLocation={locationState === "centered"}
         onPanDrag={() => (userLocation ? setLocationState("on") : null)}
+        onPress={() => setSelectedBuilding(null)}
         onUserLocationChange={({ nativeEvent: { coordinate } }) => {
-          if (!coordinate) {
-            return;
-          }
-          if (!userLocation) {
-            setLocationState("on");
-          }
+          if (!coordinate) return;
+          if (!userLocation) setLocationState("on");
           setUserLocation(coordinate);
         }}
       >
-        {CAMPUS_LOCATIONS.map((building, i) => {
-          return building.polygons.map((polygon, i) => (
+        {CAMPUS_LOCATIONS.map((building) =>
+          building.polygons.map((polygon, polygonIndex) => (
             <Polygon
-              key={i}
-              fillColor={polygonFillColor}
-              strokeColor={polygonStrokeColor}
+              key={`${building.code}-${polygonIndex}`}
               coordinates={polygon}
+              tappable
+              fillColor={selectedBuilding?.buildingCode === building.code ? "rgba(26,115,232,0.5)" : polygonFillColor}
+              strokeColor={polygonStrokeColor}
+              onPress={() => {
+                const info = concordiaBuildings.find(
+                  (b) => b.buildingCode === building.code
+                );
+                setSelectedBuilding(info ?? null);
+                focusBuilding(building);
+              }}
             />
-          ));
-        })}
+          ))
+        )}
+
       </MapView>
       <LocationButton
         state={locationState}
@@ -101,6 +119,7 @@ export default function MapViewer({
         }}
       />
       <LocationModal onRequestClose={() => setModalOpen(false)} visible={modalOpen} />
+      <BuildingInfoPopup building={selectedBuilding} />
     </View>
   );
 }
