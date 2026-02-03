@@ -89,6 +89,11 @@ export default function BuildingInfoCard({ building }: Props) {
         urlMap[type] && Linking.openURL(urlMap[type]);
     };
 
+    const formatCamelCase = (text: string) => {
+        const result = text.replace(/([A-Z])/g, " $1");
+        return result.charAt(0).toUpperCase() + result.slice(1);
+    };
+
     const renderList = (items: readonly string[], icon: string = "checkmark-circle-outline") =>
         items.map((item, idx) => <ListItem key={`${icon}-${idx}`} icon={icon} text={item} />);
 
@@ -115,7 +120,7 @@ export default function BuildingInfoCard({ building }: Props) {
                     {building.accessibility.length > 0 && (
                         <>
                             <Text style={styles.sectionTitle}>Accessibility</Text>
-                            {renderList(building.accessibility, "accessibility")}
+                            {renderList(building.accessibility.map(formatCamelCase), "checkmark-circle-outline")}
                         </>
                     )}
 
