@@ -103,8 +103,8 @@ export default function BuildingInfoCard({ building }: Props) {
             style={[styles.card, { bottom: 0, transform: [{ translateY }], height: FULL_HEIGHT }]}
         >
             <View style={styles.handle} />
-            <Text style={styles.title} numberOfLines={1}> {building.buildingName} </Text>
-            <Text style={styles.line}>{building.address}</Text>
+            <Text style={styles.title} numberOfLines={1}>{building.buildingCode} - {building.buildingName} </Text>
+            <Text style={styles.line}>{building.campus} Campus | {building.address}</Text>
             <Text style={styles.openStatus}>Today: {DEFAULT_OPENING_HOURS[todayIdx]}</Text>
 
             <View style={styles.actionsRow}>

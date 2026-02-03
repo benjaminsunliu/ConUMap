@@ -2,8 +2,8 @@ import { CAMPUS_LOCATIONS } from "@/constants/mapData";
 import { Coordinate, CoordinateDelta, Building as MapBuilding } from "@/types/mapTypes";
 import * as LocationPermissions from "expo-location";
 import { useRef, useState } from "react";
-import { StyleSheet, View } from "react-native";
-import MapView, { Polygon, Region } from "react-native-maps";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import MapView, { Polygon, Region, Marker } from "react-native-maps";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
 import BuildingInfoPopup from "./building-info-popup";
@@ -32,31 +32,24 @@ export default function MapViewer({
   const mapViewRef = useRef<MapView>(null);
 
   const requestLocation = async () => {
-    if (userLocation) {
-      return;
-    }
+    if (userLocation) return;
     const locationEnabled = await LocationPermissions.hasServicesEnabledAsync();
     if (!locationEnabled) {
       setModalOpen(true);
       return;
     }
     const { status } = await LocationPermissions.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      return;
-    }
+    if (status !== "granted") return;
     const location = await LocationPermissions.getCurrentPositionAsync();
     setUserLocation({
       longitude: location.coords.longitude,
       latitude: location.coords.latitude,
     });
     setLocationState("on");
-    return;
   };
 
   const centerLocation = () => {
-    if (!userLocation) {
-      return;
-    }
+    if (!userLocation) return;
     setLocationState("centered");
     mapViewRef.current?.animateToRegion({
       ...userLocation,
@@ -90,13 +83,18 @@ export default function MapViewer({
           setUserLocation(coordinate);
         }}
       >
+        {/* Draw polygons */}
         {CAMPUS_LOCATIONS.map((building) =>
           building.polygons.map((polygon, polygonIndex) => (
             <Polygon
               key={`${building.code}-${polygonIndex}`}
               coordinates={polygon}
               tappable
-              fillColor={selectedBuilding?.buildingCode === building.code ? polygonHighlightedColor : polygonFillColor}
+              fillColor={
+                selectedBuilding?.buildingCode === building.code
+                  ? polygonHighlightedColor
+                  : polygonFillColor
+              }
               strokeColor={polygonStrokeColor}
               onPress={() => {
                 const info = concordiaBuildings.find(
@@ -109,7 +107,42 @@ export default function MapViewer({
           ))
         )}
 
+        {/* Clickable markers */}
+        {CAMPUS_LOCATIONS.map((building) => {
+          const selected = selectedBuilding?.buildingCode === building.code;
+          return (
+            <Marker
+              key={`marker-${building.code}`}
+              coordinate={building.location}
+              onPress={() => {
+                const info = concordiaBuildings.find(
+                  (b) => b.buildingCode === building.code
+                );
+                setSelectedBuilding(info ?? null);
+                focusBuilding(building);
+              }}
+            >
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={[
+                  styles.marker,
+                  selected && styles.markerSelected, // invert colors if selected
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.markerText,
+                    selected && styles.markerTextSelected,
+                  ]}
+                >
+                  {building.code}
+                </Text>
+              </TouchableOpacity>
+            </Marker>
+          );
+        })}
       </MapView>
+
       <LocationButton
         state={locationState}
         onPress={async () => {
@@ -128,11 +161,34 @@ export default function MapViewer({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1
   },
   map: {
     width: "100%",
-    height: "100%",
+    height: "100%"
+  },
+  marker: {
+    backgroundColor: "black",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 15,
+    borderColor: "#fff",
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  markerSelected: {
+    backgroundColor: "#fff",
+    borderColor: "black",
+    borderWidth: 2,
+  },
+  markerText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 12,
+  },
+  markerTextSelected: {
+    color: "black",
   },
 });
 
