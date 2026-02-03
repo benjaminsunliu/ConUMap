@@ -39,7 +39,7 @@ export default function BuildingInfoCard({ building }: Props) {
         } else {
             Animated.spring(translateY, { toValue: FULL_HEIGHT, useNativeDriver: true }).start();
         }
-    }, [building]);
+    }, [building, translateY]);
 
     const panResponder = useRef(
         PanResponder.create({
