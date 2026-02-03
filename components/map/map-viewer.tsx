@@ -14,13 +14,15 @@ interface Props {
   userLocationDelta?: CoordinateDelta;
   initialRegion?: Region;
   polygonFillColor?: string;
+  polygonHighlightedColor?: string;
   polygonStrokeColor?: string;
 }
 
 export default function MapViewer({
   userLocationDelta = defaultFocusDelta,
   initialRegion = defaultInitialRegion,
-  polygonFillColor = "rgba(255,0,0,0.5)",
+  polygonFillColor = "#a0686d",
+  polygonHighlightedColor = "#701922",
   polygonStrokeColor = "black",
 }: Props) {
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
@@ -94,7 +96,7 @@ export default function MapViewer({
               key={`${building.code}-${polygonIndex}`}
               coordinates={polygon}
               tappable
-              fillColor={selectedBuilding?.buildingCode === building.code ? "rgba(26,115,232,0.5)" : polygonFillColor}
+              fillColor={selectedBuilding?.buildingCode === building.code ? polygonHighlightedColor : polygonFillColor}
               strokeColor={polygonStrokeColor}
               onPress={() => {
                 const info = concordiaBuildings.find(
