@@ -10,8 +10,6 @@
 
 </div>
 
-
-
 ## About
 ConUMap is a mobile application that helps Concordia students navigate the SGW and Loyola campuses with ease. It provides interactive campus maps, building information, outdoor and indoor directions (including multi-floor routing), accessibility-friendly paths, and smart navigation to classes using calendar or open data integration.
 
