@@ -1,12 +1,7 @@
 import csvParser from "csv-parser";
-import fs, { access } from "fs";
+import fs from "fs";
 
 type Campus = "SGW" | "LOY";
-
-type CampusBuildingInfo = {
-  name: Campus;
-  buildings: BuildingInfoRowData[];
-};
 
 type ConcordiaWebsiteResource = {
   name: string;
@@ -28,12 +23,13 @@ type BuildingInfoRowData = {
 };
 
 type BuildingInfo = {
+  campus: Campus;
   buildingCode: string;
   buildingName: string;
   link: string;
   address: string;
   overview: string[];
-  accessibility: string[] | null;
+  accessibility: string[];
   services: ConcordiaWebsiteResource[] | null;
   departments: ConcordiaWebsiteResource[] | null;
   venues: ConcordiaWebsiteResource[] | null;
@@ -48,7 +44,9 @@ async function parseCSV<T>(
 ): Promise<T[]> {
   return new Promise((resolve, reject) => {
     const arr: T[] = [];
-    fs.createReadStream(filePath)
+    const readStream = fs.createReadStream(filePath);
+    readStream.on("error", (err) => reject(err));
+    readStream
       .pipe(csvParser())
       .on("data", (data) => arr.push(preprocessor(data)))
       .on("end", () => resolve(arr))
@@ -56,11 +54,12 @@ async function parseCSV<T>(
   });
 }
 
-const campusNames: Campus[] = ["SGW", "LOY"];
 const linksFilePath: string = `./data/Concordia Buildings - Links.csv`;
-const resources = await parseCSV<ConcordiaWebsiteResource>(linksFilePath);
 
-function getResources(data: string): ConcordiaWebsiteResource[] | null {
+function getResources(
+  data: string,
+  resources: ConcordiaWebsiteResource[],
+): ConcordiaWebsiteResource[] | null {
   if (data.length == 0) return null;
   return data.split("\n").flatMap((name) => {
     name = name.replaceAll("\n", "");
@@ -68,7 +67,8 @@ function getResources(data: string): ConcordiaWebsiteResource[] | null {
     return found ? [found] : [];
   });
 }
-enum AccessbilityOptions {
+
+enum AccessibilityOptions {
   entranceRamp = "This building entrance is equipped with an accessibility ramp",
   entranceAutomatedDoor = "This building has an automated accessible entrance door",
   elevator = "This building entrance is equipped with an accessible elevator",
@@ -78,10 +78,10 @@ enum AccessbilityOptions {
   groundFloor = "The ground floor of this building is wheelchair accessible, including the individual-use washroom",
 }
 
-type AccessKey = keyof typeof AccessbilityOptions;
+type AccessKey = keyof typeof AccessibilityOptions;
 
 const reverseAccessMap: Record<string, AccessKey> = Object.entries(
-  AccessbilityOptions,
+  AccessibilityOptions,
 ).reduce(
   (acc, [key, value]) => {
     const normalizedValue = value.replace(/\.$/, "").trim();
@@ -107,66 +107,53 @@ function getAccessibility(data: string): AccessKey[] {
 
 async function getBuildingsForCampus(campus: Campus) {
   const filePath: string = `./data/Concordia Buildings - ${campus}.csv`;
+  const resources = await parseCSV<ConcordiaWebsiteResource>(linksFilePath);
   const buildings = await parseCSV<BuildingInfoRowData, BuildingInfo>(filePath, (el) => {
     return {
-      ...el,
+      campus: campus,
+      buildingCode: el.buildingCode,
+      buildingName: el.buildingName,
+      link: el.link,
+      address: el.address,
       overview: el.overview
         .split("\n")
         .map((line) => line.replace(/\r/g, "").trim())
         .filter((line) => line.length > 0),
-      services: getResources(el.services),
-      departments: getResources(el.departments),
-      venues: getResources(el.venues),
+      services: getResources(el.services, resources),
+      departments: getResources(el.departments, resources),
+      venues: getResources(el.venues, resources),
       accessibility: getAccessibility(el.accessibility),
     };
   });
-  return {
-    name: campus,
-    buildings: buildings,
-  };
+  return buildings;
 }
 
 async function runAndSave() {
-  console.log("🔄 Starting parsing process...");
+  const campusNames: Campus[] = ["SGW", "LOY"];
 
-  // 1. Fetch data for all campuses
-  const campusResults = await Promise.all(
-    campusNames.map(async (campus) => {
-      const data = await getBuildingsForCampus(campus);
-      return [campus, data.buildings]; // Return a pair for Object.fromEntries
-    }),
-  );
+  const allBuildingsArrays = await Promise.all(campusNames.map(getBuildingsForCampus));
+  const allBuildings = allBuildingsArrays.flat();
 
-  // 2. Format into { "SGW": [...], "LOY": [...] }
-  const finalResult = Object.fromEntries(campusResults);
-
-  // 3. Define file metadata
   const filePath = "./data/parsedBuildings.ts";
-  const variableName = "concordiaCampusData";
-
-  // 4. Construct the file content
   const fileContent = `/**
- * Automatically generated Building Data
  * Generated on: ${new Date().toLocaleString()}
  */
 
-export const ${variableName} = ${JSON.stringify(finalResult, null, 2)} as const;
+export const concordiaBuildings = ${JSON.stringify(allBuildings, null, 2)} as const;
 
-export type BuildingDataMap = typeof ${variableName};
+export type BuildingInfo = typeof concordiaBuildings[number];
 `.trim();
 
-  // 5. Write to disk
   try {
     fs.writeFileSync(filePath, fileContent, "utf8");
-    console.log(`✅ Success! Data saved to ${filePath}`);
-
-    // Quick Debug log to verify structure
-    const keys = Object.keys(finalResult);
-    console.log(`Mapped campuses: ${keys.join(", ")}`);
-  } catch (error) {
-    console.error("❌ Error saving file:", error);
+    console.log(`✅ Saved ${allBuildings.length} buildings to ${filePath}`);
+  } catch (err) {
+    console.error("❌ Save failed", err);
   }
 }
 
-// Execute the process
-runAndSave();
+async function main() {
+  runAndSave();
+}
+
+main();
