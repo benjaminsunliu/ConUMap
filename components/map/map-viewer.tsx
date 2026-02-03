@@ -1,14 +1,14 @@
-import { CAMPUS_LOCATIONS } from "@/constants/mapData";
-import { Coordinate, CoordinateDelta, Building as MapBuilding } from "@/types/mapTypes";
+import React, { useRef, useState } from "react";
+import { StyleSheet, View, Text } from "react-native";
+import MapViewCluster from "react-native-map-clustering";
+import MapView, { Marker, Polygon, Region } from "react-native-maps";
 import * as LocationPermissions from "expo-location";
-import { useRef, useState } from "react";
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
-import MapView, { Polygon, Region, Marker } from "react-native-maps";
+import { CAMPUS_LOCATIONS } from "@/constants/mapData";
+import { concordiaBuildings } from "@/data/parsedBuildings";
+import { Coordinate, CoordinateDelta, Building as MapBuilding } from "@/types/mapTypes";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
 import BuildingInfoPopup from "./building-info-popup";
-import React from "react";
-import { concordiaBuildings } from "@/data/parsedBuildings";
 
 interface Props {
   userLocationDelta?: CoordinateDelta;
@@ -25,36 +25,38 @@ export default function MapViewer({
   polygonHighlightedColor = "#701922",
   polygonStrokeColor = "black",
 }: Props) {
+  const mapViewRef = useRef<MapView>(null);
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
-  const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
+  const [locationState, setLocationState] =
+    useState<LocationButtonProps["state"]>("off");
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState<any | null>(null);
-  const mapViewRef = useRef<MapView>(null);
 
   const requestLocation = async () => {
     if (userLocation) return;
-    const locationEnabled = await LocationPermissions.hasServicesEnabledAsync();
-    if (!locationEnabled) {
+
+    const enabled = await LocationPermissions.hasServicesEnabledAsync();
+    if (!enabled) {
       setModalOpen(true);
       return;
     }
-    const { status } = await LocationPermissions.requestForegroundPermissionsAsync();
+
+    const { status } =
+      await LocationPermissions.requestForegroundPermissionsAsync();
     if (status !== "granted") return;
+
     const location = await LocationPermissions.getCurrentPositionAsync();
-    setUserLocation({
-      longitude: location.coords.longitude,
-      latitude: location.coords.latitude,
-    });
+    setUserLocation({ latitude: location.coords.latitude, longitude: location.coords.longitude });
     setLocationState("on");
   };
 
   const centerLocation = () => {
     if (!userLocation) return;
+
     setLocationState("centered");
     mapViewRef.current?.animateToRegion({
       ...userLocation,
-      latitudeDelta: userLocationDelta.latitudeDelta,
-      longitudeDelta: userLocationDelta.longitudeDelta,
+      ...userLocationDelta,
     });
   };
 
@@ -62,32 +64,42 @@ export default function MapViewer({
     mapViewRef.current?.animateToRegion({
       latitude: building.location.latitude,
       longitude: building.location.longitude,
-      latitudeDelta: 0.002,
-      longitudeDelta: 0.002,
+      latitudeDelta: 0.001,
+      longitudeDelta: 0.001,
     });
   };
 
   return (
     <View style={styles.container}>
-      <MapView
+      <MapViewCluster
         ref={mapViewRef}
         style={styles.map}
         initialRegion={initialRegion}
-        showsUserLocation={userLocation !== null}
+        showsUserLocation={!!userLocation}
         followsUserLocation={locationState === "centered"}
-        onPanDrag={() => (userLocation ? setLocationState("on") : null)}
         onPress={() => setSelectedBuilding(null)}
-        onUserLocationChange={({ nativeEvent: { coordinate } }) => {
-          if (!coordinate) return;
-          if (!userLocation) setLocationState("on");
-          setUserLocation(coordinate);
+        spiralEnabled={false}
+
+        renderCluster={(cluster) => {
+          const { id, geometry, properties } = cluster;
+          const count = properties.point_count;
+
+          return (
+            <Marker
+              key={`cluster-${id}`}
+              coordinate={{ latitude: geometry.coordinates[1], longitude: geometry.coordinates[0] }}
+              onPress={cluster.onPress}>
+              <View style={styles.clusterMarker}>
+                <Text style={styles.clusterText}> {count > 9 ? "9+" : count} </Text>
+              </View>
+            </Marker>
+          );
         }}
       >
-        {/* Draw polygons */}
         {CAMPUS_LOCATIONS.map((building) =>
-          building.polygons.map((polygon, polygonIndex) => (
+          building.polygons.map((polygon, index) => (
             <Polygon
-              key={`${building.code}-${polygonIndex}`}
+              key={`${building.code}-${index}`}
               coordinates={polygon}
               tappable
               fillColor={
@@ -107,12 +119,12 @@ export default function MapViewer({
           ))
         )}
 
-        {/* Clickable markers */}
         {CAMPUS_LOCATIONS.map((building) => {
-          const selected = selectedBuilding?.buildingCode === building.code;
+          const isSelected = selectedBuilding?.buildingCode === building.code;
+
           return (
             <Marker
-              key={`marker-${building.code}`}
+              key={building.code}
               coordinate={building.location}
               onPress={() => {
                 const info = concordiaBuildings.find(
@@ -122,38 +134,24 @@ export default function MapViewer({
                 focusBuilding(building);
               }}
             >
-              <TouchableOpacity
-                activeOpacity={0.8}
-                style={[
-                  styles.marker,
-                  selected && styles.markerSelected, // invert colors if selected
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.markerText,
-                    selected && styles.markerTextSelected,
-                  ]}
-                >
+              <View style={[styles.marker, isSelected && styles.markerSelected]}>
+                <Text style={[styles.markerText, isSelected && styles.markerTextSelected]}>
                   {building.code}
                 </Text>
-              </TouchableOpacity>
+              </View>
             </Marker>
           );
         })}
-      </MapView>
+      </MapViewCluster>
 
       <LocationButton
         state={locationState}
-        onPress={async () => {
-          if (locationState === "on") {
-            centerLocation();
-          } else if (locationState === "off") {
-            requestLocation();
-          }
+        onPress={() => {
+          if (locationState === "on") centerLocation();
+          else if (locationState === "off") requestLocation();
         }}
       />
-      <LocationModal onRequestClose={() => setModalOpen(false)} visible={modalOpen} />
+      <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
       <BuildingInfoPopup building={selectedBuilding} />
     </View>
   );
@@ -168,19 +166,16 @@ const styles = StyleSheet.create({
     height: "100%"
   },
   marker: {
-    backgroundColor: "black",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 15,
-    borderColor: "#fff",
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: "#200003",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: "#fff"
   },
   markerSelected: {
     backgroundColor: "#fff",
-    borderColor: "black",
-    borderWidth: 2,
+    borderColor: "#200003"
   },
   markerText: {
     color: "#fff",
@@ -188,7 +183,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   markerTextSelected: {
-    color: "black",
+    color: "#701922",
+  },
+
+  clusterMarker: {
+    backgroundColor: "#701922",
+    padding: 5,
+    borderRadius: 50,
+    borderWidth: 2,
+    borderColor: "#fff",
+  },
+  clusterText: {
+    color: "#fff",
+    fontWeight: "800",
+    fontSize: 12,
   },
 });
 
