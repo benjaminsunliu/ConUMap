@@ -127,8 +127,8 @@
     "formatted_address": "1665 Rue Sainte-Catherine E, Montréal, QC H2L 2J5, Canada",
     "geometry": {
       "location": {
-        "lat": 45.52217,
-        "lng": -73.5531
+        "lat": 45.494258641914726,
+        "lng": -73.5790133953522
       },
       "location_type": "ROOFTOP",
       "viewport": {
@@ -145,8 +145,8 @@
     "navigation_points": [
       {
         "location": {
-          "latitude": 45.5220977,
-          "longitude": -73.5529365
+          "latitude": 45.494258641914726,
+          "longitude": -73.5790133953522
         }
       }
     ],
