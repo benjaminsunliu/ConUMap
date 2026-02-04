@@ -1,5 +1,3 @@
-import { Platform } from "react-native";
-
 const tintColorLight = "#5e0e16";
 const tintColorDark = "#ffffff";
 
@@ -25,7 +23,23 @@ export const Colors = {
       clusterMarker: "#200003",
       clusterText: "#fff",
     },
+
+    buildingInfoPopup: {
+      background: "#ffffff",
+      handle: "#cccccc",
+      title: "#11181C",
+      text: "#333333",
+      divider: "#dddddd",
+
+      openStatus: "#1e8e3e",
+      accessibilityIcon: "#1e8e3e",
+
+      actionButtonBackground: "#e8f0fe",
+      actionButtonText: "#1a73e8",
+      actionButtonIcon: "#1a73e8",
+    }
   },
+
   dark: {
     text: "#b28e8b",
     background: "#5e0e16",
@@ -45,32 +59,22 @@ export const Colors = {
       markerBorder: "#fff",
       markerBorderSelected: "#330703",
       clusterMarker: "#330703",
-      clusterText: "#fff"
+      clusterText: "#fff",
     },
-  },
-};
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-    serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
-    mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-  },
-});
+    buildingInfoPopup: {
+      background: "#ffffff",
+      handle: "#cccccc",
+      title: "#11181C",
+      text: "#333333",
+      divider: "#dddddd",
+
+      openStatus: "#1e8e3e",
+      accessibilityIcon: "#1e8e3e",
+
+      actionButtonBackground: "#e8f0fe",
+      actionButtonText: "#1a73e8",
+      actionButtonIcon: "#1a73e8",
+    }
+  }
+};
