@@ -34,8 +34,8 @@ export default function MapViewer({
   const requestLocation = async () => {
     if (userLocation) return;
 
-    const enabled = await LocationPermissions.hasServicesEnabledAsync();
-    if (!enabled) {
+    const locationEnabled = await LocationPermissions.hasServicesEnabledAsync();
+    if (!locationEnabled) {
       setModalOpen(true);
       return;
     }
