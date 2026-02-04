@@ -8,15 +8,29 @@ import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import Feather from "@expo/vector-icons/Feather";
 
-function TabHeader({ backgroundColor, logoSource }: {
-  backgroundColor: string;
-  logoSource: any;
-}) {
+interface TabHeaderProps {
+  readonly backgroundColor: string;
+  readonly logoSource: number;
+}
+
+function TabHeader({ backgroundColor, logoSource }: TabHeaderProps) {
   return (
     <View style={[styles.header, { backgroundColor }]}>
       <Image source={logoSource} style={styles.logo} resizeMode="contain" />
     </View>
   );
+}
+
+function MapTabIcon({ color }: { readonly color: string }) {
+  return <Feather name="map" size={24} color={color} />;
+}
+
+function HomeTabIcon({ color }: { readonly color: string }) {
+  return <IconSymbol size={28} name="house.fill" color={color} />;
+}
+
+function CalendarTabIcon({ color }: { readonly color: string }) {
+  return <Feather name="calendar" size={24} color={color} />;
 }
 
 export default function TabLayout() {
@@ -42,30 +56,28 @@ export default function TabLayout() {
           backgroundColor: Colors[colorScheme].background,
           borderTopWidth: 0,
           elevation: 5,
-        }
+        },
       }}
     >
       <Tabs.Screen
         name="map-tab"
         options={{
           title: "Map",
-          tabBarIcon: ({ color }) => (<Feather name="map" size={24} color={color} />)
+          tabBarIcon: MapTabIcon,
         }}
       />
       <Tabs.Screen
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
-          ),
+          tabBarIcon: HomeTabIcon,
         }}
       />
       <Tabs.Screen
         name="calendar"
         options={{
           title: "Calendar",
-          tabBarIcon: ({ color }) => (<Feather name="calendar" size={24} color={color} />)
+          tabBarIcon: CalendarTabIcon,
         }}
       />
     </Tabs>
