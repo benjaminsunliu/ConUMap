@@ -3,6 +3,8 @@ import { StyleSheet, View, Text } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
 import MapView, { Marker, Polygon, Region } from "react-native-maps";
 import * as LocationPermissions from "expo-location";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
 import { CAMPUS_LOCATIONS } from "@/constants/mapData";
 import { concordiaBuildings, BuildingInfo } from "@/data/parsedBuildings";
 import { Coordinate, CoordinateDelta, Building as MapBuilding } from "@/types/mapTypes";
@@ -13,18 +15,14 @@ import BuildingInfoPopup from "./building-info-popup";
 interface Props {
   readonly userLocationDelta?: CoordinateDelta;
   readonly initialRegion?: Region;
-  readonly polygonFillColor?: string;
-  readonly polygonHighlightedColor?: string;
-  readonly polygonStrokeColor?: string;
 }
 
 export default function MapViewer({
   userLocationDelta = defaultFocusDelta,
   initialRegion = defaultInitialRegion,
-  polygonFillColor = "#a0686d",
-  polygonHighlightedColor = "#701922",
-  polygonStrokeColor = "black",
 }: Props) {
+  const colorScheme = useColorScheme() ?? "light";
+  const mapColors = Colors[colorScheme].map;
   const mapViewRef = useRef<MapView>(null);
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
@@ -81,8 +79,8 @@ export default function MapViewer({
         key={`cluster-${id}`}
         coordinate={{ latitude: geometry.coordinates[1], longitude: geometry.coordinates[0] }}
         onPress={onPress} >
-        <View style={styles.clusterMarker}>
-          <Text style={styles.clusterText}> {count > 9 ? "9+" : count} </Text>
+        <View style={[styles.clusterMarker, { backgroundColor: mapColors.clusterMarker }]}>
+          <Text style={[styles.clusterText, { color: mapColors.clusterText }]}> {count > 9 ? "9+" : count} </Text>
         </View>
       </Marker>
     );
@@ -98,8 +96,8 @@ export default function MapViewer({
             key={`${building.code}-${index}`}
             coordinates={polygon}
             tappable
-            fillColor={isSelected ? polygonHighlightedColor : polygonFillColor}
-            strokeColor={polygonStrokeColor}
+            fillColor={isSelected ? mapColors.polygonHighlighted : mapColors.polygonFill}
+            strokeColor={mapColors.polygonStroke}
             onPress={() => {
               selectBuildingByCode(building.code);
               focusBuilding(building);
@@ -123,8 +121,18 @@ export default function MapViewer({
           }}
         >
           <View
-            style={[styles.marker, isSelected && styles.markerSelected]}>
-            <Text style={[styles.markerText, isSelected && styles.markerTextSelected]}>
+            style={[
+              styles.marker,
+              { backgroundColor: isSelected ? mapColors.markerSelected : mapColors.marker },
+              { borderColor: isSelected ? mapColors.markerBorderSelected : mapColors.markerBorder },
+            ]}
+          >
+            <Text
+              style={[
+                styles.markerText,
+                { color: isSelected ? mapColors.markerTextSelected : mapColors.markerText },
+              ]}
+            >
               {building.code}
             </Text>
           </View>
@@ -162,35 +170,19 @@ export default function MapViewer({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  },
-  map: {
-    width: "100%",
-    height: "100%"
-  },
+  container: { flex: 1 },
+  map: { width: "100%", height: "100%" },
   marker: {
-    backgroundColor: "#200003",
     paddingHorizontal: 5,
     paddingVertical: 4,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: "#fff"
-  },
-  markerSelected: {
-    backgroundColor: "#fff",
-    borderColor: "#200003"
   },
   markerText: {
-    color: "#fff",
     fontWeight: "700",
     fontSize: 12,
   },
-  markerTextSelected: {
-    color: "#200003",
-  },
   clusterMarker: {
-    backgroundColor: "#200003",
     paddingHorizontal: 6,
     paddingVertical: 4,
     borderRadius: 50,
@@ -198,7 +190,6 @@ const styles = StyleSheet.create({
     borderColor: "#fff",
   },
   clusterText: {
-    color: "#fff",
     fontWeight: "800",
     fontSize: 12,
   },
