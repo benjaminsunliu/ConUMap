@@ -22,7 +22,7 @@ const DEFAULT_OPENING_HOURS = [
     "7:00 AM – 9:00 PM",
 ];
 
-export default function BuildingInfoCard({ building }: Props) {
+export default function BuildingInfoPopup({ building }: Props) {
     const translateY = useRef(new Animated.Value(COLLAPSED_TRANSLATE_Y)).current;
     const currentTranslateY = useRef(COLLAPSED_TRANSLATE_Y);
     const [expanded, setExpanded] = useState(false);
