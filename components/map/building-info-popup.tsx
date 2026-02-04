@@ -94,8 +94,9 @@ export default function BuildingInfoPopup({ building }: Props) {
     };
 
     const formatCamelCase = (text: string) => {
-        const result = text.replaceAll(/([A-Z])/g, " $1");
-        return result.charAt(0).toUpperCase() + result.slice(1);
+        const withBoundaries = text.replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2");
+        const normalized = withBoundaries.replace(/\s+/g, " ").trim();
+        return normalized.charAt(0).toUpperCase() + normalized.slice(1);
     };
 
     return (
