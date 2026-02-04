@@ -25,7 +25,23 @@ export const Colors = {
       clusterMarker: "#200003",
       clusterText: "#fff",
     },
+
+    buildingInfoPopup: {
+      background: "#ffffff",
+      handle: "#cccccc",
+      title: "#11181C",
+      text: "#333333",
+      divider: "#dddddd",
+
+      openStatus: "#1e8e3e",
+      accessibilityIcon: "#1e8e3e",
+
+      actionButtonBackground: "#e8f0fe",
+      actionButtonText: "#1a73e8",
+      actionButtonIcon: "#1a73e8",
+    }
   },
+
   dark: {
     text: "#b28e8b",
     background: "#5e0e16",
@@ -45,9 +61,24 @@ export const Colors = {
       markerBorder: "#fff",
       markerBorderSelected: "#330703",
       clusterMarker: "#330703",
-      clusterText: "#fff"
+      clusterText: "#fff",
     },
-  },
+
+    buildingInfoPopup: {
+      background: "#ffffff",
+      handle: "#cccccc",
+      title: "#11181C",
+      text: "#333333",
+      divider: "#dddddd",
+
+      openStatus: "#1e8e3e",
+      accessibilityIcon: "#1e8e3e",
+
+      actionButtonBackground: "#e8f0fe",
+      actionButtonText: "#1a73e8",
+      actionButtonIcon: "#1a73e8",
+    }
+  }
 };
 
 export const Fonts = Platform.select({

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useCallback, useMemo } from "react";
 import { StyleSheet, View, Text } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
 import MapView, { Marker, Polygon, Region } from "react-native-maps";
@@ -29,7 +29,21 @@ export default function MapViewer({
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
 
-  const requestLocation = async () => {
+  const focusBuilding = useCallback((building: MapBuilding) => {
+    mapViewRef.current?.animateToRegion({
+      latitude: building.location.latitude,
+      longitude: building.location.longitude,
+      latitudeDelta: 0.001,
+      longitudeDelta: 0.001,
+    });
+  }, []);
+
+  const selectBuildingByCode = useCallback((code: string) => {
+    const info = concordiaBuildings.find((b) => b.buildingCode === code) ?? null;
+    setSelectedBuilding(info);
+  }, []);
+
+  const requestLocation = useCallback(async () => {
     if (userLocation) return;
 
     const locationEnabled = await LocationPermissions.hasServicesEnabledAsync();
@@ -44,50 +58,17 @@ export default function MapViewer({
     const location = await LocationPermissions.getCurrentPositionAsync();
     setUserLocation({ latitude: location.coords.latitude, longitude: location.coords.longitude });
     setLocationState("on");
-  };
+  }, [userLocation]);
 
-  const centerLocation = () => {
+  const centerLocation = useCallback(() => {
     if (!userLocation) return;
 
     setLocationState("centered");
-    mapViewRef.current?.animateToRegion({
-      ...userLocation,
-      ...userLocationDelta,
-    });
-  };
+    mapViewRef.current?.animateToRegion({ ...userLocation, ...userLocationDelta });
+  }, [userLocation, userLocationDelta]);
 
-  const focusBuilding = (building: MapBuilding) => {
-    mapViewRef.current?.animateToRegion({
-      latitude: building.location.latitude,
-      longitude: building.location.longitude,
-      latitudeDelta: 0.001,
-      longitudeDelta: 0.001,
-    });
-  };
-
-  const selectBuildingByCode = (code: string) => {
-    const info = concordiaBuildings.find((b) => b.buildingCode === code) ?? null;
-    setSelectedBuilding(info);
-  };
-
-  const renderCluster = (cluster: any) => {
-    const { id, geometry, properties, onPress } = cluster;
-    const count = properties.point_count;
-
-    return (
-      <Marker
-        key={`cluster-${id}`}
-        coordinate={{ latitude: geometry.coordinates[1], longitude: geometry.coordinates[0] }}
-        onPress={onPress} >
-        <View style={[styles.clusterMarker, { backgroundColor: mapColors.clusterMarker, borderColor: mapColors.markerBorder }]}>
-          <Text style={[styles.clusterText, { color: mapColors.clusterText }]}> {count > 9 ? "9+" : count} </Text>
-        </View>
-      </Marker>
-    );
-  };
-
-  const renderPolygons = () =>
-    CAMPUS_LOCATIONS.flatMap((building) =>
+  const renderPolygons = useMemo(() => {
+    return CAMPUS_LOCATIONS.flatMap((building) =>
       building.polygons.map((polygon, index) => {
         const isSelected = selectedBuilding?.buildingCode === building.code;
 
@@ -106,9 +87,10 @@ export default function MapViewer({
         );
       })
     );
+  }, [mapColors, selectedBuilding?.buildingCode, focusBuilding, selectBuildingByCode]);
 
-  const renderMarkers = () =>
-    CAMPUS_LOCATIONS.map((building) => {
+  const renderMarkers = useMemo(() => {
+    return CAMPUS_LOCATIONS.map((building) => {
       const isSelected = selectedBuilding?.buildingCode === building.code;
 
       return (
@@ -123,8 +105,10 @@ export default function MapViewer({
           <View
             style={[
               styles.marker,
-              { backgroundColor: isSelected ? mapColors.markerSelected : mapColors.marker },
-              { borderColor: isSelected ? mapColors.markerBorderSelected : mapColors.markerBorder },
+              {
+                backgroundColor: isSelected ? mapColors.markerSelected : mapColors.marker,
+                borderColor: isSelected ? mapColors.markerBorderSelected : mapColors.markerBorder,
+              },
             ]}
           >
             <Text
@@ -139,6 +123,30 @@ export default function MapViewer({
         </Marker>
       );
     });
+  }, [mapColors, selectedBuilding?.buildingCode, focusBuilding, selectBuildingByCode]);
+
+  const renderCluster = useCallback(
+    (cluster: any) => {
+      const { id, geometry, properties, onPress } = cluster;
+      const count = properties.point_count;
+
+      return (
+        <Marker
+          key={`cluster-${id}`}
+          coordinate={{ latitude: geometry.coordinates[1], longitude: geometry.coordinates[0] }}
+          onPress={onPress} >
+          <View
+            style={[
+              styles.clusterMarker,
+              { backgroundColor: mapColors.clusterMarker, borderColor: mapColors.markerBorder }
+            ]}>
+            <Text style={[styles.clusterText, { color: mapColors.clusterText }]} > {count > 9 ? "9+" : count} </Text>
+          </View>
+        </Marker>
+      );
+    },
+    [mapColors]
+  );
 
   return (
     <View style={styles.container}>
@@ -150,20 +158,16 @@ export default function MapViewer({
         followsUserLocation={locationState === "centered"}
         onPanDrag={() => (userLocation ? setLocationState("on") : null)}
         onUserLocationChange={({ nativeEvent: { coordinate } }) => {
-          if (!coordinate) {
-            return;
-          }
-          if (!userLocation) {
-            setLocationState("on");
-          }
+          if (!coordinate) return;
+          if (!userLocation) setLocationState("on");
           setUserLocation(coordinate);
         }}
         spiralEnabled={false}
         onPress={() => setSelectedBuilding(null)}
         renderCluster={renderCluster}
       >
-        {renderPolygons()}
-        {renderMarkers()}
+        {renderPolygons}
+        {renderMarkers}
       </MapViewCluster>
 
       <LocationButton
@@ -186,7 +190,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     paddingVertical: 4,
     borderRadius: 12,
-    borderWidth: 2,
+    borderWidth: 2
   },
   markerText: {
     fontWeight: "700",
@@ -196,11 +200,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 4,
     borderRadius: 50,
-    borderWidth: 2,
+    borderWidth: 2
   },
   clusterText: {
     fontWeight: "800",
-    fontSize: 12,
+    fontSize: 12
   },
 });
 

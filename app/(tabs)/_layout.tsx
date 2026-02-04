@@ -94,11 +94,10 @@ const styles = StyleSheet.create({
     height: 60,
     justifyContent: "center",
     alignItems: "center",
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#ccc",
+    borderBottomWidth: StyleSheet.hairlineWidth
   },
   logo: {
     width: 120,
     height: 40,
-  },
+  }
 });
