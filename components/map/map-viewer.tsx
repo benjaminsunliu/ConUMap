@@ -148,6 +148,16 @@ export default function MapViewer({
         initialRegion={initialRegion}
         showsUserLocation={!!userLocation}
         followsUserLocation={locationState === "centered"}
+        onPanDrag={() => (userLocation ? setLocationState("on") : null)}
+        onUserLocationChange={({ nativeEvent: { coordinate } }) => {
+          if (!coordinate) {
+            return;
+          }
+          if (!userLocation) {
+            setLocationState("on");
+          }
+          setUserLocation(coordinate);
+        }}
         spiralEnabled={false}
         onPress={() => setSelectedBuilding(null)}
         renderCluster={renderCluster}
