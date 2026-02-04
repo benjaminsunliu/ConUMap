@@ -7,10 +7,10 @@ interface Props {
     readonly building: BuildingInfo | null;
 }
 
-const FULL_HEIGHT = 520;
+const CLOSE_HEIGHT = 520;
 const COLLAPSED_HEIGHT = 175;
-const EXPANDED_TRANSLATE_Y = 0;
-const COLLAPSED_TRANSLATE_Y = FULL_HEIGHT - COLLAPSED_HEIGHT;
+const OPEN_TRANSLATE_Y = 0;
+const COLLAPSED_TRANSLATE_Y = CLOSE_HEIGHT - COLLAPSED_HEIGHT;
 const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const DEFAULT_OPENING_HOURS = [
     "7:00 AM – 11:00 PM",
@@ -37,28 +37,34 @@ export default function BuildingInfoCard({ building }: Props) {
             });
             setExpanded(false);
         } else {
-            Animated.spring(translateY, { toValue: FULL_HEIGHT, useNativeDriver: true }).start();
+            Animated.spring(translateY, {
+                toValue: CLOSE_HEIGHT,
+                useNativeDriver: true,
+            }).start();
         }
     }, [building, translateY]);
 
     const panResponder = useRef(
         PanResponder.create({
-            onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dy) > 5,
-            onPanResponderGrant: () => translateY.stopAnimation((v) => { currentTranslateY.current = v }),
-            onPanResponderMove: (_, g) => {
+            onMoveShouldSetPanResponder: (_, gestureState) => Math.abs(gestureState.dy) > 5,
+            onPanResponderGrant: () =>
+                translateY.stopAnimation((currentY) => {
+                    currentTranslateY.current = currentY;
+                }),
+            onPanResponderMove: (_, gestureState) => {
                 const next = Math.max(
-                    EXPANDED_TRANSLATE_Y,
-                    Math.min(COLLAPSED_TRANSLATE_Y, currentTranslateY.current + g.dy)
+                    OPEN_TRANSLATE_Y,
+                    Math.min(COLLAPSED_TRANSLATE_Y, currentTranslateY.current + gestureState.dy)
                 );
                 translateY.setValue(next);
             },
-            onPanResponderRelease: (_, g) => {
-                const midpoint = (EXPANDED_TRANSLATE_Y + COLLAPSED_TRANSLATE_Y) / 2;
-                const expand = currentTranslateY.current + g.dy < midpoint || g.vy < -0.5;
-                const snapPoint = expand ? EXPANDED_TRANSLATE_Y : COLLAPSED_TRANSLATE_Y;
+            onPanResponderRelease: (_, gestureState) => {
+                const midpoint = (OPEN_TRANSLATE_Y + COLLAPSED_TRANSLATE_Y) / 2;
+                const expand = currentTranslateY.current + gestureState.dy < midpoint || gestureState.vy < -0.5;
+                const snapPoint = expand ? OPEN_TRANSLATE_Y : COLLAPSED_TRANSLATE_Y;
                 Animated.spring(translateY, {
                     toValue: snapPoint,
-                    velocity: g.vy,
+                    velocity: gestureState.vy,
                     tension: 80,
                     friction: 14,
                     useNativeDriver: true,
@@ -92,13 +98,10 @@ export default function BuildingInfoCard({ building }: Props) {
         return result.charAt(0).toUpperCase() + result.slice(1);
     };
 
-    const renderList = (items: readonly string[], icon: string = "checkmark-circle-outline") =>
-        items.map((item) => (<ListItem key={`${icon}-${item}`} icon={icon} text={item} />));
-
     return (
         <Animated.View
             {...panResponder.panHandlers}
-            style={[styles.card, { bottom: 0, transform: [{ translateY }], height: FULL_HEIGHT }]}
+            style={[styles.card, { bottom: 0, transform: [{ translateY }], height: CLOSE_HEIGHT }]}
         >
             <View style={styles.handle} />
             <Text style={styles.title} numberOfLines={1}>
@@ -109,9 +112,7 @@ export default function BuildingInfoCard({ building }: Props) {
                 {building.campus} Campus | {building.address}
             </Text>
 
-            <Text style={styles.openStatus}>
-                Today: {DEFAULT_OPENING_HOURS[todayIdx]}
-            </Text>
+            <Text style={styles.openStatus}>Today: {DEFAULT_OPENING_HOURS[todayIdx]}</Text>
 
             <View style={styles.actionsRow}>
                 {ACTIONS.map((a) => (
@@ -124,47 +125,50 @@ export default function BuildingInfoCard({ building }: Props) {
                     <View style={styles.rule} />
 
                     {building.accessibility.length > 0 && (
-                        <>
-                            <Text style={styles.sectionTitle}>Accessibility</Text>
-                            {renderList(building.accessibility.map(formatCamelCase))}
-                        </>
+                        <AccessibilityList items={building.accessibility.map(formatCamelCase)} />
                     )}
 
-                    <Text style={styles.sectionTitle}>Opening Hours</Text>
-
-                    {DEFAULT_OPENING_HOURS.map((h, i) => (
-                        <Text key={`hours-${WEEKDAYS[i]}`}
-                            style={[
-                                styles.line,
-                                i === todayIdx && {
-                                    fontWeight: "700",
-                                    color: "#1e8e3e",
-                                },
-                            ]}>
-                            {WEEKDAYS[i]}: {h}
-                        </Text>
-                    ))}
+                    <OpeningHoursList todayIdx={todayIdx} />
                 </ScrollView>
             )}
         </Animated.View>
     );
 }
 
-const ListItem = ({ icon, text }: {
-    readonly icon: string;
-    readonly text: string;
-}) => (
+const AccessibilityList = ({ items }: { readonly items: string[] }) => (
+    <>
+        <Text style={styles.sectionTitle}>Accessibility</Text>
+        {items.map((item) => (
+            <ListItem key={item} icon="checkmark-circle-outline" text={item} />
+        ))}
+    </>
+);
+
+const OpeningHoursList = ({ todayIdx }: { readonly todayIdx: number }) => (
+    <>
+        <Text style={styles.sectionTitle}>Opening Hours</Text>
+        {DEFAULT_OPENING_HOURS.map((h, i) => (
+            <Text
+                key={`hours-${WEEKDAYS[i]}`}
+                style={[
+                    styles.line,
+                    i === todayIdx && { fontWeight: "700", color: "#1e8e3e" },
+                ]}
+            >
+                {WEEKDAYS[i]}: {h}
+            </Text>
+        ))}
+    </>
+);
+
+const ListItem = ({ icon, text }: { readonly icon: string; readonly text: string }) => (
     <View style={styles.lineRow}>
         <Ionicons name={icon as any} size={18} color="#1e8e3e" style={{ marginRight: 6 }} />
         <Text style={styles.line}>{text}</Text>
     </View>
 );
 
-const ActionButton = ({ label, icon, onPress }: {
-    readonly label: string;
-    readonly icon: string;
-    readonly onPress: () => void;
-}) => (
+const ActionButton = ({ label, icon, onPress }: { readonly label: string; readonly icon: string; readonly onPress: () => void }) => (
     <TouchableOpacity style={styles.actionButton} onPress={onPress}>
         <Ionicons name={icon as any} size={18} color="#1a73e8" style={{ marginRight: 6 }} />
         <Text style={styles.actionText}>{label}</Text>

@@ -40,8 +40,7 @@ export default function MapViewer({
       return;
     }
 
-    const { status } =
-      await LocationPermissions.requestForegroundPermissionsAsync();
+    const { status } = await LocationPermissions.requestForegroundPermissionsAsync();
     if (status !== "granted") return;
 
     const location = await LocationPermissions.getCurrentPositionAsync();
