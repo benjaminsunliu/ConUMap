@@ -1,7 +1,7 @@
-import { ThemedText } from "@/components/themed-text";
 import { Coordinate, CoordinateDelta, Region } from "@/types/mapTypes";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
 import {
+  View,
   StyleSheet,
 } from "react-native";
 import SwitchSelector from "react-native-switch-selector";
@@ -78,24 +78,26 @@ export default function CampusToggle({ initialRegion, mapRef, onMount }: Props) 
   };
 
   return (
-    <SwitchSelector
-      initial={switchValue === LOY ? 0 : 1}
-      value={switchValue}
-      textColor={SWITCH_STYLES.textColor}
-      selectedColor={SWITCH_STYLES.selectedColor}
-      buttonColor={SWITCH_STYLES.buttonColor}
-      borderColor={SWITCH_STYLES.borderColor}
-      backgroundColor={SWITCH_STYLES.backgroundColor}
-      disableValueChangeOnPress={false}
-      hasPadding
-      options={[
-        { label: "Loyola", value: LOY }, 
-        { label: "SGW", value: SGW } 
-      ]}
-      testID="campus-toggle-selector"
-      accessibilityLabel="campus-toggle-selector"
-      onPress={focusCampusOnPress}
-    />
+    <View style={styles.container}>
+      <SwitchSelector
+        initial={switchValue === LOY ? 0 : 1}
+        value={switchValue}
+        textColor={SWITCH_STYLES.textColor}
+        selectedColor={SWITCH_STYLES.selectedColor}
+        buttonColor={SWITCH_STYLES.buttonColor}
+        borderColor={SWITCH_STYLES.borderColor}
+        backgroundColor={SWITCH_STYLES.backgroundColor}
+        
+        hasPadding
+        options={[
+          { label: "Loyola", value: LOY }, 
+          { label: "SGW", value: SGW } 
+        ]}
+        testID="campus-toggle-selector"
+        accessibilityLabel="campus-toggle-selector"
+        onPress={focusCampusOnPress}
+      />
+    </View>
   );
 }
 
@@ -105,17 +107,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "80%",
     maxWidth: 300,
-    maxHeight: 200,
     borderRadius: 30,
-    margin: "auto",
-    padding: 20,
-  },
-  text: {
-    marginTop: 15,
-    paddingVertical: 15,
-  },
-  button: {
-    padding: 10,
-    alignItems: "center",
+    top: "2%",
+    left: "50%",
+    transform: [{ translateX: "-50%" }],
+    backgroundColor: "transparent",
+    position: "absolute",
+    zIndex: 10,
   },
 });
