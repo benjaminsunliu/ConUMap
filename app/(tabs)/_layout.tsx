@@ -6,6 +6,8 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import Feather from "@expo/vector-icons/Feather";
+import lightIcon from "@/assets/logo/logo-light.png";
+import darkIcon from "@/assets/logo/logo-dark.png";
 
 interface TabHeaderProps {
   readonly backgroundColor: string;
@@ -35,8 +37,8 @@ function CalendarTabIcon({ color }: { readonly color: string }) {
 export default function TabLayout() {
   const colorScheme = useColorScheme() ?? "light";
   const logos = {
-    light: require("@/assets/logo/logo-light.png"),
-    dark: require("@/assets/logo/logo-dark.png"),
+    light: lightIcon,
+    dark: darkIcon,
   };
 
   const logoSource = logos[colorScheme];
