@@ -139,7 +139,7 @@ export default function MapViewer({
   const renderCluster = useCallback(
     (cluster: Cluster) => {
       const { id, geometry, properties, onPress } = cluster;
-      const count = properties.point_count;
+      const count = properties.point_count ?? 0;
 
       return (
         <Marker
@@ -167,11 +167,14 @@ export default function MapViewer({
         initialRegion={initialRegion}
         showsUserLocation={!!userLocation}
         followsUserLocation={locationState === "centered"}
-        onPanDrag={() => (userLocation ? setLocationState("on") : null)}
-        onUserLocationChange={({ nativeEvent: { coordinate } }) => {
-          if (!coordinate) return;
+        onPanDrag={() => {
+          if (userLocation) setLocationState("on");
+        }}
+        onUserLocationChange={({ nativeEvent }) => {
+          const coordinate = nativeEvent?.coordinate;
+          if (!coordinate || typeof coordinate.latitude !== "number" || typeof coordinate.longitude !== "number") return;
           if (!userLocation) setLocationState("on");
-          setUserLocation(coordinate);
+          setUserLocation({ latitude: coordinate.latitude, longitude: coordinate.longitude });
         }}
         spiralEnabled={false}
         onPress={() => setSelectedBuilding(null)}
