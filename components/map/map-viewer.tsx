@@ -17,6 +17,17 @@ interface Props {
   readonly initialRegion?: Region;
 }
 
+interface Cluster {
+  id: string | number;
+  geometry: {
+    coordinates: [number, number]; // [longitude, latitude]
+  };
+  properties: {
+    point_count: number;
+  };
+  onPress: () => void;
+}
+
 export default function MapViewer({
   userLocationDelta = defaultFocusDelta,
   initialRegion = defaultInitialRegion,
@@ -126,7 +137,7 @@ export default function MapViewer({
   }, [mapColors, selectedBuilding?.buildingCode, focusBuilding, selectBuildingByCode]);
 
   const renderCluster = useCallback(
-    (cluster: any) => {
+    (cluster: Cluster) => {
       const { id, geometry, properties, onPress } = cluster;
       const count = properties.point_count;
 
@@ -134,13 +145,13 @@ export default function MapViewer({
         <Marker
           key={`cluster-${id}`}
           coordinate={{ latitude: geometry.coordinates[1], longitude: geometry.coordinates[0] }}
-          onPress={onPress} >
+          onPress={onPress}>
           <View
             style={[
               styles.clusterMarker,
               { backgroundColor: mapColors.clusterMarker, borderColor: mapColors.markerBorder }
             ]}>
-            <Text style={[styles.clusterText, { color: mapColors.clusterText }]} > {count > 9 ? "9+" : count} </Text>
+            <Text style={[styles.clusterText, { color: mapColors.clusterText }]}> {count > 9 ? "9+" : count} </Text>
           </View>
         </Marker>
       );
