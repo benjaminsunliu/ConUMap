@@ -35,10 +35,12 @@ function CalendarTabIcon({ color }: { readonly color: string }) {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme() ?? "light";
-  const logoSource =
-    colorScheme === "light"
-      ? require("@/assets/logo/logo-light.png")
-      : require("@/assets/logo/logo-dark.png");
+  const logos = {
+    light: require("@/assets/logo/logo-light.png"),
+    dark: require("@/assets/logo/logo-dark.png"),
+  };
+
+  const logoSource = logos[colorScheme];
 
   return (
     <Tabs
