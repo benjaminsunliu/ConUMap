@@ -79,7 +79,7 @@ export default function MapViewer({
         key={`cluster-${id}`}
         coordinate={{ latitude: geometry.coordinates[1], longitude: geometry.coordinates[0] }}
         onPress={onPress} >
-        <View style={[styles.clusterMarker, { backgroundColor: mapColors.clusterMarker }]}>
+        <View style={[styles.clusterMarker, { backgroundColor: mapColors.clusterMarker, borderColor: mapColors.markerBorder }]}>
           <Text style={[styles.clusterText, { color: mapColors.clusterText }]}> {count > 9 ? "9+" : count} </Text>
         </View>
       </Marker>
@@ -197,7 +197,6 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 50,
     borderWidth: 2,
-    borderColor: "#fff",
   },
   clusterText: {
     fontWeight: "800",

@@ -156,7 +156,7 @@ const OpeningHoursList = ({ todayIdx }: { readonly todayIdx: number }) => (
                     i === todayIdx && { fontWeight: "700", color: "#1e8e3e" },
                 ]}
             >
-                {WEEKDAYS[i]}: {h}
+                {"  " + WEEKDAYS[i]}: {h}
             </Text>
         ))}
     </>
