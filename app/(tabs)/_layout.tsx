@@ -1,7 +1,6 @@
 import { Tabs } from "expo-router";
 import React from "react";
 import { View, Image, StyleSheet } from "react-native";
-
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/theme";
@@ -88,7 +87,8 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   header: {
-    marginTop: "8%",
+    paddingTop: 35,
+    paddingBottom: 15,
     height: 60,
     justifyContent: "center",
     alignItems: "center",
