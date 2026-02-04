@@ -120,14 +120,28 @@ export default function BuildingInfoPopup({ building }: Props) {
         { label: "Website", icon: "globe-outline", type: "website" as const },
     ];
 
-    const handleAction = (type: "directions" | "website") => {
-        const urls = {
-            directions: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
-                building.address
-            )}`,
+    const handleAction = async (type: "directions" | "website") => {
+        const urls: Record<typeof type, string> = {
+            directions: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(building.address)}`,
             website: building.link || "",
         };
-        urls[type] && Linking.openURL(urls[type]);
+
+        const url = urls[type];
+        if (!url) {
+            console.warn(`No URL available for action: ${type}`);
+            return;
+        }
+
+        try {
+            const canOpen = await Linking.canOpenURL(url);
+            if (!canOpen) {
+                console.warn(`Cannot open URL: ${url}`);
+                return;
+            }
+            await Linking.openURL(url);
+        } catch (error) {
+            console.error(`Failed to open URL (${type}):`, error);
+        }
     };
 
     const formatCamelCase = (text: string) =>
