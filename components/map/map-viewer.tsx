@@ -4,18 +4,18 @@ import MapViewCluster from "react-native-map-clustering";
 import MapView, { Marker, Polygon, Region } from "react-native-maps";
 import * as LocationPermissions from "expo-location";
 import { CAMPUS_LOCATIONS } from "@/constants/mapData";
-import { concordiaBuildings } from "@/data/parsedBuildings";
+import { concordiaBuildings, BuildingInfo } from "@/data/parsedBuildings";
 import { Coordinate, CoordinateDelta, Building as MapBuilding } from "@/types/mapTypes";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
 import BuildingInfoPopup from "./building-info-popup";
 
 interface Props {
-  userLocationDelta?: CoordinateDelta;
-  initialRegion?: Region;
-  polygonFillColor?: string;
-  polygonHighlightedColor?: string;
-  polygonStrokeColor?: string;
+  readonly userLocationDelta?: CoordinateDelta;
+  readonly initialRegion?: Region;
+  readonly polygonFillColor?: string;
+  readonly polygonHighlightedColor?: string;
+  readonly polygonStrokeColor?: string;
 }
 
 export default function MapViewer({
@@ -27,10 +27,9 @@ export default function MapViewer({
 }: Props) {
   const mapViewRef = useRef<MapView>(null);
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
-  const [locationState, setLocationState] =
-    useState<LocationButtonProps["state"]>("off");
+  const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedBuilding, setSelectedBuilding] = useState<any | null>(null);
+  const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
 
   const requestLocation = async () => {
     if (userLocation) return;
@@ -69,6 +68,71 @@ export default function MapViewer({
     });
   };
 
+  const selectBuildingByCode = (code: string) => {
+    const info = concordiaBuildings.find((b) => b.buildingCode === code) ?? null;
+    setSelectedBuilding(info);
+  };
+
+  const renderCluster = (cluster: any) => {
+    const { id, geometry, properties, onPress } = cluster;
+    const count = properties.point_count;
+
+    return (
+      <Marker
+        key={`cluster-${id}`}
+        coordinate={{ latitude: geometry.coordinates[1], longitude: geometry.coordinates[0] }}
+        onPress={onPress} >
+        <View style={styles.clusterMarker}>
+          <Text style={styles.clusterText}> {count > 9 ? "9+" : count} </Text>
+        </View>
+      </Marker>
+    );
+  };
+
+  const renderPolygons = () =>
+    CAMPUS_LOCATIONS.flatMap((building) =>
+      building.polygons.map((polygon, index) => {
+        const isSelected = selectedBuilding?.buildingCode === building.code;
+
+        return (
+          <Polygon
+            key={`${building.code}-${index}`}
+            coordinates={polygon}
+            tappable
+            fillColor={isSelected ? polygonHighlightedColor : polygonFillColor}
+            strokeColor={polygonStrokeColor}
+            onPress={() => {
+              selectBuildingByCode(building.code);
+              focusBuilding(building);
+            }}
+          />
+        );
+      })
+    );
+
+  const renderMarkers = () =>
+    CAMPUS_LOCATIONS.map((building) => {
+      const isSelected = selectedBuilding?.buildingCode === building.code;
+
+      return (
+        <Marker
+          key={building.code}
+          coordinate={building.location}
+          onPress={() => {
+            selectBuildingByCode(building.code);
+            focusBuilding(building);
+          }}
+        >
+          <View
+            style={[styles.marker, isSelected && styles.markerSelected]}>
+            <Text style={[styles.markerText, isSelected && styles.markerTextSelected]}>
+              {building.code}
+            </Text>
+          </View>
+        </Marker>
+      );
+    });
+
   return (
     <View style={styles.container}>
       <MapViewCluster
@@ -77,71 +141,12 @@ export default function MapViewer({
         initialRegion={initialRegion}
         showsUserLocation={!!userLocation}
         followsUserLocation={locationState === "centered"}
-        onPress={() => setSelectedBuilding(null)}
         spiralEnabled={false}
-
-        renderCluster={(cluster) => {
-          const { id, geometry, properties } = cluster;
-          const count = properties.point_count;
-
-          return (
-            <Marker
-              key={`cluster-${id}`}
-              coordinate={{ latitude: geometry.coordinates[1], longitude: geometry.coordinates[0] }}
-              onPress={cluster.onPress}>
-              <View style={styles.clusterMarker}>
-                <Text style={styles.clusterText}> {count > 9 ? "9+" : count} </Text>
-              </View>
-            </Marker>
-          );
-        }}
+        onPress={() => setSelectedBuilding(null)}
+        renderCluster={renderCluster}
       >
-        {CAMPUS_LOCATIONS.map((building) =>
-          building.polygons.map((polygon, index) => (
-            <Polygon
-              key={`${building.code}-${index}`}
-              coordinates={polygon}
-              tappable
-              fillColor={
-                selectedBuilding?.buildingCode === building.code
-                  ? polygonHighlightedColor
-                  : polygonFillColor
-              }
-              strokeColor={polygonStrokeColor}
-              onPress={() => {
-                const info = concordiaBuildings.find(
-                  (b) => b.buildingCode === building.code
-                );
-                setSelectedBuilding(info ?? null);
-                focusBuilding(building);
-              }}
-            />
-          ))
-        )}
-
-        {CAMPUS_LOCATIONS.map((building) => {
-          const isSelected = selectedBuilding?.buildingCode === building.code;
-
-          return (
-            <Marker
-              key={building.code}
-              coordinate={building.location}
-              onPress={() => {
-                const info = concordiaBuildings.find(
-                  (b) => b.buildingCode === building.code
-                );
-                setSelectedBuilding(info ?? null);
-                focusBuilding(building);
-              }}
-            >
-              <View style={[styles.marker, isSelected && styles.markerSelected]}>
-                <Text style={[styles.markerText, isSelected && styles.markerTextSelected]}>
-                  {building.code}
-                </Text>
-              </View>
-            </Marker>
-          );
-        })}
+        {renderPolygons()}
+        {renderMarkers()}
       </MapViewCluster>
 
       <LocationButton
@@ -185,7 +190,6 @@ const styles = StyleSheet.create({
   markerTextSelected: {
     color: "#200003",
   },
-
   clusterMarker: {
     backgroundColor: "#200003",
     paddingHorizontal: 6,

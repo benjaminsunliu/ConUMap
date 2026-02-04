@@ -4,7 +4,7 @@ import { BuildingInfo } from "@/data/parsedBuildings";
 import { Ionicons } from "@expo/vector-icons";
 
 interface Props {
-    building: BuildingInfo | null;
+    readonly building: BuildingInfo | null;
 }
 
 const FULL_HEIGHT = 520;
@@ -44,8 +44,7 @@ export default function BuildingInfoCard({ building }: Props) {
     const panResponder = useRef(
         PanResponder.create({
             onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dy) > 5,
-            onPanResponderGrant: () =>
-                translateY.stopAnimation((v) => (currentTranslateY.current = v)),
+            onPanResponderGrant: () => translateY.stopAnimation((v) => { currentTranslateY.current = v }),
             onPanResponderMove: (_, g) => {
                 const next = Math.max(
                     EXPANDED_TRANSLATE_Y,
@@ -81,7 +80,6 @@ export default function BuildingInfoCard({ building }: Props) {
     ];
 
     const handleAction = (type: "directions" | "website") => {
-        if (!building) return;
         const urlMap = {
             directions: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(building.address)}`,
             website: building.link || "",
@@ -90,12 +88,12 @@ export default function BuildingInfoCard({ building }: Props) {
     };
 
     const formatCamelCase = (text: string) => {
-        const result = text.replace(/([A-Z])/g, " $1");
+        const result = text.replaceAll(/([A-Z])/g, " $1");
         return result.charAt(0).toUpperCase() + result.slice(1);
     };
 
     const renderList = (items: readonly string[], icon: string = "checkmark-circle-outline") =>
-        items.map((item, idx) => <ListItem key={`${icon}-${idx}`} icon={icon} text={item} />);
+        items.map((item) => (<ListItem key={`${icon}-${item}`} icon={icon} text={item} />));
 
     return (
         <Animated.View
@@ -103,9 +101,17 @@ export default function BuildingInfoCard({ building }: Props) {
             style={[styles.card, { bottom: 0, transform: [{ translateY }], height: FULL_HEIGHT }]}
         >
             <View style={styles.handle} />
-            <Text style={styles.title} numberOfLines={1}>{building.buildingCode} - {building.buildingName} </Text>
-            <Text style={styles.line}>{building.campus} Campus | {building.address}</Text>
-            <Text style={styles.openStatus}>Today: {DEFAULT_OPENING_HOURS[todayIdx]}</Text>
+            <Text style={styles.title} numberOfLines={1}>
+                {building.buildingCode} – {building.buildingName}
+            </Text>
+
+            <Text style={styles.line}>
+                {building.campus} Campus | {building.address}
+            </Text>
+
+            <Text style={styles.openStatus}>
+                Today: {DEFAULT_OPENING_HOURS[todayIdx]}
+            </Text>
 
             <View style={styles.actionsRow}>
                 {ACTIONS.map((a) => (
@@ -120,13 +126,21 @@ export default function BuildingInfoCard({ building }: Props) {
                     {building.accessibility.length > 0 && (
                         <>
                             <Text style={styles.sectionTitle}>Accessibility</Text>
-                            {renderList(building.accessibility.map(formatCamelCase), "checkmark-circle-outline")}
+                            {renderList(building.accessibility.map(formatCamelCase))}
                         </>
                     )}
 
                     <Text style={styles.sectionTitle}>Opening Hours</Text>
-                    {DEFAULT_OPENING_HOURS.map((h: any, i: any) => (
-                        <Text key={`hours-${i}`} style={[styles.line, i === todayIdx && { fontWeight: "700", color: "#1e8e3e" }]}>
+
+                    {DEFAULT_OPENING_HOURS.map((h, i) => (
+                        <Text key={`hours-${WEEKDAYS[i]}`}
+                            style={[
+                                styles.line,
+                                i === todayIdx && {
+                                    fontWeight: "700",
+                                    color: "#1e8e3e",
+                                },
+                            ]}>
                             {WEEKDAYS[i]}: {h}
                         </Text>
                     ))}
@@ -136,14 +150,21 @@ export default function BuildingInfoCard({ building }: Props) {
     );
 }
 
-const ListItem = ({ icon, text }: { icon: string; text: string }) => (
+const ListItem = ({ icon, text }: {
+    readonly icon: string;
+    readonly text: string;
+}) => (
     <View style={styles.lineRow}>
         <Ionicons name={icon as any} size={18} color="#1e8e3e" style={{ marginRight: 6 }} />
         <Text style={styles.line}>{text}</Text>
     </View>
 );
 
-const ActionButton = ({ label, icon, onPress }: { label: string; icon: string; onPress: () => void }) => (
+const ActionButton = ({ label, icon, onPress }: {
+    readonly label: string;
+    readonly icon: string;
+    readonly onPress: () => void;
+}) => (
     <TouchableOpacity style={styles.actionButton} onPress={onPress}>
         <Ionicons name={icon as any} size={18} color="#1a73e8" style={{ marginRight: 6 }} />
         <Text style={styles.actionText}>{label}</Text>

@@ -8,24 +8,32 @@ import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import Feather from "@expo/vector-icons/Feather";
 
+function TabHeader({ backgroundColor, logoSource }: {
+  backgroundColor: string;
+  logoSource: any;
+}) {
+  return (
+    <View style={[styles.header, { backgroundColor }]}>
+      <Image source={logoSource} style={styles.logo} resizeMode="contain" />
+    </View>
+  );
+}
+
 export default function TabLayout() {
   const colorScheme = useColorScheme() ?? "light";
   const logoSource =
     colorScheme === "light"
       ? require("@/assets/logo/logo-light.png")
       : require("@/assets/logo/logo-dark.png");
+
   return (
     <Tabs
       screenOptions={{
         header: () => (
-          <View style={[styles.header, { backgroundColor: Colors[colorScheme].background }]}>
-            <Image
-              source={(logoSource)}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-            {/* <Text style={[styles.headerTitle, { color: Colors[colorScheme].text }]}>ConU Map</Text> */}
-          </View>
+          <TabHeader
+            backgroundColor={Colors[colorScheme].background}
+            logoSource={logoSource}
+          />
         ),
         tabBarButton: HapticTab,
         tabBarActiveTintColor: Colors[colorScheme].tint,
@@ -41,7 +49,7 @@ export default function TabLayout() {
         name="map-tab"
         options={{
           title: "Map",
-          tabBarIcon: ({ color }) => <Feather name="map" size={24} color={color} />,
+          tabBarIcon: ({ color }) => (<Feather name="map" size={24} color={color} />)
         }}
       />
       <Tabs.Screen
@@ -57,7 +65,7 @@ export default function TabLayout() {
         name="calendar"
         options={{
           title: "Calendar",
-          tabBarIcon: ({ color }) => <Feather name="calendar" size={24} color={color} />,
+          tabBarIcon: ({ color }) => (<Feather name="calendar" size={24} color={color} />)
         }}
       />
     </Tabs>
@@ -77,8 +85,4 @@ const styles = StyleSheet.create({
     width: 120,
     height: 40,
   },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-  }
 });
