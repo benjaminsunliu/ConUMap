@@ -9,6 +9,7 @@ import { Coordinate, CoordinateDelta, Building as MapBuilding } from "@/types/ma
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
 import BuildingInfoPopup from "./building-info-popup";
+import CampusToggle from "./campus-toggle";
 
 interface Props {
   userLocationDelta?: CoordinateDelta;
@@ -31,6 +32,15 @@ export default function MapViewer({
     useState<LocationButtonProps["state"]>("off");
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState<any | null>(null);
+
+
+  //TODO FIX
+  const childRegionSetter = useRef<Function | null>(null);
+  const onToggleMount = (regionSetter: Function) => {
+    childRegionSetter.current = regionSetter;
+  };
+
+
 
   const requestLocation = async () => {
     if (userLocation) return;
@@ -71,6 +81,7 @@ export default function MapViewer({
 
   return (
     <View style={styles.container}>
+      <CampusToggle initialRegion={initialRegion} mapRef={mapViewRef} onMount={onToggleMount} />
       <MapViewCluster
         ref={mapViewRef}
         style={styles.map}
@@ -79,6 +90,8 @@ export default function MapViewer({
         followsUserLocation={locationState === "centered"}
         onPress={() => setSelectedBuilding(null)}
         spiralEnabled={false}
+
+        onRegionChange={region => {childRegionSetter.current?.(region)}}
 
         renderCluster={(cluster) => {
           const { id, geometry, properties } = cluster;
