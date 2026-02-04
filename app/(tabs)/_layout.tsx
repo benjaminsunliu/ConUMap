@@ -92,11 +92,10 @@ const styles = StyleSheet.create({
     height: 60,
     justifyContent: "center",
     alignItems: "center",
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "blue"
+    borderBottomWidth: StyleSheet.hairlineWidth
   },
   logo: {
     width: 120,
     height: 40,
-  },
+  }
 });
