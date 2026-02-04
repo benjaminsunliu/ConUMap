@@ -10,14 +10,17 @@ import Feather from "@expo/vector-icons/Feather";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme() ?? "light";
-
+  const logoSource =
+    colorScheme === "light"
+      ? require("@/assets/logo/logo-light.png")
+      : require("@/assets/logo/logo-dark.png");
   return (
     <Tabs
       screenOptions={{
         header: () => (
           <View style={[styles.header, { backgroundColor: Colors[colorScheme].background }]}>
             <Image
-              source={require("@/assets/images/logo.png")}
+              source={(logoSource)}
               style={styles.logo}
               resizeMode="contain"
             />

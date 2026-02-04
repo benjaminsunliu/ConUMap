@@ -183,11 +183,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   markerTextSelected: {
-    color: "#701922",
+    color: "#200003",
   },
 
   clusterMarker: {
-    backgroundColor: "#701922",
+    backgroundColor: "#200003",
     paddingHorizontal: 6,
     paddingVertical: 4,
     borderRadius: 50,
