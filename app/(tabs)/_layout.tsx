@@ -1,6 +1,7 @@
 import { Tabs } from "expo-router";
 import React from "react";
 import { View, Image, StyleSheet } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/theme";
@@ -15,8 +16,10 @@ interface TabHeaderProps {
 }
 
 function TabHeader({ backgroundColor, logoSource }: TabHeaderProps) {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={[styles.header, { backgroundColor }]}>
+    <View style={[styles.header, { backgroundColor, paddingTop: insets.top }]}>
       <Image source={logoSource} style={styles.logo} resizeMode="contain" />
     </View>
   );
@@ -89,9 +92,7 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   header: {
-    paddingTop: 35,
     paddingBottom: 15,
-    height: 60,
     justifyContent: "center",
     alignItems: "center",
     borderBottomWidth: StyleSheet.hairlineWidth
