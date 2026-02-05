@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback, useMemo } from "react";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View, Text, Platform } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
 import MapView, { Marker, Polygon, Region } from "react-native-maps";
 import * as LocationPermissions from "expo-location";
@@ -35,6 +35,7 @@ export default function MapViewer({
   const colorScheme = useColorScheme() ?? "light";
   const mapColors = Colors[colorScheme].map;
   const mapViewRef = useRef<MapView>(null);
+  const suppressNextMapPress = useRef(false);
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
   const [modalOpen, setModalOpen] = useState(false);
@@ -53,6 +54,16 @@ export default function MapViewer({
     const info = concordiaBuildings.find((b) => b.buildingCode === code) ?? null;
     setSelectedBuilding(info);
   }, []);
+
+  const handlePolygonPress = useCallback((building: MapBuilding) => {
+    suppressNextMapPress.current = true;
+    selectBuildingByCode(building.code);
+    focusBuilding(building);
+
+    requestAnimationFrame(() => {
+      suppressNextMapPress.current = false;
+    });
+  }, [selectBuildingByCode, focusBuilding]);
 
   const requestLocation = useCallback(async () => {
     if (userLocation) return;
@@ -90,24 +101,38 @@ export default function MapViewer({
             tappable
             fillColor={isSelected ? mapColors.polygonHighlighted : mapColors.polygonFill}
             strokeColor={mapColors.polygonStroke}
-            onPress={() => {
-              selectBuildingByCode(building.code);
-              focusBuilding(building);
-            }}
+            strokeWidth={2}
+            onPress={() => handlePolygonPress(building)}
           />
         );
       })
     );
-  }, [mapColors, selectedBuilding?.buildingCode, focusBuilding, selectBuildingByCode]);
+  }, [mapColors, selectedBuilding?.buildingCode, handlePolygonPress]);
 
   const renderMarkers = useMemo(() => {
     return CAMPUS_LOCATIONS.map((building) => {
       const isSelected = selectedBuilding?.buildingCode === building.code;
 
+      // Offset markers to prevent overlaps
+      let coordinate = building.location;
+      if (building.code === "VE") {
+        // VE overlaps with VL
+        coordinate = {
+          latitude: building.location.latitude + 0.00008,
+          longitude: building.location.longitude - 0.00015,
+        };
+      } else if (building.code === "RA") {
+        // RA overlaps with PC
+        coordinate = {
+          latitude: building.location.latitude - 0.00008,
+          longitude: building.location.longitude - 0.00015,
+        };
+      }
+
       return (
         <Marker
           key={building.code}
-          coordinate={building.location}
+          coordinate={coordinate}
           onPress={() => {
             selectBuildingByCode(building.code);
             focusBuilding(building);
@@ -167,6 +192,7 @@ export default function MapViewer({
         initialRegion={initialRegion}
         showsUserLocation={!!userLocation}
         followsUserLocation={locationState === "centered"}
+        clusteringEnabled={Platform.OS !== "ios"}
         onPanDrag={() => {
           if (userLocation) setLocationState("on");
         }}
@@ -177,7 +203,14 @@ export default function MapViewer({
           setUserLocation({ latitude: coordinate.latitude, longitude: coordinate.longitude });
         }}
         spiralEnabled={false}
-        onPress={() => setSelectedBuilding(null)}
+        onPress={(e) => {
+          if (suppressNextMapPress.current) return;
+          const action = e?.nativeEvent?.action;
+
+          if (!action || action === "press") {
+            setSelectedBuilding(null);
+          }
+        }}
         renderCluster={renderCluster}
       >
         {renderPolygons}
