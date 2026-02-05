@@ -1,7 +1,7 @@
 import { Building, Polygon, Campus, Coordinate } from "@/types/mapTypes";
 import buildingPolygons from "@/data/buildings-polygons.json";
 
-function arrayToBuildingPolygon(polygon: number[][]) {
+export function arrayToBuildingPolygon(polygon: number[][]) {
   const buildingPolygon: Polygon = polygon.map((coordinate) => {
     const position: Coordinate = {
       latitude: coordinate[1],
