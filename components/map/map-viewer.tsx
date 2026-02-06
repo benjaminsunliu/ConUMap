@@ -11,6 +11,7 @@ import { Coordinate, CoordinateDelta, Building as MapBuilding } from "@/types/ma
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
 import BuildingInfoPopup from "./building-info-popup";
+import { findClosestBuilding } from "@/utils/distance";
 
 interface Props {
   readonly userLocationDelta?: CoordinateDelta;
@@ -42,6 +43,11 @@ export default function MapViewer({
   const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
   const currentRegion = useRef<Region>(defaultInitialRegion);
 
+  const closestBuildingCode = useMemo(() => {
+    if (!userLocation) return null;
+    return findClosestBuilding(userLocation, CAMPUS_LOCATIONS);
+  }, [userLocation]);
+
   const focusBuilding = useCallback((building: MapBuilding) => {
     mapViewRef.current?.animateToRegion({
       latitude: building.location.latitude,
@@ -66,6 +72,8 @@ export default function MapViewer({
     });
   }, [selectBuildingByCode, focusBuilding]);
 
+
+
   const requestLocation = useCallback(async () => {
     if (userLocation) return;
 
@@ -83,6 +91,7 @@ export default function MapViewer({
     setLocationState("on");
   }, [userLocation]);
 
+
   const centerLocation = useCallback(() => {
     if (!userLocation) return;
 
@@ -94,13 +103,24 @@ export default function MapViewer({
     return CAMPUS_LOCATIONS.flatMap((building) =>
       building.polygons.map((polygon, index) => {
         const isSelected = selectedBuilding?.buildingCode === building.code;
+        const isClosest = building.code === closestBuildingCode;
+
+        // Need to determine fill color priority: Selected > Closest > Default
+        let finalFillColor;
+        if (isSelected) {
+          finalFillColor = mapColors.polygonHighlighted;
+        } else if (isClosest) {
+          finalFillColor = mapColors.closestBuildingColor;
+        } else {
+         finalFillColor = mapColors.polygonFill;
+        }
 
         return (
           <Polygon
             key={`${building.code}-${index}`}
             coordinates={polygon}
             tappable
-            fillColor={isSelected ? mapColors.polygonHighlighted : mapColors.polygonFill}
+            fillColor={finalFillColor}
             zIndex={isSelected ? 2 : 1}
             strokeColor={mapColors.polygonStroke}
             strokeWidth={2}
@@ -109,7 +129,7 @@ export default function MapViewer({
         );
       })
     );
-  }, [mapColors, selectedBuilding?.buildingCode, handlePolygonPress]);
+  }, [mapColors, selectedBuilding?.buildingCode, closestBuildingCode, handlePolygonPress]);
 
   const renderMarkers = useMemo(() => {
     return CAMPUS_LOCATIONS.map((building) => {
