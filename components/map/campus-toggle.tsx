@@ -1,5 +1,5 @@
 import { Coordinate, CoordinateDelta, Region } from "@/types/mapTypes";
-import React, { useEffect } from "react";
+import React from "react";
 import {
   View,
   StyleSheet,
@@ -59,12 +59,7 @@ export default function CampusToggle({ initialRegion, mapRef }: Props) {
 
     setSwitchValue(value);
 
-    let newFocus: Coordinate;
-    if (value === SGW) {
-      newFocus = SGW_CENTER;
-    } else {
-      newFocus = LOY_CENTER;
-    }
+    let newFocus: Coordinate = value === SGW ? SGW_CENTER : LOY_CENTER;
 
     mapRef.current?.animateToRegion({
       ...newFocus,
