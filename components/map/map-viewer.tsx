@@ -87,8 +87,8 @@ export default function MapViewer({
   const centerLocation = useCallback(() => {
     if (!userLocation) return;
 
-    setLocationState("centered");
     mapViewRef.current?.animateToRegion({ ...userLocation, ...userLocationDelta });
+    setLocationState("centered");
   }, [userLocation, userLocationDelta]);
 
   const renderPolygons = useMemo(() => {
@@ -197,7 +197,17 @@ export default function MapViewer({
         showsUserLocation={!!userLocation}
         followsUserLocation={locationState === "centered"}
         clusteringEnabled={Platform.OS !== "ios"}
-        onRegionChangeComplete={(region) => {setCurrentRegion(region)}}
+        onRegionChangeComplete={(region) => {
+          setCurrentRegion(region);
+          const latDiff = Math.abs(region.latitude - (userLocation?.latitude ?? 0));
+          const lonDiff = Math.abs(region.longitude - (userLocation?.longitude ?? 0));
+
+          if (userLocation && latDiff < 0.0001 && lonDiff < 0.0001) {
+            setLocationState("centered");
+          } else if (userLocation) {
+            setLocationState("on");
+          }
+        }}
         onPanDrag={() => {
           if (userLocation) setLocationState("on");
         }}
