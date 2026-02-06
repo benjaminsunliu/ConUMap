@@ -89,10 +89,10 @@ export const Colors = {
 
     campusToggle: {
       textColor: "#FFFFFF",
-      selectedColor: "#000000",
-      buttonColor: "#FFFFFF",
-      borderColor: "#000000",
-      backgroundColor: "#000000"
+      selectedColor: "#FFFFFF",
+      buttonColor: "#a0686d",
+      borderColor: "#5e0e16",
+      backgroundColor: "#5e0e16"
     }
   }
 };
