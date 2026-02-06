@@ -6,6 +6,8 @@ import {
 } from "react-native";
 import SwitchSelector from "react-native-switch-selector";
 import MapView from "react-native-maps";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
 
 interface Props {
   initialRegion: Region;
@@ -30,16 +32,9 @@ const DEFAULT_ZOOM: CoordinateDelta = {
   longitudeDelta: 0.01,
 }
 
-const SWITCH_STYLES = {
-  textColor: "#FFFFFF",
-  selectedColor: "#000000",
-  buttonColor: "#FFFFFF",
-  borderColor: "#000000",
-  backgroundColor: "#000000"
-}
-
 export default function CampusToggle({ initialRegion, mapRef }: Props) {
 
+  const colorScheme = useColorScheme() ?? "light";
   const [switchValue, setSwitchValue] = React.useState<string>(LOY);
   // const [viewRegion, setViewRegion] = React.useState<Region>(initialRegion);
 
@@ -72,11 +67,13 @@ export default function CampusToggle({ initialRegion, mapRef }: Props) {
       <SwitchSelector
         initial={switchValue === LOY ? 0 : 1}
         value={switchValue}
-        textColor={SWITCH_STYLES.textColor}
-        selectedColor={SWITCH_STYLES.selectedColor}
-        buttonColor={SWITCH_STYLES.buttonColor}
-        borderColor={SWITCH_STYLES.borderColor}
-        backgroundColor={SWITCH_STYLES.backgroundColor}
+        textColor={Colors[colorScheme].campusToggle.textColor}
+        selectedColor={Colors[colorScheme].campusToggle.selectedColor}
+        buttonColor={Colors[colorScheme].campusToggle.buttonColor}
+        borderColor={Colors[colorScheme].campusToggle.borderColor}
+        backgroundColor={Colors[colorScheme].campusToggle.backgroundColor}
+        bold={true}
+        fontSize={20}
         
         hasPadding
         options={[
