@@ -1,7 +1,7 @@
 import React, { useRef, useState, useCallback, useMemo } from "react";
 import { StyleSheet, View, Text, Platform } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
-import MapView, { Marker, Polygon, Region } from "react-native-maps";
+import MapView, { Marker, Polygon, PolygonPressEvent, Region } from "react-native-maps";
 import * as LocationPermissions from "expo-location";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
@@ -40,13 +40,14 @@ export default function MapViewer({
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
+  const currentRegion = useRef<Region>(defaultInitialRegion);
 
   const focusBuilding = useCallback((building: MapBuilding) => {
     mapViewRef.current?.animateToRegion({
       latitude: building.location.latitude,
       longitude: building.location.longitude,
-      latitudeDelta: 0.001,
-      longitudeDelta: 0.001,
+      latitudeDelta: currentRegion?.current.latitudeDelta < 0.0025 ? currentRegion?.current.latitudeDelta : 0.0025,
+      longitudeDelta: currentRegion?.current.longitudeDelta < 0.0025 ? currentRegion?.current.longitudeDelta : 0.0025,
     });
   }, []);
 
@@ -100,6 +101,7 @@ export default function MapViewer({
             coordinates={polygon}
             tappable
             fillColor={isSelected ? mapColors.polygonHighlighted : mapColors.polygonFill}
+            zIndex={isSelected ? 2 : 1}
             strokeColor={mapColors.polygonStroke}
             strokeWidth={2}
             onPress={() => handlePolygonPress(building)}
@@ -193,6 +195,7 @@ export default function MapViewer({
         showsUserLocation={!!userLocation}
         followsUserLocation={locationState === "centered"}
         clusteringEnabled={Platform.OS !== "ios"}
+        onRegionChangeComplete={(region) => {currentRegion.current = region}}
         onPanDrag={() => {
           if (userLocation) setLocationState("on");
         }}
