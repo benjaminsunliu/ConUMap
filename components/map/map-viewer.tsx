@@ -117,7 +117,7 @@ export default function MapViewer({
 
         return (
           <Polygon
-            key={`${building.code}-${index}`}
+            key={`${building.code}-${index}-${isSelected}-${isClosest}`}
             coordinates={polygon}
             tappable
             fillColor={finalFillColor}
