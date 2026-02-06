@@ -1,5 +1,5 @@
 import { Coordinate, CoordinateDelta, Region } from "@/types/mapTypes";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -10,12 +10,12 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 
 interface Props {
-  initialRegion: Region;
   mapRef: React.RefObject<MapView | null>;
+  viewRegion: Region;
 }
 
-const SGW = "SGW";
-const LOY = "LOY";
+const LOY = 0;
+const SGW = 1;
 
 const SGW_CENTER: Coordinate = {
   latitude: 45.4957849,
@@ -32,25 +32,26 @@ const DEFAULT_ZOOM: CoordinateDelta = {
   longitudeDelta: 0.01,
 }
 
-export default function CampusToggle({ initialRegion, mapRef }: Props) {
+export default function CampusToggle({ mapRef, viewRegion }: Props) {
 
   const colorScheme = useColorScheme() ?? "light";
-  const [switchValue, setSwitchValue] = React.useState<string>(LOY);
-  // const [viewRegion, setViewRegion] = React.useState<Region>(initialRegion);
+  const [switchValue, setSwitchValue] = React.useState<number>(() => {
+    let swgDistance = Math.hypot(viewRegion.latitude - SGW_CENTER.latitude, viewRegion.longitude - SGW_CENTER.longitude);
+    let loyDistance = Math.hypot(viewRegion.latitude - LOY_CENTER.latitude, viewRegion.longitude - LOY_CENTER.longitude);
+    return swgDistance < loyDistance ? SGW : LOY;
+  });
 
-  // useEffect(() => {
-  //   let swgDistance = Math.hypot(viewRegion.latitude - SGW_CENTER.latitude, viewRegion.longitude - SGW_CENTER.longitude);
-  //   let loyDistance = Math.hypot(viewRegion.latitude - LOY_CENTER.latitude, viewRegion.longitude - LOY_CENTER.longitude);
-  //   let newSwitchValue = swgDistance < loyDistance ? SGW : LOY;
+  useEffect(() => {
+    let swgDistance = Math.hypot(viewRegion.latitude - SGW_CENTER.latitude, viewRegion.longitude - SGW_CENTER.longitude);
+    let loyDistance = Math.hypot(viewRegion.latitude - LOY_CENTER.latitude, viewRegion.longitude - LOY_CENTER.longitude);
+    let newSwitchValue = swgDistance < loyDistance ? SGW : LOY;
 
-  //   if (newSwitchValue !== switchValue) {
-  //     setSwitchValue(newSwitchValue);
-  //   }
-  //   console.log("Current: " + switchValue);
-  //   console.log("Recalculated: " + newSwitchValue);
-  // }, [viewRegion, switchValue]);
+    if (newSwitchValue !== switchValue) {
+      setSwitchValue(newSwitchValue);
+    }
+  }, [viewRegion, switchValue]);
 
-  const focusCampusOnPress = (value: string) => {
+  const focusCampusOnPress = (value: number) => {
 
     setSwitchValue(value);
 
@@ -72,6 +73,7 @@ export default function CampusToggle({ initialRegion, mapRef }: Props) {
         buttonColor={Colors[colorScheme].campusToggle.buttonColor}
         borderColor={Colors[colorScheme].campusToggle.borderColor}
         backgroundColor={Colors[colorScheme].campusToggle.backgroundColor}
+        disableValueChangeOnPress={true}
         bold={true}
         fontSize={20}
         

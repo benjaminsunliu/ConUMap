@@ -41,14 +41,14 @@ export default function MapViewer({
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
-  const currentRegion = useRef<Region>(defaultInitialRegion);
+  const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
 
   const focusBuilding = useCallback((building: MapBuilding) => {
     mapViewRef.current?.animateToRegion({
       latitude: building.location.latitude,
       longitude: building.location.longitude,
-      latitudeDelta: currentRegion?.current.latitudeDelta < 0.0025 ? currentRegion?.current.latitudeDelta : 0.0025,
-      longitudeDelta: currentRegion?.current.longitudeDelta < 0.0025 ? currentRegion?.current.longitudeDelta : 0.0025,
+      latitudeDelta: currentRegion.latitudeDelta < 0.0025 ? currentRegion.latitudeDelta : 0.0025,
+      longitudeDelta: currentRegion.longitudeDelta < 0.0025 ? currentRegion.longitudeDelta : 0.0025,
     });
   }, []);
 
@@ -189,7 +189,7 @@ export default function MapViewer({
 
   return (
     <View style={styles.container}>
-      <CampusToggle initialRegion={initialRegion} mapRef={mapViewRef} />
+      <CampusToggle mapRef={mapViewRef} viewRegion={currentRegion} />
       <MapViewCluster
         ref={mapViewRef}
         style={styles.map}
@@ -197,7 +197,7 @@ export default function MapViewer({
         showsUserLocation={!!userLocation}
         followsUserLocation={locationState === "centered"}
         clusteringEnabled={Platform.OS !== "ios"}
-        onRegionChangeComplete={(region) => {currentRegion.current = region}}
+        onRegionChangeComplete={(region) => {setCurrentRegion(region)}}
         onPanDrag={() => {
           if (userLocation) setLocationState("on");
         }}
