@@ -50,7 +50,7 @@ export default function MapViewer({
       latitudeDelta: currentRegion.latitudeDelta < 0.0025 ? currentRegion.latitudeDelta : 0.0025,
       longitudeDelta: currentRegion.longitudeDelta < 0.0025 ? currentRegion.longitudeDelta : 0.0025,
     });
-  }, []);
+  }, [currentRegion.latitudeDelta, currentRegion.longitudeDelta]);
 
   const selectBuildingByCode = useCallback((code: string) => {
     const info = concordiaBuildings.find((b) => b.buildingCode === code) ?? null;
