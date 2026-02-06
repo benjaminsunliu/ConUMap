@@ -1,7 +1,7 @@
 import React, { useRef, useState, useCallback, useMemo } from "react";
 import { StyleSheet, View, Text, Platform } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
-import MapView, { Marker, Polygon, PolygonPressEvent, Region } from "react-native-maps";
+import MapView, { Marker, Polygon, Region } from "react-native-maps";
 import * as LocationPermissions from "expo-location";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
