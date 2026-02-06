@@ -53,8 +53,6 @@ export default function CampusToggle({ mapRef, viewRegion }: Props) {
 
   const focusCampusOnPress = (value: number) => {
 
-    setSwitchValue(value);
-
     let newFocus: Coordinate = value === SGW ? SGW_CENTER : LOY_CENTER;
 
     mapRef.current?.animateToRegion({
