@@ -10,7 +10,6 @@ import MapView from "react-native-maps";
 interface Props {
   initialRegion: Region;
   mapRef: React.RefObject<MapView | null>;
-  onMount: (regionSetter: Function) => void;
 }
 
 const SGW = "SGW";
@@ -39,26 +38,22 @@ const SWITCH_STYLES = {
   backgroundColor: "#000000"
 }
 
-export default function CampusToggle({ initialRegion, mapRef, onMount }: Props) {
+export default function CampusToggle({ initialRegion, mapRef }: Props) {
 
   const [switchValue, setSwitchValue] = React.useState<string>(LOY);
-  const [viewRegion, setViewRegion] = React.useState<Region>(initialRegion);
+  // const [viewRegion, setViewRegion] = React.useState<Region>(initialRegion);
 
-  useEffect(() => {
-    onMount(setViewRegion);
-  }, [onMount]);
+  // useEffect(() => {
+  //   let swgDistance = Math.hypot(viewRegion.latitude - SGW_CENTER.latitude, viewRegion.longitude - SGW_CENTER.longitude);
+  //   let loyDistance = Math.hypot(viewRegion.latitude - LOY_CENTER.latitude, viewRegion.longitude - LOY_CENTER.longitude);
+  //   let newSwitchValue = swgDistance < loyDistance ? SGW : LOY;
 
-  useEffect(() => {
-    let swgDistance = Math.hypot(viewRegion.latitude - SGW_CENTER.latitude, viewRegion.longitude - SGW_CENTER.longitude);
-    let loyDistance = Math.hypot(viewRegion.latitude - LOY_CENTER.latitude, viewRegion.longitude - LOY_CENTER.longitude);
-    let newSwitchValue = swgDistance < loyDistance ? SGW : LOY;
-
-    if (newSwitchValue !== switchValue) {
-      setSwitchValue(newSwitchValue);
-    }
-    console.log("Current: " + switchValue);
-    console.log("Recalculated: " + newSwitchValue);
-  }, [viewRegion, switchValue]);
+  //   if (newSwitchValue !== switchValue) {
+  //     setSwitchValue(newSwitchValue);
+  //   }
+  //   console.log("Current: " + switchValue);
+  //   console.log("Recalculated: " + newSwitchValue);
+  // }, [viewRegion, switchValue]);
 
   const focusCampusOnPress = (value: string) => {
 

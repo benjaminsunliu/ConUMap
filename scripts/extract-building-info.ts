@@ -107,13 +107,18 @@ function getAccessibility(data: string): AccessKey[] {
 
 async function getBuildingsForCampus(campus: Campus) {
   const filePath: string = `./data/Concordia Buildings - ${campus}.csv`;
-  const resources = await parseCSV<ConcordiaWebsiteResource>(linksFilePath);
+  const resources = await parseCSV<ConcordiaWebsiteResource>(linksFilePath, (el) => {
+    return {
+      ...el,
+      link: el.link.includes("https") ? el.link : el.link.replaceAll("http", "https"),
+    };
+  });
   const buildings = await parseCSV<BuildingInfoRowData, BuildingInfo>(filePath, (el) => {
     return {
       campus: campus,
       buildingCode: el.buildingCode,
       buildingName: el.buildingName,
-      link: el.link,
+      link: el.link.includes("https") ? el.link : el.link.replaceAll("http", "https"),
       address: el.address,
       overview: el.overview
         .split("\n")

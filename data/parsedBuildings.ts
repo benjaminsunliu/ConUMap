@@ -1,5 +1,5 @@
 /**
- * Generated on: 2026-02-02, 10:32:16 p.m.
+ * Generated on: 2026-02-03, 8:53:55 p.m.
  */
 
 export const concordiaBuildings = [
@@ -16,7 +16,7 @@ export const concordiaBuildings = [
     "services": [
       {
         "name": "Engineering and Computer Science Association",
-        "link": "http://ecaconcordia.ca/"
+        "link": "https://ecaconcordia.ca/"
       }
     ],
     "departments": null,
@@ -842,7 +842,7 @@ export const concordiaBuildings = [
     "services": [
       {
         "name": "CPE Les P'tits Profs Daycare",
-        "link": "http://lesptitsprofs.wordpress.com/"
+        "link": "https://lesptitsprofs.wordpress.com/"
       }
     ],
     "departments": null,
@@ -861,7 +861,7 @@ export const concordiaBuildings = [
     "services": [
       {
         "name": "CPE Les P'tits Profs Daycare",
-        "link": "http://lesptitsprofs.wordpress.com/"
+        "link": "https://lesptitsprofs.wordpress.com/"
       }
     ],
     "departments": null,
