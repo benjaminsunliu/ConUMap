@@ -36,15 +36,15 @@ export default function CampusToggle({ mapRef, viewRegion }: Props) {
 
   const colorScheme = useColorScheme() ?? "light";
   const [switchValue, setSwitchValue] = React.useState<number>(() => {
-    let swgDistance = Math.hypot(viewRegion.latitude - SGW_CENTER.latitude, viewRegion.longitude - SGW_CENTER.longitude);
+    let sgwDistance = Math.hypot(viewRegion.latitude - SGW_CENTER.latitude, viewRegion.longitude - SGW_CENTER.longitude);
     let loyDistance = Math.hypot(viewRegion.latitude - LOY_CENTER.latitude, viewRegion.longitude - LOY_CENTER.longitude);
-    return swgDistance < loyDistance ? SGW : LOY;
+    return sgwDistance < loyDistance ? SGW : LOY;
   });
 
   useEffect(() => {
-    let swgDistance = Math.hypot(viewRegion.latitude - SGW_CENTER.latitude, viewRegion.longitude - SGW_CENTER.longitude);
+    let sgwDistance = Math.hypot(viewRegion.latitude - SGW_CENTER.latitude, viewRegion.longitude - SGW_CENTER.longitude);
     let loyDistance = Math.hypot(viewRegion.latitude - LOY_CENTER.latitude, viewRegion.longitude - LOY_CENTER.longitude);
-    let newSwitchValue = swgDistance < loyDistance ? SGW : LOY;
+    let newSwitchValue = sgwDistance < loyDistance ? SGW : LOY;
 
     if (newSwitchValue !== switchValue) {
       setSwitchValue(newSwitchValue);
