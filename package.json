@@ -14,7 +14,7 @@
   "jest": {
     "preset": "react-native",
     "transformIgnorePatterns": [
-      "node_modules/(?!@react-native|react-native|@expo/.*|expo-font)"
+      "node_modules/(?!@react-native|react-native|@expo/.*|expo-font|@react-navigation)"
     ],
     "transform": {
       "^.+\\.(js|ts|tsx)$": "babel-jest"
