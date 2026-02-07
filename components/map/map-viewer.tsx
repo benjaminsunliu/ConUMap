@@ -108,7 +108,9 @@ export default function MapViewer({
 
         // Need to determine fill color priority: Selected > Closest > Default
         let finalFillColor;
-        if (isSelected) {
+        if (isSelected && isClosest) {
+          finalFillColor = mapColors.closestSelectedBuildingColor;
+        } else if (isSelected) {
           finalFillColor = mapColors.polygonHighlighted;
         } else if (isClosest) {
           finalFillColor = mapColors.closestBuildingColor;
