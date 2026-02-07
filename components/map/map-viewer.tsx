@@ -12,6 +12,7 @@ import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
 import BuildingInfoPopup from "./building-info-popup";
 import { findClosestBuilding } from "@/utils/distance";
+import CampusToggle from "./campus-toggle";
 
 interface Props {
   readonly userLocationDelta?: CoordinateDelta;
@@ -41,7 +42,7 @@ export default function MapViewer({
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
-  const currentRegion = useRef<Region>(defaultInitialRegion);
+  const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
 
   const closestBuildingCode = useMemo(() => {
     if (!userLocation) return null;
@@ -52,10 +53,10 @@ export default function MapViewer({
     mapViewRef.current?.animateToRegion({
       latitude: building.location.latitude,
       longitude: building.location.longitude,
-      latitudeDelta: currentRegion?.current.latitudeDelta < 0.0025 ? currentRegion?.current.latitudeDelta : 0.0025,
-      longitudeDelta: currentRegion?.current.longitudeDelta < 0.0025 ? currentRegion?.current.longitudeDelta : 0.0025,
+      latitudeDelta: currentRegion.latitudeDelta < 0.0025 ? currentRegion.latitudeDelta : 0.0025,
+      longitudeDelta: currentRegion.longitudeDelta < 0.0025 ? currentRegion.longitudeDelta : 0.0025,
     });
-  }, []);
+  }, [currentRegion.latitudeDelta, currentRegion.longitudeDelta]);
 
   const selectBuildingByCode = useCallback((code: string) => {
     const info = concordiaBuildings.find((b) => b.buildingCode === code) ?? null;
@@ -76,7 +77,6 @@ export default function MapViewer({
 
   const requestLocation = useCallback(async () => {
     if (userLocation) return;
-
     const locationEnabled = await LocationPermissions.hasServicesEnabledAsync();
     if (!locationEnabled) {
       setModalOpen(true);
@@ -89,14 +89,15 @@ export default function MapViewer({
     const location = await LocationPermissions.getCurrentPositionAsync();
     setUserLocation({ latitude: location.coords.latitude, longitude: location.coords.longitude });
     setLocationState("on");
+    
   }, [userLocation]);
 
 
   const centerLocation = useCallback(() => {
     if (!userLocation) return;
 
-    setLocationState("centered");
     mapViewRef.current?.animateToRegion({ ...userLocation, ...userLocationDelta });
+    setLocationState("centered");
   }, [userLocation, userLocationDelta]);
 
   const renderPolygons = useMemo(() => {
@@ -117,7 +118,11 @@ export default function MapViewer({
 
         return (
           <Polygon
-            key={`${building.code}-${index}-${isSelected}-${isClosest}`}
+            key={
+              Platform.OS === "android"
+                ? `${building.code}-${index}-${isSelected}`
+                : `${building.code}-${index}`
+            }
             coordinates={polygon}
             tappable
             fillColor={finalFillColor}
@@ -208,6 +213,7 @@ export default function MapViewer({
 
   return (
     <View style={styles.container}>
+      <CampusToggle mapRef={mapViewRef} viewRegion={currentRegion} />
       <MapViewCluster
         ref={mapViewRef}
         style={styles.map}
@@ -215,7 +221,17 @@ export default function MapViewer({
         showsUserLocation={!!userLocation}
         followsUserLocation={locationState === "centered"}
         clusteringEnabled={Platform.OS !== "ios"}
-        onRegionChangeComplete={(region) => {currentRegion.current = region}}
+        onRegionChangeComplete={(region) => {
+          setCurrentRegion(region);
+          const latDiff = Math.abs(region.latitude - (userLocation?.latitude ?? 0));
+          const lonDiff = Math.abs(region.longitude - (userLocation?.longitude ?? 0));
+
+          if (userLocation && latDiff < 0.0001 && lonDiff < 0.0001) {
+            setLocationState("centered");
+          } else if (userLocation) {
+            setLocationState("on");
+          }
+        }}
         onPanDrag={() => {
           if (userLocation) setLocationState("on");
         }}

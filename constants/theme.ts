@@ -40,6 +40,14 @@ export const Colors = {
       actionButtonBackground: "#e8f0fe",
       actionButtonText: "#1a73e8",
       actionButtonIcon: "#1a73e8",
+    },
+
+    campusToggle: {
+      textColor: "#FFFFFF",
+      selectedColor: "#000000",
+      buttonColor: "#fbf6ec",
+      borderColor: "#420A0F",
+      backgroundColor: "#420A0F"
     }
   },
 
@@ -79,6 +87,14 @@ export const Colors = {
       actionButtonBackground: "#e8f0fe",
       actionButtonText: "#1a73e8",
       actionButtonIcon: "#1a73e8",
+    },
+
+    campusToggle: {
+      textColor: "#FFFFFF",
+      selectedColor: "#FFFFFF",
+      buttonColor: "#a0686d",
+      borderColor: "#420A0F",
+      backgroundColor: "#420A0F"
     }
   }
 };
