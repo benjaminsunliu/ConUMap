@@ -89,7 +89,7 @@ export default function MapViewer({
     const location = await LocationPermissions.getCurrentPositionAsync();
     setUserLocation({ latitude: location.coords.latitude, longitude: location.coords.longitude });
     setLocationState("on");
-    
+
   }, [userLocation]);
 
 
@@ -115,7 +115,7 @@ export default function MapViewer({
         } else if (isClosest) {
           finalFillColor = mapColors.closestBuildingColor;
         } else {
-         finalFillColor = mapColors.polygonFill;
+          finalFillColor = mapColors.polygonFill;
         }
 
         return (
@@ -151,10 +151,16 @@ export default function MapViewer({
           longitude: building.location.longitude - 0.00015,
         };
       } else if (building.code === "RA") {
-        // RA overlaps with PC
+        // Misplaced marker for RA
         coordinate = {
-          latitude: building.location.latitude - 0.00008,
-          longitude: building.location.longitude - 0.00015,
+          latitude: building.location.latitude - 0.0009,
+          longitude: building.location.longitude - 0.0008,
+        };
+      } else if (building.code === "PC") {
+        // Misplaced marker for PC
+        coordinate = {
+          latitude: building.location.latitude - 0.0006,
+          longitude: building.location.longitude - 0.0005,
         };
       }
 
