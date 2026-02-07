@@ -45,8 +45,8 @@ export const Colors = {
       textColor: "#FFFFFF",
       selectedColor: "#000000",
       buttonColor: "#fbf6ec",
-      borderColor: "#a0686d",
-      backgroundColor: "#a0686d"
+      borderColor: "#420A0F",
+      backgroundColor: "#420A0F"
     }
   },
 
@@ -91,8 +91,8 @@ export const Colors = {
       textColor: "#FFFFFF",
       selectedColor: "#FFFFFF",
       buttonColor: "#a0686d",
-      borderColor: "#5e0e16",
-      backgroundColor: "#5e0e16"
+      borderColor: "#420A0F",
+      backgroundColor: "#420A0F"
     }
   }
 };
