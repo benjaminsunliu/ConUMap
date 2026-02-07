@@ -122,7 +122,7 @@ export default function MapViewer({
           <Polygon
             key={
               Platform.OS === "android"
-                ? `${building.code}-${index}-${isSelected}`
+                ? `${building.code}-${index}-${isSelected}-${isClosest}`
                 : `${building.code}-${index}`
             }
             coordinates={polygon}
