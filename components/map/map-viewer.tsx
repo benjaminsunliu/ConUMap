@@ -64,6 +64,7 @@ export default function MapViewer({
     <View style={styles.container}>
       <MapView
         ref={mapViewRef}
+        testID="map-view"
         style={styles.map}
         initialRegion={initialRegion}
         showsUserLocation={userLocation !== null}
@@ -86,6 +87,7 @@ export default function MapViewer({
               fillColor={polygonFillColor}
               strokeColor={polygonStrokeColor}
               coordinates={polygon}
+              testID="polygon"
             />
           ));
         })}
