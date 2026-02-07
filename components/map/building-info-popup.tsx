@@ -104,7 +104,6 @@ export default function BuildingInfoPopup({ building }: Props) {
                 }).start(() => {
                     currentTranslateY.current = snapPoint;
                 });
-
                 setExpanded(expand);
             },
         })
