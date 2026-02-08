@@ -1,7 +1,0 @@
-appId: host.exp.Exponent
----
-- openLink: exp://172.30.19.37:8081
-- assertVisible: "Loyola"
-- tapOn: "Loyola"
-
-

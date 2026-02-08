@@ -31,7 +31,9 @@
       "json",
       "node"
     ],
-    "setupFiles": ["<rootDir>/jest.setup.js"]
+    "setupFiles": [
+      "<rootDir>/jest.setup.js"
+    ]
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
