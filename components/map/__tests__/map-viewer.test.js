@@ -1,5 +1,5 @@
 import React from "react";
-import {render, fireEvent,waitFor} from '@testing-library/react-native';
+import {render, fireEvent} from '@testing-library/react-native';
 import * as LocationPermissions from 'expo-location';
 import { CAMPUS_LOCATIONS } from "@/constants/mapData";
 import { concordiaBuildings } from "@/data/parsedBuildings";
@@ -12,14 +12,17 @@ jest.mock('react-native-map-clustering', () => {
   const { forwardRef, useImperativeHandle } = React;
   const { View } = require('react-native');
 
+  const  mockCluster =  forwardRef((props, ref) => {
+    useImperativeHandle(ref, () => ({
+      animateToRegion: mockAnimateToRegion,
+    }));
+    return <View {...props}>{props.children}</View>;
+    });
+    mockCluster.displayName = "mockCluster";
   return {
     __esModule: true,
-    default: forwardRef((props, ref) => {
-      useImperativeHandle(ref, () => ({
-        animateToRegion: mockAnimateToRegion,
-      }));
-      return <View {...props}>{props.children}</View>;
-    }),
+    default: mockCluster
+      
   };
 });
 
@@ -194,9 +197,9 @@ jest.mock("@/constants/mapData", () => ({
       });
 
       it('if userLocation exists it sets it null when dragging',async()=>{
-        userLocationDelta = {  latitudeDelta: 0.00922,
+       const userLocationDelta = {  latitudeDelta: 0.00922,
             longitudeDelta: 0.00421}
-        const mapViewer = render(<MapViewer   userLocationDelta={{ userLocationDelta }}
+        const mapViewer = render(<MapViewer   userLocationDelta={ userLocationDelta }
             initialRegion={{ latitude: 45.49575, longitude: -73.5793055556, latitudeDelta: 0.0922,
                 longitudeDelta: 0.0922, }}/>);
         const mapView = mapViewer.getByTestId('map-view');
@@ -230,7 +233,6 @@ jest.mock("@/constants/mapData", () => ({
     it("deselects building when map is pressed",async()=>{
 
       const mapViewer = render(<MapViewer />);
-      const building = concordiaBuildings[0];
       const polygons = mapViewer.getAllByTestId("polygon");
       await fireEvent.press(polygons[0]);
           const map = mapViewer.getByTestId("map-view");
@@ -321,7 +323,6 @@ jest.mock("@/constants/mapData", () => ({
 
     it("if unknown building selected it will be null",()=>{
       const mapViewer = render(<MapViewer />);
-      const mapView = mapViewer.getByTestId("map-view");
 
       const markerAB = mapViewer.getByTestId("marker-AB");
       fireEvent.press(markerAB);
