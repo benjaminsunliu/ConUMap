@@ -15,8 +15,8 @@ export const Colors = {
     map: {
       polygonFill: "#a0686d",
       polygonHighlighted: "#701922",
-      closestBuildingColor: "#1e8e3e",
-      closestSelectedBuildingColor: "#006943",
+      closestBuildingColor: "#000000",
+      closestSelectedBuildingColor: "#484949",
       polygonStroke: "black",
       marker: "#200003",
       markerSelected: "#fff",
@@ -63,8 +63,8 @@ export const Colors = {
     map: {
       polygonFill: "#a0686d",
       polygonHighlighted: "#701922",
-      closestBuildingColor: "#1e8e3e",
-      closestSelectedBuildingColor: "#006943",
+      closestBuildingColor: "#000000",
+      closestSelectedBuildingColor: "#484949",
       polygonStroke: "black",
       marker: "#330703",
       markerSelected: "#fff",

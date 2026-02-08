@@ -106,7 +106,6 @@ export default function MapViewer({
         const isSelected = selectedBuilding?.buildingCode === building.code;
         const isClosest = building.code === closestBuildingCode;
 
-        // Need to determine fill color priority: Selected > Closest > Default
         let finalFillColor;
         if (isSelected && isClosest) {
           finalFillColor = mapColors.closestSelectedBuildingColor;
