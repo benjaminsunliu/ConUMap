@@ -1,5 +1,5 @@
 import React from "react"
-import BuildingInfoPopup from "../building-info-popup"
+import BuildingInfoPopup from "../components/map/building-info-popup"
 import { render } from "@testing-library/react-native";
 
 

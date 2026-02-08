@@ -1,6 +1,6 @@
 import React from "react";
 import { render ,fireEvent} from "@testing-library/react-native";
-import CampusToggle from '../campus-toggle';
+import CampusToggle from '../components/map/campus-toggle';
 
 
 const mapRef = { current: { animateToRegion: jest.fn() } };

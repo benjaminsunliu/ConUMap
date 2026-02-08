@@ -21,7 +21,6 @@
     },
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/$1"
-      
     },
     "moduleFileExtensions": [
       "ts",

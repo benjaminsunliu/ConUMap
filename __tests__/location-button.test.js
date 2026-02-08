@@ -1,5 +1,5 @@
 import React from "react";
-import LocationButton from '../location-button'
+import LocationButton from '../components/map/location-button'
 import {render, fireEvent} from '@testing-library/react-native'
 
 

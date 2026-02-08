@@ -1,5 +1,5 @@
 import React from "react";
-import LocationModal from "../location-modal";
+import LocationModal from "../components/map/location-modal";
 import {render, fireEvent} from '@testing-library/react-native'
 
 

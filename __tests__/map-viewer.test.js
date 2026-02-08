@@ -3,7 +3,7 @@ import {render, fireEvent} from '@testing-library/react-native';
 import * as LocationPermissions from 'expo-location';
 import { CAMPUS_LOCATIONS } from "@/constants/mapData";
 import { concordiaBuildings } from "@/data/parsedBuildings";
-import MapViewer from '../map-viewer';
+import MapViewer from '../components/map/map-viewer';
 
 const mockAnimateToRegion = jest.fn();
 
