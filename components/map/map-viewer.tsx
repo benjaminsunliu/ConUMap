@@ -98,6 +98,7 @@ export default function MapViewer({
 
         return (
           <Polygon
+          testID="polygon"
             key={`${building.code}-${index}`}
             coordinates={polygon}
             tappable
@@ -134,6 +135,7 @@ export default function MapViewer({
 
       return (
         <Marker
+        testID={`marker-${building.code}`}
           key={building.code}
           coordinate={coordinate}
           onPress={() => {
@@ -192,6 +194,7 @@ export default function MapViewer({
       <CampusToggle mapRef={mapViewRef} viewRegion={currentRegion} />
       <MapViewCluster
         ref={mapViewRef}
+        testID="map-view"
         style={styles.map}
         initialRegion={initialRegion}
         showsUserLocation={!!userLocation}

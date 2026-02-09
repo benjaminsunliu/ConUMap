@@ -17,8 +17,8 @@ export default function LocationButton({
 }: LocationButtonProps) {
   const icon = iconFromButtonState(state);
   return (
-    <View style={[styles.container, { bottom: position.bottom, right: position.right }]}>
-      <Pressable onPress={onPress}>{icon}</Pressable>
+    <View style={[styles.container, { bottom: position.bottom, right: position.right }]} >
+      <Pressable onPress={onPress} testID="locationButton">{icon}</Pressable>
     </View>
   );
 }
