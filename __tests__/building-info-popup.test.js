@@ -12,12 +12,12 @@ describe('building-info-popup', () => {
       expect(queryByTestId("info-popup")).toBeNull();
     });
     
-    it("returns a non-null object if the building code is supplied", () => {
+    it("returns a non-null object if a valid building object is supplied", () => {
       const { queryByTestId } = render(<BuildingInfoPopup building={testBuilding} />);
       expect(queryByTestId("info-popup")).toBeDefined();
     });
 
-    it("renders the correct popup for the selected building", () => {
+    it("renders the correct popup for the supplied building", () => {
       const { getByText } = render(<BuildingInfoPopup building={testBuilding} />);
       
       expect(getByText('B – B Annex')).toBeTruthy();
