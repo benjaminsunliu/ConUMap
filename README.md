@@ -3,7 +3,7 @@
 ![Last Commit](https://img.shields.io/github/last-commit/benjaminsunliu/ConUMap) ![Build](https://github.com/benjaminsunliu/ConUMap/actions/workflows/build.yml/badge.svg) ![Lint](https://github.com/benjaminsunliu/ConUMap/actions/workflows/staticanalysis.yml/badge.svg) ![Tests](https://github.com/benjaminsunliu/ConUMap/actions/workflows/tests.yml/badge.svg)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=benjaminsunliu_ConUMap&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=benjaminsunliu_ConUMap) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=benjaminsunliu_ConUMap&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=benjaminsunliu_ConUMap) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=benjaminsunliu_ConUMap&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=benjaminsunliu_ConUMap) [![codecov](https://codecov.io/github/benjaminsunliu/ConUMap/graph/badge.svg?token=CDUC55T9S8)](https://codecov.io/github/benjaminsunliu/ConUMap)
 
-# ConUMap
+# ConUMaps
 
 [![React Native](https://img.shields.io/badge/React%20Native-0.81.5-blue?style=for-the-badge&logo=react)](https://reactnative.dev/) [![Node](https://img.shields.io/badge/Node-20%2B-green?style=for-the-badge&logo=node.js)](https://nodejs.org) [![Expo](https://img.shields.io/badge/Expo-54.0.33-white?style=for-the-badge&logo=expo)](https://expo.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/) [![Jest](https://img.shields.io/badge/Testing-Jest%2030.2.0-red?style=for-the-badge&logo=jest)](https://jestjs.io/)
@@ -11,7 +11,7 @@
 </div>
 
 ## About
-ConUMap is a mobile application that helps Concordia students navigate the SGW and Loyola campuses with ease. It provides interactive campus maps, building information, outdoor and indoor directions (including multi-floor routing), accessibility-friendly paths, and smart navigation to classes using calendar or open data integration.
+ConUMaps is a mobile application that helps Concordia students navigate the SGW and Loyola campuses with ease. It provides interactive campus maps, building information, outdoor and indoor directions (including multi-floor routing), accessibility-friendly paths, and smart navigation to classes using calendar or open data integration.
 
 ## Tech Stack
 
