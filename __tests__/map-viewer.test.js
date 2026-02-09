@@ -102,20 +102,21 @@ jest.mock("@/constants/mapData", () => ({
           });
     });
 
-  
-
-      it('if location enabled is  on and ForegroundPermissions is granted it could try to getCurrentPosition ', async () => {
+      it('if location enabled is  on and ForegroundPermissions is not granted it would not try to getCurrentPosition  ', async () => {
 
         LocationPermissions.hasServicesEnabledAsync.mockResolvedValue(true);
-        LocationPermissions.requestForegroundPermissionsAsync.mockResolvedValue({ status: "granted" });
-     
+        LocationPermissions.requestForegroundPermissionsAsync.mockResolvedValue({ status: null });
+        LocationPermissions.getCurrentPositionAsync.mockResolvedValue({
+          coords: { latitude: 45.49575, longitude:  -73.5793055556 },
+      });
+
        const mapViewer = render(<MapViewer />);
        const locationButton = mapViewer.getByTestId('locationButton');
        await fireEvent.press(locationButton);
        expect(mockAnimateToRegion).not.toHaveBeenCalled();
        expect(LocationPermissions.hasServicesEnabledAsync).toHaveBeenCalled();
        expect(LocationPermissions.requestForegroundPermissionsAsync).toHaveBeenCalled();
-       expect(LocationPermissions.getCurrentPositionAsync).toHaveBeenCalled();
+       expect(LocationPermissions.getCurrentPositionAsync).not.toHaveBeenCalled();
 
      });
 
