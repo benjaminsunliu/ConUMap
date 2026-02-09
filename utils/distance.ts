@@ -19,7 +19,7 @@ export function calculateDistance(coord1: Coordinate, coord2: Coordinate): numbe
 }
 
 // Degrees to Radians
-function toRad(value: number): number {
+export function toRad(value: number): number {
   return (value * Math.PI) / 180;
 }
 

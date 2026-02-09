@@ -1,4 +1,4 @@
-import { calculateDistance, findClosestBuilding } from "../utils/distance";
+import { calculateDistance, findClosestBuilding, toRad } from "../utils/distance";
 
 export type Coordinate = {
   latitude: number;
@@ -44,4 +44,13 @@ describe("findClosestBuilding", () => {
     const result = findClosestBuilding(userLocation, []);
     expect(result).toBeNull();
   });
+
+  describe("toRad", () => {
+  it("converts degrees to radians correctly", () => {
+    expect(toRad(180)).toBeCloseTo(Math.PI, 5);
+    expect(toRad(90)).toBeCloseTo(Math.PI / 2, 5);
+    expect(toRad(0)).toBeCloseTo(0, 5);
+    expect(toRad(45)).toBeCloseTo(Math.PI / 4, 5);
+  });
+});
 });
