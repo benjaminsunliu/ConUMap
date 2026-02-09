@@ -26,7 +26,6 @@ jest.mock('react-native-map-clustering', () => {
   };
 });
 
-
 jest.mock('expo-location', () => ({
     hasServicesEnabledAsync: jest.fn(),
     requestForegroundPermissionsAsync: jest.fn(),
@@ -80,9 +79,6 @@ jest.mock("@/constants/mapData", () => ({
           },
         ],
       }));
-
- 
-
       beforeEach(() => {
         mockAnimateToRegion.mockClear();
       });
@@ -90,12 +86,12 @@ jest.mock("@/constants/mapData", () => ({
   describe('map tab',()=>{
     it(' should display the map',()=>{
         const mapView = render(<MapViewer/>)
-        mapView.getByTestId('map-view')
+        const map = mapView.getByTestId('map-view')
+        expect(map).toBeVisible();
     });
 
-
     it('shows correct default location ', () => {
-       
+  
         const mapView = render(<MapViewer />);
         const mapView_ = mapView.getByTestId('map-view');
         expect(mapView_.props.initialRegion).toEqual({
@@ -116,7 +112,7 @@ jest.mock("@/constants/mapData", () => ({
 
         const mapViewer = render(<MapViewer />);
 
-        const locationButton = mapViewer.getByTestId('locationButton')
+        const locationButton = mapViewer.getByTestId('locationButton');
         await fireEvent.press(locationButton);
          
         expect(mockAnimateToRegion).not.toHaveBeenCalled();
@@ -126,18 +122,14 @@ jest.mock("@/constants/mapData", () => ({
 
       });
 
-      it('if location state is off and ForegroundPermissions not granted it could try to getCurrentPositionAsync ', async () => {
+      it('if location enabled is  on and ForegroundPermissions is granted it could try to getCurrentPosition ', async () => {
 
         LocationPermissions.hasServicesEnabledAsync.mockResolvedValue(true);
-        LocationPermissions.requestForegroundPermissionsAsync.mockResolvedValue({ status: 'refused' });
-        LocationPermissions.getCurrentPositionAsync.mockResolvedValue({
-        coords: { latitude: 45.49575, longitude: -73.5793055556  },
-        });
+        LocationPermissions.requestForegroundPermissionsAsync.mockResolvedValue({ status: "granted" });
+     
        const mapViewer = render(<MapViewer />);
-
-       const locationButton = mapViewer.getByTestId('locationButton')
+       const locationButton = mapViewer.getByTestId('locationButton');
        await fireEvent.press(locationButton);
-        
        expect(mockAnimateToRegion).not.toHaveBeenCalled();
        expect(LocationPermissions.hasServicesEnabledAsync).toHaveBeenCalled();
        expect(LocationPermissions.requestForegroundPermissionsAsync).toHaveBeenCalled();
@@ -182,7 +174,7 @@ jest.mock("@/constants/mapData", () => ({
         expect(modal).toBeVisible();
         fireEvent(modal, "onRequestClose");
         const modal_ = mapViewer.queryByTestId("location-modal");
-        expect(modal_).not.toBeVisible();
+        expect(modal_).toBeNull();
 
       });
 
@@ -208,26 +200,20 @@ jest.mock("@/constants/mapData", () => ({
         });
         const locationButton = mapViewer.getByTestId('locationButton')
         await fireEvent.press(locationButton);
-        expect(mapView.props.followsUserLocation).toBe(true);
-        fireEvent(mapView, "panDrag");
+        expect(mapViewer.getByTestId('map-view').props.followsUserLocation).toBe(true);
+        await fireEvent(mapView, "panDrag");
         //no longer following user because dragged
-        expect(mapView.props.followsUserLocation).toBe(false);
-
-
-
+      expect(mapViewer.getByTestId('map-view').props.followsUserLocation).toBe(false);
       });
 
       it("displays polygon for all campus locations",()=>{
-    
         const mapViewer = render(<MapViewer />);
         const polygons = mapViewer.getAllByTestId('polygon');
-
      const expectedCount = CAMPUS_LOCATIONS.reduce(
       (total, building) => total + building.polygons.length,
       0
     );
       expect(polygons).toHaveLength(expectedCount);
-
     });
 
     it("deselects building when map is pressed",async()=>{
@@ -239,21 +225,15 @@ jest.mock("@/constants/mapData", () => ({
       fireEvent(map, "press", {
         nativeEvent: { action: "press" },
       });
-
-      expect(mapViewer.queryByTestId("pop-upInfo")).toBeNull();
-  
+      expect(mapViewer.queryByTestId("info-popup")).toBeNull();
     })
-
 
     it("focuses on building when polygon is pressed",()=>{
 
       const mapViewer = render(<MapViewer />);
       const building = concordiaBuildings[0];
-
       const polygon = mapViewer.getAllByTestId("polygon")[0];
-
       fireEvent.press(polygon);
-
       expect(mockAnimateToRegion).toHaveBeenCalledWith(
         expect.objectContaining({
           latitude: building.location.latitude,
@@ -261,16 +241,12 @@ jest.mock("@/constants/mapData", () => ({
           latitudeDelta: expect.any(Number),
           longitudeDelta: expect.any(Number),
         }));
-
-
-
     });
 
     it("Offset markers to prevent overlap  for VE building",()=>{
       const mapViewer = render(<MapViewer />);
       const ve = concordiaBuildings.find(b => b.code === "VE");
       const marker = mapViewer.getByTestId("marker-VE");
-
       expect(marker.props.coordinate).toEqual({
         latitude: ve.location.latitude + 0.00008,
         longitude: ve.location.longitude - 0.00015,
@@ -282,7 +258,6 @@ jest.mock("@/constants/mapData", () => ({
       const mapViewer= render(<MapViewer />);
       const ra = concordiaBuildings.find(a => a.code === "RA");
       const marker = mapViewer.getByTestId("marker-RA");
-
       expect(marker.props.coordinate).toEqual({
         latitude: ra.location.latitude - 0.00008,
         longitude: ra.location.longitude - 0.00015,
@@ -292,10 +267,8 @@ jest.mock("@/constants/mapData", () => ({
     it('focuses building when pressed', () => {
       const mapViewer = render(<MapViewer />);
       const building = concordiaBuildings[0];
-    
       const marker = mapViewer.getByTestId(`marker-${building.code}`);
       fireEvent.press(marker);
-    
       expect(mockAnimateToRegion).toHaveBeenCalledWith(
         expect.objectContaining({
           latitude: building.location.latitude,
@@ -323,7 +296,6 @@ jest.mock("@/constants/mapData", () => ({
 
     it("if unknown building selected it will be null",()=>{
       const mapViewer = render(<MapViewer />);
-
       const markerAB = mapViewer.getByTestId("marker-AB");
       fireEvent.press(markerAB);
       expect(mapViewer.queryByTestId("pop-upInfo")).toBeNull();

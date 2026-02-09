@@ -9,7 +9,7 @@ module.exports = defineConfig([
     ignores: ['dist/*'],
   },
   {
-  files: ['**/*.test.js'],
+  files: ["**/__tests__/**/*.{js,ts,tsx}"],
   plugins: { jest: pluginJest },
   languageOptions: {
     globals: pluginJest.environments.globals.globals,

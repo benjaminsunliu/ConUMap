@@ -30,7 +30,7 @@
       "json",
       "node"
     ],
-    "setupFiles": [
+    "setupFilesAfterEnv": [
       "<rootDir>/jest.setup.js"
     ],
     "collectCoverage": true,
