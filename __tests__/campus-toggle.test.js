@@ -15,12 +15,12 @@ describe("campus-toggle",()=>{
   it("initial switchValue is SGW if viewRegion is closer to SGW", () => {
     const { getByText } = render(<CampusToggle mapRef={mapRef} viewRegion={viewRegionNearSGW} />);
     const sgwButton = getByText("SGW");
-    expect(sgwButton.props.style.some((s => s.backgroundColor === "transparent"))).toBeTruthy();
+    expect(sgwButton.props.style.some((s => s.color === "#000000"))).toBeTruthy();
   });
   it("initial selection is LOY if viewRegion is closer to LOY", () => {
     const { getByText } = render(<CampusToggle mapRef={mapRef} viewRegion={viewRegionNearLOY} />);
     const loyButton = getByText("Loyola");
-    expect(loyButton.props.style.some(((s) => s.backgroundColor === "transparent"))).toBeTruthy();
+    expect(loyButton.props.style.some(((s) => s.color === "#000000"))).toBeTruthy();
   });
   
   it("pressing SGW button animates map to SGW_CENTER", () => {
