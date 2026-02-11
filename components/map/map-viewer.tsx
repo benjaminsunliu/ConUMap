@@ -11,7 +11,7 @@ import { Coordinate, CoordinateDelta, Building as MapBuilding } from "@/types/ma
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
 import BuildingInfoPopup from "./building-info-popup";
-import { findClosestBuilding } from "@/utils/distance";
+import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
 import CampusToggle from "./campus-toggle";
 
 interface Props {
@@ -44,10 +44,19 @@ export default function MapViewer({
   const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
 
-  const closestBuildingCode = useMemo(() => {
-    if (!userLocation) return null;
-    return findClosestBuilding(userLocation, CAMPUS_LOCATIONS);
-  }, [userLocation]);
+  const inBuildingCode = useMemo(() => {
+  if (!userLocation) return null;
+
+  for (const building of CAMPUS_LOCATIONS) {
+    for (const polygon of building.polygons) {
+      if (isPointInPolygon(userLocation, polygon)) {
+        return building.code;
+      }
+    }
+  }
+
+  return null;
+}, [userLocation]);
 
   const focusBuilding = useCallback((building: MapBuilding) => {
     mapViewRef.current?.animateToRegion({
@@ -104,15 +113,15 @@ export default function MapViewer({
     return CAMPUS_LOCATIONS.flatMap((building) =>
       building.polygons.map((polygon, index) => {
         const isSelected = selectedBuilding?.buildingCode === building.code;
-        const isClosest = building.code === closestBuildingCode;
+        const isInBuilding = inBuildingCode === building.code;
 
         let finalFillColor;
-        if (isSelected && isClosest) {
-          finalFillColor = mapColors.closestSelectedBuildingColor;
+        if (isSelected && isInBuilding) {
+          finalFillColor = mapColors.currentSelectedBuildingColor;
         } else if (isSelected) {
           finalFillColor = mapColors.polygonHighlighted;
-        } else if (isClosest) {
-          finalFillColor = mapColors.closestBuildingColor;
+        } else if (isInBuilding) {
+          finalFillColor = mapColors.currentBuildingColor;
         } else {
           finalFillColor = mapColors.polygonFill;
         }
@@ -121,7 +130,7 @@ export default function MapViewer({
           <Polygon
             key={
               Platform.OS === "android"
-                ? `${building.code}-${index}-${isSelected}-${isClosest}`
+                ? `${building.code}-${index}-${isSelected}-${isInBuilding}`
                 : `${building.code}-${index}`
             }
             coordinates={polygon}
@@ -135,7 +144,7 @@ export default function MapViewer({
         );
       })
     );
-  }, [mapColors, selectedBuilding?.buildingCode, closestBuildingCode, handlePolygonPress]);
+  }, [mapColors, selectedBuilding?.buildingCode, inBuildingCode, handlePolygonPress]);
 
   const renderMarkers = useMemo(() => {
     return CAMPUS_LOCATIONS.map((building) => {
