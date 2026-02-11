@@ -54,7 +54,6 @@ export default function MapViewer({
       }
     }
   }
-
   return null;
 }, [userLocation]);
 
