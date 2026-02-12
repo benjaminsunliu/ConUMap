@@ -126,8 +126,9 @@ export default function MapViewer({
 
         return (
           <Polygon
-          // This key difference for android and IOS prevents some buildings from disappearing when interacting with some of their markers or polygons on IOS.
-          // This also prevents some the same issue from hapenning on android when selecting building. There might have a small performance tradeoff, but it does not seem noticeable.
+          // On iOS a stable key (per building polygon) is sufficient and avoids unnecessary remounts.
+          // On Android, a more dynamic key is used so that polygons properly re-render when their state changes.
+          // It will prevent buildings from not displaying properly or failing to update.
             key={
               Platform.OS === "android"
                 ? `${building.code}-${index}-${isSelected}-${isInBuilding}`
@@ -145,11 +146,7 @@ export default function MapViewer({
         );
       })
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapColors, selectedBuilding?.buildingCode, inBuildingCode]);
-  // Note: handlePolygonPress intentionally excluded to prevent rerendering all polygons
-  // on every region change. Tradeoff: focusBuilding may use slightly stale zoom 
-  // level until next selection triggers re-render. Impact is minor and temporary.
+  }, [mapColors, selectedBuilding?.buildingCode, inBuildingCode, handlePolygonPress]);
 
   const renderMarkers = useMemo(() => {
     return CAMPUS_LOCATIONS.map((building) => {

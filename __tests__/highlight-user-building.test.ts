@@ -8,13 +8,19 @@ import { CAMPUS_LOCATIONS } from "../constants/mapData";
  * the user's current building on the map.
  */
 describe("isPointInPolygon (Is the point (the user in the app context) in the polygon)", () => {
+  let bAnnexPolygon: any;
 
-  // Get the B Annex building polygon from the actual data source
-  const bAnnexBuilding = CAMPUS_LOCATIONS.find(building => building.code === "B");
-  if (!bAnnexBuilding) {
-    throw new Error("B Annex building not found in CAMPUS_LOCATIONS");
-  }
-  const bAnnexPolygon = bAnnexBuilding.polygons[0];
+  beforeAll(() => {
+    // Get the B Annex building polygon from the actual data source
+    const bAnnexBuilding = CAMPUS_LOCATIONS.find(building => building.code === "B");
+    expect(bAnnexBuilding).toBeDefined();
+    
+    if (bAnnexBuilding) {
+      expect(bAnnexBuilding.polygons).toBeDefined();
+      expect(bAnnexBuilding.polygons.length).toBeGreaterThan(0);
+      bAnnexPolygon = bAnnexBuilding.polygons[0];
+    }
+  });
 
   it("should return true when a coordinate is inside the B Annex building polygon", () => {
     // This coordinate is confirmed to be within the B Annex building boundaries
