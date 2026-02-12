@@ -19,7 +19,9 @@ describe("isPointInPolygon", () => {
       longitude: -73.579582, 
     };
 
-    expect(isPointInPolygon(insideLocation, bAnnexPolygon)).toBe(true);
+    const result = isPointInPolygon(insideLocation, bAnnexPolygon);
+
+    expect(result).toBe(true);
   });
 
   it("returns false if point is outside the polygon", () => {
@@ -28,7 +30,9 @@ describe("isPointInPolygon", () => {
       longitude: -73.5799,
     };
 
-    expect(isPointInPolygon(outsideLocation, bAnnexPolygon)).toBe(false);
+    const result = isPointInPolygon(outsideLocation, bAnnexPolygon);
+
+    expect(result).toBe(false);
   });
 
   it("returns false if point is exactly on the vertex of the polygon", () => {
@@ -36,6 +40,8 @@ describe("isPointInPolygon", () => {
       latitude: 45.4979631908601, 
       longitude: -73.5795371416831, 
     };
-    expect(isPointInPolygon(edgeLocation, bAnnexPolygon)).toBe(false);
+
+    const result = isPointInPolygon(edgeLocation, bAnnexPolygon);
+    expect(result).toBe(false);
   });
 });
