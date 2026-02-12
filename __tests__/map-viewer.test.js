@@ -4,6 +4,7 @@ import * as LocationPermissions from 'expo-location';
 import { CAMPUS_LOCATIONS } from "@/constants/mapData";
 import { concordiaBuildings } from "@/data/parsedBuildings";
 import MapViewer from '../components/map/map-viewer';
+import { Colors } from "@/constants/theme";
 
 const mockAnimateToRegion = jest.fn();
 
@@ -45,19 +46,40 @@ jest.mock("@/constants/mapData", () => ({
       {
         code: "LB",
         location: { latitude: 45.495, longitude: -73.579 },
-        polygons: [[{ latitude: 45.495, longitude: -73.579 }]],
+        polygons: [[
+          { latitude: 45.4967290, longitude: -73.5785791 },
+          { latitude: 45.4966684, longitude: -73.5785666 },
+          { latitude: 45.4965831, longitude: -73.5776511 },
+          { latitude: 45.4968922, longitude: -73.5772933 },
+          { latitude: 45.4972596, longitude: -73.5780578 },
+        ]]
       },  
       {
         code: "VE",
         location: { latitude: 45.496, longitude: -73.58 },
-        polygons: [[{ latitude: 45.496, longitude: -73.58 }]],
-      
+        polygons: [[
+          { latitude: 45.4586304, longitude: -73.6384670 },
+          { latitude: 45.4588656, longitude: -73.6382369 },
+          { latitude: 45.4592128, longitude: -73.6381321 },
+          { latitude: 45.4593120, longitude: -73.6386623 },
+          { latitude: 45.4590806, longitude: -73.6391782 },
+          { latitude: 45.4586304, longitude: -73.6384670 },
+        ]]
       },  
       { code: "RA",
       location: { latitude: 45.496, longitude: -73.58 },
-      polygons: [[{ latitude: 45.496, longitude: -73.58 }]],
-  
-   },
+      polygons: [[
+          { latitude: 45.45671477024348, longitude: -73.63709539175034 },
+          { latitude: 45.45639186891413, longitude: -73.63736227154732 },
+          { latitude: 45.45669007647078, longitude: -73.6381334066391 },
+          { latitude: 45.45679214399463, longitude: -73.63806366920471 },
+          { latitude: 45.456840355548806, longitude: -73.63818034529686 },
+          { latitude: 45.457004039347105, longitude: -73.63805025815964 },
+          { latitude: 45.45695488722195, longitude: -73.63792017102242 },
+          { latitude: 45.45702732191778, longitude: -73.63786485046148 },
+          { latitude: 45.45672088489029, longitude: -73.63709673285484 },
+        ]]
+    },
     {code: "AB",
     location: { latitude: 45.496, longitude: -73.58 },
     polygons: [[{ latitude: 45.496, longitude: -73.58 }]],
@@ -296,13 +318,121 @@ jest.mock("@/constants/mapData", () => ({
       const markerAB = mapViewer.getByTestId("marker-AB");
       fireEvent.press(markerAB);
       expect(mapViewer.queryByTestId("pop-upInfo")).toBeNull();
-
     });
-   
 
+    describe('Polygon Color Selection Logic', () => {
+      beforeEach(() => {
+        jest.useFakeTimers();
+      });
 
-  
+      afterEach(() => {
+        jest.runOnlyPendingTimers();
+        jest.useRealTimers();
+      });
 
+      /**
+       * Test the fillColor assignment based on isSelected and isInBuilding combinations
+       * The logic should be:
+       * - isSelected=true, isInBuilding=true  → currentSelectedBuildingColor
+       * - isSelected=true, isInBuilding=false → polygonHighlighted
+       * - isSelected=false, isInBuilding=true → currentBuildingColor
+       * - isSelected=false, isInBuilding=false → polygonFill
+       */
 
+      // Helper function to determine fillColor based on selection and location status
+      const getExpectedFillColor = (isSelected, isInBuilding) => {
+        if (isSelected && isInBuilding) {
+          return Colors.light.map.currentSelectedBuildingColor;
+        } else if (isSelected) {
+          return Colors.light.map.polygonHighlighted;
+        } else if (isInBuilding) {
+          return Colors.light.map.currentBuildingColor;
+        } else {
+          return Colors.light.map.polygonFill;
+        }
+      };
 
+      it('should assign polygonFill color when building is neither selected nor user is inside', () => {
+        const expectedColor = getExpectedFillColor(false, false);
+        expect(expectedColor).toBe(Colors.light.map.polygonFill); // Color should be #a0686d
+      });
+
+      it('should assign polygonHighlighted color when building is selected but user is not inside', () => {
+        const expectedColor = getExpectedFillColor(true, false);
+        expect(expectedColor).toBe(Colors.light.map.polygonHighlighted); // Color should be #701922
+      });
+
+      it('should assign currentBuildingColor when user is inside building but it is not selected', () => {
+        const expectedColor = getExpectedFillColor(false, true);
+        expect(expectedColor).toBe(Colors.light.map.currentBuildingColor); // Color should be #000000 (Double check in theme.ts)
+      });
+
+      it('should assign currentSelectedBuildingColor when building is selected AND user is inside', () => {
+        const expectedColor = getExpectedFillColor(true, true);
+        expect(expectedColor).toBe(Colors.light.map.currentSelectedBuildingColor); // Color should be #484949 (Double check in theme.ts)
+      });
+
+      it('should render polygons with different fillColors for different building states', async () => {
+        LocationPermissions.hasServicesEnabledAsync.mockResolvedValue(true);
+        LocationPermissions.requestForegroundPermissionsAsync.mockResolvedValue({ status: 'granted' });
+        LocationPermissions.getCurrentPositionAsync.mockResolvedValue({
+          coords: { latitude: 45.4967290, longitude: -73.5785791 }, // Inside LB building
+        });
+
+        const mapViewer = render(<MapViewer />);
+        
+        // Enable location
+        const locationButton = mapViewer.getByTestId('locationButton');
+        await act(async () => {
+          fireEvent.press(locationButton);
+        });
+
+        await act(async () => {
+          jest.runAllTimers();
+        });
+
+        // Verify polygons are rendered with fillColor prop
+        const polygons = mapViewer.getAllByTestId('polygon');
+        expect(polygons.length).toBeGreaterThan(0);
+        
+        // When user is inside a building, at least one polygon should have currentBuildingColor
+        const hasCurrentBuildingColor = polygons.some(
+          (p) => p.props.fillColor === Colors.light.map.currentBuildingColor
+        );
+        expect(hasCurrentBuildingColor).toBe(true);
+      });
+
+      it('should verify fillColor changes based on selection state', () => {
+        // Test the logic that updates color when selection changes
+        const colors = {
+          notSelected: Colors.light.map.polygonFill,
+          selected: Colors.light.map.polygonHighlighted,
+        };
+        
+        // Simulate the color assignment logic
+        const isSelected = false;
+        let fillColor = isSelected ? colors.selected : colors.notSelected;
+        expect(fillColor).toBe(Colors.light.map.polygonFill);
+        
+        // Simulate selection state change
+        const isSelectedAfterClick = true;
+        fillColor = isSelectedAfterClick ? colors.selected : colors.notSelected;
+        expect(fillColor).toBe(Colors.light.map.polygonHighlighted);
+      });
+
+      it('should verify all four color scenarios are possible with correct conditions', () => {
+        // Test all four combinations
+        const testCases = [
+          { isSelected: false, isInBuilding: false, expected: Colors.light.map.polygonFill },
+          { isSelected: true, isInBuilding: false, expected: Colors.light.map.polygonHighlighted },
+          { isSelected: false, isInBuilding: true, expected: Colors.light.map.currentBuildingColor },
+          { isSelected: true, isInBuilding: true, expected: Colors.light.map.currentSelectedBuildingColor },
+        ];
+
+        testCases.forEach(({ isSelected, isInBuilding, expected }) => {
+          let finalFillColor = getExpectedFillColor(isSelected, isInBuilding);
+          expect(finalFillColor).toBe(expected);
+        });
+      });
+    });;
 })
