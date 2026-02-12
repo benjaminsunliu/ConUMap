@@ -329,16 +329,7 @@ jest.mock("@/constants/mapData", () => ({
         jest.runOnlyPendingTimers();
         jest.useRealTimers();
       });
-
-      /**
-       * Test the fillColor assignment based on isSelected and isInBuilding combinations
-       * The logic should be:
-       * - isSelected=true, isInBuilding=true  → currentSelectedBuildingColor
-       * - isSelected=true, isInBuilding=false → polygonHighlighted
-       * - isSelected=false, isInBuilding=true → currentBuildingColor
-       * - isSelected=false, isInBuilding=false → polygonFill
-       */
-
+      
       // Helper function to determine fillColor based on selection and location status
       const getExpectedFillColor = (isSelected, isInBuilding) => {
         if (isSelected && isInBuilding) {
@@ -354,22 +345,22 @@ jest.mock("@/constants/mapData", () => ({
 
       it('should assign polygonFill color when building is neither selected nor user is inside', () => {
         const expectedColor = getExpectedFillColor(false, false);
-        expect(expectedColor).toBe(Colors.light.map.polygonFill); // Color should be #a0686d
+        expect(expectedColor).toBe(Colors.light.map.polygonFill); 
       });
 
       it('should assign polygonHighlighted color when building is selected but user is not inside', () => {
         const expectedColor = getExpectedFillColor(true, false);
-        expect(expectedColor).toBe(Colors.light.map.polygonHighlighted); // Color should be #701922
+        expect(expectedColor).toBe(Colors.light.map.polygonHighlighted);
       });
 
       it('should assign currentBuildingColor when user is inside building but it is not selected', () => {
         const expectedColor = getExpectedFillColor(false, true);
-        expect(expectedColor).toBe(Colors.light.map.currentBuildingColor); // Color should be #000000 (Double check in theme.ts)
+        expect(expectedColor).toBe(Colors.light.map.currentBuildingColor);
       });
 
       it('should assign currentSelectedBuildingColor when building is selected AND user is inside', () => {
         const expectedColor = getExpectedFillColor(true, true);
-        expect(expectedColor).toBe(Colors.light.map.currentSelectedBuildingColor); // Color should be #484949 (Double check in theme.ts)
+        expect(expectedColor).toBe(Colors.light.map.currentSelectedBuildingColor); 
       });
 
       it('should render polygons with different fillColors for different building states', async () => {
@@ -434,5 +425,5 @@ jest.mock("@/constants/mapData", () => ({
           expect(finalFillColor).toBe(expected);
         });
       });
-    });;
+    });
 })
