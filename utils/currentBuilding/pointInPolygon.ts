@@ -5,6 +5,8 @@ export function isPointInPolygon(
   point: Coordinate,
   polygon: Polygon
 ): boolean {
+  if (polygon.length < 3) return false;
+
   let inside = false;
   const x = point.longitude;
   const y = point.latitude;
