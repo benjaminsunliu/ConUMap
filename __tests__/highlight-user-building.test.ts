@@ -1,5 +1,5 @@
 import { isPointInPolygon } from "../utils/currentBuilding/pointInPolygon";
-import { Coordinate } from "../types/mapTypes";
+import { Coordinate, Polygon } from "../types/mapTypes";
 import { CAMPUS_LOCATIONS } from "../constants/mapData";
 
 /**
@@ -8,7 +8,7 @@ import { CAMPUS_LOCATIONS } from "../constants/mapData";
  * the user's current building on the map.
  */
 describe("isPointInPolygon (Is the point (the user in the app context) in the polygon)", () => {
-  let bAnnexPolygon: any;
+  let bAnnexPolygon: Polygon;
 
   beforeAll(() => {
     // Get the B Annex building polygon from the actual data source
