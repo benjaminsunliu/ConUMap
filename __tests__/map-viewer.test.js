@@ -41,54 +41,64 @@ jest.mock('react-native-maps', () => {
   };
 });
 
-jest.mock("@/constants/mapData", () => ({
+jest.mock("@/constants/mapData", () => {
+  const buildingsPolygons = require("../data/buildings-polygons.json");
+  const toLatLngRing = (ring) =>
+    ring.map(([lng, lat]) => ({ latitude: lat, longitude: lng }));
+
+  const getBuildingPolygons = (buildingCode) => {
+    const building = buildingsPolygons.find(
+      (entry) => entry.buildingCode === buildingCode
+    );
+    if (!building || !building.buildings) {
+      return [];
+    }
+
+    return building.buildings.flatMap((entry) => {
+      const outlines = entry.building_outlines || [];
+      return outlines.flatMap((outline) => {
+        const displayPolygon = outline.display_polygon;
+        if (!displayPolygon || !displayPolygon.coordinates) {
+          return [];
+        }
+        if (displayPolygon.type === "MultiPolygon") {
+          return displayPolygon.coordinates.flat().map(toLatLngRing);
+        }
+        return displayPolygon.coordinates.map(toLatLngRing);
+      });
+    });
+  };
+
+  return {
     CAMPUS_LOCATIONS: [
       {
         code: "LB",
         location: { latitude: 45.495, longitude: -73.579 },
-        polygons: [[
-          { latitude: 45.4967290, longitude: -73.5785791 },
-          { latitude: 45.4966684, longitude: -73.5785666 },
-          { latitude: 45.4965831, longitude: -73.5776511 },
-          { latitude: 45.4968922, longitude: -73.5772933 },
-          { latitude: 45.4972596, longitude: -73.5780578 },
-        ]]
-      },  
+        polygons: getBuildingPolygons("LB"),
+      },
       {
         code: "VE",
         location: { latitude: 45.496, longitude: -73.58 },
-        polygons: [[
-          { latitude: 45.4586304, longitude: -73.6384670 },
-          { latitude: 45.4588656, longitude: -73.6382369 },
-          { latitude: 45.4592128, longitude: -73.6381321 },
-          { latitude: 45.4593120, longitude: -73.6386623 },
-          { latitude: 45.4590806, longitude: -73.6391782 },
-          { latitude: 45.4586304, longitude: -73.6384670 },
-        ]]
-      },  
-      { code: "RA",
-      location: { latitude: 45.496, longitude: -73.58 },
-      polygons: [[
-          { latitude: 45.45671477024348, longitude: -73.63709539175034 },
-          { latitude: 45.45639186891413, longitude: -73.63736227154732 },
-          { latitude: 45.45669007647078, longitude: -73.6381334066391 },
-          { latitude: 45.45679214399463, longitude: -73.63806366920471 },
-          { latitude: 45.456840355548806, longitude: -73.63818034529686 },
-          { latitude: 45.457004039347105, longitude: -73.63805025815964 },
-          { latitude: 45.45695488722195, longitude: -73.63792017102242 },
-          { latitude: 45.45702732191778, longitude: -73.63786485046148 },
-          { latitude: 45.45672088489029, longitude: -73.63709673285484 },
-        ]]
-    },
-    {code: "PC",
-    location: { latitude: 45.496, longitude: -73.58 },
-    polygons: [[{ latitude: 45.496, longitude: -73.58 }]],
-    },
-    {code: "AB",
-    location: { latitude: 45.496, longitude: -73.58 },
-    polygons: [[{ latitude: 45.496, longitude: -73.58 }]],
-
-}],}));
+        polygons: getBuildingPolygons("VE"),
+      },
+      {
+        code: "RA",
+        location: { latitude: 45.496, longitude: -73.58 },
+        polygons: getBuildingPolygons("RA"),
+      },
+      {
+        code: "PC",
+        location: { latitude: 45.496, longitude: -73.58 },
+        polygons: getBuildingPolygons("PC"),
+      },
+      {
+        code: "AB",
+        location: { latitude: 45.496, longitude: -73.58 },
+        polygons: getBuildingPolygons("AB"),
+      },
+    ],
+  };
+});
 
       jest.mock('@/data/parsedBuildings', () => ({
         concordiaBuildings: [
