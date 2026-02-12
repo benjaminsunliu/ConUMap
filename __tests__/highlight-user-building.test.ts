@@ -51,4 +51,12 @@ describe("isPointInPolygon (Is the point (the user in the app context) in the po
     const result = isPointInPolygon(vertexLocation, bAnnexPolygon);
     expect(result).toBe(false);
   });
+
+  it("should return false when a polygon has less than 3 vertices", () => {
+    const point: Coordinate = { latitude: 45.5, longitude: -73.5 };
+    const smallPolygon = [{ latitude: 45.5, longitude: -73.5 }];
+
+    const result = isPointInPolygon(point, smallPolygon);
+    expect(result).toBe(false);
+  });
 });
