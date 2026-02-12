@@ -367,7 +367,7 @@ jest.mock("@/constants/mapData", () => ({
         LocationPermissions.hasServicesEnabledAsync.mockResolvedValue(true);
         LocationPermissions.requestForegroundPermissionsAsync.mockResolvedValue({ status: 'granted' });
         LocationPermissions.getCurrentPositionAsync.mockResolvedValue({
-          coords: { latitude: 45.4967290, longitude: -73.5785791 }, // Inside LB building
+          coords: { latitude: 45.49674, longitude: -73.57856 }, // Inside LB building
         });
 
         const mapViewer = render(<MapViewer />);
