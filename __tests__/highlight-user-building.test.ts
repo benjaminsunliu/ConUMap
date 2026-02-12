@@ -4,7 +4,7 @@ import { Coordinate, Polygon } from "../types/mapTypes";
 
 describe("isPointInPolygon", () => {
 
-  // This polygon represents the B Annex building on the Loyola campus
+  // This polygon represents the B Annex building on the SGW campus
   const bAnnexPolygon: Polygon = [
     { latitude: 45.4979631908601, longitude: -73.5795371416831 },
     { latitude: 45.4977850408341, longitude: -73.5797038854998 },
