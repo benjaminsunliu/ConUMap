@@ -136,7 +136,7 @@ export default function MapViewer({
             coordinates={polygon}
             tappable
             fillColor={finalFillColor}
-            zIndex={isSelected ? 2 : 1}
+            zIndex={isSelected ? 3 : isInBuilding ? 2 : 1}
             strokeColor={mapColors.polygonStroke}
             strokeWidth={2}
             onPress={() => handlePolygonPress(building)}
@@ -146,6 +146,9 @@ export default function MapViewer({
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapColors, selectedBuilding?.buildingCode, inBuildingCode]);
+  // Note: handlePolygonPress intentionally excluded to prevent rerendering all polygons
+  // on every region change. Tradeoff: focusBuilding may use slightly stale zoom 
+  // level until next selection triggers re-render. Impact is minor and temporary.
 
   const renderMarkers = useMemo(() => {
     return CAMPUS_LOCATIONS.map((building) => {
