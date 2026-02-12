@@ -143,7 +143,8 @@ export default function MapViewer({
         );
       })
     );
-  }, [mapColors, selectedBuilding?.buildingCode, inBuildingCode, handlePolygonPress]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapColors, selectedBuilding?.buildingCode, inBuildingCode]);
 
   const renderMarkers = useMemo(() => {
     return CAMPUS_LOCATIONS.map((building) => {
