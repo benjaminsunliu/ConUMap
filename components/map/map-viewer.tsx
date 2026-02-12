@@ -126,7 +126,8 @@ export default function MapViewer({
 
         return (
           <Polygon
-          // This key difference for android and IOS prevents some buildings from disappearing when interacting with some of their markers or polygons.
+          // This key difference for android and IOS prevents some buildings from disappearing when interacting with some of their markers or polygons on IOS.
+          // This also prevents some the same issue from hapenning on android when selecting building. There might have a small performance tradeoff, but it does not seem noticeable.
             key={
               Platform.OS === "android"
                 ? `${building.code}-${index}-${isSelected}-${isInBuilding}`
