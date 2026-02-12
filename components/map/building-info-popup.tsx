@@ -153,7 +153,6 @@ export default function BuildingInfoPopup({ building }: Props) {
 
     return (
         <Animated.View
-        testID="info-popup"
             {...panResponder.panHandlers}
             style={[
                 styles.card,

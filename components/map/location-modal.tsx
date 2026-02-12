@@ -16,7 +16,6 @@ interface Props {
 export default function LocationModal({ visible, onRequestClose }: Props) {
   return (
     <Modal
-      testID="location-modal"
       onRequestClose={onRequestClose}
       animationType="fade"
       visible={visible}
