@@ -317,7 +317,7 @@ jest.mock("@/constants/mapData", () => ({
       const mapViewer = render(<MapViewer />);
       const markerAB = mapViewer.getByTestId("marker-AB");
       fireEvent.press(markerAB);
-      expect(mapViewer.queryByTestId("pop-upInfo")).toBeNull();
+      expect(mapViewer.queryByTestId("info-popup")).toBeNull();
     });
 
     describe('Polygon Color Selection Logic', () => {
@@ -329,7 +329,7 @@ jest.mock("@/constants/mapData", () => ({
         jest.runOnlyPendingTimers();
         jest.useRealTimers();
       });
-      
+
       // Helper function to determine fillColor based on selection and location status
       const getExpectedFillColor = (isSelected, isInBuilding) => {
         if (isSelected && isInBuilding) {
