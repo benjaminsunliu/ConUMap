@@ -112,7 +112,8 @@ export default function MapViewer({
         const isSelected = selectedBuilding?.buildingCode === building.code;
         const isInBuilding = inBuildingCode === building.code;
 
-        let finalFillColor;
+        let finalFillColor: string;
+        
         if (isSelected && isInBuilding) {
           finalFillColor = mapColors.currentSelectedBuildingColor;
         } else if (isSelected) {
