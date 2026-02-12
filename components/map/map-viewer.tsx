@@ -124,6 +124,15 @@ export default function MapViewer({
           finalFillColor = mapColors.polygonFill;
         }
 
+        let finalZIndex: number;
+        if (isSelected) {
+          finalZIndex = 3;
+        } else if (isInBuilding) {
+          finalZIndex = 2;
+        } else {
+          finalZIndex = 1;
+        }
+
         return (
           <Polygon
           // On iOS a stable key (per building polygon) is sufficient and avoids unnecessary remounts.
@@ -138,7 +147,7 @@ export default function MapViewer({
             coordinates={polygon}
             tappable
             fillColor={finalFillColor}
-            zIndex={isSelected ? 3 : isInBuilding ? 2 : 1}
+            zIndex={finalZIndex}
             strokeColor={mapColors.polygonStroke}
             strokeWidth={2}
             onPress={() => handlePolygonPress(building)}
