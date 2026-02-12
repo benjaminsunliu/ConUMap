@@ -36,12 +36,12 @@ describe("isPointInPolygon", () => {
   });
 
   it("returns false if point is exactly on the vertex of the polygon", () => {
-    const edgeLocation: Coordinate = {
+    const vertexLocation: Coordinate = {
       latitude: 45.4979631908601, 
       longitude: -73.5795371416831, 
     };
 
-    const result = isPointInPolygon(edgeLocation, bAnnexPolygon);
+    const result = isPointInPolygon(vertexLocation, bAnnexPolygon);
     expect(result).toBe(false);
   });
 });
