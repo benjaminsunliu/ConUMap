@@ -81,8 +81,6 @@ export default function MapViewer({
     });
   }, [selectBuildingByCode, focusBuilding]);
 
-
-
   const requestLocation = useCallback(async () => {
     if (userLocation) return;
     const locationEnabled = await LocationPermissions.hasServicesEnabledAsync();
