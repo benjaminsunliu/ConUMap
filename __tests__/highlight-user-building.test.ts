@@ -31,7 +31,7 @@ describe("isPointInPolygon", () => {
     expect(isPointInPolygon(outsideLocation, bAnnexPolygon)).toBe(false);
   });
 
-  it("returns false if point is on the edge of the polygon", () => {
+  it("returns false if point is exactly on the vertex of the polygon", () => {
     const edgeLocation: Coordinate = {
       latitude: 45.4979631908601, 
       longitude: -73.5795371416831, 
