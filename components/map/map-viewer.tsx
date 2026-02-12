@@ -45,17 +45,17 @@ export default function MapViewer({
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
 
   const inBuildingCode = useMemo(() => {
-  if (!userLocation) return null;
+    if (!userLocation) return null;
 
-  for (const building of CAMPUS_LOCATIONS) {
-    for (const polygon of building.polygons) {
-      if (isPointInPolygon(userLocation, polygon)) {
-        return building.code;
+    for (const building of CAMPUS_LOCATIONS) {
+      for (const polygon of building.polygons) {
+        if (isPointInPolygon(userLocation, polygon)) {
+          return building.code;
+        }
       }
     }
-  }
-  return null;
-}, [userLocation]);
+    return null;
+  }, [userLocation]);
 
   const focusBuilding = useCallback((building: MapBuilding) => {
     mapViewRef.current?.animateToRegion({
@@ -126,6 +126,7 @@ export default function MapViewer({
 
         return (
           <Polygon
+          // This key difference for android and IOS prevents some buildings from disappearing when interacting with some of their markers or polygons.
             key={
               Platform.OS === "android"
                 ? `${building.code}-${index}-${isSelected}-${isInBuilding}`
