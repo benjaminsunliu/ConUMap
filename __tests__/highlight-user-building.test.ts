@@ -7,7 +7,7 @@ import { CAMPUS_LOCATIONS } from "../constants/mapData";
  * is within a specific building's boundaries. This is critical for highlighting
  * the user's current building on the map.
  */
-describe("isPointInPolygon", () => {
+describe("isPointInPolygon (Is the point (the user in the app context) in the polygon)", () => {
 
   // Get the B Annex building polygon from the actual data source
   const bAnnexBuilding = CAMPUS_LOCATIONS.find(building => building.code === "B");
