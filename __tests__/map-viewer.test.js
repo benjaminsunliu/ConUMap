@@ -350,14 +350,6 @@ jest.mock("@/constants/mapData", () => {
     });
 
     describe('Polygon Color Selection Logic', () => {
-      beforeEach(() => {
-        jest.useFakeTimers();
-      });
-
-      afterEach(() => {
-        jest.runOnlyPendingTimers();
-        jest.useRealTimers();
-      });
 
       it('should render polygonFill color when no building is selected and user is not inside', () => {
         const mapViewer = render(<MapViewer />);
@@ -377,8 +369,7 @@ jest.mock("@/constants/mapData", () => {
         
         const locationButton = mapViewer.getByTestId('locationButton');
         await act(async () => {
-          fireEvent.press(locationButton);
-          jest.runAllTimers();
+          fireEvent.press(locationButton);;
         });
 
         const polygons = mapViewer.getAllByTestId('polygon');
@@ -397,7 +388,6 @@ jest.mock("@/constants/mapData", () => {
         const locationButton = mapViewer.getByTestId('locationButton');
         await act(async () => {
           fireEvent.press(locationButton);
-          jest.runAllTimers();
         });
 
         // Verify user is inside currentBuildingColor
@@ -410,7 +400,6 @@ jest.mock("@/constants/mapData", () => {
           fireEvent(mapView, 'onUserLocationChange', {
             nativeEvent: { coordinate: { latitude: 45.5, longitude: -73.6 } }, // Outside any building
           });
-          jest.runAllTimers();
         });
 
         // Verify reverted to polygonFill
