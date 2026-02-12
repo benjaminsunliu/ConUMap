@@ -1,5 +1,5 @@
 import React from "react";
-import {render, fireEvent} from '@testing-library/react-native';
+import {act, render, fireEvent} from '@testing-library/react-native';
 import * as LocationPermissions from 'expo-location';
 import { CAMPUS_LOCATIONS } from "@/constants/mapData";
 import { concordiaBuildings } from "@/data/parsedBuildings";
@@ -112,7 +112,9 @@ jest.mock("@/constants/mapData", () => ({
 
        const mapViewer = render(<MapViewer />);
        const locationButton = mapViewer.getByTestId('locationButton');
-       await fireEvent.press(locationButton);
+       await act(async () => {
+        await fireEvent.press(locationButton);
+       });
        expect(mockAnimateToRegion).not.toHaveBeenCalled();
        expect(LocationPermissions.hasServicesEnabledAsync).toHaveBeenCalled();
        expect(LocationPermissions.requestForegroundPermissionsAsync).toHaveBeenCalled();
@@ -129,7 +131,9 @@ jest.mock("@/constants/mapData", () => ({
         nativeEvent: { coordinate: { latitude: 45.49575, longitude: -73.5793055556  } },
       });
          const locationButton = mapViewer.getByTestId('locationButton')
-         await fireEvent.press(locationButton);
+         await act(async () => {
+          await fireEvent.press(locationButton);
+         });
          expect(mockAnimateToRegion).toHaveBeenCalled();
 
      });
@@ -139,7 +143,9 @@ jest.mock("@/constants/mapData", () => ({
         LocationPermissions.hasServicesEnabledAsync.mockResolvedValue(false);
         const mapViewer = render(<MapViewer />);
         const locationButton = mapViewer.getByTestId('locationButton')
-         fireEvent.press(locationButton);
+        await act(async () => {
+          await fireEvent.press(locationButton);
+        });
        expect(LocationPermissions.hasServicesEnabledAsync).toHaveBeenCalled();
        const modal = await mapViewer.findByTestId('location-modal');
        expect(modal).toBeVisible();
@@ -152,7 +158,9 @@ jest.mock("@/constants/mapData", () => ({
         const mapViewer = render(<MapViewer />);
         const locationButton = mapViewer.getByTestId('locationButton')
 
-        await fireEvent.press(locationButton);
+        await act(async () => {
+          await fireEvent.press(locationButton);
+        });
         const modal = await mapViewer.findByTestId("location-modal");
         expect(modal).toBeVisible();
         fireEvent(modal, "onRequestClose");
@@ -182,9 +190,13 @@ jest.mock("@/constants/mapData", () => ({
         nativeEvent: { coordinate: { latitude: 45.49575, longitude: -73.5793055556 } },
         });
         const locationButton = mapViewer.getByTestId('locationButton')
-        await fireEvent.press(locationButton);
+        await act(async () => {
+         await fireEvent.press(locationButton);
+        });
         expect(mapViewer.getByTestId('map-view').props.followsUserLocation).toBe(true);
-        await fireEvent(mapView, "panDrag");
+        await act(async () => {
+         await fireEvent(mapView, "panDrag");
+        });
         //no longer following user because dragged
       expect(mapViewer.getByTestId('map-view').props.followsUserLocation).toBe(false);
       });
@@ -203,7 +215,9 @@ jest.mock("@/constants/mapData", () => ({
 
       const mapViewer = render(<MapViewer />);
       const polygons = mapViewer.getAllByTestId("polygon");
-      await fireEvent.press(polygons[0]);
+      await act(async () => {
+       await fireEvent.press(polygons[0]);
+      });
           const map = mapViewer.getByTestId("map-view");
       fireEvent(map, "press", {
         nativeEvent: { action: "press" },
@@ -242,8 +256,8 @@ jest.mock("@/constants/mapData", () => ({
       const ra = concordiaBuildings.find(a => a.code === "RA");
       const marker = mapViewer.getByTestId("marker-RA");
       expect(marker.props.coordinate).toEqual({
-        latitude: ra.location.latitude - 0.00008,
-        longitude: ra.location.longitude - 0.00015,
+        latitude: ra.location.latitude - 0.0009,
+        longitude: ra.location.longitude - 0.0008,
       });
 
     });

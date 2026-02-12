@@ -1,6 +1,6 @@
 import React from "react"
 import BuildingInfoPopup from "../components/map/building-info-popup"
-import { render, screen, waitFor } from "@testing-library/react-native";
+import { act, render, screen, waitFor } from "@testing-library/react-native";
 import { concordiaBuildings } from "../data/parsedBuildings"
 
 const mockBuilding = concordiaBuildings[0];  // B Annex
@@ -47,9 +47,11 @@ describe('building-info-popup', () => {
 
         const popup = screen.getByTestId('info-popup');
 
+        await act(async () => {
         popup.props.onResponderGrant({}, {});
         popup.props.onResponderMove({}, { dy: -300 });
         popup.props.onResponderRelease({}, { dy: -300, vy: -1 });
+        });
 
         const openingHoursTitle = await screen.findByText('Opening Hours');
 
@@ -62,8 +64,10 @@ describe('building-info-popup', () => {
         const popup = screen.getByTestId('info-popup');
 
         expect(screen.queryByText('Opening Hours')).toBeNull();  // Should initially be null
-
+        
+        await act(async () => {
         popup.props.onResponderRelease({}, { dy: -50, vy: 0 });
+        });
 
         await waitFor(() => {
             expect(screen.queryByText('Opening Hours')).toBeNull();
