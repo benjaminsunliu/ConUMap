@@ -1,6 +1,5 @@
 import { Coordinate, Polygon } from "@/types/mapTypes";
 
-
 export function isPointInPolygon(
   point: Coordinate,
   polygon: Polygon
