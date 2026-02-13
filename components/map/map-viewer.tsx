@@ -44,17 +44,19 @@ export default function MapViewer({
   const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
 
-  const inBuildingCode = useMemo(() => {
-    if (!userLocation) return null;
+  const inBuildingCodes = useMemo(() => {
+    const codes = new Set<string>();
+    if (!userLocation) return codes;
 
     for (const building of CAMPUS_LOCATIONS) {
       for (const polygon of building.polygons) {
         if (isPointInPolygon(userLocation, polygon)) {
-          return building.code;
+          codes.add(building.code);
+          break;
         }
       }
     }
-    return null;
+    return codes;
   }, [userLocation]);
 
   const focusBuilding = useCallback((building: MapBuilding) => {
@@ -110,7 +112,7 @@ export default function MapViewer({
     return CAMPUS_LOCATIONS.flatMap((building) =>
       building.polygons.map((polygon, index) => {
         const isSelected = selectedBuilding?.buildingCode === building.code;
-        const isInBuilding = inBuildingCode === building.code;
+        const isInBuilding = inBuildingCodes.has(building.code);
 
         let finalFillColor: string;
         
@@ -155,7 +157,7 @@ export default function MapViewer({
         );
       })
     );
-  }, [mapColors, selectedBuilding?.buildingCode, inBuildingCode, handlePolygonPress]);
+  }, [mapColors, selectedBuilding?.buildingCode, inBuildingCodes, handlePolygonPress]);
 
   const renderMarkers = useMemo(() => {
     return CAMPUS_LOCATIONS.map((building) => {
