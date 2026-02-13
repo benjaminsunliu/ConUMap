@@ -42,32 +42,7 @@ jest.mock('react-native-maps', () => {
 });
 
 jest.mock("@/constants/mapData", () => {
-  const buildingsPolygons = require("../data/buildings-polygons.json");
-  const toLatLngRing = (ring) =>
-    ring.map(([lng, lat]) => ({ latitude: lat, longitude: lng }));
-
-  const getBuildingPolygons = (buildingCode) => {
-    const building = buildingsPolygons.find(
-      (entry) => entry.buildingCode === buildingCode
-    );
-    if (!building || !building.buildings) {
-      return [];
-    }
-
-    return building.buildings.flatMap((entry) => {
-      const outlines = entry.building_outlines || [];
-      return outlines.flatMap((outline) => {
-        const displayPolygon = outline.display_polygon;
-        if (!displayPolygon || !displayPolygon.coordinates) {
-          return [];
-        }
-        if (displayPolygon.type === "MultiPolygon") {
-          return displayPolygon.coordinates.flat().map(toLatLngRing);
-        }
-        return displayPolygon.coordinates.map(toLatLngRing);
-      });
-    });
-  };
+  const { getBuildingPolygons} = require("../utils/getBuildingPolygons");
 
   return {
     CAMPUS_LOCATIONS: [
