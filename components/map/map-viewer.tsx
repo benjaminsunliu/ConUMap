@@ -43,6 +43,7 @@ export default function MapViewer({
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
+  const [polygonRenderVersion, setPolygonRenderVersion] = useState(0);
 
   const inBuildingCodes = useMemo(() => {
     const codes = new Set<string>();
@@ -71,6 +72,7 @@ export default function MapViewer({
   const selectBuildingByCode = useCallback((code: string) => {
     const info = concordiaBuildings.find((b) => b.buildingCode === code) ?? null;
     setSelectedBuilding(info);
+    setPolygonRenderVersion(v => v + 1);
   }, []);
 
   const handlePolygonPress = useCallback((building: MapBuilding) => {
@@ -115,7 +117,7 @@ export default function MapViewer({
         const isInBuilding = inBuildingCodes.has(building.code);
 
         let finalFillColor: string;
-        
+
         if (isSelected && isInBuilding) {
           finalFillColor = mapColors.currentSelectedBuildingColor;
         } else if (isSelected) {
@@ -137,14 +139,10 @@ export default function MapViewer({
 
         return (
           <Polygon
-          // On iOS a stable key (per building polygon) is sufficient and avoids unnecessary remounts.
-          // On Android, a more dynamic key is used so that polygons properly re-render when their state changes.
-          // It will prevent buildings from not displaying properly or failing to update.
-            key={
-              Platform.OS === "android"
-                ? `${building.code}-${index}-${isSelected}-${isInBuilding}`
-                : `${building.code}-${index}`
-            }
+            // Include render version to force re-render of all polygons when selection changes.
+            // This ensures react-native-maps properly updates all polygon states including
+            // the current building polygon which can disappear due to render timing issues.
+            key={`${building.code}-${index}-v${polygonRenderVersion}`}
             testID="polygon"
             coordinates={polygon}
             tappable
@@ -157,7 +155,7 @@ export default function MapViewer({
         );
       })
     );
-  }, [mapColors, selectedBuilding?.buildingCode, inBuildingCodes, handlePolygonPress]);
+  }, [mapColors, selectedBuilding?.buildingCode, inBuildingCodes, handlePolygonPress, polygonRenderVersion]);
 
   const renderMarkers = useMemo(() => {
     return CAMPUS_LOCATIONS.map((building) => {
@@ -187,7 +185,7 @@ export default function MapViewer({
 
       return (
         <Marker
-        testID={`marker-${building.code}`}
+          testID={`marker-${building.code}`}
           key={building.code}
           coordinate={coordinate}
           onPress={() => {
@@ -279,6 +277,7 @@ export default function MapViewer({
 
           if (!action || action === "press") {
             setSelectedBuilding(null);
+            setPolygonRenderVersion(v => v + 1);
           }
         }}
         renderCluster={renderCluster}
