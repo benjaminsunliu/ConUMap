@@ -139,10 +139,13 @@ export default function MapViewer({
 
         return (
           <Polygon
-            // Include render version to force re-render of all polygons when selection changes.
-            // This ensures react-native-maps properly updates all polygon states including
-            // the current building polygon which can disappear due to render timing issues.
-            key={`${building.code}-${index}-v${polygonRenderVersion}`}
+            // On iOS, use render version to force re-render and prevent polygon disappearing.
+            // On Android, use state-based keys to only remount changed polygons and avoid flashing.
+            key={
+              Platform.OS === "ios"
+                ? `${building.code}-${index}-v${polygonRenderVersion}`
+                : `${building.code}-${index}-${isSelected}-${isInBuilding}`
+            }
             testID="polygon"
             coordinates={polygon}
             tappable
