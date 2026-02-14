@@ -18,7 +18,7 @@ export const getBuildingPolygons = (
 			const displayPolygon = outline?.display_polygon;
 			if (!displayPolygon?.coordinates) return [];
 			if (displayPolygon.type === "MultiPolygon") {
-				return displayPolygon.coordinates.flat().map(toLatLngRing);
+				return displayPolygon.coordinates.map(toLatLngRing);
 			}
 			return displayPolygon.coordinates.map(toLatLngRing);
 		});
