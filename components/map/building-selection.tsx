@@ -4,19 +4,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 import buildingAddressesRaw from "@/data/building-addresses.json";
+import { SearchBuilding, FieldType } from "@/types/buildingTypes";
 
-interface Building {
-    buildingCode: string;
-    buildingName: string;
-    address: string;
-    campus: string;
-}
+const buildingAddresses = buildingAddressesRaw as SearchBuilding[];
 
-type FieldType = "start" | "end";
-
-const buildingAddresses = buildingAddressesRaw as Building[];
-
-const emptyBuilding: Building = {
+const emptyBuilding: SearchBuilding = {
     buildingCode: "",
     buildingName: "",
     address: "",
@@ -24,7 +16,7 @@ const emptyBuilding: Building = {
 };
 
 interface Props {
-    onSelect: (building: Building, type: FieldType) => void;
+    onSelect: (building: SearchBuilding, type: FieldType) => void;
 }
 
 export default function BuildingSelection({ onSelect }: Props) {
@@ -68,7 +60,7 @@ export default function BuildingSelection({ onSelect }: Props) {
     );
 
     const handleSelect = useCallback(
-        (building: Building, type: FieldType) => {
+        (building: SearchBuilding, type: FieldType) => {
             setQuery(type, building.buildingName);
             setFocusedField(null);
             onSelect(building, type);
@@ -103,7 +95,7 @@ export default function BuildingSelection({ onSelect }: Props) {
                         placeholderTextColor={theme.text}
                         value={value}
                         onFocus={() => setFocusedField(type)}
-
+                        onBlur={() => setFocusedField(prev => (prev === type ? null : prev))}
                         onChangeText={t => handleChange(t, type)}
                         style={[
                             styles.input,
@@ -116,13 +108,13 @@ export default function BuildingSelection({ onSelect }: Props) {
                     />
                     {!!value && (
                         <TouchableOpacity onPress={() => clearField(type)} style={styles.clearButton}>
-                            <Text style={{ color: theme.tint, fontSize: 18 }}>×</Text>
+                            <Text style={{ color: theme.campusToggle.borderColor, fontSize: 18 }}>×</Text>
                         </TouchableOpacity>
                     )}
                 </View>
             );
         },
-        [queries, theme.text, theme.buildingInfoPopup.background, theme.buildingInfoPopup.divider, theme.tint, handleChange, clearField]
+        [queries, theme.text, theme.buildingInfoPopup.background, theme.buildingInfoPopup.divider, theme.campusToggle.borderColor, handleChange, clearField]
     );
 
     const renderResults = useCallback(
@@ -140,7 +132,7 @@ export default function BuildingSelection({ onSelect }: Props) {
                     ]}
                     keyboardShouldPersistTaps="handled"
                     renderItem={({ item }) => (
-                        <TouchableOpacity style={styles.resultItem} onPress={() => handleSelect(item, type)}>
+                        <TouchableOpacity style={[styles.resultItem, { borderBottomColor: theme.buildingInfoPopup.divider }]} onPress={() => handleSelect(item, type)}>
                             <Text style={[styles.resultTitle, { color: theme.campusToggle.selectedColor }]}>
                                 {item.buildingCode} – {item.buildingName}
                             </Text>
@@ -186,7 +178,7 @@ const styles = StyleSheet.create({
     input: {
         paddingVertical: 10,
         paddingLeft: 10,
-        paddingRight: 36,
+        paddingRight: 25,
         borderRadius: 8,
         borderWidth: 1
     },
@@ -208,8 +200,7 @@ const styles = StyleSheet.create({
     },
     resultItem: {
         padding: 8,
-        borderBottomWidth: 1,
-        borderBottomColor: "#eee"
+        borderBottomWidth: 1
     },
     resultTitle: {
         fontWeight: "600"
