@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { View, TextInput, FlatList, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -36,12 +36,12 @@ export default function BuildingSelection({ onSelect }: Props) {
         end: ""
     });
 
-    const filterBuildings = (text: string) => {
+    const filterBuildings = useCallback((text: string) => {
         const q = text.toLowerCase();
         return buildingAddresses.filter(
             b => b.buildingName.toLowerCase().includes(q) || b.buildingCode.toLowerCase().includes(q) || b.address.toLowerCase().includes(q)
         );
-    };
+    }, []);
 
     const results = useMemo(
         () => ({
@@ -51,31 +51,31 @@ export default function BuildingSelection({ onSelect }: Props) {
         [queries]
     );
 
-    const setQuery = (type: FieldType, value: string) => {
+    const setQuery = useCallback( (type: FieldType, value: string) => {
         setQueries(q => ({ ...q, [type]: value }));
-    };
+    }, []);
 
-    const handleChange = (text: string, type: FieldType) => {
+    const handleChange = useCallback((text: string, type: FieldType) => {
         setQuery(type, text);
-    };
+    }, [setQuery]);
 
-    const handleSelect = (building: Building, type: FieldType) => {
+    const handleSelect = useCallback((building: Building, type: FieldType) => {
         setQuery(type, building.buildingName);
         onSelect(building, type);
-    };
+    }, [setQuery, onSelect]);
 
-    const clearField = (type: FieldType) => {
+    const clearField = useCallback((type: FieldType) => {
         setQuery(type, "");
         onSelect(emptyBuilding, type);
-    };
+    }, [setQuery, onSelect]);
 
-    const swapFields = () => {
+    const swapFields = useCallback(() => {
         setQueries(({ start, end }) => ({ start: end, end: start }));
         onSelect({ ...emptyBuilding, buildingName: queries.end }, "start");
         onSelect({ ...emptyBuilding, buildingName: queries.start }, "end");
-    };
+    }, [queries, onSelect]);
 
-    const renderInput = (type: FieldType, placeholder: string) => {
+    const renderInput = useCallback((type: FieldType, placeholder: string) => {
         const value = queries[type];
 
         return (
@@ -101,9 +101,9 @@ export default function BuildingSelection({ onSelect }: Props) {
                 )}
             </View>
         );
-    };
+    }, [queries, theme.text, theme.buildingInfoPopup.background, theme.buildingInfoPopup.divider, theme.tint, handleChange, clearField]) ;
 
-    const renderResults = (type: FieldType) => {
+    const renderResults = useCallback((type: FieldType) => {
         const data = results[type];
         if (!data.length) return null;
 
@@ -125,7 +125,7 @@ export default function BuildingSelection({ onSelect }: Props) {
                 )}
             />
         );
-    };
+    }, [results, theme.background, theme.buildingInfoPopup.divider, theme.campusToggle.selectedColor, theme.text, handleSelect]);
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background, shadowColor: theme.text }]}>
