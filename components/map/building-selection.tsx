@@ -130,7 +130,7 @@ export default function BuildingSelection({ onSelect }: Props) {
                         ]}
                     />
                     {!!value && (
-                        <TouchableOpacity onPress={() => clearField(type)} style={styles.clearButton}>
+                        <TouchableOpacity testID={`clear-${type}`} onPress={() => clearField(type)} style={styles.clearButton}>
                             <Text style={{ color: theme.campusToggle.borderColor, fontSize: 18 }}>×</Text>
                         </TouchableOpacity>
                     )}
@@ -150,10 +150,12 @@ export default function BuildingSelection({ onSelect }: Props) {
                     keyExtractor={i => i.buildingCode}
                     style={[styles.results, { backgroundColor: theme.background, borderColor: theme.buildingInfoPopup.divider }]}
                     keyboardShouldPersistTaps="handled"
+                    testID={`${type}-results`}
                     renderItem={({ item }) => (
                         <TouchableOpacity
                             style={[styles.resultItem, { borderBottomColor: theme.buildingInfoPopup.divider }]}
-                            onPress={() => handleSelect(item, type)} >
+                            onPress={() => handleSelect(item, type)} 
+                            testID={`${type}-result-${item.buildingCode.toUpperCase()}`}>
                             <Text style={[styles.resultTitle, { color: theme.campusToggle.selectedColor }]}>
                                 {item.buildingCode} – {item.buildingName}
                             </Text>
@@ -169,10 +171,10 @@ export default function BuildingSelection({ onSelect }: Props) {
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background, shadowColor: theme.text }]}>
+        <View style={[styles.container, { backgroundColor: theme.background, shadowColor: theme.text }]} testID="building-selection">
             <View style={styles.inputRow}>
                 {renderInput("start", "Start")}
-                <TouchableOpacity onPress={swapFields} style={styles.swapButton}>
+                <TouchableOpacity testID="swap-fields" onPress={swapFields} style={styles.swapButton}>
                     <Ionicons name="swap-vertical" size={24} color={theme.tint} />
                 </TouchableOpacity>
                 {renderInput("end", "Destination")}
