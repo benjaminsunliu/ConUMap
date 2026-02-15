@@ -28,7 +28,7 @@ export default function BuildingSelection({ onSelect }: Props) {
         end: ""
     });
 
-    const [selectedBuildings, setSelectedBuildings] = useState<Record<FieldType, SearchBuilding>>({
+    const [, setSelectedBuildings] = useState<Record<FieldType, SearchBuilding>>({
         start: emptyBuilding,
         end: emptyBuilding
     });
