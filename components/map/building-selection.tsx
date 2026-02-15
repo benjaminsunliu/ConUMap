@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { View, TextInput, FlatList, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -12,114 +12,132 @@ interface Building {
     campus: string;
 }
 
-const buildingAddresses: Building[] = buildingAddressesRaw as Building[];
+type FieldType = "start" | "end";
+
+const buildingAddresses = buildingAddressesRaw as Building[];
+
+const emptyBuilding: Building = {
+    buildingCode: "",
+    buildingName: "",
+    address: "",
+    campus: ""
+};
 
 interface Props {
-    onSelect: (building: Building, type: "start" | "end") => void;
+    onSelect: (building: Building, type: FieldType) => void;
 }
 
 export default function BuildingSelection({ onSelect }: Props) {
     const colorScheme = useColorScheme() ?? "light";
     const theme = Colors[colorScheme];
 
-    const [startQuery, setStartQuery] = useState("");
-    const [endQuery, setEndQuery] = useState("");
-    const [startResults, setStartResults] = useState<Building[]>([]);
-    const [endResults, setEndResults] = useState<Building[]>([]);
+    const [queries, setQueries] = useState<Record<FieldType, string>>({
+        start: "",
+        end: ""
+    });
 
-    const handleChange = (text: string, type: "start" | "end") => {
-        const filtered = buildingAddresses.filter(
-            (b) =>
-                b.buildingName.toLowerCase().includes(text.toLowerCase()) ||
-                b.buildingCode.toLowerCase().includes(text.toLowerCase()) ||
-                b.address.toLowerCase().includes(text.toLowerCase())
+    const filterBuildings = (text: string) => {
+        const q = text.toLowerCase();
+        return buildingAddresses.filter(
+            b => b.buildingName.toLowerCase().includes(q) || b.buildingCode.toLowerCase().includes(q) || b.address.toLowerCase().includes(q)
         );
-
-        if (type === "start") {
-            setStartQuery(text);
-            setStartResults(filtered);
-        } else {
-            setEndQuery(text);
-            setEndResults(filtered);
-        }
     };
 
-    const handleSelect = (building: Building, type: "start" | "end") => {
-        if (type === "start") {
-            setStartQuery(building.buildingName);
-            setStartResults([]);
-        } else {
-            setEndQuery(building.buildingName);
-            setEndResults([]);
-        }
+    const results = useMemo(
+        () => ({
+            start: queries.start ? filterBuildings(queries.start) : [],
+            end: queries.end ? filterBuildings(queries.end) : []
+        }),
+        [queries]
+    );
+
+    const setQuery = (type: FieldType, value: string) => {
+        setQueries(q => ({ ...q, [type]: value }));
+    };
+
+    const handleChange = (text: string, type: FieldType) => {
+        setQuery(type, text);
+    };
+
+    const handleSelect = (building: Building, type: FieldType) => {
+        setQuery(type, building.buildingName);
         onSelect(building, type);
     };
 
+    const clearField = (type: FieldType) => {
+        setQuery(type, "");
+        onSelect(emptyBuilding, type);
+    };
+
     const swapFields = () => {
-        const tempQuery = startQuery;
-        const tempResults = startResults;
-        setStartQuery(endQuery);
-        setStartResults(endResults);
-        setEndQuery(tempQuery);
-        setEndResults(tempResults);
-        onSelect({ buildingCode: "", buildingName: endQuery, address: "", campus: "" }, "start");
-        onSelect({ buildingCode: "", buildingName: tempQuery, address: "", campus: "" }, "end");
+        setQueries(({ start, end }) => ({ start: end, end: start }));
+        onSelect({ ...emptyBuilding, buildingName: queries.end }, "start");
+        onSelect({ ...emptyBuilding, buildingName: queries.start }, "end");
     };
 
-    const clearField = (type: "start" | "end") => {
-        if (type === "start") {
-            setStartQuery("");
-            setStartResults([]);
-            onSelect({ buildingCode: "", buildingName: "", address: "", campus: "" }, "start");
-        } else {
-            setEndQuery("");
-            setEndResults([]);
-            onSelect({ buildingCode: "", buildingName: "", address: "", campus: "" }, "end");
-        }
+    const renderInput = (type: FieldType, placeholder: string) => {
+        const value = queries[type];
+
+        return (
+            <View style={styles.inputWrapper}>
+                <TextInput
+                    placeholder={placeholder}
+                    placeholderTextColor={theme.text}
+                    value={value}
+                    onChangeText={t => handleChange(t, type)}
+                    style={[
+                        styles.input,
+                        {
+                            backgroundColor: theme.buildingInfoPopup.background,
+                            borderColor: theme.buildingInfoPopup.divider,
+                            color: theme.text
+                        }
+                    ]}
+                />
+                {!!value && (
+                    <TouchableOpacity onPress={() => clearField(type)} style={styles.clearButton}>
+                        <Text style={{ color: theme.tint, fontSize: 18 }}>×</Text>
+                    </TouchableOpacity>
+                )}
+            </View>
+        );
     };
 
-    const renderResults = (results: Building[], type: "start" | "end") => (
-        <FlatList
-            data={results}
-            keyExtractor={(item) => item.buildingCode}
-            style={[styles.results, { backgroundColor: theme.background, borderColor: theme.buildingInfoPopup.divider }]}
-            renderItem={({ item }) => (
-                <TouchableOpacity style={styles.resultItem} onPress={() => handleSelect(item, type)}>
-                    <Text style={[styles.resultTitle, { color: theme.buildingInfoPopup.background }]}>{item.buildingCode} – {item.buildingName}</Text>
-                    <Text style={[styles.resultAddress, { color: theme.text }]}>{item.address}</Text>
-                </TouchableOpacity>
-            )}
-        />
-    );
+    const renderResults = (type: FieldType) => {
+        const data = results[type];
+        if (!data.length) return null;
 
-    const renderInput = (value: string, onChange: (text: string) => void, type: "start" | "end", placeholder: string) => (
-        <View style={styles.inputWrapper}>
-            <TextInput
-                placeholder={placeholder}
-                placeholderTextColor={theme.text}
-                value={value}
-                onChangeText={onChange}
-                style={[styles.input, { backgroundColor: theme.buildingInfoPopup.background, borderColor: theme.buildingInfoPopup.divider, color: theme.text }]}
+        return (
+            <FlatList
+                data={data}
+                keyExtractor={i => i.buildingCode}
+                style={[
+                    styles.results,
+                    { backgroundColor: theme.background, borderColor: theme.buildingInfoPopup.divider }
+                ]}
+                renderItem={({ item }) => (
+                    <TouchableOpacity style={styles.resultItem} onPress={() => handleSelect(item, type)}>
+                        <Text style={[styles.resultTitle, { color: theme.campusToggle.selectedColor }]}>
+                            {item.buildingCode} – {item.buildingName}
+                        </Text>
+                        <Text style={[styles.resultAddress, { color: theme.text }]}>{item.address}</Text>
+                    </TouchableOpacity>
+                )}
             />
-            {value.length > 0 && (
-                <TouchableOpacity onPress={() => clearField(type)} style={styles.clearButton}>
-                    <Text style={{ color: theme.tint, fontSize: 18 }}>×</Text>
-                </TouchableOpacity>
-            )}
-        </View>
-    );
+        );
+    };
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background, shadowColor: theme.text }]}>
             <View style={styles.inputRow}>
-                {renderInput(startQuery, text => handleChange(text, "start"), "start", "Start")}
+                {renderInput("start", "Start")}
                 <TouchableOpacity onPress={swapFields} style={styles.swapButton}>
                     <Ionicons name="swap-vertical" size={24} color={theme.tint} />
                 </TouchableOpacity>
-                {renderInput(endQuery, text => handleChange(text, "end"), "end", "Destination")}
+                {renderInput("end", "Destination")}
             </View>
-            {startResults.length > 0 && renderResults(startResults, "start")}
-            {endResults.length > 0 && renderResults(endResults, "end")}
+            {renderResults("start")}
+            {renderResults("end")}
         </View>
     );
 }

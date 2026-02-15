@@ -33,7 +33,6 @@ const DEFAULT_ZOOM: CoordinateDelta = {
 }
 
 export default function CampusToggle({ mapRef, viewRegion }: Props) {
-
   const colorScheme = useColorScheme() ?? "light";
   const [switchValue, setSwitchValue] = React.useState<number>(() => {
     let sgwDistance = Math.hypot(viewRegion.latitude - SGW_CENTER.latitude, viewRegion.longitude - SGW_CENTER.longitude);
@@ -94,7 +93,7 @@ const styles = StyleSheet.create({
     width: "80%",
     maxWidth: 300,
     borderRadius: 30,
-    top: "2%",
+    top: "1%",
     left: "50%",
     transform: [{ translateX: "-50%" }],
     backgroundColor: "transparent",
