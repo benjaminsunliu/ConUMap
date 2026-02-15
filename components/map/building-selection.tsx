@@ -36,10 +36,15 @@ export default function BuildingSelection({ onSelect }: Props) {
         end: ""
     });
 
+    const [focusedField, setFocusedField] = useState<FieldType | null>(null);
+
     const filterBuildings = useCallback((text: string) => {
         const q = text.toLowerCase();
         return buildingAddresses.filter(
-            b => b.buildingName.toLowerCase().includes(q) || b.buildingCode.toLowerCase().includes(q) || b.address.toLowerCase().includes(q)
+            b =>
+                b.buildingName.toLowerCase().includes(q) ||
+                b.buildingCode.toLowerCase().includes(q) ||
+                b.address.toLowerCase().includes(q)
         );
     }, []);
 
@@ -48,84 +53,105 @@ export default function BuildingSelection({ onSelect }: Props) {
             start: queries.start ? filterBuildings(queries.start) : [],
             end: queries.end ? filterBuildings(queries.end) : []
         }),
-        [queries]
+        [queries, filterBuildings]
     );
 
     const setQuery = useCallback((type: FieldType, value: string) => {
         setQueries(q => ({ ...q, [type]: value }));
     }, []);
 
-    const handleChange = useCallback((text: string, type: FieldType) => {
-        setQuery(type, text);
-    }, [setQuery]);
+    const handleChange = useCallback(
+        (text: string, type: FieldType) => {
+            setQuery(type, text);
+        },
+        [setQuery]
+    );
 
-    const handleSelect = useCallback((building: Building, type: FieldType) => {
-        setQuery(type, building.buildingName);
-        onSelect(building, type);
-    }, [setQuery, onSelect]);
+    const handleSelect = useCallback(
+        (building: Building, type: FieldType) => {
+            setQuery(type, building.buildingName);
+            setFocusedField(null);
+            onSelect(building, type);
+        },
+        [setQuery, onSelect]
+    );
 
-    const clearField = useCallback((type: FieldType) => {
-        setQuery(type, "");
-        onSelect(emptyBuilding, type);
-    }, [setQuery, onSelect]);
+    const clearField = useCallback(
+        (type: FieldType) => {
+            setQuery(type, "");
+            setFocusedField(null);
+            onSelect(emptyBuilding, type);
+        },
+        [setQuery, onSelect]
+    );
 
     const swapFields = useCallback(() => {
         setQueries(({ start, end }) => ({ start: end, end: start }));
+        setFocusedField(null);
         onSelect({ ...emptyBuilding, buildingName: queries.end }, "start");
         onSelect({ ...emptyBuilding, buildingName: queries.start }, "end");
     }, [queries, onSelect]);
 
-    const renderInput = useCallback((type: FieldType, placeholder: string) => {
-        const value = queries[type];
+    const renderInput = useCallback(
+        (type: FieldType, placeholder: string) => {
+            const value = queries[type];
 
-        return (
-            <View style={styles.inputWrapper}>
-                <TextInput
-                    placeholder={placeholder}
-                    placeholderTextColor={theme.text}
-                    value={value}
-                    onChangeText={t => handleChange(t, type)}
+            return (
+                <View style={styles.inputWrapper}>
+                    <TextInput
+                        placeholder={placeholder}
+                        placeholderTextColor={theme.text}
+                        value={value}
+                        onFocus={() => setFocusedField(type)}
+
+                        onChangeText={t => handleChange(t, type)}
+                        style={[
+                            styles.input,
+                            {
+                                backgroundColor: theme.buildingInfoPopup.background,
+                                borderColor: theme.buildingInfoPopup.divider,
+                                color: theme.text
+                            }
+                        ]}
+                    />
+                    {!!value && (
+                        <TouchableOpacity onPress={() => clearField(type)} style={styles.clearButton}>
+                            <Text style={{ color: theme.tint, fontSize: 18 }}>×</Text>
+                        </TouchableOpacity>
+                    )}
+                </View>
+            );
+        },
+        [queries, theme.text, theme.buildingInfoPopup.background, theme.buildingInfoPopup.divider, theme.tint, handleChange, clearField]
+    );
+
+    const renderResults = useCallback(
+        (type: FieldType) => {
+            const data = results[type];
+            if (!data.length || focusedField !== type) return null;
+
+            return (
+                <FlatList
+                    data={data}
+                    keyExtractor={i => i.buildingCode}
                     style={[
-                        styles.input,
-                        {
-                            backgroundColor: theme.buildingInfoPopup.background,
-                            borderColor: theme.buildingInfoPopup.divider,
-                            color: theme.text
-                        }
+                        styles.results,
+                        { backgroundColor: theme.background, borderColor: theme.buildingInfoPopup.divider }
                     ]}
+                    keyboardShouldPersistTaps="handled"
+                    renderItem={({ item }) => (
+                        <TouchableOpacity style={styles.resultItem} onPress={() => handleSelect(item, type)}>
+                            <Text style={[styles.resultTitle, { color: theme.campusToggle.selectedColor }]}>
+                                {item.buildingCode} – {item.buildingName}
+                            </Text>
+                            <Text style={[styles.resultAddress, { color: theme.text }]}>{item.address}</Text>
+                        </TouchableOpacity>
+                    )}
                 />
-                {!!value && (
-                    <TouchableOpacity onPress={() => clearField(type)} style={styles.clearButton}>
-                        <Text style={{ color: theme.tint, fontSize: 18 }}>×</Text>
-                    </TouchableOpacity>
-                )}
-            </View>
-        );
-    }, [queries, theme.text, theme.buildingInfoPopup.background, theme.buildingInfoPopup.divider, theme.tint, handleChange, clearField]);
-
-    const renderResults = useCallback((type: FieldType) => {
-        const data = results[type];
-        if (!data.length) return null;
-
-        return (
-            <FlatList
-                data={data}
-                keyExtractor={i => i.buildingCode}
-                style={[
-                    styles.results,
-                    { backgroundColor: theme.background, borderColor: theme.buildingInfoPopup.divider }
-                ]}
-                renderItem={({ item }) => (
-                    <TouchableOpacity style={[styles.resultItem, { borderBottomColor: theme.buildingInfoPopup.divider }]} onPress={() => handleSelect(item, type)}>
-                        <Text style={[styles.resultTitle, { color: theme.campusToggle.selectedColor }]}>
-                            {item.buildingCode} – {item.buildingName}
-                        </Text>
-                        <Text style={[styles.resultAddress, { color: theme.text }]}>{item.address}</Text>
-                    </TouchableOpacity>
-                )}
-            />
-        );
-    }, [results, theme.background, theme.buildingInfoPopup.divider, theme.campusToggle.selectedColor, theme.text, handleSelect]);
+            );
+        },
+        [results, focusedField, theme.background, theme.buildingInfoPopup.divider, theme.campusToggle.selectedColor, theme.text, handleSelect]
+    );
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background, shadowColor: theme.text }]}>
@@ -150,7 +176,7 @@ const styles = StyleSheet.create({
     inputRow: {
         flexDirection: "row",
         alignItems: "center",
-        marginBottom: 6,
+        marginBottom: 6
     },
     inputWrapper: {
         flex: 1,
@@ -158,18 +184,21 @@ const styles = StyleSheet.create({
         marginHorizontal: 4
     },
     input: {
-        padding: 10,
+        paddingVertical: 10,
+        paddingLeft: 10,
+        paddingRight: 36,
         borderRadius: 8,
         borderWidth: 1
     },
     clearButton: {
         position: "absolute",
         right: 10,
-        top: "50%",
-        transform: [{ translateY: -10 }],
+        top: 0,
+        bottom: 0,
+        justifyContent: "center"
     },
     swapButton: {
-        padding: 4,
+        padding: 4
     },
     results: {
         maxHeight: 180,
@@ -179,7 +208,8 @@ const styles = StyleSheet.create({
     },
     resultItem: {
         padding: 8,
-        borderBottomWidth: 1
+        borderBottomWidth: 1,
+        borderBottomColor: "#eee"
     },
     resultTitle: {
         fontWeight: "600"
