@@ -13,6 +13,7 @@ import LocationModal from "./location-modal";
 import BuildingInfoPopup from "./building-info-popup";
 import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
 import CampusToggle from "./campus-toggle";
+import BuildingSelection from "./building-selection";
 
 interface Props {
   readonly userLocationDelta?: CoordinateDelta;
@@ -244,6 +245,13 @@ export default function MapViewer({
 
   return (
     <View style={styles.container}>
+      <BuildingSelection
+        onSelect={(building) => {
+          setSelectedBuilding(concordiaBuildings.find((b) => b.buildingCode === building.buildingCode) ?? null);
+          const mapBuilding = CAMPUS_LOCATIONS.find((b) => b.code === building.buildingCode);
+          if (mapBuilding) focusBuilding(mapBuilding);
+        }}
+      />
       <CampusToggle mapRef={mapViewRef} viewRegion={currentRegion} />
       <MapViewCluster
         ref={mapViewRef}
