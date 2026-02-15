@@ -12,6 +12,7 @@ import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
 import BuildingInfoPopup from "./building-info-popup";
 import CampusToggle from "./campus-toggle";
+import BuildingSelection from "./building-selection";
 
 interface Props {
   readonly userLocationDelta?: CoordinateDelta;
@@ -98,7 +99,7 @@ export default function MapViewer({
 
         return (
           <Polygon
-          testID="polygon"
+            testID="polygon"
             key={`${building.code}-${index}`}
             coordinates={polygon}
             tappable
@@ -135,7 +136,7 @@ export default function MapViewer({
 
       return (
         <Marker
-        testID={`marker-${building.code}`}
+          testID={`marker-${building.code}`}
           key={building.code}
           coordinate={coordinate}
           onPress={() => {
@@ -191,6 +192,13 @@ export default function MapViewer({
 
   return (
     <View style={styles.container}>
+      <BuildingSelection
+        onSelect={(building) => {
+          setSelectedBuilding(concordiaBuildings.find((b) => b.buildingCode === building.buildingCode) ?? null);
+          const mapBuilding = CAMPUS_LOCATIONS.find((b) => b.code === building.buildingCode);
+          if (mapBuilding) focusBuilding(mapBuilding);
+        }}
+      />
       <CampusToggle mapRef={mapViewRef} viewRegion={currentRegion} />
       <MapViewCluster
         ref={mapViewRef}

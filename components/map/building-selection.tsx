@@ -4,7 +4,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 import buildingAddressesRaw from "@/data/building-addresses.json";
-import CampusToggle from "./campus-toggle";
 
 interface Building {
     buildingCode: string;
@@ -17,11 +16,9 @@ const buildingAddresses: Building[] = buildingAddressesRaw as Building[];
 
 interface Props {
     onSelect: (building: Building, type: "start" | "end") => void;
-    mapRef: any;
-    viewRegion: any;
 }
 
-export default function BuildingSelection({ onSelect, mapRef, viewRegion }: Props) {
+export default function BuildingSelection({ onSelect }: Props) {
     const colorScheme = useColorScheme() ?? "light";
     const theme = Colors[colorScheme];
 
@@ -114,8 +111,6 @@ export default function BuildingSelection({ onSelect, mapRef, viewRegion }: Prop
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background, shadowColor: theme.text }]}>
-            <CampusToggle mapRef={mapRef} viewRegion={viewRegion} />
-
             <View style={styles.inputRow}>
                 {renderInput(startQuery, text => handleChange(text, "start"), "start", "Start")}
                 <TouchableOpacity onPress={swapFields} style={styles.swapButton}>
