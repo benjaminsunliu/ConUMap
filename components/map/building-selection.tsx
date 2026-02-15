@@ -16,7 +16,7 @@ const emptyBuilding: SearchBuilding = {
 };
 
 interface Props {
-    onSelect: (building: SearchBuilding, type: FieldType) => void;
+    readonly onSelect: (building: SearchBuilding, type: FieldType) => void;
 }
 
 export default function BuildingSelection({ onSelect }: Props) {
