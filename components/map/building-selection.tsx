@@ -79,7 +79,7 @@ export default function BuildingSelection({ onSelect }: Props) {
         (type: FieldType) => {
             setQuery(type, "");
             setSelectedBuildings(prev => ({ ...prev, [type]: emptyBuilding }));
-            setFocusedField(null);
+            setFocusedField(type);
             onSelect(emptyBuilding, type);
         },
         [setQuery, onSelect]
