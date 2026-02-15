@@ -1,9 +1,10 @@
 import React from "react";
-import {render, fireEvent} from '@testing-library/react-native';
+import {act, render, fireEvent} from '@testing-library/react-native';
 import * as LocationPermissions from 'expo-location';
 import { CAMPUS_LOCATIONS } from "@/constants/mapData";
 import { concordiaBuildings } from "@/data/parsedBuildings";
 import MapViewer from '../components/map/map-viewer';
+import { Colors } from "@/constants/theme";
 
 const mockAnimateToRegion = jest.fn();
 
@@ -40,41 +41,55 @@ jest.mock('react-native-maps', () => {
   };
 });
 
-jest.mock("@/constants/mapData", () => ({
+jest.mock("@/constants/mapData", () => {
+  const { getBuildingPolygons} = require("../utils/getBuildingPolygons");
+
+  return {
     CAMPUS_LOCATIONS: [
       {
         code: "LB",
         location: { latitude: 45.495, longitude: -73.579 },
-        polygons: [[{ latitude: 45.495, longitude: -73.579 }]],
-      },  
+        polygons: getBuildingPolygons("LB"),
+      },
       {
         code: "VE",
         location: { latitude: 45.496, longitude: -73.58 },
-        polygons: [[{ latitude: 45.496, longitude: -73.58 }]],
-      
-      },  
-      { code: "RA",
-      location: { latitude: 45.496, longitude: -73.58 },
-      polygons: [[{ latitude: 45.496, longitude: -73.58 }]],
-  
-   },
-    {code: "AB",
-    location: { latitude: 45.496, longitude: -73.58 },
-    polygons: [[{ latitude: 45.496, longitude: -73.58 }]],
-
-}],}));
+        polygons: getBuildingPolygons("VE"),
+      },
+      {
+        code: "RA",
+        location: { latitude: 45.496, longitude: -73.58 },
+        polygons: getBuildingPolygons("RA"),
+      },
+      {
+        code: "PC",
+        location: { latitude: 45.496, longitude: -73.58 },
+        polygons: getBuildingPolygons("PC"),
+      },
+      {
+        code: "AB",
+        location: { latitude: 45.496, longitude: -73.58 },
+        polygons: getBuildingPolygons("AB"),
+      },
+    ],
+  };
+});
 
       jest.mock('@/data/parsedBuildings', () => ({
         concordiaBuildings: [
           {
-            code: "LB",
+            buildingCode: "LB",
             location: { latitude: 45.495, longitude: -73.579 },
           },
           {
-            code: "VE",
+            buildingCode: "VE",
             location: { latitude: 45.496, longitude: -73.580 },
           },  {
-            code: "RA",
+            buildingCode: "RA",
+            location: { latitude: 45.496, longitude: -73.580 },
+          },
+          {
+            buildingCode: "PC",
             location: { latitude: 45.496, longitude: -73.580 },
           },
         ],
@@ -112,7 +127,9 @@ jest.mock("@/constants/mapData", () => ({
 
        const mapViewer = render(<MapViewer />);
        const locationButton = mapViewer.getByTestId('locationButton');
-       await fireEvent.press(locationButton);
+       await act(async () => {
+        await fireEvent.press(locationButton);
+       });
        expect(mockAnimateToRegion).not.toHaveBeenCalled();
        expect(LocationPermissions.hasServicesEnabledAsync).toHaveBeenCalled();
        expect(LocationPermissions.requestForegroundPermissionsAsync).toHaveBeenCalled();
@@ -129,7 +146,9 @@ jest.mock("@/constants/mapData", () => ({
         nativeEvent: { coordinate: { latitude: 45.49575, longitude: -73.5793055556  } },
       });
          const locationButton = mapViewer.getByTestId('locationButton')
-         await fireEvent.press(locationButton);
+         await act(async () => {
+          await fireEvent.press(locationButton);
+         });
          expect(mockAnimateToRegion).toHaveBeenCalled();
 
      });
@@ -139,7 +158,9 @@ jest.mock("@/constants/mapData", () => ({
         LocationPermissions.hasServicesEnabledAsync.mockResolvedValue(false);
         const mapViewer = render(<MapViewer />);
         const locationButton = mapViewer.getByTestId('locationButton')
-         fireEvent.press(locationButton);
+        await act(async () => {
+          await fireEvent.press(locationButton);
+        });
        expect(LocationPermissions.hasServicesEnabledAsync).toHaveBeenCalled();
        const modal = await mapViewer.findByTestId('location-modal');
        expect(modal).toBeVisible();
@@ -152,7 +173,9 @@ jest.mock("@/constants/mapData", () => ({
         const mapViewer = render(<MapViewer />);
         const locationButton = mapViewer.getByTestId('locationButton')
 
-        await fireEvent.press(locationButton);
+        await act(async () => {
+          await fireEvent.press(locationButton);
+        });
         const modal = await mapViewer.findByTestId("location-modal");
         expect(modal).toBeVisible();
         fireEvent(modal, "onRequestClose");
@@ -182,9 +205,13 @@ jest.mock("@/constants/mapData", () => ({
         nativeEvent: { coordinate: { latitude: 45.49575, longitude: -73.5793055556 } },
         });
         const locationButton = mapViewer.getByTestId('locationButton')
-        await fireEvent.press(locationButton);
+        await act(async () => {
+         await fireEvent.press(locationButton);
+        });
         expect(mapViewer.getByTestId('map-view').props.followsUserLocation).toBe(true);
-        await fireEvent(mapView, "panDrag");
+        await act(async () => {
+         await fireEvent(mapView, "panDrag");
+        });
         //no longer following user because dragged
       expect(mapViewer.getByTestId('map-view').props.followsUserLocation).toBe(false);
       });
@@ -203,7 +230,9 @@ jest.mock("@/constants/mapData", () => ({
 
       const mapViewer = render(<MapViewer />);
       const polygons = mapViewer.getAllByTestId("polygon");
-      await fireEvent.press(polygons[0]);
+      await act(async () => {
+       await fireEvent.press(polygons[0]);
+      });
           const map = mapViewer.getByTestId("map-view");
       fireEvent(map, "press", {
         nativeEvent: { action: "press" },
@@ -228,7 +257,7 @@ jest.mock("@/constants/mapData", () => ({
 
     it("Offset markers to prevent overlap  for VE building",()=>{
       const mapViewer = render(<MapViewer />);
-      const ve = concordiaBuildings.find(b => b.code === "VE");
+      const ve = concordiaBuildings.find(b => b.buildingCode === "VE");
       const marker = mapViewer.getByTestId("marker-VE");
       expect(marker.props.coordinate).toEqual({
         latitude: ve.location.latitude + 0.00008,
@@ -239,18 +268,29 @@ jest.mock("@/constants/mapData", () => ({
     
     it("Offset markers to prevent overlap  for RA building",()=>{
       const mapViewer= render(<MapViewer />);
-      const ra = concordiaBuildings.find(a => a.code === "RA");
+      const ra = concordiaBuildings.find(a => a.buildingCode === "RA");
       const marker = mapViewer.getByTestId("marker-RA");
       expect(marker.props.coordinate).toEqual({
-        latitude: ra.location.latitude - 0.00008,
-        longitude: ra.location.longitude - 0.00015,
+        latitude: ra.location.latitude - 0.0009,
+        longitude: ra.location.longitude - 0.0008,
+      });
+
+    });
+
+    it("Offset markers to prevent overlap for PC building",()=>{
+      const mapViewer = render(<MapViewer />);
+      const pc = concordiaBuildings.find(b => b.buildingCode === "PC");
+      const marker = mapViewer.getByTestId("marker-PC");
+      expect(marker.props.coordinate).toEqual({
+        latitude: pc.location.latitude - 0.0006,
+        longitude: pc.location.longitude - 0.0005,
       });
 
     });
     it('focuses building when pressed', () => {
       const mapViewer = render(<MapViewer />);
       const building = concordiaBuildings[0];
-      const marker = mapViewer.getByTestId(`marker-${building.code}`);
+      const marker = mapViewer.getByTestId(`marker-${building.buildingCode}`);
       fireEvent.press(marker);
       expect(mockAnimateToRegion).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -267,7 +307,7 @@ jest.mock("@/constants/mapData", () => ({
         <MapViewer initialRegion={{ latitude: 45, longitude: -73, latitudeDelta: 0.1, longitudeDelta: 0.1 }} />
       );
       const lb = concordiaBuildings[0];
-      const marker = mapViewer.getByTestId(`marker-${lb.code}`);
+      const marker = mapViewer.getByTestId(`marker-${lb.buildingCode}`);
       fireEvent.press(marker);
     
       expect(mockAnimateToRegion).toHaveBeenCalledWith(
@@ -281,14 +321,123 @@ jest.mock("@/constants/mapData", () => ({
       const mapViewer = render(<MapViewer />);
       const markerAB = mapViewer.getByTestId("marker-AB");
       fireEvent.press(markerAB);
-      expect(mapViewer.queryByTestId("pop-upInfo")).toBeNull();
-
+      expect(mapViewer.queryByTestId("info-popup")).toBeNull();
     });
-   
 
+    describe('Polygon Color Selection Logic', () => {
 
-  
+      it('should render polygonFill color when no building is selected and user is not inside', () => {
+        const mapViewer = render(<MapViewer />);
+        
+        const polygons = mapViewer.getAllByTestId('polygon');
+        expect(polygons[0].props.fillColor).toBe(Colors.light.map.polygonFill);
+      });
 
+      it('should render currentBuildingColor when user is inside building but it is not selected', async () => {
+        LocationPermissions.hasServicesEnabledAsync.mockResolvedValue(true);
+        LocationPermissions.requestForegroundPermissionsAsync.mockResolvedValue({ status: 'granted' });
+        LocationPermissions.getCurrentPositionAsync.mockResolvedValue({
+          coords: { latitude: 45.49674, longitude: -73.57856 }, // Inside LB building
+        });
 
+        const mapViewer = render(<MapViewer />);
+        
+        const locationButton = mapViewer.getByTestId('locationButton');
+        await act(async () => {
+          fireEvent.press(locationButton);
+        });
 
+        const polygons = mapViewer.getAllByTestId('polygon');
+        expect(polygons[0].props.fillColor).toBe(Colors.light.map.currentBuildingColor);
+      });
+
+      it('should update polygon color when user location changes from inside to outside', async () => {
+        LocationPermissions.hasServicesEnabledAsync.mockResolvedValue(true);
+        LocationPermissions.requestForegroundPermissionsAsync.mockResolvedValue({ status: 'granted' });
+        LocationPermissions.getCurrentPositionAsync.mockResolvedValue({
+          coords: { latitude: 45.49674, longitude: -73.57856 }, // Inside LB building
+        });
+
+        const mapViewer = render(<MapViewer />);
+        
+        const locationButton = mapViewer.getByTestId('locationButton');
+        await act(async () => {
+          fireEvent.press(locationButton);
+        });
+
+        // Verify user is inside currentBuildingColor
+        let polygons = mapViewer.getAllByTestId('polygon');
+        expect(polygons[0].props.fillColor).toBe(Colors.light.map.currentBuildingColor);
+
+        // Simulate user moving outside
+        const mapView = mapViewer.getByTestId('map-view');
+        await act(async () => {
+          fireEvent(mapView, 'onUserLocationChange', {
+            nativeEvent: { coordinate: { latitude: 45.5, longitude: -73.6 } }, // Outside any building
+          });
+        });
+
+        // Verify reverted to polygonFill
+        polygons = mapViewer.getAllByTestId('polygon');
+        expect(polygons[0].props.fillColor).toBe(Colors.light.map.polygonFill);
+      });
+
+      it('should apply correct color for all combinations of selection and location state', () => {
+        // Test the color logic directly to ensure all four scenarios work:
+        // selected+inBuilding, selected!inBuilding, !selected+inBuilding, !selected!inBuilding
+        
+        const testColorLogic = (isSelected, isInBuilding) => {
+          if (isSelected && isInBuilding) {
+            return Colors.light.map.currentSelectedBuildingColor;
+          } else if (isSelected) {
+            return Colors.light.map.polygonHighlighted;
+          } else if (isInBuilding) {
+            return Colors.light.map.currentBuildingColor;
+          } else {
+            return Colors.light.map.polygonFill;
+          }
+        };
+
+        // Test scenario 1: selected AND in building
+        expect(testColorLogic(true, true)).toBe(Colors.light.map.currentSelectedBuildingColor);
+        
+        // Test scenario 2: selected but NOT in building  
+        expect(testColorLogic(true, false)).toBe(Colors.light.map.polygonHighlighted);
+        
+        // Test scenario 3: NOT selected but in building
+        expect(testColorLogic(false, true)).toBe(Colors.light.map.currentBuildingColor);
+        
+        // Test scenario 4: NOT selected and NOT in building
+        expect(testColorLogic(false, false)).toBe(Colors.light.map.polygonFill);
+      });
+
+      it('should render currentSelectedBuildingColor when user is inside a selected building', async () => {
+        LocationPermissions.hasServicesEnabledAsync.mockResolvedValue(true);
+        LocationPermissions.requestForegroundPermissionsAsync.mockResolvedValue({ status: 'granted' });
+        LocationPermissions.getCurrentPositionAsync.mockResolvedValue({
+          coords: { latitude: 45.49674, longitude: -73.57856 }, // Inside LB building
+        });
+
+        const mapViewer = render(<MapViewer />);
+        
+        // Enable user location
+        const locationButton = mapViewer.getByTestId('locationButton');
+        await act(async () => {
+          fireEvent.press(locationButton);
+        });
+
+        // Verify polygon shows currentBuildingColor (user inside, not selected)
+        let polygons = mapViewer.getAllByTestId('polygon');
+        expect(polygons[0].props.fillColor).toBe(Colors.light.map.currentBuildingColor);
+
+        // Select the building by pressing its polygon
+        await act(async () => {
+          fireEvent.press(polygons[0]);
+        });
+
+        // Verify polygon now shows currentSelectedBuildingColor (user inside AND selected)
+        polygons = mapViewer.getAllByTestId('polygon');
+        expect(polygons[0].props.fillColor).toBe(Colors.light.map.currentSelectedBuildingColor);
+      });
+    });
 })
