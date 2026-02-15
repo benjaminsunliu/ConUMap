@@ -51,7 +51,7 @@ export default function BuildingSelection({ onSelect }: Props) {
         [queries]
     );
 
-    const setQuery = useCallback( (type: FieldType, value: string) => {
+    const setQuery = useCallback((type: FieldType, value: string) => {
         setQueries(q => ({ ...q, [type]: value }));
     }, []);
 
@@ -101,7 +101,7 @@ export default function BuildingSelection({ onSelect }: Props) {
                 )}
             </View>
         );
-    }, [queries, theme.text, theme.buildingInfoPopup.background, theme.buildingInfoPopup.divider, theme.tint, handleChange, clearField]) ;
+    }, [queries, theme.text, theme.buildingInfoPopup.background, theme.buildingInfoPopup.divider, theme.tint, handleChange, clearField]);
 
     const renderResults = useCallback((type: FieldType) => {
         const data = results[type];
@@ -116,7 +116,7 @@ export default function BuildingSelection({ onSelect }: Props) {
                     { backgroundColor: theme.background, borderColor: theme.buildingInfoPopup.divider }
                 ]}
                 renderItem={({ item }) => (
-                    <TouchableOpacity style={styles.resultItem} onPress={() => handleSelect(item, type)}>
+                    <TouchableOpacity style={[styles.resultItem, { borderBottomColor: theme.buildingInfoPopup.divider }]} onPress={() => handleSelect(item, type)}>
                         <Text style={[styles.resultTitle, { color: theme.campusToggle.selectedColor }]}>
                             {item.buildingCode} – {item.buildingName}
                         </Text>
@@ -179,8 +179,7 @@ const styles = StyleSheet.create({
     },
     resultItem: {
         padding: 8,
-        borderBottomWidth: 1,
-        borderBottomColor: "#eee"
+        borderBottomWidth: 1
     },
     resultTitle: {
         fontWeight: "600"
