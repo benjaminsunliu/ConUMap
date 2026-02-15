@@ -28,6 +28,11 @@ export default function BuildingSelection({ onSelect }: Props) {
         end: ""
     });
 
+    const [selectedBuildings, setSelectedBuildings] = useState<Record<FieldType, SearchBuilding>>({
+        start: emptyBuilding,
+        end: emptyBuilding
+    });
+
     const [focusedField, setFocusedField] = useState<FieldType | null>(null);
 
     const filterBuildings = useCallback((text: string) => {
@@ -55,6 +60,7 @@ export default function BuildingSelection({ onSelect }: Props) {
     const handleChange = useCallback(
         (text: string, type: FieldType) => {
             setQuery(type, text);
+            setSelectedBuildings(prev => ({ ...prev, [type]: emptyBuilding }));
         },
         [setQuery]
     );
@@ -62,6 +68,7 @@ export default function BuildingSelection({ onSelect }: Props) {
     const handleSelect = useCallback(
         (building: SearchBuilding, type: FieldType) => {
             setQuery(type, building.buildingName);
+            setSelectedBuildings(prev => ({ ...prev, [type]: building }));
             setFocusedField(null);
             onSelect(building, type);
         },
@@ -71,6 +78,7 @@ export default function BuildingSelection({ onSelect }: Props) {
     const clearField = useCallback(
         (type: FieldType) => {
             setQuery(type, "");
+            setSelectedBuildings(prev => ({ ...prev, [type]: emptyBuilding }));
             setFocusedField(null);
             onSelect(emptyBuilding, type);
         },
@@ -78,11 +86,26 @@ export default function BuildingSelection({ onSelect }: Props) {
     );
 
     const swapFields = useCallback(() => {
-        setQueries(({ start, end }) => ({ start: end, end: start }));
+        setQueries(prevQueries => {
+            setSelectedBuildings(prevBuildings => {
+                const swappedBuildings = {
+                    start: prevBuildings.end,
+                    end: prevBuildings.start
+                };
+
+                onSelect(swappedBuildings.start, "start");
+                onSelect(swappedBuildings.end, "end");
+                return swappedBuildings;
+            });
+
+            return {
+                start: prevQueries.end,
+                end: prevQueries.start
+            };
+        });
+
         setFocusedField(null);
-        onSelect({ ...emptyBuilding, buildingName: queries.end }, "start");
-        onSelect({ ...emptyBuilding, buildingName: queries.start }, "end");
-    }, [queries, onSelect]);
+    }, [onSelect]);
 
     const renderInput = useCallback(
         (type: FieldType, placeholder: string) => {
@@ -113,8 +136,7 @@ export default function BuildingSelection({ onSelect }: Props) {
                     )}
                 </View>
             );
-        },
-        [queries, theme.text, theme.buildingInfoPopup.background, theme.buildingInfoPopup.divider, theme.campusToggle.borderColor, handleChange, clearField]
+        }, [queries, theme.text, theme.buildingInfoPopup.background, theme.buildingInfoPopup.divider, theme.campusToggle.borderColor, handleChange, clearField]
     );
 
     const renderResults = useCallback(
@@ -126,17 +148,18 @@ export default function BuildingSelection({ onSelect }: Props) {
                 <FlatList
                     data={data}
                     keyExtractor={i => i.buildingCode}
-                    style={[
-                        styles.results,
-                        { backgroundColor: theme.background, borderColor: theme.buildingInfoPopup.divider }
-                    ]}
+                    style={[styles.results, { backgroundColor: theme.background, borderColor: theme.buildingInfoPopup.divider }]}
                     keyboardShouldPersistTaps="handled"
                     renderItem={({ item }) => (
-                        <TouchableOpacity style={[styles.resultItem, { borderBottomColor: theme.buildingInfoPopup.divider }]} onPress={() => handleSelect(item, type)}>
+                        <TouchableOpacity
+                            style={[styles.resultItem, { borderBottomColor: theme.buildingInfoPopup.divider }]}
+                            onPress={() => handleSelect(item, type)} >
                             <Text style={[styles.resultTitle, { color: theme.campusToggle.selectedColor }]}>
                                 {item.buildingCode} – {item.buildingName}
                             </Text>
-                            <Text style={[styles.resultAddress, { color: theme.text }]}>{item.address}</Text>
+                            <Text style={[styles.resultAddress, { color: theme.text }]}>
+                                {item.address}
+                            </Text>
                         </TouchableOpacity>
                     )}
                 />
