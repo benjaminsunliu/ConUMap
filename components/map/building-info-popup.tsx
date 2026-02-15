@@ -1,7 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import {
-    Animated,
-    PanResponder,
     StyleSheet,
     Text,
     View,
@@ -13,15 +11,11 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { BuildingInfo } from "@/data/parsedBuildings";
 import { Colors } from "@/constants/theme";
+import InfoPopup from "../ui/popup";
 
 interface Props {
     readonly building: BuildingInfo | null;
 }
-
-const CLOSE_HEIGHT = 520;
-const COLLAPSED_HEIGHT = 175;
-const OPEN_TRANSLATE_Y = 0;
-const COLLAPSED_TRANSLATE_Y = CLOSE_HEIGHT - COLLAPSED_HEIGHT;
 
 const WEEKDAYS = [
     "Monday",
@@ -48,81 +42,18 @@ export default function BuildingInfoPopup({ building }: Props) {
     const theme = Colors[colorScheme];
     const styles = makeStyles(theme);
 
-    const translateY = useRef(new Animated.Value(COLLAPSED_TRANSLATE_Y)).current;
-    const currentTranslateY = useRef(COLLAPSED_TRANSLATE_Y);
-    const [expanded, setExpanded] = useState(false);
-
-    useEffect(() => {
-        if (building) {
-            Animated.spring(translateY, {
-                toValue: COLLAPSED_TRANSLATE_Y,
-                useNativeDriver: true,
-            }).start(() => {
-                currentTranslateY.current = COLLAPSED_TRANSLATE_Y;
-            });
-            setExpanded(false);
-        } else {
-            Animated.spring(translateY, {
-                toValue: CLOSE_HEIGHT,
-                useNativeDriver: true,
-            }).start();
-        }
-    }, [building, translateY]);
-
-    const panResponder = useRef(
-        PanResponder.create({
-            onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dy) > 5,
-            onPanResponderGrant: () =>
-                translateY.stopAnimation((y) => {
-                    currentTranslateY.current = y;
-                }),
-            onPanResponderMove: (_, g) => {
-                const next = Math.max(
-                    OPEN_TRANSLATE_Y,
-                    Math.min(
-                        COLLAPSED_TRANSLATE_Y,
-                        currentTranslateY.current + g.dy
-                    )
-                );
-                translateY.setValue(next);
-            },
-            onPanResponderRelease: (_, g) => {
-                const midpoint =
-                    (OPEN_TRANSLATE_Y + COLLAPSED_TRANSLATE_Y) / 2;
-                const expand =
-                    currentTranslateY.current + g.dy < midpoint || g.vy < -0.5;
-                const snapPoint = expand
-                    ? OPEN_TRANSLATE_Y
-                    : COLLAPSED_TRANSLATE_Y;
-
-                Animated.spring(translateY, {
-                    toValue: snapPoint,
-                    velocity: g.vy,
-                    tension: 80,
-                    friction: 14,
-                    useNativeDriver: true,
-                }).start(() => {
-                    currentTranslateY.current = snapPoint;
-                });
-                setExpanded(expand);
-            },
-        })
-    ).current;
-
-    if (!building) return null;
-
     const todayIdx =
         new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
 
-    const ACTIONS = [
+    const ACTIONS = useMemo(() => [
         { label: "Directions", icon: "navigate-outline", type: "directions" as const },
         { label: "Website", icon: "globe-outline", type: "website" as const },
-    ];
+    ],[]);
 
-    const handleAction = async (type: "directions" | "website") => {
+    const handleAction = useCallback(async (type: "directions" | "website") => {
         const urls: Record<typeof type, string> = {
-            directions: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(building.address)}`,
-            website: building.link || "",
+            directions: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(!!(building?.address))}`,
+            website: building?.link || "",
         };
 
         const url = urls[type];
@@ -141,58 +72,56 @@ export default function BuildingInfoPopup({ building }: Props) {
         } catch (error) {
             console.error(`Failed to open URL (${type}):`, error);
         }
-    };
+    }, [building?.address, building?.link]);
 
-    const formatCamelCase = (text: string) =>
+    const formatCamelCase = useCallback((text: string) =>
         text
             .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
             .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
             .replace(/\s+/g, " ")
             .trim()
-            .replace(/^./, (c) => c.toUpperCase());
+            .replace(/^./, (c) => c.toUpperCase()), []);
+
+    const header = useMemo(() => {
+        return (
+            <>
+                <View style={styles.handle} />
+
+                <Text style={styles.title} numberOfLines={1}>
+                    {building?.buildingCode} – {building?.buildingName}
+                </Text>
+
+                <Text style={styles.line}>
+                    {building?.campus} Campus | {building?.address}
+                </Text>
+
+                <Text style={styles.openStatus}>
+                    Today: {DEFAULT_OPENING_HOURS[todayIdx]}
+                </Text>
+
+                <View style={styles.actionsRow}>
+                    {ACTIONS.map((a) => (
+                        <ActionButton
+                            key={a.type}
+                            {...a}
+                            onPress={() => handleAction(a.type)}
+                            theme={theme}
+                        />
+                    ))}
+                </View>
+            </>
+        );
+    },[ACTIONS, building?.address, building?.buildingCode, building?.buildingName, building?.campus, handleAction, styles.actionsRow, styles.handle, styles.line, styles.openStatus, styles.title, theme, todayIdx]);
 
     return (
-        <Animated.View
-        testID="info-popup"
-            {...panResponder.panHandlers}
-            style={[
-                styles.card,
-                { transform: [{ translateY }], height: CLOSE_HEIGHT },
-            ]}
-        >
-            <View style={styles.handle} />
-
-            <Text style={styles.title} numberOfLines={1}>
-                {building.buildingCode} – {building.buildingName}
-            </Text>
-
-            <Text style={styles.line}>
-                {building.campus} Campus | {building.address}
-            </Text>
-
-            <Text style={styles.openStatus}>
-                Today: {DEFAULT_OPENING_HOURS[todayIdx]}
-            </Text>
-
-            <View style={styles.actionsRow}>
-                {ACTIONS.map((a) => (
-                    <ActionButton
-                        key={a.type}
-                        {...a}
-                        onPress={() => handleAction(a.type)}
-                        theme={theme}
-                    />
-                ))}
-            </View>
-
-            {expanded && (
-                <ScrollView style={{ marginTop: 10 }}>
+        <InfoPopup shouldDisplay={!!building} header={header}>
+            <ScrollView style={{ marginTop: 10 }}>
                     <View style={styles.rule} />
 
-                    {building.accessibility.length > 0 && (
+                    {(building?.accessibility?.length ? building?.accessibility?.length : 0) > 0 && (
                         <>
                             <Text style={styles.sectionTitle}>Accessibility</Text>
-                            {building.accessibility.map((item) => (
+                            {building?.accessibility.map((item) => (
                                 <ListItem
                                     key={item}
                                     text={formatCamelCase(item)}
@@ -216,8 +145,7 @@ export default function BuildingInfoPopup({ building }: Props) {
                         </Text>
                     ))}
                 </ScrollView>
-            )}
-        </Animated.View>
+        </InfoPopup>
     );
 }
 
