@@ -85,8 +85,8 @@ export default function BuildingSelection({ onSelect }: Props) {
             style={[styles.results, { backgroundColor: theme.background, borderColor: theme.buildingInfoPopup.divider }]}
             renderItem={({ item }) => (
                 <TouchableOpacity style={styles.resultItem} onPress={() => handleSelect(item, type)}>
-                    <Text style={[styles.resultTitle, { color: theme.text }]}>{item.buildingCode} – {item.buildingName}</Text>
-                    <Text style={[styles.resultAddress, { color: theme.buildingInfoPopup.text }]}>{item.address}</Text>
+                    <Text style={[styles.resultTitle, { color: theme.buildingInfoPopup.background }]}>{item.buildingCode} – {item.buildingName}</Text>
+                    <Text style={[styles.resultAddress, { color: theme.text }]}>{item.address}</Text>
                 </TouchableOpacity>
             )}
         />
