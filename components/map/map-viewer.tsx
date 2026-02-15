@@ -247,7 +247,7 @@ export default function MapViewer({
     <View style={styles.container}>
       <BuildingSelection
         onSelect={(building) => {
-          setSelectedBuilding(concordiaBuildings.find((b) => b.buildingCode === building.buildingCode) ?? null);
+          selectBuildingByCode(building.buildingCode);
           const mapBuilding = CAMPUS_LOCATIONS.find((b) => b.code === building.buildingCode);
           if (mapBuilding) focusBuilding(mapBuilding);
         }}
