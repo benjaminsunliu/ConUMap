@@ -88,7 +88,6 @@ export default function CampusToggle({ mapRef, viewRegion }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     alignItems: "center",
     width: "80%",
     maxWidth: 300,
@@ -98,6 +97,7 @@ const styles = StyleSheet.create({
     transform: [{ translateX: "-50%" }],
     backgroundColor: "transparent",
     position: "relative",
+    height: 0,
     zIndex: 10,
   },
 });

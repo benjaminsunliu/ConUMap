@@ -312,7 +312,7 @@ export default function MapViewer({
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  map: { width: "100%", height: "100%" },
+  map: { width: "100%", flex: 1 },
   marker: {
     paddingHorizontal: 5,
     paddingVertical: 4,
