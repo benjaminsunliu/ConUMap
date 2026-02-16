@@ -65,8 +65,8 @@ export default function MapViewer({
     mapViewRef.current?.animateToRegion({
       latitude: building.location.latitude,
       longitude: building.location.longitude,
-      latitudeDelta: currentRegion.latitudeDelta < 0.0025 ? currentRegion.latitudeDelta : 0.0025,
-      longitudeDelta: currentRegion.longitudeDelta < 0.0025 ? currentRegion.longitudeDelta : 0.0025,
+      latitudeDelta: Math.min(currentRegion.latitudeDelta, 0.0025),
+      longitudeDelta: Math.min(currentRegion.longitudeDelta, 0.0025),
     });
   }, [currentRegion.latitudeDelta, currentRegion.longitudeDelta]);
 
