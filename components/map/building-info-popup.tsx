@@ -145,9 +145,9 @@ export default function BuildingInfoPopup({ building }: Props) {
 
     const formatCamelCase = (text: string) =>
         text
-            .replaceAll(/([a-z0-9])([A-Z])/, "$1 $2")
-            .replaceAll(/([A-Z]+)([A-Z][a-z])/, "$1 $2")
-            .replaceAll(/\s+/, " ")
+            .replaceAll(/([a-z0-9])([A-Z])/g, "$1 $2")
+            .replaceAll(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+            .replaceAll(/\s+/g, " ")
             .trim()
             .replace(/^./, (c) => c.toUpperCase());
 
