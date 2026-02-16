@@ -63,7 +63,7 @@ export default function CampusToggle({ mapRef, viewRegion }: Readonly<Props>) {
   return (
     <View style={styles.container}>
       <SwitchSelector
-        initial={switchValue === LOY ? 0 : 1}
+        initial={switchValue === LOY ? LOY : SGW}
         value={switchValue}
         textColor={Colors[colorScheme].campusToggle.textColor}
         selectedColor={Colors[colorScheme].campusToggle.selectedColor}

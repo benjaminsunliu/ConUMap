@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback, useMemo } from "react";
-import { StyleSheet, View, Text, Platform } from "react-native";
+import { StyleSheet, View, Text, Platform, ColorSchemeName } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
 import MapView, { Marker, Polygon, Region } from "react-native-maps";
 import * as LocationPermissions from "expo-location";
@@ -44,7 +44,6 @@ export default function MapViewer({
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
-  const [polygonRenderVersion, setPolygonRenderVersion] = useState(0);
 
   const inBuildingCodes = useMemo(() => {
     const codes = new Set<string>();
@@ -61,30 +60,35 @@ export default function MapViewer({
     return codes;
   }, [userLocation]);
 
-  const focusBuilding = useCallback((building: MapBuilding) => {
-    mapViewRef.current?.animateToRegion({
-      latitude: building.location.latitude,
-      longitude: building.location.longitude,
-      latitudeDelta: Math.min(currentRegion.latitudeDelta, 0.0025),
-      longitudeDelta: Math.min(currentRegion.longitudeDelta, 0.0025),
-    });
-  }, [currentRegion.latitudeDelta, currentRegion.longitudeDelta]);
+  const focusBuilding = useCallback(
+    (building: MapBuilding) => {
+      mapViewRef.current?.animateToRegion({
+        latitude: building.location.latitude,
+        longitude: building.location.longitude,
+        latitudeDelta: Math.min(currentRegion.latitudeDelta, 0.0025),
+        longitudeDelta: Math.min(currentRegion.longitudeDelta, 0.0025),
+      });
+    },
+    [currentRegion.latitudeDelta, currentRegion.longitudeDelta],
+  );
 
   const selectBuildingByCode = useCallback((code: string) => {
     const info = concordiaBuildings.find((b) => b.buildingCode === code) ?? null;
     setSelectedBuilding(info);
-    setPolygonRenderVersion(v => v + 1);
   }, []);
 
-  const handlePolygonPress = useCallback((building: MapBuilding) => {
-    suppressNextMapPress.current = true;
-    selectBuildingByCode(building.code);
-    focusBuilding(building);
+  const handlePolygonPress = useCallback(
+    (building: MapBuilding) => {
+      suppressNextMapPress.current = true;
+      selectBuildingByCode(building.code);
+      focusBuilding(building);
 
-    requestAnimationFrame(() => {
-      suppressNextMapPress.current = false;
-    });
-  }, [selectBuildingByCode, focusBuilding]);
+      requestAnimationFrame(() => {
+        suppressNextMapPress.current = false;
+      });
+    },
+    [selectBuildingByCode, focusBuilding],
+  );
 
   const requestLocation = useCallback(async () => {
     if (userLocation) return;
@@ -98,11 +102,12 @@ export default function MapViewer({
     if (status !== "granted") return;
 
     const location = await LocationPermissions.getCurrentPositionAsync();
-    setUserLocation({ latitude: location.coords.latitude, longitude: location.coords.longitude });
+    setUserLocation({
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+    });
     setLocationState("on");
-
   }, [userLocation]);
-
 
   const centerLocation = useCallback(() => {
     if (!userLocation) return;
@@ -111,114 +116,25 @@ export default function MapViewer({
     setLocationState("centered");
   }, [userLocation, userLocationDelta]);
 
-  const renderPolygons = useMemo(() => {
-    return CAMPUS_LOCATIONS.flatMap((building) =>
-      building.polygons.map((polygon, index) => {
-        const isSelected = selectedBuilding?.buildingCode === building.code;
-        const isInBuilding = inBuildingCodes.has(building.code);
+  const renderedPolygons = useMemo(
+    () =>
+      renderPolygons(
+        selectedBuilding?.buildingCode,
+        inBuildingCodes,
+        colorScheme,
+        handlePolygonPress,
+      ),
+    [selectedBuilding?.buildingCode, inBuildingCodes, colorScheme, handlePolygonPress],
+  );
 
-        let finalFillColor: string;
-
-        if (isSelected && isInBuilding) {
-          finalFillColor = mapColors.currentSelectedBuildingColor;
-        } else if (isSelected) {
-          finalFillColor = mapColors.polygonHighlighted;
-        } else if (isInBuilding) {
-          finalFillColor = mapColors.currentBuildingColor;
-        } else {
-          finalFillColor = mapColors.polygonFill;
-        }
-
-        let finalZIndex: number;
-        if (isSelected) {
-          finalZIndex = 3;
-        } else if (isInBuilding) {
-          finalZIndex = 2;
-        } else {
-          finalZIndex = 1;
-        }
-
-        return (
-          <Polygon
-            // On iOS, use render version to force re-render and prevent polygon disappearing.
-            // On Android, use state-based keys to only remount changed polygons and avoid flashing.
-            key={
-              Platform.OS === "ios"
-                ? `${building.code}-${index}-v${polygonRenderVersion}`
-                : `${building.code}-${index}-${isSelected}-${isInBuilding}`
-            }
-            testID="polygon"
-            coordinates={polygon}
-            tappable
-            fillColor={finalFillColor}
-            zIndex={finalZIndex}
-            strokeColor={mapColors.polygonStroke}
-            strokeWidth={2}
-            onPress={() => handlePolygonPress(building)}
-          />
-        );
-      })
-    );
-  }, [mapColors, selectedBuilding?.buildingCode, inBuildingCodes, handlePolygonPress, polygonRenderVersion]);
-
-  const renderMarkers = useMemo(() => {
-    return CAMPUS_LOCATIONS.map((building) => {
-      const isSelected = selectedBuilding?.buildingCode === building.code;
-
-      // Offset markers to prevent overlaps
-      let coordinate = building.location;
-      if (building.code === "VE") {
-        // VE overlaps with VL
-        coordinate = {
-          latitude: building.location.latitude + 0.00008,
-          longitude: building.location.longitude - 0.00015,
-        };
-      } else if (building.code === "RA") {
-        // Misplaced marker for RA
-        coordinate = {
-          latitude: building.location.latitude - 0.0009,
-          longitude: building.location.longitude - 0.0008,
-        };
-      } else if (building.code === "PC") {
-        // Misplaced marker for PC
-        coordinate = {
-          latitude: building.location.latitude - 0.0006,
-          longitude: building.location.longitude - 0.0005,
-        };
-      }
-
-      return (
-        <Marker
-          testID={`marker-${building.code}`}
-          key={building.code}
-          coordinate={coordinate}
-          onPress={() => {
-            selectBuildingByCode(building.code);
-            focusBuilding(building);
-          }}
-        >
-          <View
-            style={[
-              styles.marker,
-              {
-                backgroundColor: isSelected ? mapColors.markerSelected : mapColors.marker,
-                borderColor: isSelected ? mapColors.markerBorderSelected : mapColors.markerBorder,
-              },
-            ]}
-          >
-            <Text
-              style={[
-                styles.markerText,
-                { color: isSelected ? mapColors.markerTextSelected : mapColors.markerText },
-              ]}
-            >
-              {building.code}
-            </Text>
-          </View>
-        </Marker>
-      );
-    });
-  }, [mapColors, selectedBuilding?.buildingCode, focusBuilding, selectBuildingByCode]);
+  const renderedMarkers = useMemo(
+    () =>
+      renderMarkers(selectedBuilding?.buildingCode, colorScheme, (building) => {
+        selectBuildingByCode(building.code);
+        focusBuilding(building);
+      }),
+    [selectedBuilding?.buildingCode, colorScheme, selectBuildingByCode, focusBuilding],
+  );
 
   const renderCluster = useCallback(
     (cluster: Cluster) => {
@@ -228,19 +144,30 @@ export default function MapViewer({
       return (
         <Marker
           key={`cluster-${id}`}
-          coordinate={{ latitude: geometry.coordinates[1], longitude: geometry.coordinates[0] }}
-          onPress={onPress}>
+          coordinate={{
+            latitude: geometry.coordinates[1],
+            longitude: geometry.coordinates[0],
+          }}
+          onPress={onPress}
+        >
           <View
             style={[
               styles.clusterMarker,
-              { backgroundColor: mapColors.clusterMarker, borderColor: mapColors.markerBorder }
-            ]}>
-            <Text style={[styles.clusterText, { color: mapColors.clusterText }]}> {count > 9 ? "9+" : count} </Text>
+              {
+                backgroundColor: mapColors.clusterMarker,
+                borderColor: mapColors.markerBorder,
+              },
+            ]}
+          >
+            <Text style={[styles.clusterText, { color: mapColors.clusterText }]}>
+              {" "}
+              {count > 9 ? "9+" : count}{" "}
+            </Text>
           </View>
         </Marker>
       );
     },
-    [mapColors]
+    [mapColors],
   );
 
   return (
@@ -248,7 +175,9 @@ export default function MapViewer({
       <BuildingSelection
         onSelect={(building) => {
           selectBuildingByCode(building.buildingCode);
-          const mapBuilding = CAMPUS_LOCATIONS.find((b) => b.code === building.buildingCode);
+          const mapBuilding = CAMPUS_LOCATIONS.find(
+            (b) => b.code === building.buildingCode,
+          );
           if (mapBuilding) focusBuilding(mapBuilding);
         }}
       />
@@ -277,9 +206,17 @@ export default function MapViewer({
         }}
         onUserLocationChange={({ nativeEvent }) => {
           const coordinate = nativeEvent?.coordinate;
-          if (!coordinate || typeof coordinate.latitude !== "number" || typeof coordinate.longitude !== "number") return;
+          if (
+            !coordinate ||
+            typeof coordinate.latitude !== "number" ||
+            typeof coordinate.longitude !== "number"
+          )
+            return;
           if (!userLocation) setLocationState("on");
-          setUserLocation({ latitude: coordinate.latitude, longitude: coordinate.longitude });
+          setUserLocation({
+            latitude: coordinate.latitude,
+            longitude: coordinate.longitude,
+          });
         }}
         spiralEnabled={false}
         onPress={(e) => {
@@ -288,13 +225,12 @@ export default function MapViewer({
 
           if (!action || action === "press") {
             setSelectedBuilding(null);
-            setPolygonRenderVersion(v => v + 1);
           }
         }}
         renderCluster={renderCluster}
       >
-        {renderPolygons}
-        {renderMarkers}
+        {renderedPolygons}
+        {renderedMarkers}
       </MapViewCluster>
 
       <LocationButton
@@ -310,6 +246,123 @@ export default function MapViewer({
   );
 }
 
+function renderPolygons(
+  selectedBuildingCode: string | undefined,
+  inBuildingCodes: Set<string>,
+  colorScheme: ColorSchemeName,
+  onPress: (building: MapBuilding) => void,
+) {
+  const mapColors = Colors[colorScheme || "light"].map;
+
+  return CAMPUS_LOCATIONS.flatMap((building, buildingIndex) =>
+    building.polygons.map((polygon, polygonIndex) => {
+      const isSelected = selectedBuildingCode === building.code;
+      const isInBuilding = inBuildingCodes.has(building.code);
+
+      let finalFillColor: string;
+
+      if (isSelected && isInBuilding) {
+        finalFillColor = mapColors.currentSelectedBuildingColor;
+      } else if (isSelected) {
+        finalFillColor = mapColors.polygonHighlighted;
+      } else if (isInBuilding) {
+        finalFillColor = mapColors.currentBuildingColor;
+      } else {
+        finalFillColor = mapColors.polygonFill;
+      }
+
+      let finalZIndex: number;
+      if (isSelected) {
+        finalZIndex = 3;
+      } else if (isInBuilding) {
+        finalZIndex = 2;
+      } else {
+        finalZIndex = 1;
+      }
+
+      return (
+        <Polygon
+          // On iOS, use render version to force re-render and prevent polygon disappearing.
+          // On Android, use state-based keys to only remount changed polygons and avoid flashing.
+          key={`${buildingIndex}-${polygonIndex}`}
+          testID="polygon"
+          coordinates={polygon}
+          tappable
+          fillColor={finalFillColor}
+          zIndex={finalZIndex}
+          strokeColor={mapColors.polygonStroke}
+          strokeWidth={2}
+          onPress={() => onPress(building)}
+        />
+      );
+    }),
+  );
+}
+
+function renderMarkers(
+  selectedBuildingCode: string | undefined,
+  colorScheme: ColorSchemeName,
+  onPress: (building: MapBuilding) => void,
+) {
+  const mapColors = Colors[colorScheme || "light"].map;
+
+  return CAMPUS_LOCATIONS.map((building) => {
+    const isSelected = selectedBuildingCode === building.code;
+
+    // Offset markers to prevent overlaps
+    let coordinate = building.location;
+    if (building.code === "VE") {
+      // VE overlaps with VL
+      coordinate = {
+        latitude: building.location.latitude + 0.00008,
+        longitude: building.location.longitude - 0.00015,
+      };
+    } else if (building.code === "RA") {
+      // Misplaced marker for RA
+      coordinate = {
+        latitude: building.location.latitude - 0.0009,
+        longitude: building.location.longitude - 0.0008,
+      };
+    } else if (building.code === "PC") {
+      // Misplaced marker for PC
+      coordinate = {
+        latitude: building.location.latitude - 0.0006,
+        longitude: building.location.longitude - 0.0005,
+      };
+    }
+
+    return (
+      <Marker
+        testID={`marker-${building.code}`}
+        key={building.code}
+        coordinate={coordinate}
+        onPress={() => onPress(building)}
+      >
+        <View
+          style={[
+            styles.marker,
+            {
+              backgroundColor: isSelected ? mapColors.markerSelected : mapColors.marker,
+              borderColor: isSelected
+                ? mapColors.markerBorderSelected
+                : mapColors.markerBorder,
+            },
+          ]}
+        >
+          <Text
+            style={[
+              styles.markerText,
+              { color: isSelected ? mapColors.markerTextSelected : mapColors.markerText },
+            ]}
+          >
+            {building.code}
+          </Text>
+        </View>
+      </Marker>
+    );
+  });
+}
+
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { width: "100%", flex: 1 },
@@ -317,7 +370,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     paddingVertical: 4,
     borderRadius: 12,
-    borderWidth: 2
+    borderWidth: 2,
   },
   markerText: {
     fontWeight: "700",
@@ -327,11 +380,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 4,
     borderRadius: 50,
-    borderWidth: 2
+    borderWidth: 2,
   },
   clusterText: {
     fontWeight: "800",
-    fontSize: 12
+    fontSize: 12,
   },
 });
 
