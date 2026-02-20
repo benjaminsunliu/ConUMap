@@ -85,7 +85,6 @@ export default function BuildingInfoPopup({ building }: Props) {
     const header = useMemo(() => {
         return (
             <>
-                <View style={styles.handle} />
 
                 <Text style={styles.title} numberOfLines={1}>
                     {building?.buildingCode} – {building?.buildingName}
@@ -111,12 +110,11 @@ export default function BuildingInfoPopup({ building }: Props) {
                 </View>
             </>
         );
-    },[ACTIONS, building?.address, building?.buildingCode, building?.buildingName, building?.campus, handleAction, styles.actionsRow, styles.handle, styles.line, styles.openStatus, styles.title, theme, todayIdx]);
+    },[ACTIONS, building?.address, building?.buildingCode, building?.buildingName, building?.campus, handleAction, styles.actionsRow, styles.line, styles.openStatus, styles.title, theme, todayIdx]);
 
     return (
         <InfoPopup shouldDisplay={!!building} header={header}>
             <ScrollView style={{ marginTop: 10 }}>
-                    <View style={styles.rule} />
 
                     {(building?.accessibility?.length ? building?.accessibility?.length : 0) > 0 && (
                         <>

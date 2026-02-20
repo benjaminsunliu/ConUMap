@@ -5,6 +5,7 @@ import {
     StyleSheet,
     ScrollView,
     useColorScheme,
+    View,
 } from "react-native";
 import { Colors } from "@/constants/theme";
 
@@ -95,8 +96,9 @@ export default function InfoPopup(props: React.PropsWithChildren<Props>) {
                 { transform: [{ translateY }], height: CLOSE_HEIGHT },
             ]}
         >
+            <View style={styles.handle} />
             {props.header}
-
+            <View style={styles.rule} />
             {expanded && (
                 <ScrollView style={{ marginTop: 10 }}>
                     {props.children}
@@ -156,7 +158,8 @@ const makeStyles = (theme: typeof Colors.light) =>
         rule: {
             borderBottomColor: theme.buildingInfoPopup.divider,
             borderBottomWidth: StyleSheet.hairlineWidth,
-            marginVertical: 12
+            marginVertical: 12,
+            zIndex: 2
         },
         todayHighlight: {
             fontWeight: "700",
