@@ -1146,7 +1146,7 @@ export const mockRoutes: Props["routes"] = {
                     {
                       "name": "Société de transport de Montréal",
                       "phone": "1 (514) 786-4636",
-                      "url": "http://www.stm.info/"
+                      "url": "https://www.stm.info/"
                     }
                   ],
                   "color": "#009ee0",
@@ -1535,7 +1535,7 @@ export const mockRoutes: Props["routes"] = {
                     {
                       "name": "Société de transport de Montréal",
                       "phone": "1 (514) 786-4636",
-                      "url": "http://www.stm.info/"
+                      "url": "https://www.stm.info/"
                     }
                   ],
                   "color": "#009ee0",
@@ -1875,7 +1875,7 @@ export const mockRoutes: Props["routes"] = {
                     {
                       "name": "Société de transport de Montréal",
                       "phone": "1 (514) 786-4636",
-                      "url": "http://www.stm.info/"
+                      "url": "https://www.stm.info/"
                     }
                   ],
                   "color": "#00a556",
@@ -1991,7 +1991,7 @@ export const mockRoutes: Props["routes"] = {
                     {
                       "name": "Société de transport de Montréal",
                       "phone": "1 (514) 786-4636",
-                      "url": "http://www.stm.info/"
+                      "url": "https://www.stm.info/"
                     }
                   ],
                   "color": "#f27f2f",
@@ -2614,7 +2614,7 @@ export const mockRoutes: Props["routes"] = {
                     {
                       "name": "Société de transport de Montréal",
                       "phone": "1 (514) 786-4636",
-                      "url": "http://www.stm.info/"
+                      "url": "https://www.stm.info/"
                     }
                   ],
                   "color": "#f27f2f",
@@ -3002,7 +3002,7 @@ export const mockRoutes: Props["routes"] = {
                     {
                       "name": "Société de transport de Montréal",
                       "phone": "1 (514) 786-4636",
-                      "url": "http://www.stm.info/"
+                      "url": "https://www.stm.info/"
                     }
                   ],
                   "color": "#781b7d",
@@ -3143,7 +3143,7 @@ export const mockRoutes: Props["routes"] = {
                     {
                       "name": "Société de transport de Montréal",
                       "phone": "1 (514) 786-4636",
-                      "url": "http://www.stm.info/"
+                      "url": "https://www.stm.info/"
                     }
                   ],
                   "color": "#009ee0",
@@ -3484,7 +3484,7 @@ export const mockRoutes: Props["routes"] = {
                     {
                       "name": "Société de transport de Montréal",
                       "phone": "1 (514) 786-4636",
-                      "url": "http://www.stm.info/"
+                      "url": "https://www.stm.info/"
                     }
                   ],
                   "color": "#009ee0",
