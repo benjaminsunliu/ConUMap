@@ -6,12 +6,14 @@ import {
     ScrollView,
     TouchableOpacity,
     useColorScheme,
+    Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/theme";
 import InfoPopup from "../ui/popup";
 import SwitchSelector from "react-native-switch-selector";
 import { TransportationMode } from "@/types/buildingTypes";
+import ShuttleIconDark from "@/assets/images/shuttle-icon-dark.png";
 
 
 interface Props {
@@ -53,7 +55,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
             return {
               label: "",
               value: index,
-              customIcon: <Ionicons name={transportIconMap[transport as keyof typeof transportIconMap]} size={50} color={index === tabIndex ? "#ccccccc" : "#000000"} />
+              customIcon: transport !== "shuttle" ? <Ionicons name={transportIconMap[transport as keyof typeof transportIconMap]} size={50} color={index === tabIndex ? "#ccccccc" : "#000000"} /> : <Image source={colorScheme === "dark" ? ShuttleIconDark : ShuttleIconDark} style={{width: 75, height: 40}}/>
             }
           })}
           testID="navigation-mode-selector"
