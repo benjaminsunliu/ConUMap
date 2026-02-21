@@ -210,26 +210,6 @@ const ActionButton = ({
 
 const makeStyles = (theme: typeof Colors.light) =>
     StyleSheet.create({
-        card: {
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            backgroundColor: theme.buildingInfoPopup.background,
-            paddingHorizontal: 20,
-            paddingTop: 10,
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-            elevation: 15
-        },
-        handle: {
-            width: 40,
-            height: 5,
-            backgroundColor: theme.buildingInfoPopup.handle,
-            borderRadius: 3,
-            alignSelf: "center",
-            marginBottom: 8
-        },
         title: {
             fontSize: 22,
             fontWeight: "600",
@@ -254,11 +234,6 @@ const makeStyles = (theme: typeof Colors.light) =>
             marginTop: 14,
             fontWeight: "600",
             color: theme.buildingInfoPopup.title
-        },
-        rule: {
-            borderBottomColor: theme.buildingInfoPopup.divider,
-            borderBottomWidth: StyleSheet.hairlineWidth,
-            marginVertical: 12
         },
         todayHighlight: {
             fontWeight: "700",
