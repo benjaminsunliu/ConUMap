@@ -11,10 +11,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/theme";
 import InfoPopup from "../ui/popup";
 import SwitchSelector from "react-native-switch-selector";
+import { TransportationMode } from "@/types/buildingTypes";
 
 
 interface Props {
-  readonly routes: {walking: any[] | null, transit: any[] | null, driving: any[] | null, bicycling: any[] | null, shuttle: any[] | null};
+  readonly routes: Record<TransportationMode, any[] | null>;
   readonly isOpen: boolean;
   readonly onRouteSelect: (route: any) => void;
 }
@@ -25,7 +26,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
   const styles = makePopupStyles(theme);
   const [tabIndex, setTabIndex] = React.useState(0);
 
-  const transportIconMap: Record<keyof typeof routes, keyof typeof Ionicons.glyphMap> = useMemo(() => {return{
+  const transportIconMap: Record<TransportationMode, keyof typeof Ionicons.glyphMap> = useMemo(() => {return{
     walking: "walk-outline",
     transit: "bus-outline",
     driving: "car-outline",
@@ -33,7 +34,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
     shuttle: "school-outline"
   }},[]);
 
-  const availableTransports = useMemo(() => Object.keys(routes).filter(key => routes[key as keyof typeof routes] !== null), [routes])
+  const availableTransports = useMemo(() => Object.keys(routes).filter(key => routes[key as TransportationMode] !== null), [routes])
 
   const header = useMemo(() => {
     return (
@@ -62,12 +63,12 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
       </>
       
     );
-  },[availableTransports, colorScheme, tabIndex, transportIconMap]);
-  if (routes === null) return null;
+  },[availableTransports, colorScheme, styles.headerTitle, tabIndex, transportIconMap]);
+  if (availableTransports.length <= 0) return null;
   return (
     <InfoPopup shouldDisplay={isOpen} header={header}>
       <ScrollView style={{ marginTop: 10 }}>
-        {routes[availableTransports[tabIndex] as keyof typeof routes]?.length > 0 ? routes[availableTransports[tabIndex] as keyof typeof routes].map((route: any, index: number) => <RouteOverview route={route} key={index} onRouteSelect={onRouteSelect}/>) : <Text style={{color: theme.buildingInfoPopup.text}}>No route found for this mode of transportation.</Text>}
+        {(routes[availableTransports[tabIndex] as TransportationMode]?.length ?? 0) > 0 ? routes[availableTransports[tabIndex] as TransportationMode]?.map((route: any, index: number) => <RouteOverview route={route} key={index} onRouteSelect={onRouteSelect}/>) : <Text style={{color: theme.buildingInfoPopup.text}}>No route found for this mode of transportation.</Text>}
       </ScrollView>
     </InfoPopup>
   );
