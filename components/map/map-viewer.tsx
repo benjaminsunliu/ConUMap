@@ -14,6 +14,7 @@ import BuildingInfoPopup from "./building-info-popup";
 import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
 import CampusToggle from "./campus-toggle";
 import BuildingSelection from "./building-selection";
+import RoutesInfoPopup, { mockRoutes } from "../navigation/routes-info-popup";
 
 interface Props {
   readonly userLocationDelta?: CoordinateDelta;
@@ -45,6 +46,7 @@ export default function MapViewer({
   const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
   const [polygonRenderVersion, setPolygonRenderVersion] = useState(0);
+  const [shouldDisplayRoutes, setShouldDisplayRoutes] = useState(false);
 
   const inBuildingCodes = useMemo(() => {
     const codes = new Set<string>();
@@ -80,6 +82,7 @@ export default function MapViewer({
     suppressNextMapPress.current = true;
     selectBuildingByCode(building.code);
     focusBuilding(building);
+    setShouldDisplayRoutes(false);
 
     requestAnimationFrame(() => {
       suppressNextMapPress.current = false;
@@ -243,6 +246,11 @@ export default function MapViewer({
     [mapColors]
   );
 
+  const navigateToBuilding = useCallback(() => {
+    //Call backend to get route from current location to building
+    setShouldDisplayRoutes(true);
+  }, []);
+
   return (
     <View style={styles.container}>
       <BuildingSelection
@@ -288,6 +296,7 @@ export default function MapViewer({
 
           if (!action || action === "press") {
             setSelectedBuilding(null);
+            setShouldDisplayRoutes(false);
             setPolygonRenderVersion(v => v + 1);
           }
         }}
@@ -305,7 +314,8 @@ export default function MapViewer({
         }}
       />
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
-      <BuildingInfoPopup building={selectedBuilding} />
+      <BuildingInfoPopup building={selectedBuilding} onNavigate={navigateToBuilding} />
+      <RoutesInfoPopup routes={mockRoutes} isOpen={shouldDisplayRoutes} onRouteSelect={(route) => {}}/>
     </View>
   );
 }

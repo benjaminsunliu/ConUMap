@@ -15,6 +15,7 @@ import InfoPopup from "../ui/popup";
 
 interface Props {
     readonly building: BuildingInfo | null;
+    readonly onNavigate?: () => void;
 }
 
 const WEEKDAYS = [
@@ -37,7 +38,7 @@ const DEFAULT_OPENING_HOURS = [
     "7:00 AM – 9:00 PM",
 ];
 
-export default function BuildingInfoPopup({ building }: Props) {
+export default function BuildingInfoPopup({ building, onNavigate }: Props) {
     const colorScheme = useColorScheme() ?? "light";
     const theme = Colors[colorScheme];
     const styles = makeStyles(theme);
@@ -103,14 +104,14 @@ export default function BuildingInfoPopup({ building }: Props) {
                         <ActionButton
                             key={a.type}
                             {...a}
-                            onPress={() => handleAction(a.type)}
+                            onPress={a.type === "directions" && onNavigate ? () => onNavigate() : () => handleAction(a.type)}
                             theme={theme}
                         />
                     ))}
                 </View>
             </>
         );
-    },[ACTIONS, building?.address, building?.buildingCode, building?.buildingName, building?.campus, handleAction, styles.actionsRow, styles.line, styles.openStatus, styles.title, theme, todayIdx]);
+    },[ACTIONS, building, handleAction, onNavigate, styles.actionsRow, styles.line, styles.openStatus, styles.title, theme, todayIdx]);
 
     return (
         <InfoPopup shouldDisplay={!!building} header={header}>
