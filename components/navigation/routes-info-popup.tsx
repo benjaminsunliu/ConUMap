@@ -40,7 +40,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
   const header = useMemo(() => {
     return (
       <>
-        <Text style={styles.headerTitle}>{availableTransports[tabIndex].replaceAll(/^./g, (c) => c.toUpperCase())}</Text>
+        <Text style={styles.headerTitle}>{availableTransports[tabIndex]?.replaceAll(/^./g, (c) => c.toUpperCase())}</Text>
         <SwitchSelector
           initial={tabIndex}
           textColor={Colors[colorScheme].buildingInfoPopup.text}
@@ -54,7 +54,8 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
             return {
               label: "",
               value: index,
-              customIcon: transport !== "shuttle" ? <Ionicons name={transportIconMap[transport as keyof typeof transportIconMap]} size={50} color={index === tabIndex ? "#ccccccc" : "#000000"} /> : <Image source={colorScheme === "dark" ? ShuttleIconDark : ShuttleIconDark} style={{width: 75, height: 40}}/>
+              customIcon: transport !== "shuttle" ? <Ionicons name={transportIconMap[transport as keyof typeof transportIconMap]} size={50} color={index === tabIndex ? "#ccccccc" : "#000000"} /> : <Image source={colorScheme === "dark" ? ShuttleIconDark : ShuttleIconDark} style={{width: 75, height: 40}}/>,
+              testID: `${transport}-selector`
             }
           })}
           testID="navigation-mode-selector"
@@ -69,7 +70,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
   return (
     <InfoPopup shouldDisplay={isOpen} header={header}>
       <ScrollView style={{ marginTop: 10 }}>
-        {(routes[availableTransports[tabIndex] as TransportationMode]?.length ?? 0) > 0 ? routes[availableTransports[tabIndex] as TransportationMode]?.map((route: any, index: number) => <RouteOverview route={route} key={index} onRouteSelect={onRouteSelect}/>) : <Text style={{color: theme.buildingInfoPopup.text}}>No route found for this mode of transportation.</Text>}
+        {(routes[availableTransports[tabIndex] as TransportationMode]?.length ?? 0) > 0 ? routes[availableTransports[tabIndex] as TransportationMode]?.map((route: any, index: number) => <RouteOverview testID={`${availableTransports[tabIndex]}-route-${index}`} route={route} key={index} onRouteSelect={onRouteSelect}/>) : <Text testID="no-routes-text" style={{color: theme.buildingInfoPopup.text}}>No route found for this mode of transportation.</Text>}
       </ScrollView>
     </InfoPopup>
   );
@@ -85,13 +86,13 @@ const makePopupStyles = (theme: typeof Colors.light) => {
   });
 }
 
-function RouteOverview({route, onRouteSelect}: {route: any, onRouteSelect: (route: any) => void}) {
+function RouteOverview({route, onRouteSelect, testID}: {route: any, onRouteSelect: (route: any) => void, testID?: string}) {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
   const styles = makeOverviewStyles(theme);
 
   return (
-    <TouchableOpacity style={styles.overviewContainer} onPress={() => onRouteSelect(route)}>
+    <TouchableOpacity style={styles.overviewContainer} onPress={() => onRouteSelect(route)} testID={testID}>
       <Text style={styles.overviewText}>{route?.legs[0]?.duration?.text} for {route?.legs[0]?.distance?.text}</Text>
       {route?.legs[0]?.arrival_time && route?.legs[0]?.departure_time ? <Text>From {route?.legs[0]?.departure_time.text} To {route?.legs[0]?.arrival_time.text}</Text> : null}
       {route?.summary? <Text>Via {route?.summary}</Text> : null}
