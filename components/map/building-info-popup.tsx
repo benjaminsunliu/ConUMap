@@ -113,7 +113,7 @@ export default function BuildingInfoPopup({ building, onNavigate }: Props) {
     },[ACTIONS, building, handleAction, onNavigate, styles.actionsRow, styles.line, styles.openStatus, styles.title, theme, todayIdx]);
 
     return (
-        <InfoPopup shouldDisplay={!!building} header={header}>
+        <InfoPopup shouldDisplay={!!building} header={header} testID="building-info-popup">
             {(building?.accessibility?.length ? building?.accessibility?.length : 0) > 0 && (
                 <>
                     <Text style={styles.sectionTitle}>Accessibility</Text>

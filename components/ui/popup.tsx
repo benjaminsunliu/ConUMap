@@ -12,6 +12,7 @@ import { Colors } from "@/constants/theme";
 interface Props {
     shouldDisplay: boolean;
     header: ReactElement;
+    testID?: string;
 }
 
 const CLOSE_HEIGHT = 520;
@@ -89,7 +90,7 @@ export default function InfoPopup(props: React.PropsWithChildren<Props>) {
 
     return (
         <Animated.View
-        testID="info-popup"
+        testID={props.testID ?? "info-popup"}
             {...panResponder.panHandlers}
             style={[
                 styles.card,

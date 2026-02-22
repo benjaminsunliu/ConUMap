@@ -237,7 +237,7 @@ jest.mock("@/constants/mapData", () => {
       fireEvent(map, "press", {
         nativeEvent: { action: "press" },
       });
-      expect(mapViewer.queryByTestId("info-popup")).toBeNull();
+      expect(mapViewer.queryByTestId("building-info-popup")).toBeNull();
     })
 
     it("focuses on building when polygon is pressed",()=>{
@@ -321,7 +321,7 @@ jest.mock("@/constants/mapData", () => {
       const mapViewer = render(<MapViewer />);
       const markerAB = mapViewer.getByTestId("marker-AB");
       fireEvent.press(markerAB);
-      expect(mapViewer.queryByTestId("info-popup")).toBeNull();
+      expect(mapViewer.queryByTestId("building-info-popup")).toBeNull();
     });
 
     describe('Polygon Color Selection Logic', () => {

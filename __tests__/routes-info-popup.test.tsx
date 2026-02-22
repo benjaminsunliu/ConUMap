@@ -149,7 +149,7 @@ describe("RoutesInfoPopup component", () => {
       expect(selector).toBeVisible();
       const selectorTitle = routesView.getByText("Walking");
       expect(selectorTitle).toBeVisible();
-      const popup = routesView.getByTestId('info-popup');
+      const popup = routesView.getByTestId('routes-info-popup');
         await act(async () => {
         popup.props.onResponderGrant({}, {});
         popup.props.onResponderMove({}, { dy: -300 });
@@ -161,7 +161,7 @@ describe("RoutesInfoPopup component", () => {
 
   it('should switch to transit routes when transit is selected', async ()=>{
     const routesView = render(<RoutesInfoPopup routes={mockRoutes} isOpen={true} onRouteSelect={mockOnSelect}/>)
-    const popup = routesView.getByTestId('info-popup');
+    const popup = routesView.getByTestId('routes-info-popup');
     await act(async () => {
       popup.props.onResponderGrant({}, {});
       popup.props.onResponderMove({}, { dy: -300 });
@@ -177,7 +177,7 @@ describe("RoutesInfoPopup component", () => {
 
   it('should display no routes found message if there are no routes for a transportation mode', async ()=>{
     const routesView = render(<RoutesInfoPopup routes={{...mockRoutes, transit: null}} isOpen={true} onRouteSelect={mockOnSelect}/>)
-    const popup = routesView.getByTestId('info-popup');
+    const popup = routesView.getByTestId('routes-info-popup');
     await act(async () => {
       popup.props.onResponderGrant({}, {});
       popup.props.onResponderMove({}, { dy: -300 });
@@ -192,7 +192,7 @@ describe("RoutesInfoPopup component", () => {
 
   it('should call onRouteSelect with the correct route when a route is selected', async ()=>{
     const routesView = render(<RoutesInfoPopup routes={mockRoutes} isOpen={true} onRouteSelect={mockOnSelect}/>)
-    const popup = routesView.getByTestId('info-popup');
+    const popup = routesView.getByTestId('routes-info-popup');
       await act(async () => {
       popup.props.onResponderGrant({}, {});
       popup.props.onResponderMove({}, { dy: -300 });
@@ -205,7 +205,7 @@ describe("RoutesInfoPopup component", () => {
 
   it('should not render if there are no available transportation modes', async ()=>{
     const routesView = render(<RoutesInfoPopup routes={{walking: null, transit: null, driving: null, bicycling: null, shuttle: null}} isOpen={true} onRouteSelect={mockOnSelect}/>)
-    const popup = routesView.queryByTestId('info-popup');
+    const popup = routesView.queryByTestId('routes-info-popup');
     expect(popup).toBeNull();
   });
 

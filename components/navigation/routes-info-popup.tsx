@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import {
     StyleSheet,
     Text,
@@ -35,7 +35,11 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
   const styles = makePopupStyles(theme);
   const [tabIndex, setTabIndex] = React.useState(0);
 
-  const availableTransports = useMemo(() => Object.keys(routes).filter(key => routes[key as TransportationMode] !== null), [routes])
+  const availableTransports = useMemo(() => Object.keys(routes).filter(key => routes[key as TransportationMode] !== null), [routes]);
+
+  useEffect(() => {
+    setTabIndex(0);
+  }, [routes]);
 
   const header = useMemo(() => {
     return (
@@ -55,7 +59,8 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
               label: "",
               value: index,
               customIcon: transport === "shuttle" ? <Image source={colorScheme === "dark" ? ShuttleIconDark : ShuttleIconLight} style={{width: 75, height: 40}}/> : <Ionicons name={transportIconMap[transport as keyof typeof transportIconMap]} size={50} color={index === tabIndex ? "#222222" : "#000000"} />,
-              testID: `${transport}-selector`
+              testID: `${transport}-selector`,
+              accessibilityLabel: `${transport}-selector`,
             }
           })}
           testID="navigation-mode-selector"
@@ -68,7 +73,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
   },[availableTransports, colorScheme, styles.headerTitle, tabIndex]);
   if (availableTransports.length <= 0) return null;
   return (
-    <InfoPopup shouldDisplay={isOpen} header={header}>
+    <InfoPopup shouldDisplay={isOpen} header={header} testID="routes-info-popup">
       {(routes[availableTransports[tabIndex] as TransportationMode]?.length ?? 0) > 0 ? routes[availableTransports[tabIndex] as TransportationMode]?.map((route: any, index: number) => <RouteOverview testID={`${availableTransports[tabIndex]}-route-${index}`} route={route} key={`${availableTransports[tabIndex]}-route-${index}`} onRouteSelect={onRouteSelect}/>) : <Text testID="no-routes-text" style={styles.noRoutesText}>No route found for this mode of transportation.</Text>}
     </InfoPopup>
   );

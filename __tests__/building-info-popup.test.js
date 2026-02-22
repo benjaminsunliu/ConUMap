@@ -31,12 +31,12 @@ jest.spyOn(Linking, 'canOpenURL').mockResolvedValue(true);
 describe('building-info-popup', () => { 
     it("renders nothing if building is null",()=>{
         const { queryByTestId } = render(<BuildingInfoPopup building={null} />);
-        expect(queryByTestId("info-popup")).toBeNull();
+        expect(queryByTestId("building-info-popup")).toBeNull();
     });
     
     it("returns a non-null object if a valid building object is supplied", () => {
         const { queryByTestId } = render(<BuildingInfoPopup building={mockBuilding} />);
-        expect(queryByTestId("info-popup")).toBeDefined();
+        expect(queryByTestId("building-info-popup")).toBeDefined();
     });
 
     it("renders the correct popup for the supplied building", () => {
@@ -75,7 +75,7 @@ describe('building-info-popup-panresponder', () => {
     it('expands when dragging the past the midpoint', async () => {
         render(<BuildingInfoPopup building={mockBuilding}/>);
 
-        const popup = screen.getByTestId('info-popup');
+        const popup = screen.getByTestId('building-info-popup');
 
         await act(async () => {
             popup.props.onResponderGrant({}, {});
@@ -91,7 +91,7 @@ describe('building-info-popup-panresponder', () => {
     it('stays collapsed when the drag is too small', async () => {
         render(<BuildingInfoPopup building={mockBuilding}/>);
 
-        const popup = screen.getByTestId('info-popup');
+        const popup = screen.getByTestId('building-info-popup');
 
         expect(screen.queryByText('Opening Hours')).toBeNull();  // Should initially be null
         
