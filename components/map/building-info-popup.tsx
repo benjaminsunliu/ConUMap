@@ -115,35 +115,32 @@ export default function BuildingInfoPopup({ building, onNavigate }: Props) {
 
     return (
         <InfoPopup shouldDisplay={!!building} header={header}>
-            <ScrollView style={{ marginTop: 10 }}>
-
-                    {(building?.accessibility?.length ? building?.accessibility?.length : 0) > 0 && (
-                        <>
-                            <Text style={styles.sectionTitle}>Accessibility</Text>
-                            {building?.accessibility.map((item) => (
-                                <ListItem
-                                    key={item}
-                                    text={formatCamelCase(item)}
-                                    theme={theme}
-                                />
-                            ))}
-                        </>
-                    )}
-
-                    <Text style={styles.sectionTitle}>Opening Hours</Text>
-                    {DEFAULT_OPENING_HOURS.map((h, i) => (
-                        <Text
-                            key={WEEKDAYS[i]}
-                            style={[
-                                styles.line,
-                                i === todayIdx && styles.todayHighlight,
-                            ]}
-                        >
-                            {"  "}
-                            {WEEKDAYS[i]}: {h}
-                        </Text>
+            {(building?.accessibility?.length ? building?.accessibility?.length : 0) > 0 && (
+                <>
+                    <Text style={styles.sectionTitle}>Accessibility</Text>
+                    {building?.accessibility.map((item) => (
+                        <ListItem
+                            key={item}
+                            text={formatCamelCase(item)}
+                            theme={theme}
+                        />
                     ))}
-                </ScrollView>
+                </>
+            )}
+
+            <Text style={styles.sectionTitle}>Opening Hours</Text>
+            {DEFAULT_OPENING_HOURS.map((h, i) => (
+                <Text
+                    key={WEEKDAYS[i]}
+                    style={[
+                        styles.line,
+                        i === todayIdx && styles.todayHighlight,
+                    ]}
+                >
+                    {"  "}
+                    {WEEKDAYS[i]}: {h}
+                </Text>
+            ))}
         </InfoPopup>
     );
 }

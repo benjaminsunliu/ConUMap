@@ -130,39 +130,10 @@ const makeStyles = (theme: typeof Colors.light) =>
             alignSelf: "center",
             marginBottom: 8
         },
-        title: {
-            fontSize: 22,
-            fontWeight: "600",
-            color: theme.buildingInfoPopup.title,
-            marginBottom: 4
-        },
-        line: {
-            color: theme.buildingInfoPopup.text,
-            marginTop: 4
-        },
-        openStatus: {
-            color: theme.buildingInfoPopup.openStatus,
-            marginTop: 4,
-            fontWeight: "500"
-        },
-        actionsRow: {
-            flexDirection: "row",
-            marginTop: 12,
-            gap: 10
-        },
-        sectionTitle: {
-            marginTop: 14,
-            fontWeight: "600",
-            color: theme.buildingInfoPopup.title
-        },
         rule: {
             borderBottomColor: theme.buildingInfoPopup.divider,
             borderBottomWidth: StyleSheet.hairlineWidth,
             marginVertical: 12,
             zIndex: 2
         },
-        todayHighlight: {
-            fontWeight: "700",
-            color: theme.buildingInfoPopup.openStatus
-        }
     });

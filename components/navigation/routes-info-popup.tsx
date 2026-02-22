@@ -54,7 +54,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
             return {
               label: "",
               value: index,
-              customIcon: transport !== "shuttle" ? <Ionicons name={transportIconMap[transport as keyof typeof transportIconMap]} size={50} color={index === tabIndex ? "#ccccccc" : "#000000"} /> : <Image source={colorScheme === "dark" ? ShuttleIconDark : ShuttleIconDark} style={{width: 75, height: 40}}/>,
+              customIcon: transport !== "shuttle" ? <Ionicons name={transportIconMap[transport as keyof typeof transportIconMap]} size={50} color={index === tabIndex ? "#cccccc" : "#000000"} /> : <Image source={colorScheme === "dark" ? ShuttleIconDark : ShuttleIconDark} style={{width: 75, height: 40}}/>,
               testID: `${transport}-selector`
             }
           })}
@@ -69,9 +69,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
   if (availableTransports.length <= 0) return null;
   return (
     <InfoPopup shouldDisplay={isOpen} header={header}>
-      <ScrollView style={{ marginTop: 10 }}>
-        {(routes[availableTransports[tabIndex] as TransportationMode]?.length ?? 0) > 0 ? routes[availableTransports[tabIndex] as TransportationMode]?.map((route: any, index: number) => <RouteOverview testID={`${availableTransports[tabIndex]}-route-${index}`} route={route} key={index} onRouteSelect={onRouteSelect}/>) : <Text testID="no-routes-text" style={{color: theme.buildingInfoPopup.text}}>No route found for this mode of transportation.</Text>}
-      </ScrollView>
+      {(routes[availableTransports[tabIndex] as TransportationMode]?.length ?? 0) > 0 ? routes[availableTransports[tabIndex] as TransportationMode]?.map((route: any, index: number) => <RouteOverview testID={`${availableTransports[tabIndex]}-route-${index}`} route={route} key={index} onRouteSelect={onRouteSelect}/>) : <Text testID="no-routes-text" style={{color: theme.buildingInfoPopup.text}}>No route found for this mode of transportation.</Text>}
     </InfoPopup>
   );
 }
