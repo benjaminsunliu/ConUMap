@@ -187,6 +187,7 @@ const ActionButton = ({
             },
         ]}
         onPress={onPress}
+        testID={`${label.toLowerCase()}-action-button`}
     >
         <Ionicons
             name={icon as any}
