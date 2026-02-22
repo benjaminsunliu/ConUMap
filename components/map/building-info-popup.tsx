@@ -52,7 +52,7 @@ export default function BuildingInfoPopup({ building, onNavigate }: Props) {
 
     const handleAction = useCallback(async (type: "directions" | "website") => {
         const urls: Record<typeof type, string> = {
-            directions: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(!!(building?.address))}`,
+            directions: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent((building?.address)||"")}`,
             website: building?.link || "",
         };
 

@@ -12,6 +12,7 @@ import InfoPopup from "../ui/popup";
 import SwitchSelector from "react-native-switch-selector";
 import { TransportationMode } from "@/types/buildingTypes";
 import ShuttleIconDark from "@/assets/images/shuttle-icon-dark.png";
+import ShuttleIconLight from "@/assets/images/shuttle-icon-light.png";
 
 
 interface Props {
@@ -20,19 +21,19 @@ interface Props {
   readonly onRouteSelect: (route: any) => void;
 }
 
+const transportIconMap: Record<TransportationMode, keyof typeof Ionicons.glyphMap> = {
+  walking: "walk-outline",
+  transit: "bus-outline",
+  driving: "car-outline",
+  bicycling: "bicycle-outline",
+  shuttle: "school-outline"
+};
+
 export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props) {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
   const styles = makePopupStyles(theme);
   const [tabIndex, setTabIndex] = React.useState(0);
-
-  const transportIconMap: Record<TransportationMode, keyof typeof Ionicons.glyphMap> = useMemo(() => {return{
-    walking: "walk-outline",
-    transit: "bus-outline",
-    driving: "car-outline",
-    bicycling: "bicycle-outline",
-    shuttle: "school-outline"
-  }},[]);
 
   const availableTransports = useMemo(() => Object.keys(routes).filter(key => routes[key as TransportationMode] !== null), [routes])
 
@@ -53,7 +54,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
             return {
               label: "",
               value: index,
-              customIcon: transport !== "shuttle" ? <Ionicons name={transportIconMap[transport as keyof typeof transportIconMap]} size={50} color={index === tabIndex ? "#cccccc" : "#000000"} /> : <Image source={colorScheme === "dark" ? ShuttleIconDark : ShuttleIconDark} style={{width: 75, height: 40}}/>,
+              customIcon: transport === "shuttle" ? <Image source={colorScheme === "dark" ? ShuttleIconDark : ShuttleIconLight} style={{width: 75, height: 40}}/> : <Ionicons name={transportIconMap[transport as keyof typeof transportIconMap]} size={50} color={index === tabIndex ? "#222222" : "#000000"} />,
               testID: `${transport}-selector`
             }
           })}
@@ -68,7 +69,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
   if (availableTransports.length <= 0) return null;
   return (
     <InfoPopup shouldDisplay={isOpen} header={header}>
-      {(routes[availableTransports[tabIndex] as TransportationMode]?.length ?? 0) > 0 ? routes[availableTransports[tabIndex] as TransportationMode]?.map((route: any, index: number) => <RouteOverview testID={`${availableTransports[tabIndex]}-route-${index}`} route={route} key={index} onRouteSelect={onRouteSelect}/>) : <Text testID="no-routes-text" style={{color: theme.buildingInfoPopup.text}}>No route found for this mode of transportation.</Text>}
+      {(routes[availableTransports[tabIndex] as TransportationMode]?.length ?? 0) > 0 ? routes[availableTransports[tabIndex] as TransportationMode]?.map((route: any, index: number) => <RouteOverview testID={`${availableTransports[tabIndex]}-route-${index}`} route={route} key={`${availableTransports[tabIndex]}-route-${index}`} onRouteSelect={onRouteSelect}/>) : <Text testID="no-routes-text" style={styles.noRoutesText}>No route found for this mode of transportation.</Text>}
     </InfoPopup>
   );
 }
@@ -80,10 +81,13 @@ const makePopupStyles = (theme: typeof Colors.light) => {
       fontWeight: "bold",
       marginVertical: 10,
     },
+    noRoutesText: {
+      color: theme.buildingInfoPopup.text,
+    }
   });
 }
 
-function RouteOverview({route, onRouteSelect, testID}: {route: any, onRouteSelect: (route: any) => void, testID?: string}) {
+function RouteOverview({route, onRouteSelect, testID}: {readonly route: any, readonly onRouteSelect: (route: any) => void, readonly testID?: string}) {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
   const styles = makeOverviewStyles(theme);

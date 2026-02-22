@@ -15,7 +15,7 @@ import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
 import CampusToggle from "./campus-toggle";
 import BuildingSelection from "./building-selection";
 import RoutesInfoPopup from "../navigation/routes-info-popup";
-import { mockRoutes } from "@/data/mock-data/route-data";
+import mockRoutes from "@/data/mock-data/route-data.json";
 
 interface Props {
   readonly userLocationDelta?: CoordinateDelta;
@@ -249,7 +249,7 @@ export default function MapViewer({
   );
 
   const navigateToBuilding = useCallback(() => {
-    //Call backend to get route from current location to building
+    // TODO Call backend to get route from current location to building
     setRoutes(mockRoutes);
     setShouldDisplayRoutes(true);
   }, []);
@@ -318,7 +318,9 @@ export default function MapViewer({
       />
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
       <BuildingInfoPopup building={selectedBuilding} onNavigate={navigateToBuilding} />
-      <RoutesInfoPopup routes={routes} isOpen={shouldDisplayRoutes} onRouteSelect={(route) => {}}/>
+      <RoutesInfoPopup routes={routes} isOpen={shouldDisplayRoutes} onRouteSelect={(route) => {
+        //TODO implement onRouteSelect
+      }}/>
     </View>
   );
 }

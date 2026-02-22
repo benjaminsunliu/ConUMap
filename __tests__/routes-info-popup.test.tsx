@@ -1,7 +1,7 @@
 import React from "react";
 import {act, render, fireEvent} from '@testing-library/react-native';
 import RoutesInfoPopup from "@/components/navigation/routes-info-popup";
-import { mockRoutes } from "@/data/mock-data/route-data";
+import mockRoutes from "@/data/mock-data/route-data.json";
 
 
 const mockAnimateToRegion = jest.fn();

@@ -100,7 +100,7 @@ export default function InfoPopup(props: React.PropsWithChildren<Props>) {
             {props.header}
             <View style={styles.rule} />
             {expanded && (
-                <ScrollView style={{ marginTop: 10 }}>
+                <ScrollView style={styles.ScrollView}>
                     {props.children}
                 </ScrollView>
             )}
@@ -136,4 +136,7 @@ const makeStyles = (theme: typeof Colors.light) =>
             marginVertical: 12,
             zIndex: 2
         },
+        ScrollView: {
+            marginTop: 10,
+        }
     });
