@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import {
     StyleSheet,
     Text,
-    ScrollView,
     TouchableOpacity,
     useColorScheme,
     Image,
