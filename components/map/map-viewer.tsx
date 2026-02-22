@@ -14,7 +14,8 @@ import BuildingInfoPopup from "./building-info-popup";
 import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
 import CampusToggle from "./campus-toggle";
 import BuildingSelection from "./building-selection";
-import RoutesInfoPopup, { mockRoutes } from "../navigation/routes-info-popup";
+import RoutesInfoPopup from "../navigation/routes-info-popup";
+import { mockRoutes } from "@/data/mock-data/route-data";
 
 interface Props {
   readonly userLocationDelta?: CoordinateDelta;
@@ -47,6 +48,7 @@ export default function MapViewer({
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
   const [polygonRenderVersion, setPolygonRenderVersion] = useState(0);
   const [shouldDisplayRoutes, setShouldDisplayRoutes] = useState(false);
+  const [routes, setRoutes] = useState(mockRoutes);
 
   const inBuildingCodes = useMemo(() => {
     const codes = new Set<string>();
@@ -248,6 +250,7 @@ export default function MapViewer({
 
   const navigateToBuilding = useCallback(() => {
     //Call backend to get route from current location to building
+    setRoutes(mockRoutes);
     setShouldDisplayRoutes(true);
   }, []);
 
@@ -315,7 +318,7 @@ export default function MapViewer({
       />
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
       <BuildingInfoPopup building={selectedBuilding} onNavigate={navigateToBuilding} />
-      <RoutesInfoPopup routes={mockRoutes} isOpen={shouldDisplayRoutes} onRouteSelect={(route) => {}}/>
+      <RoutesInfoPopup routes={routes} isOpen={shouldDisplayRoutes} onRouteSelect={(route) => {}}/>
     </View>
   );
 }
