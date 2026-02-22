@@ -65,7 +65,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
       </>
       
     );
-  },[availableTransports, colorScheme, styles.headerTitle, tabIndex, transportIconMap]);
+  },[availableTransports, colorScheme, styles.headerTitle, tabIndex]);
   if (availableTransports.length <= 0) return null;
   return (
     <InfoPopup shouldDisplay={isOpen} header={header}>
