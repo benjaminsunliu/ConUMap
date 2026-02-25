@@ -8,11 +8,11 @@ import {
     ScrollView,
     TouchableOpacity,
     Linking,
-    useColorScheme,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { BuildingInfo } from "@/data/parsedBuildings";
 import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 
 interface Props {
     readonly building: BuildingInfo | null;
@@ -44,7 +44,7 @@ const DEFAULT_OPENING_HOURS = [
 ];
 
 export default function BuildingInfoPopup({ building }: Props) {
-    const colorScheme = useColorScheme() ?? "light";
+    const colorScheme = useColorScheme();
     const theme = Colors[colorScheme];
     const styles = makeStyles(theme);
 
