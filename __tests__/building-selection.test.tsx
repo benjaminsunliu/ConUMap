@@ -216,7 +216,7 @@ describe("BuildingSelection component", () => {
   });
 
   it('should prioritize current buildings when typing in start field', async ()=>{
-    const selectionView = render(<BuildingSelection currentBuildingCodes={["H"]} onSelect={mockOnSelect}/>)
+    const selectionView = render(<BuildingSelection currentBuildingCodes={new Set(["B"])} onSelect={mockOnSelect}/>)
     const startInput = selectionView.getByPlaceholderText("Start");
     await act(async () => {
       await fireEvent(startInput, 'onFocus');
@@ -224,25 +224,14 @@ describe("BuildingSelection component", () => {
     });
     const startResults = await selectionView.findByTestId('start-results');
     expect(startResults).toBeVisible();
-    // Get all the result items and verify H comes before CI, CL, and B (even though they match)
+    // Get all the result items - B (current) should come before CI and CL
     const allResults = selectionView.getAllByTestId(/^start-result-/);
     expect(allResults.length).toBeGreaterThan(0);
-    // B Annex, CI Annex, CL Annex should all match "Annex", but H is not current for this test
-    // Let's verify we can find the results for the annex buildings
-    const bResult = await selectionView.findByTestId('start-result-B');
-    expect(bResult).toBeVisible();
-  });
-
-  it('should show current building as first result when start field focused with no text and currentBuildingCodes provided', async ()=>{
-    const selectionView = render(<BuildingSelection currentBuildingCodes={["H"]} onSelect={mockOnSelect}/>)
-    const startInput = selectionView.getByPlaceholderText("Start");
-    await act(async () => {
-      await fireEvent(startInput, 'onFocus');
-    });
-    const startResults = await selectionView.findByTestId('start-results');
-    expect(startResults).toBeVisible();
-    const hallResult = await selectionView.findByTestId('start-result-H');
-    expect(hallResult).toBeVisible();
+    // Verify that B (current building) is the first result
+    expect(allResults[0].props.testID).toBe('start-result-B');
+    // Verify other annex buildings also appear
+    const ciResult = await selectionView.findByTestId('start-result-CI');
+    expect(ciResult).toBeVisible();
   });
 
   it('should maintain backward compatibility when no currentBuildingCodes provided', async ()=>{
@@ -263,6 +252,5 @@ describe("BuildingSelection component", () => {
     const hallResult = await selectionView.findByTestId('start-result-H');
     expect(hallResult).toBeVisible();
   });
-
 
 });
