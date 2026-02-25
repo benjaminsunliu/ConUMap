@@ -16,10 +16,11 @@ const emptyBuilding: SearchBuilding = {
 };
 
 interface Props {
+    readonly currentBuildingCodes?: string[];
     readonly onSelect: (building: SearchBuilding, type: FieldType) => void;
 }
 
-export default function BuildingSelection({ onSelect }: Props) {
+export default function BuildingSelection({ currentBuildingCodes = [], onSelect }: Props) {
     const colorScheme = useColorScheme() ?? "light";
     const theme = Colors[colorScheme];
 
@@ -35,22 +36,34 @@ export default function BuildingSelection({ onSelect }: Props) {
 
     const [focusedField, setFocusedField] = useState<FieldType | null>(null);
 
-    const filterBuildings = useCallback((text: string) => {
+    const filterBuildings = useCallback((text: string, fieldType: FieldType) => {
         const q = text.toLowerCase();
-        return buildingAddresses.filter(
+        const filtered = buildingAddresses.filter(
             b =>
                 b.buildingName.toLowerCase().includes(q) ||
                 b.buildingCode.toLowerCase().includes(q) ||
                 b.address.toLowerCase().includes(q)
         );
-    }, []);
+
+        if (fieldType === "start" && currentBuildingCodes.length > 0) {
+            const currentBuildings = filtered.filter(b => currentBuildingCodes.includes(b.buildingCode));
+            const otherBuildings = filtered.filter(b => !currentBuildingCodes.includes(b.buildingCode));
+            return [...currentBuildings, ...otherBuildings];
+        }
+
+        return filtered;
+    }, [currentBuildingCodes]);
 
     const results = useMemo(
         () => ({
-            start: queries.start ? filterBuildings(queries.start) : [],
-            end: queries.end ? filterBuildings(queries.end) : []
+            start: queries.start
+                ? filterBuildings(queries.start, "start")
+                : currentBuildingCodes.length > 0
+                    ? buildingAddresses.filter(b => currentBuildingCodes.includes(b.buildingCode))
+                    : [],
+            end: queries.end ? filterBuildings(queries.end, "end") : []
         }),
-        [queries, filterBuildings]
+        [queries, filterBuildings, currentBuildingCodes]
     );
 
     const setQuery = useCallback((type: FieldType, value: string) => {
@@ -151,23 +164,27 @@ export default function BuildingSelection({ onSelect }: Props) {
                     style={[styles.results, { backgroundColor: theme.background, borderColor: theme.buildingInfoPopup.divider }]}
                     keyboardShouldPersistTaps="handled"
                     testID={`${type}-results`}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity
-                            style={[styles.resultItem, { borderBottomColor: theme.buildingInfoPopup.divider }]}
-                            onPress={() => handleSelect(item, type)} 
-                            testID={`${type}-result-${item.buildingCode.toUpperCase()}`}>
-                            <Text style={[styles.resultTitle, { color: theme.campusToggle.selectedColor }]}>
-                                {item.buildingCode} – {item.buildingName}
-                            </Text>
-                            <Text style={[styles.resultAddress, { color: theme.text }]}>
-                                {item.address}
-                            </Text>
-                        </TouchableOpacity>
-                    )}
+                    renderItem={({ item }) => {
+                        const isCurrent = type === "start" && currentBuildingCodes.includes(item.buildingCode);
+                        return (
+                            <TouchableOpacity
+                                style={[styles.resultItem, { borderBottomColor: theme.buildingInfoPopup.divider }]}
+                                onPress={() => handleSelect(item, type)} 
+                                testID={`${type}-result-${item.buildingCode.toUpperCase()}`}>
+                                <Text style={[styles.resultTitle, { color: theme.campusToggle.selectedColor }]}>
+                                    {isCurrent && "📍 "}{item.buildingCode} – {item.buildingName}
+                                    {isCurrent && <Text style={styles.currentLabel}> (Current Building)</Text>}
+                                </Text>
+                                <Text style={[styles.resultAddress, { color: theme.text }]}>
+                                    {item.address}
+                                </Text>
+                            </TouchableOpacity>
+                        );
+                    }}
                 />
             );
         },
-        [results, focusedField, theme.background, theme.buildingInfoPopup.divider, theme.campusToggle.selectedColor, theme.text, handleSelect]
+        [results, focusedField, theme.background, theme.buildingInfoPopup.divider, theme.campusToggle.selectedColor, theme.text, handleSelect, currentBuildingCodes]
     );
 
     return (
@@ -232,5 +249,9 @@ const styles = StyleSheet.create({
     },
     resultAddress: {
         fontSize: 12
+    },
+    currentLabel: {
+        fontSize: 11,
+        fontWeight: "400"
     }
 });

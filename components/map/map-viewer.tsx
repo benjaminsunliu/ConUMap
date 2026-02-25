@@ -246,6 +246,7 @@ export default function MapViewer({
   return (
     <View style={styles.container}>
       <BuildingSelection
+        currentBuildingCodes={Array.from(inBuildingCodes)}
         onSelect={(building) => {
           selectBuildingByCode(building.buildingCode);
           const mapBuilding = CAMPUS_LOCATIONS.find((b) => b.code === building.buildingCode);
