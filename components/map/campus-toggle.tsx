@@ -70,7 +70,7 @@ export default function CampusToggle({ mapRef, viewRegion }: Readonly<Props>) {
         buttonColor={Colors[colorScheme].campusToggle.buttonColor}
         borderColor={Colors[colorScheme].campusToggle.borderColor}
         backgroundColor={Colors[colorScheme].campusToggle.backgroundColor}
-        disableValueChangeOnPress={true}
+        disableValueChangeOnPress={false}
         bold={true}
         fontSize={20}
         hasPadding
