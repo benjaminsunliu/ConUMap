@@ -62,14 +62,24 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), on
     }, [currentBuildingCodes]);
 
     const results = useMemo(
-        () => ({
-            start: queries.start
-                ? filterBuildings(queries.start, "start")
-                : currentBuildingCodes.size > 0
-                    ? buildingAddresses.filter(b => currentBuildingCodes.has(b.buildingCode))
-                    : [],
-            end: queries.end ? filterBuildings(queries.end, "end") : []
-        }),
+        () => {
+            let startResults: SearchBuilding[];
+            if (queries.start) {
+                // User is typing - filter and prioritize current buildings
+                startResults = filterBuildings(queries.start, "start");
+            } else if (currentBuildingCodes.size > 0) {
+                // No search text - show only current buildings
+                startResults = buildingAddresses.filter(b => currentBuildingCodes.has(b.buildingCode));
+            } else {
+                // No search text and no current building - show nothing
+                startResults = [];
+            }
+
+            return {
+                start: startResults,
+                end: queries.end ? filterBuildings(queries.end, "end") : []
+            };
+        },
         [queries, filterBuildings, currentBuildingCodes]
     );
 
