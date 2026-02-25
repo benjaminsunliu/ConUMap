@@ -16,11 +16,11 @@ const emptyBuilding: SearchBuilding = {
 };
 
 interface Props {
-    readonly currentBuildingCodes?: string[];
+    readonly currentBuildingCodes?: Set<string>;
     readonly onSelect: (building: SearchBuilding, type: FieldType) => void;
 }
 
-export default function BuildingSelection({ currentBuildingCodes = [], onSelect }: Props) {
+export default function BuildingSelection({ currentBuildingCodes = new Set(), onSelect }: Props) {
     const colorScheme = useColorScheme() ?? "light";
     const theme = Colors[colorScheme];
 
@@ -45,9 +45,16 @@ export default function BuildingSelection({ currentBuildingCodes = [], onSelect 
                 b.address.toLowerCase().includes(q)
         );
 
-        if (fieldType === "start" && currentBuildingCodes.length > 0) {
-            const currentBuildings = filtered.filter(b => currentBuildingCodes.includes(b.buildingCode));
-            const otherBuildings = filtered.filter(b => !currentBuildingCodes.includes(b.buildingCode));
+        if (fieldType === "start" && currentBuildingCodes.size > 0) {
+            const { currentBuildings, otherBuildings } = filtered.reduce((acc, building) => {
+                if (currentBuildingCodes.has(building.buildingCode)) {
+                    acc.currentBuildings.push(building);
+                } else {
+                    acc.otherBuildings.push(building);
+                }
+                return acc;
+            }, { currentBuildings: [] as SearchBuilding[], otherBuildings: [] as SearchBuilding[] });
+
             return [...currentBuildings, ...otherBuildings];
         }
 
@@ -58,8 +65,8 @@ export default function BuildingSelection({ currentBuildingCodes = [], onSelect 
         () => ({
             start: queries.start
                 ? filterBuildings(queries.start, "start")
-                : currentBuildingCodes.length > 0
-                    ? buildingAddresses.filter(b => currentBuildingCodes.includes(b.buildingCode))
+                : currentBuildingCodes.size > 0
+                    ? buildingAddresses.filter(b => currentBuildingCodes.has(b.buildingCode))
                     : [],
             end: queries.end ? filterBuildings(queries.end, "end") : []
         }),
@@ -165,7 +172,7 @@ export default function BuildingSelection({ currentBuildingCodes = [], onSelect 
                     keyboardShouldPersistTaps="handled"
                     testID={`${type}-results`}
                     renderItem={({ item }) => {
-                        const isCurrent = type === "start" && currentBuildingCodes.includes(item.buildingCode);
+                        const isCurrent = type === "start" && currentBuildingCodes.has(item.buildingCode);
                         return (
                             <TouchableOpacity
                                 style={[styles.resultItem, { borderBottomColor: theme.buildingInfoPopup.divider }]}
@@ -252,6 +259,5 @@ const styles = StyleSheet.create({
     },
     currentLabel: {
         fontSize: 11,
-        fontWeight: "400"
     }
 });
