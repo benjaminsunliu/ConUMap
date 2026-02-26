@@ -1,4 +1,4 @@
-name: Tests and Coverage
+name: CI
 
 on:
   push:
@@ -8,8 +8,8 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  test:
-    name: Run tests and collect coverage
+  test-and-analyze:
+    name: Test and Code Analysis
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -36,3 +36,8 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           files: ./coverage/lcov.info
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
