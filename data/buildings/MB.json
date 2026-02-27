@@ -1,0 +1,64 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4953582145817,
+        "longitude": -73.57936679236
+      },
+      {
+        "latitude": 45.4952214724534,
+        "longitude": -73.5791140655931
+      },
+      {
+        "latitude": 45.495166957671,
+        "longitude": -73.5791709321529
+      },
+      {
+        "latitude": 45.4950053688838,
+        "longitude": -73.5788237177934
+      },
+      {
+        "latitude": 45.495038478239,
+        "longitude": -73.578790914583
+      },
+      {
+        "latitude": 45.4950046494943,
+        "longitude": -73.578736668877
+      },
+      {
+        "latitude": 45.4951866964358,
+        "longitude": -73.5785253185921
+      },
+      {
+        "latitude": 45.4954398667409,
+        "longitude": -73.5789620198379
+      },
+      {
+        "latitude": 45.4955189127982,
+        "longitude": -73.5791999148236
+      },
+      {
+        "latitude": 45.4953582145817,
+        "longitude": -73.57936679236
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4953406,
+    "longitude": -73.5788682
+  },
+  "buildingCode": "MB",
+  "buildingName": "John Molson Building",
+  "overview": [
+    "In 2009, the John Molson Building officially opened on the corner of Guy and de Maisonneuve. It includes digitally equipped teaching amphitheatres and classrooms, faculty and graduate student offices, the Office of the Dean, student and faculty social space, as well as space for privatized programs. Special features also include case study rooms designed for group work, and laboratories for consumer behaviour research.",
+    "Set on a tight footprint typical of a downtown property, the building is 15 storeys high, with two basement levels. The distinctive design features two-storey stacked atria, a vertically interconnected ground floor concourse, and a tunnel running under Guy Street connecting to the Guy-Concordia metro station and the Engineering, Computer Science and Visual Arts Integrated Complex.",
+    "The building was awarded LEED (Leadership in Energy and Environmental Design) Silver level certification for its eco-friendly design."
+  ],
+  "accessibility": [
+    "entranceAutomatedDoor",
+    "elevator"
+  ],
+  "address": "1450 Guy St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/mb.html"
+}

@@ -1,0 +1,74 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.45671477024348,
+        "longitude": -73.63709539175034
+      },
+      {
+        "latitude": 45.45639186891413,
+        "longitude": -73.63736227154732
+      },
+      {
+        "latitude": 45.45669007647078,
+        "longitude": -73.6381334066391
+      },
+      {
+        "latitude": 45.45679214399463,
+        "longitude": -73.63806366920471
+      },
+      {
+        "latitude": 45.456840355548806,
+        "longitude": -73.63818034529686
+      },
+      {
+        "latitude": 45.457004039347105,
+        "longitude": -73.63805025815964
+      },
+      {
+        "latitude": 45.45695488722195,
+        "longitude": -73.63792017102242
+      },
+      {
+        "latitude": 45.45702732191778,
+        "longitude": -73.63786485046148
+      },
+      {
+        "latitude": 45.45672088489029,
+        "longitude": -73.63709673285484
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4576268,
+    "longitude": -73.63688239999999
+  },
+  "buildingCode": "RA",
+  "buildingName": "Recreation and Athletics Complex",
+  "overview": [
+    "Opened in 1967, the Recreation and Athletics Complex is the heart of varsity and recreational sports at Concordia’s Loyola Campus. It features the NHL-standard Ed Meagher Arena, a 4,000-seat stadium, gymnasium and two outdoor turf fields.",
+    "Today, the complex is home to Concordia Stingers varsity teams, intramural leagues, fitness classes and community sports programs. Students can join pick-up games or participate in organized leagues for basketball, volleyball, soccer, rugby and more."
+  ],
+  "services": [
+    {
+      "name": "Concordia Stadium",
+      "url": "https://www.concordia.ca/campus-life/recreation/facilities/athletic-complex.html"
+    },
+    {
+      "name": "Ed Meagher Arena",
+      "url": "https://www.concordia.ca/campus-life/recreation/facilities/arena.html"
+    },
+    {
+      "name": "Gymnasium",
+      "url": "https://www.concordia.ca/campus-life/recreation/facilities/athletic-complex.html"
+    }
+  ],
+  "accessibility": [
+    "wheelchairLift",
+    "entranceRamp",
+    "entranceAutomatedDoor"
+  ],
+  "address": "7200 Sherbrooke St. W.",
+  "campus": "LOY",
+  "url": "https://www.concordia.ca/maps/buildings/ra.html"
+}

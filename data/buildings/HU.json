@@ -1,0 +1,44 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4585771279425,
+        "longitude": -73.6415036446775
+      },
+      {
+        "latitude": 45.4587270927744,
+        "longitude": -73.6419054527768
+      },
+      {
+        "latitude": 45.458443026293,
+        "longitude": -73.6421195451855
+      },
+      {
+        "latitude": 45.4582930909286,
+        "longitude": -73.6417179281964
+      },
+      {
+        "latitude": 45.4585771279425,
+        "longitude": -73.6415036446775
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4585642,
+    "longitude": -73.6418664
+  },
+  "buildingCode": "HU",
+  "buildingName": "Applied Science Hub",
+  "overview": [
+    "The Applied Science Hub is a state-of-the-art facility on Loyola Campus that opened in December 2020. The hub expands on the Richard J. Renaud Science Complex and reflects Concordia’s commitment to interdisciplinary research and sustainable design.",
+    "This LEED Gold–certified building includes four floors of high-tech labs and collaborative spaces, supporting research in agriculture, health, sustainability and engineering. Facilities include equipment for aquatic biology, cellular imaging, nanoscience, bioprocessing and more.",
+    "The Applied Science Hub also houses the District 3 Innovation Hub, where students, researchers and entrepreneurs can collaborate on scaling up ideas and startups with real-world impact."
+  ],
+  "accessibility": [
+    "entranceAutomatedDoor",
+    "elevator"
+  ],
+  "address": "7141 Sherbrooke St. W.",
+  "campus": "LOY",
+  "url": "https://www.concordia.ca/maps/buildings/hu.html"
+}

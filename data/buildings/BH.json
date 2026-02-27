@@ -1,0 +1,45 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4598161640063,
+        "longitude": -73.6391675956252
+      },
+      {
+        "latitude": 45.4597248471938,
+        "longitude": -73.6392438574883
+      },
+      {
+        "latitude": 45.4596937556834,
+        "longitude": -73.6391676852224
+      },
+      {
+        "latitude": 45.4597849641343,
+        "longitude": -73.6390916906691
+      },
+      {
+        "latitude": 45.4598161640063,
+        "longitude": -73.6391675956252
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.45976539999999,
+    "longitude": -73.6391464
+  },
+  "buildingCode": "BH",
+  "buildingName": "BH Annex",
+  "overview": [
+    "The BH Annex is situated on the Loyola Campus. It houses Les P’tits Profs Daycare, which offers quality childcare for Concordia faculty, staff and students. The building plays a key role in fostering a supportive, family-friendly campus environment."
+  ],
+  "services": [
+    {
+      "name": "CPE Les P'tits Profs Daycare",
+      "url": "https://lesptitsprofs.wordpress.com/"
+    }
+  ],
+  "accessibility": [],
+  "address": "3500 Belmore Ave.",
+  "campus": "LOY",
+  "url": "https://www.concordia.ca/maps/buildings/bh.html"
+}

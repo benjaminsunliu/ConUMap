@@ -1,0 +1,53 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4969862203475,
+        "longitude": -73.5797414844602
+      },
+      {
+        "latitude": 45.4969106079946,
+        "longitude": -73.579816510102
+      },
+      {
+        "latitude": 45.4968973399696,
+        "longitude": -73.5797895863551
+      },
+      {
+        "latitude": 45.4968744342013,
+        "longitude": -73.5798124906094
+      },
+      {
+        "latitude": 45.496850522994,
+        "longitude": -73.579763431738
+      },
+      {
+        "latitude": 45.4969490409659,
+        "longitude": -73.5796655016554
+      },
+      {
+        "latitude": 45.4969862203475,
+        "longitude": -73.5797414844602
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4969207,
+    "longitude": -73.5797469
+  },
+  "buildingCode": "Z",
+  "buildingName": "Z Annex",
+  "overview": [
+    "Dating back to 1879, the Z Annex is a three-storey Victorian stone house with a distinctive slate mansard roof and bay-window. Decorative woodwork and stone engravings highlight its original craftsmanship. Formerly a private residence, the building was acquired by Concordia in 1969 and now supports student services and office functions."
+  ],
+  "services": [
+    {
+      "name": "Sustainable Concordia",
+      "url": "https://www.instagram.com/sustainable_concordia"
+    }
+  ],
+  "accessibility": [],
+  "address": "2090 Mackay St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/z.html"
+}

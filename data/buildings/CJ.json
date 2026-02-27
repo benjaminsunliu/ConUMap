@@ -1,0 +1,285 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4587524574089,
+        "longitude": -73.6395707307278
+      },
+      {
+        "latitude": 45.4587420402227,
+        "longitude": -73.6396243670305
+      },
+      {
+        "latitude": 45.4586653764305,
+        "longitude": -73.6396848840896
+      },
+      {
+        "latitude": 45.4586246069113,
+        "longitude": -73.6396643641565
+      },
+      {
+        "latitude": 45.4585977615507,
+        "longitude": -73.6395899843982
+      },
+      {
+        "latitude": 45.4585892363662,
+        "longitude": -73.6395962141031
+      },
+      {
+        "latitude": 45.458580765559,
+        "longitude": -73.6395746754239
+      },
+      {
+        "latitude": 45.4585550562265,
+        "longitude": -73.6395944628225
+      },
+      {
+        "latitude": 45.4585386489181,
+        "longitude": -73.6395881896347
+      },
+      {
+        "latitude": 45.4585280486355,
+        "longitude": -73.6395621909924
+      },
+      {
+        "latitude": 45.4584833031166,
+        "longitude": -73.6394412181106
+      },
+      {
+        "latitude": 45.4585115963593,
+        "longitude": -73.6394219527025
+      },
+      {
+        "latitude": 45.4585090475233,
+        "longitude": -73.6394116206148
+      },
+      {
+        "latitude": 45.4585156420792,
+        "longitude": -73.63940530087
+      },
+      {
+        "latitude": 45.4585007432302,
+        "longitude": -73.6393640831852
+      },
+      {
+        "latitude": 45.4584971595996,
+        "longitude": -73.6393667993793
+      },
+      {
+        "latitude": 45.4584925934929,
+        "longitude": -73.6393537769075
+      },
+      {
+        "latitude": 45.4584956595269,
+        "longitude": -73.6393505488723
+      },
+      {
+        "latitude": 45.4584773459625,
+        "longitude": -73.6393011391218
+      },
+      {
+        "latitude": 45.4584734907581,
+        "longitude": -73.6393040147974
+      },
+      {
+        "latitude": 45.4584688164138,
+        "longitude": -73.639291259832
+      },
+      {
+        "latitude": 45.4584726991747,
+        "longitude": -73.6392885719179
+      },
+      {
+        "latitude": 45.458456001484,
+        "longitude": -73.6392451474402
+      },
+      {
+        "latitude": 45.4584420212414,
+        "longitude": -73.6392564160759
+      },
+      {
+        "latitude": 45.4584172560544,
+        "longitude": -73.6391891767186
+      },
+      {
+        "latitude": 45.4584309962593,
+        "longitude": -73.6391802923983
+      },
+      {
+        "latitude": 45.4584236452531,
+        "longitude": -73.6391613593123
+      },
+      {
+        "latitude": 45.4584302397788,
+        "longitude": -73.639155039517
+      },
+      {
+        "latitude": 45.4584085685455,
+        "longitude": -73.6390988318417
+      },
+      {
+        "latitude": 45.4584270593353,
+        "longitude": -73.6390861380838
+      },
+      {
+        "latitude": 45.4584146541332,
+        "longitude": -73.6390548770209
+      },
+      {
+        "latitude": 45.458392418394,
+        "longitude": -73.6390711975491
+      },
+      {
+        "latitude": 45.4583807176959,
+        "longitude": -73.6390387070329
+      },
+      {
+        "latitude": 45.4585182233793,
+        "longitude": -73.6389334862162
+      },
+      {
+        "latitude": 45.4585301406129,
+        "longitude": -73.6389654418592
+      },
+      {
+        "latitude": 45.4585075525861,
+        "longitude": -73.6389823772455
+      },
+      {
+        "latitude": 45.4585197964935,
+        "longitude": -73.6390145489247
+      },
+      {
+        "latitude": 45.458537063215,
+        "longitude": -73.6390015541737
+      },
+      {
+        "latitude": 45.4585586498975,
+        "longitude": -73.6390561802114
+      },
+      {
+        "latitude": 45.4585687218298,
+        "longitude": -73.6390484301903
+      },
+      {
+        "latitude": 45.4585751950328,
+        "longitude": -73.6390633920311
+      },
+      {
+        "latitude": 45.4585807839344,
+        "longitude": -73.6390572548322
+      },
+      {
+        "latitude": 45.4586046716848,
+        "longitude": -73.6390652535539
+      },
+      {
+        "latitude": 45.4586168309186,
+        "longitude": -73.6390958434636
+      },
+      {
+        "latitude": 45.4586108550832,
+        "longitude": -73.6391264775006
+      },
+      {
+        "latitude": 45.4586014640797,
+        "longitude": -73.639134847366
+      },
+      {
+        "latitude": 45.4586618646879,
+        "longitude": -73.6392941475257
+      },
+      {
+        "latitude": 45.4586702265167,
+        "longitude": -73.6392878096929
+      },
+      {
+        "latitude": 45.4586805042116,
+        "longitude": -73.6393156295101
+      },
+      {
+        "latitude": 45.4586975270165,
+        "longitude": -73.6393029821371
+      },
+      {
+        "latitude": 45.4587027701023,
+        "longitude": -73.6393145874374
+      },
+      {
+        "latitude": 45.4587291859564,
+        "longitude": -73.6392945887863
+      },
+      {
+        "latitude": 45.4587442442684,
+        "longitude": -73.6393338776471
+      },
+      {
+        "latitude": 45.4587180999757,
+        "longitude": -73.6393537167925
+      },
+      {
+        "latitude": 45.4587193891809,
+        "longitude": -73.6393594860284
+      },
+      {
+        "latitude": 45.4587028564004,
+        "longitude": -73.6393724574525
+      },
+      {
+        "latitude": 45.4587178615528,
+        "longitude": -73.6394123893075
+      },
+      {
+        "latitude": 45.4587087380864,
+        "longitude": -73.639418562505
+      },
+      {
+        "latitude": 45.4587339637691,
+        "longitude": -73.6394849201245
+      },
+      {
+        "latitude": 45.4587222071707,
+        "longitude": -73.6394932513336
+      },
+      {
+        "latitude": 45.4587524574089,
+        "longitude": -73.6395707307278
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4585769,
+    "longitude": -73.639326
+  },
+  "buildingCode": "CJ",
+  "buildingName": "Communication Studies and Journalism Building",
+  "overview": [
+    "Originally built in 1962 as the Drummond Science Complex, this building was fully renovated and expanded in 2005. It now houses the Communication Studies and Journalism departments, as well as a bookstore, open lounge space and small café.",
+    "The Communication Studies and Journalism Building features specialized media spaces. These include a fully digitized radio and television broadcast operation, network access, high-tech classrooms, new media and computer labs, and studios with high-end audiovisual equipment, including production, video and editing suites."
+  ],
+  "services": [
+    {
+      "name": "Concordia Book Stop",
+      "url": "https://www.bkstr.com/concordiastore"
+    }
+  ],
+  "departments": [
+    {
+      "name": "Communication Studies",
+      "url": "https://www.concordia.ca/artsci/coms.html"
+    },
+    {
+      "name": "Journalism",
+      "url": "https://www.concordia.ca/artsci/journalism.html"
+    }
+  ],
+  "accessibility": [
+    "wheelchairLift",
+    "entranceRamp",
+    "entranceAutomatedDoor",
+    "elevator"
+  ],
+  "address": "7141 Sherbrooke St. W.",
+  "campus": "LOY",
+  "url": "https://www.concordia.ca/maps/buildings/cj.html"
+}

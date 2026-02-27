@@ -1,0 +1,108 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4943969727186,
+        "longitude": -73.5775201996659
+      },
+      {
+        "latitude": 45.4946547160836,
+        "longitude": -73.577218430009
+      },
+      {
+        "latitude": 45.4947009680424,
+        "longitude": -73.5772988690161
+      },
+      {
+        "latitude": 45.4946921522997,
+        "longitude": -73.5773091761123
+      },
+      {
+        "latitude": 45.4947746501992,
+        "longitude": -73.5774522456317
+      },
+      {
+        "latitude": 45.4947637191802,
+        "longitude": -73.5774652304452
+      },
+      {
+        "latitude": 45.4948068278951,
+        "longitude": -73.5775403695801
+      },
+      {
+        "latitude": 45.4947987717019,
+        "longitude": -73.5775498200192
+      },
+      {
+        "latitude": 45.4948424264324,
+        "longitude": -73.5776256592136
+      },
+      {
+        "latitude": 45.4948358617139,
+        "longitude": -73.5776332083992
+      },
+      {
+        "latitude": 45.4948770551498,
+        "longitude": -73.5777043673824
+      },
+      {
+        "latitude": 45.4948698666555,
+        "longitude": -73.5777126930623
+      },
+      {
+        "latitude": 45.4949119359013,
+        "longitude": -73.5777857883245
+      },
+      {
+        "latitude": 45.4946956374377,
+        "longitude": -73.5780392058659
+      },
+      {
+        "latitude": 45.4944430329004,
+        "longitude": -73.5776003421639
+      },
+      {
+        "latitude": 45.4943969727186,
+        "longitude": -73.5775201996659
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4947027,
+    "longitude": -73.57779649999999
+  },
+  "buildingCode": "FB",
+  "buildingName": "Faubourg Building",
+  "overview": [
+    "The Faubourg Building, a 12-storey postmodern tower, opened in 1990 at the corner of Guy Street and Ste. Catherine Street West. Originally designed as a hotel, it became an office building and was acquired by Concordia in 1997.",
+    "Today, it’s home to Concordia Continuing Education and the Mel Hoppenheim School of Cinema, along with labs, classrooms, offices, study spaces and student services.",
+    "The building is part of a larger complex that once hosted a Buick car showroom, bowling alley and the legendary Toe Blake’s Tavern. Its red brick, green aluminum and glass exterior stands out with a distinctive sawtooth pattern along Guy Street.",
+    "The Faubourg Building connects to the Faubourg Ste-Catherine (FG) and Grey Nuns Annex (GA) Buildings and offers indoor parking."
+  ],
+  "services": [
+    {
+      "name": "Study Hub",
+      "url": "https://www.concordia.ca/students/success/superb-study-spots-at-concordia.html#study-spots"
+    }
+  ],
+  "departments": [
+    {
+      "name": "Theological Studies",
+      "url": "https://www.concordia.ca/artsci/theology.html"
+    }
+  ],
+  "venues": [
+    {
+      "name": "District 3 Innovation Hub",
+      "url": "https://www.concordia.ca/research/d3.html"
+    }
+  ],
+  "accessibility": [
+    "wheelchairLift",
+    "entranceAutomatedDoor",
+    "elevator"
+  ],
+  "address": "1250 Guy St.\r\n1600 Ste-Catherine St. W.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/fb.html"
+}

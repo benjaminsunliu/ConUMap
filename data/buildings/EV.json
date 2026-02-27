@@ -1,0 +1,119 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4957557901695,
+        "longitude": -73.5779889059455
+      },
+      {
+        "latitude": 45.4957554076603,
+        "longitude": -73.5779883139223
+      },
+      {
+        "latitude": 45.4956683410232,
+        "longitude": -73.5780727544157
+      },
+      {
+        "latitude": 45.4958667623419,
+        "longitude": -73.5784965718486
+      },
+      {
+        "latitude": 45.4955950920977,
+        "longitude": -73.5787630078664
+      },
+      {
+        "latitude": 45.4952468016307,
+        "longitude": -73.5780204246687
+      },
+      {
+        "latitude": 45.4952649822386,
+        "longitude": -73.5780015309936
+      },
+      {
+        "latitude": 45.4952472580877,
+        "longitude": -73.5779153083011
+      },
+      {
+        "latitude": 45.4952341934041,
+        "longitude": -73.5779138135529
+      },
+      {
+        "latitude": 45.4952383706326,
+        "longitude": -73.577878036755
+      },
+      {
+        "latitude": 45.495299542054,
+        "longitude": -73.5777972129891
+      },
+      {
+        "latitude": 45.4953541196194,
+        "longitude": -73.5777437803452
+      },
+      {
+        "latitude": 45.4953559551132,
+        "longitude": -73.5776971209797
+      },
+      {
+        "latitude": 45.4954472290693,
+        "longitude": -73.5776091768804
+      },
+      {
+        "latitude": 45.4954617860355,
+        "longitude": -73.5776398360949
+      },
+      {
+        "latitude": 45.495550565051,
+        "longitude": -73.5775549976773
+      },
+      {
+        "latitude": 45.4955392620683,
+        "longitude": -73.5775303908666
+      },
+      {
+        "latitude": 45.4958308910287,
+        "longitude": -73.5772501286848
+      },
+      {
+        "latitude": 45.4960481288504,
+        "longitude": -73.5777084350653
+      },
+      {
+        "latitude": 45.4957557901695,
+        "longitude": -73.5779889059455
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4956206,
+    "longitude": -73.5782531
+  },
+  "buildingCode": "EV",
+  "buildingName": "Engineering, Computer Science and Visual Arts Integrated Complex",
+  "overview": [
+    "The Engineering, Computer Science and Visual Arts Integrated Complex (EV Building) opened in September 2005, a striking addition to Montreal’s downtown landscape.",
+    "The 17-storey complex unites the Gina Cody School of Engineering and Computer Science and the Faculty of Fine Arts in a bold, light-filled structure on the Sir George Williams Campus. Its two towers, connected on every floor, were designed to encourage collaboration between disciplines while responding thoughtfully to their urban surroundings.",
+    "The Engineering and Computer Science tower contains over 300 specialized labs, student areas and the faculty Dean's Office, integrating a large part of the faculty in one space.",
+    "The Visual Arts tower houses Studio Arts, Art History and the faculty Dean's Office, with specialized spaces for traditional and digital media. It also boasts an art gallery, a black box theatre and art history amphitheatres.",
+    "The complex also includes a fitness and recreation centre, and an underground tunnel to the Guy-De Maisonneuve (GM) Building and Guy-Concordia metro station."
+  ],
+  "services": [
+    {
+      "name": "Zen Den",
+      "url": "https://www.concordia.ca/health/cuwellness.html"
+    }
+  ],
+  "departments": [
+    {
+      "name": "Studio Arts",
+      "url": "https://www.concordia.ca/finearts/studio-arts.html"
+    }
+  ],
+  "venues": [],
+  "accessibility": [
+    "entranceAutomatedDoor",
+    "elevator"
+  ],
+  "address": "1515 Ste-Catherine St. W.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/ev.html"
+}

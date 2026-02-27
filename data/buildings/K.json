@@ -1,0 +1,40 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4979205685552,
+        "longitude": -73.5794612989859
+      },
+      {
+        "latitude": 45.4977404249532,
+        "longitude": -73.5796355545586
+      },
+      {
+        "latitude": 45.4977050135195,
+        "longitude": -73.5795595494702
+      },
+      {
+        "latitude": 45.4978839592371,
+        "longitude": -73.5793851819464
+      },
+      {
+        "latitude": 45.4979205685552,
+        "longitude": -73.5794612989859
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4977587,
+    "longitude": -73.5795318
+  },
+  "buildingCode": "K",
+  "buildingName": "K Annex",
+  "overview": [
+    "The oldest of the Bishop annexes, this row house was built in 1890. Its Romanesque-inspired stonework and carved details — like rounded archways and a stone porch with balcony — make it especially striking.",
+    "Acquired in 1970, the annex now houses offices for departments and unions."
+  ],
+  "accessibility": [],
+  "address": "2150 Bishop St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/k.html"
+}

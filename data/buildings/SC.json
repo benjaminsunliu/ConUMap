@@ -1,0 +1,234 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.458630439266,
+        "longitude": -73.6384670350639
+      },
+      {
+        "latitude": 45.4587177447613,
+        "longitude": -73.6383986331803
+      },
+      {
+        "latitude": 45.4587041622279,
+        "longitude": -73.6383633721909
+      },
+      {
+        "latitude": 45.458865688604,
+        "longitude": -73.6382369027117
+      },
+      {
+        "latitude": 45.4588523795509,
+        "longitude": -73.638202500656
+      },
+      {
+        "latitude": 45.4588875623709,
+        "longitude": -73.6381749048765
+      },
+      {
+        "latitude": 45.4588689233369,
+        "longitude": -73.6381262969821
+      },
+      {
+        "latitude": 45.4589022602197,
+        "longitude": -73.6381001930414
+      },
+      {
+        "latitude": 45.4588824185542,
+        "longitude": -73.638048416268
+      },
+      {
+        "latitude": 45.4589108690347,
+        "longitude": -73.638026201593
+      },
+      {
+        "latitude": 45.4589012758865,
+        "longitude": -73.6380010385289
+      },
+      {
+        "latitude": 45.4590379079377,
+        "longitude": -73.6378938770783
+      },
+      {
+        "latitude": 45.4590462434286,
+        "longitude": -73.6379154958403
+      },
+      {
+        "latitude": 45.4590812905123,
+        "longitude": -73.6378879793163
+      },
+      {
+        "latitude": 45.4590736379824,
+        "longitude": -73.6378679989784
+      },
+      {
+        "latitude": 45.4591019251822,
+        "longitude": -73.6378456759963
+      },
+      {
+        "latitude": 45.4591283803455,
+        "longitude": -73.637914372618
+      },
+      {
+        "latitude": 45.4591217562384,
+        "longitude": -73.6379194864771
+      },
+      {
+        "latitude": 45.4591312392161,
+        "longitude": -73.6379438986255
+      },
+      {
+        "latitude": 45.4591382706944,
+        "longitude": -73.6379385455363
+      },
+      {
+        "latitude": 45.4592128531383,
+        "longitude": -73.6381321479391
+      },
+      {
+        "latitude": 45.4591320352687,
+        "longitude": -73.6381955174007
+      },
+      {
+        "latitude": 45.4593120524935,
+        "longitude": -73.638662296719
+      },
+      {
+        "latitude": 45.4593017364144,
+        "longitude": -73.638670394265
+      },
+      {
+        "latitude": 45.4594835704297,
+        "longitude": -73.6391354956591
+      },
+      {
+        "latitude": 45.4593605637811,
+        "longitude": -73.6392319979447
+      },
+      {
+        "latitude": 45.4593511637581,
+        "longitude": -73.6392081490052
+      },
+      {
+        "latitude": 45.4593346307778,
+        "longitude": -73.6392211207098
+      },
+      {
+        "latitude": 45.4593177162506,
+        "longitude": -73.6391782302059
+      },
+      {
+        "latitude": 45.4592639374046,
+        "longitude": -73.6392208235631
+      },
+      {
+        "latitude": 45.4593048163551,
+        "longitude": -73.6393244911281
+      },
+      {
+        "latitude": 45.4592337999664,
+        "longitude": -73.6393812852633
+      },
+      {
+        "latitude": 45.4592147244697,
+        "longitude": -73.6393317099037
+      },
+      {
+        "latitude": 45.4591065706206,
+        "longitude": -73.6394178576669
+      },
+      {
+        "latitude": 45.4589909017275,
+        "longitude": -73.6391241802509
+      },
+      {
+        "latitude": 45.4590952804424,
+        "longitude": -73.6390404520442
+      },
+      {
+        "latitude": 45.4590781750219,
+        "longitude": -73.6389972660174
+      },
+      {
+        "latitude": 45.459136324394,
+        "longitude": -73.6389512899121
+      },
+      {
+        "latitude": 45.4591493045649,
+        "longitude": -73.6389844575591
+      },
+      {
+        "latitude": 45.4592207554939,
+        "longitude": -73.6389276110551
+      },
+      {
+        "latitude": 45.4591629850965,
+        "longitude": -73.6387792039197
+      },
+      {
+        "latitude": 45.4591563609329,
+        "longitude": -73.6387843175763
+      },
+      {
+        "latitude": 45.4591959059043,
+        "longitude": -73.6388869329345
+      },
+      {
+        "latitude": 45.4590904643475,
+        "longitude": -73.6389694504627
+      },
+      {
+        "latitude": 45.4590501539314,
+        "longitude": -73.6388646336778
+      },
+      {
+        "latitude": 45.4588534704689,
+        "longitude": -73.6390188825318
+      },
+      {
+        "latitude": 45.4588368000629,
+        "longitude": -73.6389756453386
+      },
+      {
+        "latitude": 45.4588288455962,
+        "longitude": -73.6389817440707
+      },
+      {
+        "latitude": 45.458630439266,
+        "longitude": -73.6384670350639
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4592338,
+    "longitude": -73.6393801
+  },
+  "buildingCode": "SC",
+  "buildingName": "Student Centre",
+  "overview": [
+    "Opened in 1973, the Student Centre was designed as a space for students, by students. It originally housed lounges, music-listening spaces and a student pub, The Wolf and Kettle — later renamed The Hive.",
+    "Today, the building hosts Buzz Dining Hall, the Hive Café, music practice rooms and student association offices. Built with student and alumni contributions, the centre was refreshed through the “Revive the Hive” campaign in the late 1990s.",
+    "It connects directly to the Oscar Peterson Concert Hall and Vanier Library."
+  ],
+  "services": [
+    {
+      "name": "Cafeteria",
+      "url": "https://www.concordia.ca/campus-life/food-services/places-to-eat/buzz-dining-hall.html"
+    },
+    {
+      "name": "Café",
+      "url": "https://hivecafe.ca/"
+    },
+    {
+      "name": "Food Services",
+      "url": "https://www.concordia.ca/students/housing/residences.html"
+    }
+  ],
+  "accessibility": [
+    "entranceRamp",
+    "entranceAutomatedDoor"
+  ],
+  "address": "7141 Sherbrooke St. W.",
+  "campus": "LOY",
+  "url": "https://www.concordia.ca/maps/buildings/sc.html"
+}
