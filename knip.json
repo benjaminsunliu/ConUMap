@@ -1,0 +1,15 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "app/**/*.{ts,tsx,js,jsx}!",
+    "components/**/*.{ios,android,web}.{ts,tsx}!",
+    "hooks/**/*.{ios,android,web}.{ts,tsx}!",
+    "scripts/**/*.{ts,js}!",
+    "expo-env.d.ts",
+    "babel.config.js",
+    "metro.config.js"
+  ],
+  "project": ["**/*.{ts,tsx,js,jsx}"],
+  "ignore": ["assets/**"],
+  "ignoreDependencies": ["babel-preset-expo"]
+}
