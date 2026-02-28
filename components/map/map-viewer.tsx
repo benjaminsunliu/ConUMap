@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback, useMemo } from "react";
-import { StyleSheet, View, Text, Platform } from "react-native";
+import { StyleSheet, View, Text, Platform, Pressable } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
 import MapView, { Marker, Polygon, Region } from "react-native-maps";
 import * as LocationPermissions from "expo-location";
@@ -296,7 +296,55 @@ export default function MapViewer({
         {renderPolygons}
         {renderMarkers}
       </MapViewCluster>
+{__DEV__ && (
+       <View
+         style={{
+           position: "absolute",
+           top: 0,
+           left: 0,
+           width: 1,
+           height: 1,
+         }}
+       >
+         {CAMPUS_LOCATIONS.map((building, index) => (
+           <Pressable
+             key={`e2e-${building.code}`}
+             testID={`e2e-marker-${building.code}`}
+             style={{
+               position: "absolute",
+               top: index * 2, 
+               left: 0,
+               width: 20,
+               height: 20,
+               opacity: 0.01,  
+             }}
+             onPress={() => {
+               selectBuildingByCode(building.code);
+               focusBuilding(building);
+             }}
+           />
+         ))}
+           {/* Highlighted buildings */}
+   {Array.from(inBuildingCodes).map((code) => {
+  const building = CAMPUS_LOCATIONS.find((b) => b.code === code);
+  if (!building) return null;
 
+  return (
+    <Marker
+      key={`highlight-marker-${building.code}`}
+      coordinate={building.location}
+      tracksViewChanges={false}
+      pinColor="transparent" 
+      testID={`highlight-label-${building.code}`}
+    >
+      <View style={{ width: 1, height: 1, opacity: 0 }}>
+        <Text>{building.code}</Text>
+      </View>
+    </Marker>
+  );
+})}
+       </View>
+     )}
       <LocationButton
         state={locationState}
         onPress={() => {

@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     transform: [{ translateX: "-50%" }],
     backgroundColor: "transparent",
     position: "relative",
-    height: 0,
+    height: 0.1,
     zIndex: 10,
   },
 });
