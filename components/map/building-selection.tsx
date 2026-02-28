@@ -15,6 +15,28 @@ const emptyBuilding: SearchBuilding = {
     campus: ""
 };
 
+/**
+ * Separates buildings into current and other, returning current buildings first.
+ * This prioritizes user's current location in search results.
+ */
+function prioritizeCurrentBuildings(
+    buildings: SearchBuilding[], 
+    currentCodes: Set<string>
+): SearchBuilding[] {
+    const currentBuildings: SearchBuilding[] = [];
+    const otherBuildings: SearchBuilding[] = [];
+    
+    buildings.forEach(building => {
+        if (currentCodes.has(building.buildingCode)) {
+            currentBuildings.push(building);
+        } else {
+            otherBuildings.push(building);
+        }
+    });
+    
+    return [...currentBuildings, ...otherBuildings];
+}
+
 interface Props {
     readonly currentBuildingCodes?: Set<string>;
     readonly onSelect: (building: SearchBuilding, type: FieldType) => void;
@@ -46,16 +68,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), on
         );
 
         if (fieldType === "start" && currentBuildingCodes.size > 0) {
-            const { currentBuildings, otherBuildings } = filtered.reduce((acc, building) => {
-                if (currentBuildingCodes.has(building.buildingCode)) {
-                    acc.currentBuildings.push(building);
-                } else {
-                    acc.otherBuildings.push(building);
-                }
-                return acc;
-            }, { currentBuildings: [] as SearchBuilding[], otherBuildings: [] as SearchBuilding[] });
-
-            return [...currentBuildings, ...otherBuildings];
+            return prioritizeCurrentBuildings(filtered, currentBuildingCodes);
         }
 
         return filtered;
