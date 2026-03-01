@@ -14,6 +14,8 @@ import BuildingInfoPopup from "./building-info-popup";
 import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
 import CampusToggle from "./campus-toggle";
 import BuildingSelection from "./building-selection";
+import RoutesInfoPopup from "../navigation/routes-info-popup";
+import mockRoutes from "@/data/mock-data/route-data.json";
 
 interface Props {
   readonly userLocationDelta?: CoordinateDelta;
@@ -45,6 +47,8 @@ export default function MapViewer({
   const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
   const [polygonRenderVersion, setPolygonRenderVersion] = useState(0);
+  const [shouldDisplayRoutes, setShouldDisplayRoutes] = useState(false);
+  const [routes, setRoutes] = useState(mockRoutes);
 
   const inBuildingCodes = useMemo(() => {
     const codes = new Set<string>();
@@ -80,6 +84,7 @@ export default function MapViewer({
     suppressNextMapPress.current = true;
     selectBuildingByCode(building.code);
     focusBuilding(building);
+    setShouldDisplayRoutes(false);
 
     requestAnimationFrame(() => {
       suppressNextMapPress.current = false;
@@ -192,10 +197,7 @@ export default function MapViewer({
           testID={`marker-${building.code}`}
           key={building.code}
           coordinate={coordinate}
-          onPress={() => {
-            selectBuildingByCode(building.code);
-            focusBuilding(building);
-          }}
+          onPress={() => {handlePolygonPress(building)}}
         >
           <View
             style={[
@@ -218,7 +220,7 @@ export default function MapViewer({
         </Marker>
       );
     });
-  }, [mapColors, selectedBuilding?.buildingCode, focusBuilding, selectBuildingByCode]);
+  }, [selectedBuilding?.buildingCode, mapColors.markerSelected, mapColors.marker, mapColors.markerBorderSelected, mapColors.markerBorder, mapColors.markerTextSelected, mapColors.markerText, handlePolygonPress]);
 
   const renderCluster = useCallback(
     (cluster: Cluster) => {
@@ -243,11 +245,18 @@ export default function MapViewer({
     [mapColors]
   );
 
+  const navigateToBuilding = useCallback(() => {
+    // TODO Call backend to get route from current location to building
+    setRoutes(mockRoutes);
+    setShouldDisplayRoutes(true);
+  }, []);
+
   return (
     <View style={styles.container}>
       <BuildingSelection
         currentBuildingCodes={inBuildingCodes}
         onSelect={(building) => {
+          setShouldDisplayRoutes(false);
           selectBuildingByCode(building.buildingCode);
           const mapBuilding = CAMPUS_LOCATIONS.find((b) => b.code === building.buildingCode);
           if (mapBuilding) focusBuilding(mapBuilding);
@@ -289,6 +298,7 @@ export default function MapViewer({
 
           if (!action || action === "press") {
             setSelectedBuilding(null);
+            setShouldDisplayRoutes(false);
             setPolygonRenderVersion(v => v + 1);
           }
         }}
@@ -306,7 +316,10 @@ export default function MapViewer({
         }}
       />
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
-      <BuildingInfoPopup building={selectedBuilding} />
+      <BuildingInfoPopup building={selectedBuilding} onNavigate={navigateToBuilding} />
+      <RoutesInfoPopup routes={routes} isOpen={shouldDisplayRoutes} onRouteSelect={(route) => {
+        //TODO implement onRouteSelect
+      }}/>
     </View>
   );
 }
