@@ -42,6 +42,18 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
   }, [routes]);
 
   const header = useMemo(() => {
+    const selectorOptions = availableTransports.map((transport, index) => {
+      const shuttleIcon = <Image source={colorScheme === "dark" ? ShuttleIconDark : ShuttleIconLight} style={{width: 75, height: 40}}/> 
+      const defaultIcon = <Ionicons name={transportIconMap[transport as keyof typeof transportIconMap]} size={50} color={index === tabIndex ? "#222222" : "#000000"} />
+      return {
+        label: "",
+        value: index,
+        customIcon: transport === "shuttle" ? shuttleIcon : defaultIcon,
+        testID: `${transport}-selector`,
+        accessibilityLabel: `${transport}-selector`,
+      }
+    })
+
     return (
       <>
         <Text style={styles.headerTitle}>{availableTransports[tabIndex]?.replaceAll(/^./g, (c) => c.toUpperCase())}</Text>
@@ -54,15 +66,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
           backgroundColor={Colors[colorScheme].buildingInfoPopup.background}
           bold={true}
           height={50}
-          options={availableTransports.map((transport, index) => {
-            return {
-              label: "",
-              value: index,
-              customIcon: transport === "shuttle" ? <Image source={colorScheme === "dark" ? ShuttleIconDark : ShuttleIconLight} style={{width: 75, height: 40}}/> : <Ionicons name={transportIconMap[transport as keyof typeof transportIconMap]} size={50} color={index === tabIndex ? "#222222" : "#000000"} />,
-              testID: `${transport}-selector`,
-              accessibilityLabel: `${transport}-selector`,
-            }
-          })}
+          options={selectorOptions}
           testID="navigation-mode-selector"
           accessibilityLabel="navigation-mode-selector"
           onPress={(value: number) => setTabIndex(value)}
@@ -74,7 +78,19 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
   if (availableTransports.length <= 0) return null;
   return (
     <InfoPopup shouldDisplay={isOpen} header={header} testID="routes-info-popup">
-      {(routes[availableTransports[tabIndex] as TransportationMode]?.length ?? 0) > 0 ? routes[availableTransports[tabIndex] as TransportationMode]?.map((route: any, index: number) => <RouteOverview testID={`${availableTransports[tabIndex]}-route-${index}`} route={route} key={`${availableTransports[tabIndex]}-route-${index}`} onRouteSelect={onRouteSelect}/>) : <Text testID="no-routes-text" style={styles.noRoutesText}>No route found for this mode of transportation.</Text>}
+      {(routes[availableTransports[tabIndex] as TransportationMode]?.length ?? 0) > 0 ? 
+        routes[availableTransports[tabIndex] as TransportationMode]?.map((route: any, index: number) => (
+          <RouteOverview 
+            testID={`${availableTransports[tabIndex]}-route-${index}`} 
+            route={route} 
+            key={`${availableTransports[tabIndex]}-route-${index}`} 
+            onRouteSelect={onRouteSelect}
+          />)
+        ) :
+        <Text testID="no-routes-text" style={styles.noRoutesText}>
+          No route found for this mode of transportation.
+        </Text>
+      }
     </InfoPopup>
   );
 }
