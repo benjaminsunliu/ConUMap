@@ -197,10 +197,7 @@ export default function MapViewer({
           testID={`marker-${building.code}`}
           key={building.code}
           coordinate={coordinate}
-          onPress={() => {
-            selectBuildingByCode(building.code);
-            focusBuilding(building);
-          }}
+          onPress={() => {handlePolygonPress(building)}}
         >
           <View
             style={[
@@ -259,6 +256,7 @@ export default function MapViewer({
       <BuildingSelection
         currentBuildingCodes={inBuildingCodes}
         onSelect={(building) => {
+          setShouldDisplayRoutes(false);
           selectBuildingByCode(building.buildingCode);
           const mapBuilding = CAMPUS_LOCATIONS.find((b) => b.code === building.buildingCode);
           if (mapBuilding) focusBuilding(mapBuilding);
