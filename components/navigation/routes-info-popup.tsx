@@ -42,6 +42,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
   }, [routes]);
 
   const header = useMemo(() => {
+    // Create the option icons for the routes selector
     const selectorOptions = availableTransports.map((transport, index) => {
       const shuttleIcon = <Image source={colorScheme === "dark" ? ShuttleIconDark : ShuttleIconLight} style={{width: 75, height: 40}}/> 
       const defaultIcon = <Ionicons name={transportIconMap[transport as keyof typeof transportIconMap]} size={50} color={index === tabIndex ? "#222222" : "#000000"} />
@@ -75,10 +76,13 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
       
     );
   },[availableTransports, colorScheme, styles.headerTitle, tabIndex]);
+
   if (availableTransports.length <= 0) return null;
+  
   return (
     <InfoPopup shouldDisplay={isOpen} header={header} testID="routes-info-popup">
-      {(routes[availableTransports[tabIndex] as TransportationMode]?.length ?? 0) > 0 ? 
+      {// If there are routes for the selected transportation mode, display them. Otherwise, show a message indicating no routes were found.
+      (routes[availableTransports[tabIndex] as TransportationMode]?.length ?? 0) > 0 ? 
         routes[availableTransports[tabIndex] as TransportationMode]?.map((route: any, index: number) => (
           <RouteOverview 
             testID={`${availableTransports[tabIndex]}-route-${index}`} 
