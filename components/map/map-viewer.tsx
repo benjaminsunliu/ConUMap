@@ -220,7 +220,7 @@ export default function MapViewer({
         </Marker>
       );
     });
-  }, [mapColors, selectedBuilding?.buildingCode, focusBuilding, selectBuildingByCode]);
+  }, [selectedBuilding?.buildingCode, mapColors.markerSelected, mapColors.marker, mapColors.markerBorderSelected, mapColors.markerBorder, mapColors.markerTextSelected, mapColors.markerText, handlePolygonPress]);
 
   const renderCluster = useCallback(
     (cluster: Cluster) => {
