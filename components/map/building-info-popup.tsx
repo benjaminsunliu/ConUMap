@@ -114,7 +114,7 @@ export default function BuildingInfoPopup({ building, onNavigate }: Props) {
 
     return (
         <InfoPopup shouldDisplay={!!building} header={header} testID="building-info-popup">
-            {(building?.accessibility?.length ? building?.accessibility?.length : 0) > 0 && (
+            {(building?.accessibility?.length || 0) > 0 && (
                 <>
                     <Text style={styles.sectionTitle}>Accessibility</Text>
                     {building?.accessibility.map((item) => (
