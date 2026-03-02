@@ -84,7 +84,7 @@ export default function MapViewer({
     return selectedBuilding;
   }, []);
 
-  const handlePolygonPress = useCallback(
+  const handleBuildingPress = useCallback(
     (building: BuildingInfo) => {
       suppressNextMapPress.current = true;
       selectBuildingByCode(building.buildingCode);
@@ -97,11 +97,6 @@ export default function MapViewer({
     },
     [selectBuildingByCode, focusBuilding],
   );
-
-  const handleMarkerPress = useCallback((building: BuildingInfo) => {
-    selectBuildingByCode(building.buildingCode);
-    focusBuilding(building);
-  }, [focusBuilding, selectBuildingByCode]);
 
   const requestLocation = useCallback(async () => {
     if (userLocation) return;
@@ -135,10 +130,9 @@ export default function MapViewer({
         selectedBuildingInfo?.buildingCode,
         inBuildingCodes,
         colorScheme,
-        handlePolygonPress,
-        handleMarkerPress,
+        handleBuildingPress,
       ),
-    [selectedBuildingInfo?.buildingCode, inBuildingCodes, colorScheme, handlePolygonPress, handleMarkerPress],
+    [selectedBuildingInfo?.buildingCode, inBuildingCodes, colorScheme, handleBuildingPress],
   );
 
   const renderCluster = useCallback(
@@ -259,8 +253,7 @@ function renderBuildings(
   selectedBuildingCode: string | undefined,
   inBuildingCodes: Set<string>,
   colorScheme: ColorSchemeName,
-  onPolygonPress: (building: BuildingInfo) => void,
-  onMarkerPress: (building: BuildingInfo) => void,
+  onPress: (building: BuildingInfo) => void,
 ): [React.JSX.Element[], React.JSX.Element[]] {
   const mapColors = Colors[colorScheme].map;
 
@@ -284,7 +277,7 @@ function renderBuildings(
           zIndex={zIndex}
           strokeColor={mapColors.polygonStroke}
           strokeWidth={2}
-          onPress={() => onPolygonPress(building)}
+          onPress={() => onPress(building)}
         />,
       );
     });
@@ -294,7 +287,7 @@ function renderBuildings(
         testID={`marker-${building.buildingCode}`}
         key={`${building.buildingCode}`}
         coordinate={building.location}
-        onPress={() => onMarkerPress(building)}
+        onPress={() => onPress(building)}
       >
         <View
           style={[
