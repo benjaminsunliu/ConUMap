@@ -1,5 +1,3 @@
-// TODO: Setup all files and exports with props and handlers
-
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import ClassDetailPopup from "./class-detail-popup";
@@ -19,10 +17,12 @@ function getWeekStart(date: Date): Date {
 }
 
 export default function ScheduleViewer() {
-    const [selectedClass, setSelectedClass] = useState<ClassInfo | null>(null);
-    const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => getWeekStart(new Date()));
-
     const classes = MOCK_CLASSES;
+
+    const [selectedClass, setSelectedClass] = useState<ClassInfo | null>(classes[0]);
+    const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => getWeekStart(new Date()));
+    const [visible, setVisible] = useState(true);
+
 
     function handleTodayPress() {
         // 'Today' button
@@ -34,24 +34,13 @@ export default function ScheduleViewer() {
     }
 
     return (
-        <ClassDetailPopup />
+        <View style={{flex: 1}}>
+            {selectedClass && (
+                <ClassDetailPopup 
+                    classInfo={classes[0]}
+                    onClose={() => setSelectedClass(null)}
+                />
+            )}
+        </View>
     );
 }
-
-/* <View>
-    <ScheduleHeader
-        currentWeekStart={currentWeekStart}
-        onWeekChange={setCurrentWeekStart}
-        onTodayPress={handleTodayPress}
-        onSettingsPress={handleSettingsPress}
-    />
-    <WeeklyCalendarBody
-        weekStartDate={currentWeekStart}
-        classes={classes}
-        onClassPress={setSelectedClass}
-    />
-
-    {selectedClass && (
-        <ClassDetailPopup class={selectedClass} onClose={() => selectedClass(null)} />
-    )}
-</View> */
