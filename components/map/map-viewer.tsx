@@ -1,19 +1,18 @@
-import React, { useRef, useState, useCallback, useMemo } from "react";
-import { StyleSheet, View, Text, Platform, ColorSchemeName } from "react-native";
+import { CAMPUS_BUILDINGS } from "@/constants/map";
+import { Colors } from "@/constants/theme";
+import { ColorSchemeName, useColorScheme } from "@/hooks/use-color-scheme";
+import { BuildingInfo, Coordinate, CoordinateDelta } from "@/types/mapTypes";
+import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
+import * as LocationPermissions from "expo-location";
+import React, { useCallback, useMemo, useRef, useState } from "react";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
 import MapView, { Marker, Polygon, Region } from "react-native-maps";
-import * as LocationPermissions from "expo-location";
-import { useColorScheme } from "@/hooks/use-color-scheme";
-import { Colors } from "@/constants/theme";
-import { CAMPUS_LOCATIONS } from "@/constants/mapData";
-import { concordiaBuildings, BuildingInfo } from "@/data/parsedBuildings";
-import { Coordinate, CoordinateDelta, Building as MapBuilding } from "@/types/mapTypes";
+import BuildingInfoPopup from "./building-info-popup";
+import BuildingSelection from "./building-selection";
+import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
-import BuildingInfoPopup from "./building-info-popup";
-import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
-import CampusToggle from "./campus-toggle";
-import BuildingSelection from "./building-selection";
 
 interface Props {
   readonly userLocationDelta?: CoordinateDelta;
@@ -42,17 +41,18 @@ export default function MapViewer({
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
+  const [selectedBuildingInfo, setSelectedBuildingInfo] = useState<BuildingInfo | null>(
+    null,
+  );
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
-
   const inBuildingCodes = useMemo(() => {
     const codes = new Set<string>();
     if (!userLocation) return codes;
 
-    for (const building of CAMPUS_LOCATIONS) {
+    for (const building of CAMPUS_BUILDINGS) {
       for (const polygon of building.polygons) {
         if (isPointInPolygon(userLocation, polygon)) {
-          codes.add(building.code);
+          codes.add(building.buildingCode);
           break;
         }
       }
@@ -61,7 +61,7 @@ export default function MapViewer({
   }, [userLocation]);
 
   const focusBuilding = useCallback(
-    (building: MapBuilding) => {
+    (building: BuildingInfo) => {
       mapViewRef.current?.animateToRegion({
         latitude: building.location.latitude,
         longitude: building.location.longitude,
@@ -73,14 +73,17 @@ export default function MapViewer({
   );
 
   const selectBuildingByCode = useCallback((code: string) => {
-    const info = concordiaBuildings.find((b) => b.buildingCode === code) ?? null;
-    setSelectedBuilding(info);
+    const selectedBuilding =
+      CAMPUS_BUILDINGS.find((building) => building.buildingCode === code) || null;
+    setSelectedBuildingInfo(selectedBuilding);
+    return selectedBuilding;
   }, []);
 
   const handlePolygonPress = useCallback(
-    (building: MapBuilding) => {
+    (building: BuildingInfo) => {
+      console.log("pressing polygon");
       suppressNextMapPress.current = true;
-      selectBuildingByCode(building.code);
+      selectBuildingByCode(building.buildingCode);
       focusBuilding(building);
 
       requestAnimationFrame(() => {
@@ -89,6 +92,11 @@ export default function MapViewer({
     },
     [selectBuildingByCode, focusBuilding],
   );
+
+  const handleMarkerPress = useCallback((building: BuildingInfo) => {
+    selectBuildingByCode(building.buildingCode);
+    focusBuilding(building);
+  }, []);
 
   const requestLocation = useCallback(async () => {
     if (userLocation) return;
@@ -116,24 +124,16 @@ export default function MapViewer({
     setLocationState("centered");
   }, [userLocation, userLocationDelta]);
 
-  const renderedPolygons = useMemo(
+  const [renderedPolygons, renderedMarkers] = useMemo(
     () =>
-      renderPolygons(
-        selectedBuilding?.buildingCode,
+      renderBuildings(
+        selectedBuildingInfo?.buildingCode,
         inBuildingCodes,
         colorScheme,
         handlePolygonPress,
+        handleMarkerPress,
       ),
-    [selectedBuilding?.buildingCode, inBuildingCodes, colorScheme, handlePolygonPress],
-  );
-
-  const renderedMarkers = useMemo(
-    () =>
-      renderMarkers(selectedBuilding?.buildingCode, colorScheme, (building) => {
-        selectBuildingByCode(building.code);
-        focusBuilding(building);
-      }),
-    [selectedBuilding?.buildingCode, colorScheme, selectBuildingByCode, focusBuilding],
+    [selectedBuildingInfo?.buildingCode, inBuildingCodes, colorScheme],
   );
 
   const renderCluster = useCallback(
@@ -174,11 +174,8 @@ export default function MapViewer({
     <View style={styles.container}>
       <BuildingSelection
         onSelect={(building) => {
-          selectBuildingByCode(building.buildingCode);
-          const mapBuilding = CAMPUS_LOCATIONS.find(
-            (b) => b.code === building.buildingCode,
-          );
-          if (mapBuilding) focusBuilding(mapBuilding);
+          const newBuilding = selectBuildingByCode(building.buildingCode);
+          if (newBuilding) focusBuilding(newBuilding);
         }}
       />
       <CampusToggle mapRef={mapViewRef} viewRegion={currentRegion} />
@@ -206,12 +203,7 @@ export default function MapViewer({
         }}
         onUserLocationChange={({ nativeEvent }) => {
           const coordinate = nativeEvent?.coordinate;
-          if (
-            !coordinate ||
-            typeof coordinate.latitude !== "number" ||
-            typeof coordinate.longitude !== "number"
-          )
-            return;
+          if (!coordinate) return;
           if (!userLocation) setLocationState("on");
           setUserLocation({
             latitude: coordinate.latitude,
@@ -224,7 +216,7 @@ export default function MapViewer({
           const action = e?.nativeEvent?.action;
 
           if (!action || action === "press") {
-            setSelectedBuilding(null);
+            setSelectedBuildingInfo(null);
           }
         }}
         renderCluster={renderCluster}
@@ -241,102 +233,52 @@ export default function MapViewer({
         }}
       />
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
-      <BuildingInfoPopup building={selectedBuilding} />
+      <BuildingInfoPopup building={selectedBuildingInfo} />
     </View>
   );
 }
 
-function renderPolygons(
+function renderBuildings(
   selectedBuildingCode: string | undefined,
   inBuildingCodes: Set<string>,
   colorScheme: ColorSchemeName,
-  onPress: (building: MapBuilding) => void,
-) {
-  const mapColors = Colors[colorScheme || "light"].map;
+  onPolygonPress: (building: BuildingInfo) => void,
+  onMarkerPress: (building: BuildingInfo) => void,
+): [React.JSX.Element[], React.JSX.Element[]] {
+  console.log("Rendering buildings");
+  const mapColors = Colors[colorScheme].map;
 
-  return CAMPUS_LOCATIONS.flatMap((building, buildingIndex) =>
-    building.polygons.map((polygon, polygonIndex) => {
-      const isSelected = selectedBuildingCode === building.code;
-      const isInBuilding = inBuildingCodes.has(building.code);
+  const renderedPolygons: React.JSX.Element[] = [];
+  const renderedMarkers: React.JSX.Element[] = [];
 
-      let finalFillColor: string;
+  CAMPUS_BUILDINGS.forEach((building, buildingIndex) => {
+    const isSelected = selectedBuildingCode === building.buildingCode;
+    const isInBuilding = inBuildingCodes.has(building.buildingCode);
+    const polygonColor = getPolygonColor(isSelected, isInBuilding, colorScheme);
+    const zIndex = getPolygonZIndex(isSelected, isInBuilding);
 
-      if (isSelected && isInBuilding) {
-        finalFillColor = mapColors.currentSelectedBuildingColor;
-      } else if (isSelected) {
-        finalFillColor = mapColors.polygonHighlighted;
-      } else if (isInBuilding) {
-        finalFillColor = mapColors.currentBuildingColor;
-      } else {
-        finalFillColor = mapColors.polygonFill;
-      }
-
-      let finalZIndex: number;
-      if (isSelected) {
-        finalZIndex = 3;
-      } else if (isInBuilding) {
-        finalZIndex = 2;
-      } else {
-        finalZIndex = 1;
-      }
-
-      return (
+    building.polygons.forEach((polygonData, polygonIndex) => {
+      renderedPolygons.push(
         <Polygon
-          // On iOS, use render version to force re-render and prevent polygon disappearing.
-          // On Android, use state-based keys to only remount changed polygons and avoid flashing.
-          key={`${buildingIndex}-${polygonIndex}`}
+          key={`${buildingIndex}-${polygonIndex}-${isInBuilding}`}
           testID="polygon"
-          coordinates={polygon}
+          coordinates={polygonData}
           tappable
-          fillColor={finalFillColor}
-          zIndex={finalZIndex}
+          fillColor={polygonColor}
+          zIndex={zIndex}
           strokeColor={mapColors.polygonStroke}
           strokeWidth={2}
-          onPress={() => onPress(building)}
-        />
+          onPress={() => onPolygonPress(building)}
+        />,
       );
-    }),
-  );
-}
+    });
 
-function renderMarkers(
-  selectedBuildingCode: string | undefined,
-  colorScheme: ColorSchemeName,
-  onPress: (building: MapBuilding) => void,
-) {
-  const mapColors = Colors[colorScheme || "light"].map;
-
-  return CAMPUS_LOCATIONS.map((building) => {
-    const isSelected = selectedBuildingCode === building.code;
-
-    // Offset markers to prevent overlaps
-    let coordinate = building.location;
-    if (building.code === "VE") {
-      // VE overlaps with VL
-      coordinate = {
-        latitude: building.location.latitude + 0.00008,
-        longitude: building.location.longitude - 0.00015,
-      };
-    } else if (building.code === "RA") {
-      // Misplaced marker for RA
-      coordinate = {
-        latitude: building.location.latitude - 0.0009,
-        longitude: building.location.longitude - 0.0008,
-      };
-    } else if (building.code === "PC") {
-      // Misplaced marker for PC
-      coordinate = {
-        latitude: building.location.latitude - 0.0006,
-        longitude: building.location.longitude - 0.0005,
-      };
-    }
-
-    return (
+    renderedMarkers.push(
       <Marker
-        testID={`marker-${building.code}`}
-        key={building.code}
-        coordinate={coordinate}
-        onPress={() => onPress(building)}
+        testID={`marker-${building.buildingCode}`}
+        key={`${building.buildingCode}`}
+        coordinate={building.location}
+        onPress={() => onMarkerPress(building)}
       >
         <View
           style={[
@@ -355,12 +297,43 @@ function renderMarkers(
               { color: isSelected ? mapColors.markerTextSelected : mapColors.markerText },
             ]}
           >
-            {building.code}
+            {building.buildingCode}
           </Text>
         </View>
-      </Marker>
+      </Marker>,
     );
   });
+
+  return [renderedPolygons, renderedMarkers];
+}
+
+function getPolygonZIndex(isSelected: boolean, isInBuilding: boolean) {
+  if (isSelected) {
+    return 2;
+  }
+  if (isInBuilding) {
+    return 1;
+  }
+  return 0;
+}
+
+function getPolygonColor(
+  isSelected: boolean,
+  isInBuilding: boolean,
+  colorScheme: ColorSchemeName,
+) {
+  const mapColors = Colors[colorScheme].map;
+
+  if (isSelected && isInBuilding) {
+    return mapColors.currentSelectedBuildingColor;
+  }
+  if (isSelected) {
+    return mapColors.polygonHighlighted;
+  }
+  if (isInBuilding) {
+    return mapColors.currentBuildingColor;
+  }
+  return mapColors.polygonFill;
 }
 
 const styles = StyleSheet.create({

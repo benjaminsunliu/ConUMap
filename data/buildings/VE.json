@@ -200,8 +200,8 @@
     ]
   ],
   "location": {
-    "latitude": 45.45908060000001,
-    "longitude": -73.6387088
+    "latitude": 45.45916060000001,
+    "longitude": -73.6388588
   },
   "buildingCode": "VE",
   "buildingName": "Vanier Extension",
@@ -221,10 +221,7 @@
       "url": "https://www.concordia.ca/artsci/applied-human-sciences.html"
     }
   ],
-  "accessibility": [
-    "entranceAutomatedDoor",
-    "elevator"
-  ],
+  "accessibility": ["entranceAutomatedDoor", "elevator"],
   "address": "7141 Sherbrooke St. W.",
   "campus": "LOY",
   "url": "https://www.concordia.ca/maps/buildings/ve.html"

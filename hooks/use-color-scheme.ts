@@ -1,6 +1,10 @@
-import { useColorScheme as usePossibleScheme } from 'react-native';
+import {
+  useColorScheme as usePossibleScheme,
+  ColorSchemeName as possibleColorSchemeName,
+} from "react-native";
 
+export type ColorSchemeName = Exclude<possibleColorSchemeName, null | undefined>;
 
 export function useColorScheme() {
-    return usePossibleScheme() ?? "light"
+  return usePossibleScheme() ?? "light";
 }

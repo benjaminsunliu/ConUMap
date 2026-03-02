@@ -40,8 +40,8 @@
     ]
   ],
   "location": {
-    "latitude": 45.4576268,
-    "longitude": -73.63688239999999
+    "latitude": 45.4567268,
+    "longitude": -73.63608239999999
   },
   "buildingCode": "RA",
   "buildingName": "Recreation and Athletics Complex",
@@ -63,11 +63,7 @@
       "url": "https://www.concordia.ca/campus-life/recreation/facilities/athletic-complex.html"
     }
   ],
-  "accessibility": [
-    "wheelchairLift",
-    "entranceRamp",
-    "entranceAutomatedDoor"
-  ],
+  "accessibility": ["wheelchairLift", "entranceRamp", "entranceAutomatedDoor"],
   "address": "7200 Sherbrooke St. W.",
   "campus": "LOY",
   "url": "https://www.concordia.ca/maps/buildings/ra.html"

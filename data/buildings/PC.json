@@ -20,8 +20,8 @@
     ]
   ],
   "location": {
-    "latitude": 45.4576268,
-    "longitude": -73.63688239999999
+    "latitude": 45.4570268,
+    "longitude": -73.63638239999999
   },
   "buildingCode": "PC",
   "buildingName": "PERFORM Centre",
@@ -48,11 +48,7 @@
       "url": "https://www.concordia.ca/schoolofhealth.html"
     }
   ],
-  "accessibility": [
-    "wheelchairLift",
-    "entranceAutomatedDoor",
-    "elevator"
-  ],
+  "accessibility": ["wheelchairLift", "entranceAutomatedDoor", "elevator"],
   "address": "7200 Sherbrooke St. W.",
   "campus": "LOY",
   "url": "https://www.concordia.ca/maps/buildings/pc.html"
