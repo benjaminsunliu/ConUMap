@@ -67,12 +67,12 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
                                 <Text style={styles.lecTutLab}>{resolveLecTutLab(classInfo.lecTutLab)} – Section {classInfo.section}</Text>
                             </View>
                             <Pressable onPress={handleClose} style={styles.closeButton} accessibilityLabel="Close">
-                                <MaterialIcons name="close" size={36} color="#fff" />;
+                                <MaterialIcons name="close" size={36} color="#fff" />
                             </Pressable>
                         </View>
                         <View style={styles.details}>
                             <View style={styles.detailRow}>
-                                <Text style={styles.detailRowTitle}>Professor:</Text>
+                                <Text style={styles.detailRowTitle}>Instructor:</Text>
                                 <Text style={styles.detailRowText}>{classInfo.instructor}</Text>
                             </View>
                             <View style={styles.detailRow}>
