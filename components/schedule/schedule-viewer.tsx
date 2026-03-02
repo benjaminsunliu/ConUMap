@@ -25,7 +25,6 @@ export default function ScheduleViewer() {
 
 
     function handleTodayPress() {
-        // 'Today' button
         setCurrentWeekStart(getWeekStart(new Date()));
     }
 
@@ -34,7 +33,13 @@ export default function ScheduleViewer() {
     }
 
     return (
-        <View style={{flex: 1}}>
+        <View style={styles.container}>
+            <ScheduleHeader
+                currentWeekStart={currentWeekStart}
+                onWeekChange={setCurrentWeekStart}
+                onTodayPress={handleTodayPress}
+                onSettingsPress={handleSettingsPress}
+            />
             {selectedClass && (
                 <ClassDetailPopup 
                     classInfo={classes[0]}
@@ -44,3 +49,9 @@ export default function ScheduleViewer() {
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+
+    }
+})

@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
     card: {
-        backgroundColor: '#5a2328',
+        backgroundColor: '#5e0e16',
         borderRadius: 18,
         maxHeight: '75%',
         overflow: 'hidden', 
