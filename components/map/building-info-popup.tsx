@@ -75,11 +75,9 @@ export default function BuildingInfoPopup({ building, onNavigate }: Props) {
 
     const formatCamelCase = useCallback((text: string) =>
         text
-            .replaceAll(/([a-z0-9])([A-Z])/g, "$1 $2")
-            .replaceAll(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
-            .replaceAll(/\s+/g, " ")
+            .replaceAll(/(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])/g, " ")
             .trim()
-            .replace(/^./, (c) => c.toUpperCase()), []);
+            .replace(/^./, (match) => match.toUpperCase()), []);
 
     const header = useMemo(() => {
         return (
