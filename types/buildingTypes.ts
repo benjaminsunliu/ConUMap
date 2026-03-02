@@ -6,3 +6,5 @@ export interface SearchBuilding {
 }
 
 export type FieldType = "start" | "end";
+
+export type TransportationMode = "walking" | "transit" | "driving" | "bicycling" | "shuttle";

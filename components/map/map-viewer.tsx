@@ -1,5 +1,6 @@
 import { CAMPUS_BUILDINGS } from "@/constants/map";
 import { Colors } from "@/constants/theme";
+import mockRoutes from "@/data/mock-data/route-data.json";
 import { ColorSchemeName, useColorScheme } from "@/hooks/use-color-scheme";
 import { BuildingInfo, Coordinate, CoordinateDelta } from "@/types/mapTypes";
 import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
@@ -8,6 +9,7 @@ import React, { useCallback, useMemo, useRef, useState } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
 import MapView, { Marker, Polygon, Region } from "react-native-maps";
+import RoutesInfoPopup from "../navigation/routes-info-popup";
 import BuildingInfoPopup from "./building-info-popup";
 import BuildingSelection from "./building-selection";
 import CampusToggle from "./campus-toggle";
@@ -45,6 +47,9 @@ export default function MapViewer({
     null,
   );
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
+  const [shouldDisplayRoutes, setShouldDisplayRoutes] = useState(false);
+  const [routes, setRoutes] = useState(mockRoutes);
+
   const inBuildingCodes = useMemo(() => {
     const codes = new Set<string>();
     if (!userLocation) return codes;
@@ -81,10 +86,10 @@ export default function MapViewer({
 
   const handlePolygonPress = useCallback(
     (building: BuildingInfo) => {
-      console.log("pressing polygon");
       suppressNextMapPress.current = true;
       selectBuildingByCode(building.buildingCode);
       focusBuilding(building);
+      setShouldDisplayRoutes(false);
 
       requestAnimationFrame(() => {
         suppressNextMapPress.current = false;
@@ -96,7 +101,7 @@ export default function MapViewer({
   const handleMarkerPress = useCallback((building: BuildingInfo) => {
     selectBuildingByCode(building.buildingCode);
     focusBuilding(building);
-  }, []);
+  }, [focusBuilding, selectBuildingByCode]);
 
   const requestLocation = useCallback(async () => {
     if (userLocation) return;
@@ -133,7 +138,7 @@ export default function MapViewer({
         handlePolygonPress,
         handleMarkerPress,
       ),
-    [selectedBuildingInfo?.buildingCode, inBuildingCodes, colorScheme],
+    [selectedBuildingInfo?.buildingCode, inBuildingCodes, colorScheme, handlePolygonPress, handleMarkerPress],
   );
 
   const renderCluster = useCallback(
@@ -170,10 +175,18 @@ export default function MapViewer({
     [mapColors],
   );
 
+  const navigateToBuilding = useCallback(() => {
+    // TODO Call backend to get route from current location to building
+    setRoutes(mockRoutes);
+    setShouldDisplayRoutes(true);
+  }, []);
+
   return (
     <View style={styles.container}>
       <BuildingSelection
+        currentBuildingCodes={inBuildingCodes}
         onSelect={(building) => {
+          setShouldDisplayRoutes(false);
           const newBuilding = selectBuildingByCode(building.buildingCode);
           if (newBuilding) focusBuilding(newBuilding);
         }}
@@ -217,6 +230,7 @@ export default function MapViewer({
 
           if (!action || action === "press") {
             setSelectedBuildingInfo(null);
+            setShouldDisplayRoutes(false);
           }
         }}
         renderCluster={renderCluster}
@@ -233,7 +247,10 @@ export default function MapViewer({
         }}
       />
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
-      <BuildingInfoPopup building={selectedBuildingInfo} />
+      <BuildingInfoPopup building={selectedBuildingInfo} onNavigate={navigateToBuilding} />
+      <RoutesInfoPopup routes={routes} isOpen={shouldDisplayRoutes} onRouteSelect={(route) => {
+        //TODO implement onRouteSelect
+      }}/>
     </View>
   );
 }
@@ -245,7 +262,6 @@ function renderBuildings(
   onPolygonPress: (building: BuildingInfo) => void,
   onMarkerPress: (building: BuildingInfo) => void,
 ): [React.JSX.Element[], React.JSX.Element[]] {
-  console.log("Rendering buildings");
   const mapColors = Colors[colorScheme].map;
 
   const renderedPolygons: React.JSX.Element[] = [];
