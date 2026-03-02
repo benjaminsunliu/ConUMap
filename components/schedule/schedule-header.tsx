@@ -125,9 +125,10 @@ const styles = StyleSheet.create({
         gap: 10,
     },
     monthButtonContainer: {
-        flex: 1,
-        alignItems: 'flex-end',
+        flex: 3,
+        alignItems: 'center',
         paddingRight: 5
+
     },
     monthButton: {
         flexDirection: 'row',
@@ -135,7 +136,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 7,
         borderRadius: 20,
-        marginRight: 50,
     },
     monthButtonText: {
         fontSize: 15,
@@ -143,9 +143,9 @@ const styles = StyleSheet.create({
         color: '#fdfcea',
     },
     todayButtonContainer: {
-        flex: 1,
+        flex: 2,
         alignItems: 'flex-start',
-        paddingLeft: 5
+        paddingLeft: 20,
     },
     todayButton: {
         backgroundColor: '#fdfcea',
