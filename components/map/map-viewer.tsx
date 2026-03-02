@@ -43,7 +43,7 @@ export default function MapViewer({
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedBuildingInfo, setSelectedBuildingInfo] = useState<BuildingInfo | null>(
+  const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(
     null,
   );
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
@@ -80,7 +80,7 @@ export default function MapViewer({
   const selectBuildingByCode = useCallback((code: string) => {
     const selectedBuilding =
       CAMPUS_BUILDINGS.find((building) => building.buildingCode === code) || null;
-    setSelectedBuildingInfo(selectedBuilding);
+    setSelectedBuilding(selectedBuilding);
     return selectedBuilding;
   }, []);
 
@@ -127,12 +127,12 @@ export default function MapViewer({
   const [renderedPolygons, renderedMarkers] = useMemo(
     () =>
       renderBuildings(
-        selectedBuildingInfo?.buildingCode,
+        selectedBuilding?.buildingCode,
         inBuildingCodes,
         colorScheme,
         handleBuildingPress,
       ),
-    [selectedBuildingInfo?.buildingCode, inBuildingCodes, colorScheme, handleBuildingPress],
+    [selectedBuilding?.buildingCode, inBuildingCodes, colorScheme, handleBuildingPress],
   );
 
   const renderCluster = useCallback(
@@ -159,8 +159,7 @@ export default function MapViewer({
             ]}
           >
             <Text style={[styles.clusterText, { color: mapColors.clusterText }]}>
-              {" "}
-              {count > 9 ? "9+" : count}{" "}
+              {count > 9 ? "9+" : count}
             </Text>
           </View>
         </Marker>
@@ -223,7 +222,7 @@ export default function MapViewer({
           const action = e?.nativeEvent?.action;
 
           if (!action || action === "press") {
-            setSelectedBuildingInfo(null);
+            setSelectedBuilding(null);
             setShouldDisplayRoutes(false);
           }
         }}
@@ -241,7 +240,7 @@ export default function MapViewer({
         }}
       />
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
-      <BuildingInfoPopup building={selectedBuildingInfo} onNavigate={navigateToBuilding} />
+      <BuildingInfoPopup building={selectedBuilding} onNavigate={navigateToBuilding} />
       <RoutesInfoPopup routes={routes} isOpen={shouldDisplayRoutes} onRouteSelect={(route) => {
         //TODO implement onRouteSelect
       }}/>
