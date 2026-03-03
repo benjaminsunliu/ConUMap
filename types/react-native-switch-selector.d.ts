@@ -18,6 +18,7 @@ declare module 'react-native-switch-selector' {
         options?: object[]
         testID?: string
         accessibilityLabel?: string
+        borderRadius?: number
         onPress: (value: number) => void
     }
 

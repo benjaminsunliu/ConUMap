@@ -83,6 +83,7 @@ export default function CampusToggle({ mapRef, viewRegion }: Readonly<Props>) {
         disableValueChangeOnPress={false}
         bold={true}
         fontSize={20}
+        borderRadius={10}
         hasPadding
         options={[
           { label: "LOY", value: Campus.Loyola },
