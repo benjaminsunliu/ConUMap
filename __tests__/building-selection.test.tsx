@@ -118,7 +118,7 @@ describe("BuildingSelection component", () => {
 
   it('should display results when similar text is entered', async ()=>{
     const selectionView = render(<BuildingSelection onSelect={mockOnSelect}/>)
-    const startInput = selectionView.getByPlaceholderText("Start");
+    const startInput = selectionView.getByPlaceholderText("Search building");
     await act(async () => {
       await fireEvent(startInput, 'onFocus');
       await fireEvent.changeText(startInput, 'Hall');
@@ -131,7 +131,7 @@ describe("BuildingSelection component", () => {
 
   it('should not display results when text that does not match any building is entered', async ()=>{
     const selectionView = render(<BuildingSelection onSelect={mockOnSelect}/>)
-    const startInput = selectionView.getByPlaceholderText("Start");
+    const startInput = selectionView.getByPlaceholderText("Search building");
     await act(async () => {
       await fireEvent(startInput, 'onFocus');
       await fireEvent.changeText(startInput, 'Nonexistent Building');
@@ -142,7 +142,7 @@ describe("BuildingSelection component", () => {
 
   it('should clear the input when the clear button is pressed', async ()=>{
     const selectionView = render(<BuildingSelection onSelect={mockOnSelect}/>)
-    const startInput = selectionView.getByPlaceholderText("Start");
+    const startInput = selectionView.getByPlaceholderText("Search building");
     await act(async () => {      
       await fireEvent(startInput, 'onFocus');
       await fireEvent.changeText(startInput, 'Hall');
@@ -172,7 +172,7 @@ describe("BuildingSelection component", () => {
 
   it('should remove display results a result is pressed, call the onSelect, and set the query correctly', async ()=>{
     const selectionView = render(<BuildingSelection onSelect={mockOnSelect}/>)
-    const startInput = selectionView.getByPlaceholderText("Start");
+    const startInput = selectionView.getByPlaceholderText("Search building");
     await act(async () => {
       await fireEvent(startInput, 'onFocus');
       await fireEvent.changeText(startInput, 'Hall');
@@ -195,9 +195,9 @@ describe("BuildingSelection component", () => {
     expect(startInput.props.value).toBe("Henry F. Hall Building");
   });
 
-  it('should prioritize current buildings when typing in start field', async ()=>{
+  it('should prioritize current buildings when typing in Search building field', async ()=>{
     const selectionView = render(<BuildingSelection currentBuildingCodes={new Set(["B"])} onSelect={mockOnSelect}/>)
-    const startInput = selectionView.getByPlaceholderText("Start");
+    const startInput = selectionView.getByPlaceholderText("Search building");
     await act(async () => {
       await fireEvent(startInput, 'onFocus');
       await fireEvent.changeText(startInput, 'Annex');
@@ -216,7 +216,7 @@ describe("BuildingSelection component", () => {
 
   it('should maintain backward compatibility when no currentBuildingCodes provided', async ()=>{
     const selectionView = render(<BuildingSelection onSelect={mockOnSelect}/>)
-    const startInput = selectionView.getByPlaceholderText("Start");
+    const startInput = selectionView.getByPlaceholderText("Search building");
     // Focus without text - should not show results
     await act(async () => {
       await fireEvent(startInput, 'onFocus');

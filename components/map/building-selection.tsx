@@ -231,7 +231,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
     );
 
     return (
-        <View style={styles.buildingSelectionContainer}>
+        <View style={styles.buildingSelectionContainer} testID="building-selection">
             <View style={styles.inputRow}>
                 {mode === "browse" ? (renderInput("start", "Search building")) : (
                     <View style={[{backgroundColor: theme.buildingSelection.containerBackground}, styles.directionContainer]}>
