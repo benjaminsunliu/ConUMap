@@ -53,22 +53,25 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
         start: emptyBuilding,
         end: emptyBuilding
     });
-    
-    const prevModeRef = useRef(mode);
+    const selectedBuildingRef = useRef(selectedBuilding);
+    const startInputRef = useRef<TextInput>(null);
+    const endInputRef = useRef<TextInput>(null);
 
     useEffect(() => {
-        const enteringDirections = prevModeRef.current !== "directions" && mode === "directions";
 
-        if (enteringDirections && selectedBuilding) {
-            setQueries(prev => ({ ...prev, end: selectedBuilding.buildingName }));
+        // Always have the search bar reflect the currently selected building
+        if (mode === "browse") {
+            setQueries(prev => ({ ...prev, end: selectedBuilding?.buildingName ?? "" }));
         }
 
-        if (mode === "browse" && selectedBuilding) {
+        // Only change the text field value if the selected building changes when the field is focused
+        else if ((focusedField === null || focusedField === "end") && selectedBuilding && selectedBuilding !== selectedBuildingRef.current) {
+            setQueries(prev => ({ ...prev, end: selectedBuilding.buildingName }));
+        } else if (focusedField === "start" && selectedBuilding && selectedBuilding !== selectedBuildingRef.current) {
             setQueries(prev => ({ ...prev, start: selectedBuilding.buildingName }));
         }
-
-        prevModeRef.current = mode;
-    }, [mode, selectedBuilding]);
+        selectedBuildingRef.current = selectedBuilding;
+    }, [focusedField, mode, selectedBuilding]);
 
     const filterBuildings = useCallback((text: string, fieldType: FieldType) => {
         const q = text.toLowerCase();
@@ -120,24 +123,36 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
         [setQuery]
     );
 
+    const removeInputFocus = useCallback(
+        (type: FieldType) => {
+            if(type === "start") {
+                startInputRef.current?.blur();
+            } else {
+                endInputRef.current?.blur();
+            }
+            setFocusedField(null);
+        },
+        []
+    );
+
     const handleSelect = useCallback(
         (building: SearchBuilding, type: FieldType) => {
             setQuery(type, building.buildingName);
             setSelectedBuildings(prev => ({ ...prev, [type]: building }));
-            setFocusedField(null);
+            removeInputFocus(type);
             onSelect(building, type);
         },
-        [setQuery, onSelect]
+        [setQuery, removeInputFocus, onSelect]
     );
 
     const clearField = useCallback(
         (type: FieldType) => {
             setQuery(type, "");
             setSelectedBuildings(prev => ({ ...prev, [type]: emptyBuilding }));
-            setFocusedField(type);
+            removeInputFocus(type);
             onSelect(emptyBuilding, type);
         },
-        [setQuery, onSelect]
+        [setQuery, onSelect, removeInputFocus]
     );
 
     const swapFields = useCallback(() => {
@@ -168,10 +183,11 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
 
             return (
                 <View style={[{backgroundColor: theme.buildingSelection.inputBackground}, styles.inputWrapper]}>
-                    {mode === "browse" && type === "start" && (
+                    {mode === "browse" && (
                         <Ionicons name="search" size={18} color={theme.buildingSelection.magnifierColor} style={styles.magnifierIcon} />
                     )}
                     <TextInput
+                        ref={type === "start" ? startInputRef : endInputRef}
                         placeholder={placeholder}
                         placeholderTextColor={theme.text}
                         value={value}
@@ -200,7 +216,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
     const renderResults = useCallback(
         (type: FieldType) => {
             const data = results[type];
-            if (!data.length || focusedField !== type || mode === "browse" && type === "end") return null;
+            if (!data.length || focusedField !== type || mode === "browse" && type === "start") return null;
 
             return (
                 <FlatList
@@ -210,7 +226,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
                     keyboardShouldPersistTaps="handled"
                     testID={`${type}-results`}
                     renderItem={({ item }) => {
-                        const isCurrent = type === "start" && currentBuildingCodes.has(item.buildingCode);
+                        const isCurrent = currentBuildingCodes.has(item.buildingCode);
                         return (
                             <TouchableOpacity
                                 style={[styles.resultItem, { borderBottomColor: theme.buildingInfoPopup.divider }]}
@@ -235,7 +251,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
     return (
         <View style={styles.buildingSelectionContainer} testID="building-selection">
             <View style={styles.inputRow}>
-                {mode === "browse" ? (renderInput("start", "Search building")) : (
+                {mode === "browse" ? (renderInput("end", "Search building")) : (
                     <View style={[{backgroundColor: theme.buildingSelection.containerBackground}, styles.directionContainer]}>
                         <View style={styles.icons}>
                             <Ionicons name="ellipse-outline" size={15} color={theme.buildingSelection.swapButton} />

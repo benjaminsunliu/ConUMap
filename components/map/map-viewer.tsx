@@ -228,6 +228,7 @@ export default function MapViewer({
           if (suppressNextMapPress.current) return;
             setSelectedBuilding(null);
             setShouldDisplayRoutes(false);
+            setNavigationMode("browse");
         }}
         renderCluster={renderCluster}
       >
