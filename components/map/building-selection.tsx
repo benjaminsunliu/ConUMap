@@ -8,13 +8,6 @@ import { SearchBuilding, FieldType } from "@/types/buildingTypes";
 
 const buildingAddresses = buildingAddressesRaw as SearchBuilding[];
 
-const emptyBuilding: SearchBuilding = {
-    buildingCode: "",
-    buildingName: "",
-    address: "",
-    campus: ""
-};
-
 /**
  * Separates buildings into current and other, returning current buildings first.
  * This prioritizes user's current location in search results.
@@ -41,7 +34,7 @@ interface Props {
     readonly currentBuildingCodes?: Set<string>;
     readonly mode: "browse" | "directions";
     readonly selectedBuilding: SearchBuilding | null;
-    readonly onSelect: (building: SearchBuilding, type: FieldType) => void;
+    readonly onSelect: (buildings: Record<FieldType, SearchBuilding | null>, type: FieldType) => void;
 }
 
 export default function BuildingSelection({ currentBuildingCodes = new Set(), mode, selectedBuilding, onSelect }: Props) {
@@ -49,13 +42,14 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
     const theme = Colors[colorScheme];
     const [queries, setQueries] = useState<Record<FieldType, string>>({start: "", end: ""});
     const [focusedField, setFocusedField] = useState<FieldType | null>(null);
-    const [, setSelectedBuildings] = useState<Record<FieldType, SearchBuilding>>({
-        start: emptyBuilding,
-        end: emptyBuilding
+    const [selectedBuildings, setSelectedBuildings] = useState<Record<FieldType, SearchBuilding | null>>({
+        start: null,
+        end: null
     });
     const selectedBuildingRef = useRef(selectedBuilding);
     const startInputRef = useRef<TextInput>(null);
     const endInputRef = useRef<TextInput>(null);
+    const focusRef = useRef<FieldType>(focusedField);
 
     useEffect(() => {
 
@@ -63,12 +57,19 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
         if (mode === "browse") {
             setQueries(prev => ({ ...prev, end: selectedBuilding?.buildingName ?? "" }));
         }
-
+        // Edge case where they selected a building in the start search bar
+        else if (focusedField === null && focusRef.current !== focusedField && selectedBuilding && selectedBuilding !== selectedBuildingRef.current) {
+            const previousFocus = focusRef.current === "end" ? "end" : "start";
+            setQueries(prev => ({ ...prev, [previousFocus]: selectedBuilding.buildingName }));
+            setSelectedBuildings(prev => ({ ...prev, [previousFocus]: selectedBuilding as SearchBuilding }));
+        }
         // Only change the text field value if the selected building changes when the field is focused
-        else if ((focusedField === null || focusedField === "end") && selectedBuilding && selectedBuilding !== selectedBuildingRef.current) {
+        else if (focusedField === "end" && selectedBuilding && selectedBuilding !== selectedBuildingRef.current) {
             setQueries(prev => ({ ...prev, end: selectedBuilding.buildingName }));
+            setSelectedBuildings(prev => ({ ...prev, end: selectedBuilding as SearchBuilding }));
         } else if (focusedField === "start" && selectedBuilding && selectedBuilding !== selectedBuildingRef.current) {
             setQueries(prev => ({ ...prev, start: selectedBuilding.buildingName }));
+            setSelectedBuildings(prev => ({ ...prev, start: selectedBuilding as SearchBuilding }));
         }
         selectedBuildingRef.current = selectedBuilding;
     }, [focusedField, mode, selectedBuilding]);
@@ -118,7 +119,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
     const handleChange = useCallback(
         (text: string, type: FieldType) => {
             setQuery(type, text);
-            setSelectedBuildings(prev => ({ ...prev, [type]: emptyBuilding }));
+            setSelectedBuildings(prev => ({ ...prev, [type]: null }));
         },
         [setQuery]
     );
@@ -139,20 +140,20 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
         (building: SearchBuilding, type: FieldType) => {
             setQuery(type, building.buildingName);
             setSelectedBuildings(prev => ({ ...prev, [type]: building }));
+            onSelect({...selectedBuildings, [type]: building}, type);
             removeInputFocus(type);
-            onSelect(building, type);
         },
-        [setQuery, removeInputFocus, onSelect]
+        [setQuery, removeInputFocus, onSelect, selectedBuildings]
     );
 
     const clearField = useCallback(
         (type: FieldType) => {
             setQuery(type, "");
-            setSelectedBuildings(prev => ({ ...prev, [type]: emptyBuilding }));
+            setSelectedBuildings(prev => ({ ...prev, [type]: null }));
+            onSelect({...selectedBuildings, [type]: null}, type);
             removeInputFocus(type);
-            onSelect(emptyBuilding, type);
         },
-        [setQuery, onSelect, removeInputFocus]
+        [setQuery, removeInputFocus, onSelect, selectedBuildings]
     );
 
     const swapFields = useCallback(() => {
@@ -162,11 +163,10 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
                     start: prevBuildings.end,
                     end: prevBuildings.start
                 };
-
-                onSelect(swappedBuildings.start, "start");
-                onSelect(swappedBuildings.end, "end");
                 return swappedBuildings;
             });
+
+            onSelect({start: selectedBuildings.end, end: selectedBuildings.start}, "end");
 
             return {
                 start: prevQueries.end,
@@ -175,7 +175,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
         });
 
         setFocusedField(null);
-    }, [onSelect]);
+    }, [onSelect, selectedBuildings]);
 
     const renderInput = useCallback(
         (type: FieldType, placeholder: string) => {

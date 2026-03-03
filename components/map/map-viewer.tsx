@@ -15,6 +15,7 @@ import BuildingSelection from "./building-selection";
 import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
+import { FieldType, SearchBuilding } from "@/types/buildingTypes";
 
 interface Props {
   readonly userLocationDelta?: CoordinateDelta;
@@ -185,9 +186,12 @@ export default function MapViewer({
         mode={navigationMode}
         selectedBuilding={selectedBuilding}
         currentBuildingCodes={inBuildingCodes}
-        onSelect={(building, type) => {
-          if (type === "start") setShouldDisplayRoutes(false);
-          const newBuilding = selectBuildingByCode(building.buildingCode);
+        onSelect={(buildings: Record<FieldType, SearchBuilding | null>, type: FieldType) => {
+          if (!!buildings.end || !!buildings.start) setShouldDisplayRoutes(false);
+          console.log("On Select")
+          console.log(buildings);
+          const newBuilding = selectBuildingByCode(buildings[type]?.buildingCode ?? "");
+          console.log(newBuilding);
           if (newBuilding) focusBuilding(newBuilding);
         }}
       />
