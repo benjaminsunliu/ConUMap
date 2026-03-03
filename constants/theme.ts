@@ -55,7 +55,8 @@ export const Colors = {
       inputBackground: "#fff",
       inputText: "#000",
       magnifierColor: "#3c050a",
-      borderColor: "#000"
+      borderColor: "#000",
+      clearButton: "#000"
     }
   },
 
@@ -109,7 +110,8 @@ export const Colors = {
       inputBackground: "#5e0e16",
       inputText: "#fbf6ec",
       magnifierColor: "#fbf6ec",
-      borderColor: "#000"
+      borderColor: "#000",
+      clearButton: "#fbf6ec"
     }
   }
 };

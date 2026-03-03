@@ -187,7 +187,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
                     />
                     {!!value && (
                         <TouchableOpacity testID={`clear-${type}`} onPress={() => clearField(type)} style={styles.clearButton}>
-                            <Text style={{ color: theme.campusToggle.borderColor, fontSize: 18 }}>×</Text>
+                            <Text style={{ color: theme.buildingSelection.clearButton, fontSize: 18 }}>×</Text>
                         </TouchableOpacity>
                     )}
                 </View>
