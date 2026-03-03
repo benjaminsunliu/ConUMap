@@ -45,7 +45,7 @@ export default function MapViewer({
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
-  const [shouldDisplayRoutes, setShouldDisplayRoutes] = useState(false);
+  const [, setShouldDisplayRoutes] = useState(false);
   const [routes, setRoutes] = useState(mockRoutes);
   const [navigationMode, setNavigationMode] = useState<"browse" | "directions">("browse");
 

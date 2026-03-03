@@ -53,7 +53,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
         if (mode === "directions" && selectedBuilding) {
             setQueries(prev => ({ start: prev.start || "Current Location", end: selectedBuilding.buildingName }));
         }
-    }, [mode]);
+    }, [mode, selectedBuilding]);
 
     useEffect(() => {
         if (mode === "browse" && selectedBuilding) {
@@ -192,7 +192,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
                     )}
                 </View>
             );
-        }, [queries, theme.text, theme.buildingInfoPopup.background, theme.buildingInfoPopup.divider, theme.campusToggle.borderColor, handleChange, clearField]
+        }, [queries, theme.text, theme.buildingInfoPopup.background, theme.buildingInfoPopup.divider, theme.campusToggle.borderColor, handleChange, clearField, mode, theme.buildingSelection.borderColor, theme.buildingSelection.clearButton, theme.buildingSelection.inputBackground, theme.buildingSelection.inputText, theme.buildingSelection.magnifierColor]
     );
 
     const renderResults = useCallback(
@@ -227,7 +227,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
                 />
             );
         },
-        [results, focusedField, theme.background, theme.buildingInfoPopup.divider, theme.campusToggle.selectedColor, theme.text, handleSelect, currentBuildingCodes]
+        [mode, results, focusedField, theme.background, theme.buildingInfoPopup.divider, theme.campusToggle.selectedColor, theme.text, handleSelect, currentBuildingCodes]
     );
 
     return (

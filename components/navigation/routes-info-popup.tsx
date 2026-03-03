@@ -81,7 +81,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect, onBack 
       </>
       
     );
-  },[availableTransports, colorScheme, styles.headerTitle, tabIndex]);
+  },[availableTransports, colorScheme, styles.headerTitle, tabIndex,onBack, theme.buildingInfoPopup.text]);
 
   if (availableTransports.length <= 0) return null;
   
