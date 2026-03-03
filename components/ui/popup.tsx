@@ -121,7 +121,8 @@ const makeStyles = (theme: typeof Colors.light) =>
             paddingTop: 10,
             borderTopLeftRadius: 20,
             borderTopRightRadius: 20,
-            elevation: 15
+            elevation: 15,
+            zIndex: 10
         },
         handle: {
             width: 40,
@@ -135,7 +136,7 @@ const makeStyles = (theme: typeof Colors.light) =>
             borderBottomColor: theme.buildingInfoPopup.divider,
             borderBottomWidth: StyleSheet.hairlineWidth,
             marginVertical: 12,
-            zIndex: 2
+            zIndex: 10
         },
         ScrollView: {
             marginTop: 10,

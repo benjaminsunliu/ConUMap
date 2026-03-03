@@ -306,18 +306,11 @@ function renderBuildings(
             styles.marker,
             {
               backgroundColor: isSelected ? mapColors.markerSelected : mapColors.marker,
-              borderColor: isSelected
-                ? mapColors.markerBorderSelected
-                : mapColors.markerBorder,
-            },
+              borderColor: isSelected ? mapColors.markerBorderSelected : mapColors.markerBorder
+            }
           ]}
         >
-          <Text
-            style={[
-              styles.markerText,
-              { color: isSelected ? mapColors.markerTextSelected : mapColors.markerText },
-            ]}
-          >
+          <Text style={[ styles.markerText, { color: isSelected ? mapColors.markerTextSelected : mapColors.markerText } ]} >
             {building.buildingCode}
           </Text>
         </View>
@@ -338,11 +331,7 @@ function getPolygonZIndex(isSelected: boolean, isInBuilding: boolean) {
   return 0;
 }
 
-function getPolygonColor(
-  isSelected: boolean,
-  isInBuilding: boolean,
-  colorScheme: ColorSchemeName,
-) {
+function getPolygonColor(isSelected: boolean, isInBuilding: boolean, colorScheme: ColorSchemeName) {
   const mapColors = Colors[colorScheme].map;
 
   if (isSelected && isInBuilding) {

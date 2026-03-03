@@ -59,7 +59,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect, onBack 
     return (
       <>
         {onBack && (
-          <TouchableOpacity onPress={onBack} style={{ position: "absolute", top: 10, left: 10, zIndex: 10 }} testID="routes-back-button">
+          <TouchableOpacity onPress={onBack} style={{ position: "absolute", top: 10, left: 10 }} testID="routes-back-button">
             <Ionicons name="arrow-back" size={28} color={theme.buildingInfoPopup.text} />
           </TouchableOpacity>
         )}

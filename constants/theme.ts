@@ -49,6 +49,13 @@ export const Colors = {
       buttonColor: "#fbf6ec",
       borderColor: "#420A0F",
       backgroundColor: "#420A0F"
+    },
+
+    buildingSelection: {
+      inputBackground: "#fff",
+      inputText: "#000",
+      magnifierColor: "#3c050a",
+      borderColor: "#000"
     }
   },
 
@@ -97,6 +104,12 @@ export const Colors = {
       buttonColor: "#a0686d",
       borderColor: "#420A0F",
       backgroundColor: "#420A0F"
+    },
+    buildingSelection: {
+      inputBackground: "#5e0e16",
+      inputText: "#fbf6ec",
+      magnifierColor: "#fbf6ec",
+      borderColor: "#000"
     }
   }
 };

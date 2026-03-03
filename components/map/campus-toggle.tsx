@@ -85,7 +85,7 @@ export default function CampusToggle({ mapRef, viewRegion }: Readonly<Props>) {
         fontSize={20}
         hasPadding
         options={[
-          { label: "Loyola", value: Campus.Loyola },
+          { label: "LOY", value: Campus.Loyola },
           { label: "SGW", value: Campus.SGW },
         ]}
         testID="campus-toggle-selector"
@@ -100,14 +100,13 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     width: "80%",
-    maxWidth: 300,
+    maxWidth: 100,
     borderRadius: 30,
-    top: "1%",
-    left: "50%",
-    transform: [{ translateX: "-50%" }],
+    top: "90%",
+    left: "2%",
     backgroundColor: "transparent",
     position: "relative",
     height: 0,
-    zIndex: 10,
+    zIndex: 5
   },
 });

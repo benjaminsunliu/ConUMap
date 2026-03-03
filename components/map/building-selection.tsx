@@ -165,7 +165,10 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
             const value = queries[type];
 
             return (
-                <View style={styles.inputWrapper}>
+                <View style={[{backgroundColor: theme.buildingSelection.inputBackground}, styles.inputWrapper]}>
+                    {mode === "browse" && type === "start" && (
+                        <Ionicons name="search" size={18} color={theme.buildingSelection.magnifierColor} style={styles.magnifierIcon} />
+                    )}
                     <TextInput
                         placeholder={placeholder}
                         placeholderTextColor={theme.text}
@@ -176,9 +179,9 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
                         style={[
                             styles.input,
                             {
-                                backgroundColor: theme.buildingInfoPopup.background,
-                                borderColor: theme.buildingInfoPopup.divider,
-                                color: theme.text
+                                backgroundColor: theme.buildingSelection.inputBackground,
+                                borderColor: theme.buildingSelection.borderColor,
+                                color: theme.buildingSelection.inputText
                             }
                         ]}
                     />
@@ -228,7 +231,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
     );
 
     return (
-        <>
+        <View style={styles.buildingSelectionContainer}>
             <View style={styles.inputRow}>
                 {mode === "browse" ? (renderInput("start", "Search building")) : (
                     <>
@@ -242,26 +245,36 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
             </View>
             {renderResults("start")}
             {renderResults("end")}
-        </>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
+    buildingSelectionContainer: {
+        position: "absolute",
+        width: "100%",
+        zIndex: 10
+    },
     inputRow: {
         flexDirection: "row",
-        alignItems: "center"
+        alignItems: "center",
+        maxWidth:"100%"
     },
     inputWrapper: {
         flex: 1,
-        position: "relative",
-        marginHorizontal: 4
+        marginHorizontal: 4,
+        marginTop: 10,
+        flexDirection: "row",
+        alignItems: "center" ,
+        borderWidth: 2,
+        borderRadius: 16,
+        maxWidth:"100%",
+        overflow: "hidden",
+        paddingRight: "10%"
     },
     input: {
-        paddingVertical: 10,
-        paddingLeft: 10,
-        paddingRight: 25,
-        borderRadius: 8,
-        borderWidth: 1
+        paddingRight: "10%",
+        width: "100%"
     },
     clearButton: {
         position: "absolute",
@@ -291,5 +304,9 @@ const styles = StyleSheet.create({
     },
     currentLabel: {
         fontSize: 11,
+    },
+    magnifierIcon: { 
+        marginRight: 10,
+        marginLeft: 10,
     }
 });
