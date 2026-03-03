@@ -43,12 +43,11 @@ export default function MapViewer({
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(
-    null,
-  );
+  const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
   const [shouldDisplayRoutes, setShouldDisplayRoutes] = useState(false);
   const [routes, setRoutes] = useState(mockRoutes);
+  const [navigationMode, setNavigationMode] = useState<"browse" | "directions">("browse");
 
   const inBuildingCodes = useMemo(() => {
     const codes = new Set<string>();
@@ -172,14 +171,22 @@ export default function MapViewer({
     // TODO Call backend to get route from current location to building
     setRoutes(mockRoutes);
     setShouldDisplayRoutes(true);
+    setNavigationMode("directions");
+  }, []);
+
+  const handleBackFromDirections = useCallback(() => {
+    setNavigationMode("browse");
+    setShouldDisplayRoutes(false);
   }, []);
 
   return (
     <View style={styles.container}>
       <BuildingSelection
+        mode={navigationMode}
+        selectedBuilding={selectedBuilding}
         currentBuildingCodes={inBuildingCodes}
-        onSelect={(building) => {
-          setShouldDisplayRoutes(false);
+        onSelect={(building, type) => {
+          if (type === "start") setShouldDisplayRoutes(false);
           const newBuilding = selectBuildingByCode(building.buildingCode);
           if (newBuilding) focusBuilding(newBuilding);
         }}
@@ -240,10 +247,17 @@ export default function MapViewer({
         }}
       />
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
-      <BuildingInfoPopup building={selectedBuilding} onNavigate={navigateToBuilding} />
-      <RoutesInfoPopup routes={routes} isOpen={shouldDisplayRoutes} onRouteSelect={(route) => {
-        //TODO implement onRouteSelect
-      }}/>
+      
+      {navigationMode === "browse" && selectedBuilding && (
+        <BuildingInfoPopup building={selectedBuilding} onNavigate={navigateToBuilding}/>
+      )}
+
+      {navigationMode === "directions" && (
+        <RoutesInfoPopup routes={routes} isOpen={true} onRouteSelect={(route) => {
+          //TODO implement onRouteSelect
+          }} 
+          onBack={handleBackFromDirections}/>
+      )}
     </View>
   );
 }

@@ -19,6 +19,7 @@ interface Props {
   readonly routes: Record<TransportationMode, any[] | null>;
   readonly isOpen: boolean;
   readonly onRouteSelect: (route: any) => void;
+  readonly onBack?: () => void;
 }
 
 const transportIconMap: Record<TransportationMode, keyof typeof Ionicons.glyphMap> = {
@@ -29,7 +30,7 @@ const transportIconMap: Record<TransportationMode, keyof typeof Ionicons.glyphMa
   shuttle: "school-outline"
 };
 
-export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props) {
+export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect, onBack }: Props) {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
   const styles = makePopupStyles(theme);
@@ -57,6 +58,11 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect }: Props
 
     return (
       <>
+        {onBack && (
+          <TouchableOpacity onPress={onBack} style={{ position: "absolute", top: 10, left: 10, zIndex: 10 }} testID="routes-back-button">
+            <Ionicons name="arrow-back" size={28} color={theme.buildingInfoPopup.text} />
+          </TouchableOpacity>
+        )}
         <Text style={styles.headerTitle}>{availableTransports[tabIndex]?.replaceAll(/^./g, (c) => c.toUpperCase())}</Text>
         <SwitchSelector
           initial={tabIndex}

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { View, TextInput, FlatList, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -39,10 +39,12 @@ function prioritizeCurrentBuildings(
 
 interface Props {
     readonly currentBuildingCodes?: Set<string>;
+    readonly mode: "browse" | "directions";
+    readonly selectedBuilding: SearchBuilding | null;
     readonly onSelect: (building: SearchBuilding, type: FieldType) => void;
 }
 
-export default function BuildingSelection({ currentBuildingCodes = new Set(), onSelect }: Props) {
+export default function BuildingSelection({ currentBuildingCodes = new Set(), mode, selectedBuilding, onSelect }: Props) {
     const colorScheme = useColorScheme()
     const theme = Colors[colorScheme];
 
@@ -50,6 +52,12 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), on
         start: "",
         end: ""
     });
+
+    useEffect(() => {
+        if (mode === "directions" && selectedBuilding) {
+            setQueries(prev => ({ start: prev.start || "Current Location", end: selectedBuilding.buildingName }));
+        }
+    }, [mode]);
 
     const [, setSelectedBuildings] = useState<Record<FieldType, SearchBuilding>>({
         start: emptyBuilding,
@@ -185,7 +193,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), on
     const renderResults = useCallback(
         (type: FieldType) => {
             const data = results[type];
-            if (!data.length || focusedField !== type) return null;
+            if (!data.length || focusedField !== type || mode === "browse" && type === "end") return null;
 
             return (
                 <FlatList
@@ -220,11 +228,15 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), on
     return (
         <View style={[styles.container, { backgroundColor: theme.background, shadowColor: theme.text }]} testID="building-selection">
             <View style={styles.inputRow}>
-                {renderInput("start", "Start")}
-                <TouchableOpacity testID="swap-fields" onPress={swapFields} style={styles.swapButton}>
-                    <Ionicons name="swap-vertical" size={24} color={theme.tint} />
-                </TouchableOpacity>
-                {renderInput("end", "Destination")}
+                {mode === "browse" ? (renderInput("start", "Search building")) : (
+                    <>
+                        {renderInput("start", "Your location")}
+                        <TouchableOpacity testID="swap-fields" onPress={swapFields} style={styles.swapButton}>
+                            <Ionicons name="swap-vertical" size={24} color={theme.tint} />
+                        </TouchableOpacity>
+                        {renderInput("end", "Destination")}
+                    </>
+                )}
             </View>
             {renderResults("start")}
             {renderResults("end")}
