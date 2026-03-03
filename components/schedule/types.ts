@@ -1,12 +1,15 @@
 export interface ClassInfo {
-    code: string;
-    name: string;
-    lecTutLab: number;  // 0 = lecture, 1 = tutorial, 2 = lab
-    section: string;
+    subject: string,
+    catalogNumber: string;
+    fullName: string;
+    lecTutLab: string;
+    classSection: string;
     instructor: string;
     roomCode: string;
     buildingId: string;
     dayOfWeek: number[];
-    startTime: string;
-    endTime: string;
+    startHours: string;
+    startMinutes: string;
+    endHours: string;
+    endMinutes: string;
 }

@@ -9,6 +9,8 @@ interface ClassDetailPopupProps {
     onClose: () => void;
 }
 
+const WEEK_DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
 export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupProps) {
     const backdropOpacity = useRef(new Animated.Value(0)).current;
 
@@ -38,21 +40,14 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
         })
     }
 
-    function resolveLecTutLab(n: number): string {
-        switch (n) {
-            case 0:
-                return "Lecture";
-                break;
-            case 1:
-                return "Tutorial";
-                break;
-            case 2:
-                return "Lab";
-                break;
-            default:
-                return "";
-                break;
-        }
+    function resolveWeekdays(c: ClassInfo): string {
+        let result: string = "";
+
+        c.dayOfWeek.forEach((n) => {result += (WEEK_DAYS[n] + ", ")})
+
+        console.log(result)
+
+        return result.slice(0, -2);
     }
 
     return (
@@ -63,8 +58,8 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
                     <View style={styles.body}>
                         <View style={styles.headerRow}>
                             <View style={styles.headerText}>
-                                <Text style={styles.courseCode}>{classInfo.code}</Text>
-                                <Text style={styles.lecTutLab}>{resolveLecTutLab(classInfo.lecTutLab)} – Section {classInfo.section}</Text>
+                                <Text style={styles.courseCode}>{classInfo.subject} {classInfo.catalogNumber}</Text>
+                                <Text style={styles.lecTutLab}>{classInfo.lecTutLab} – Section {classInfo.classSection}</Text>
                             </View>
                             <Pressable onPress={handleClose} style={styles.closeButton} accessibilityLabel="Close">
                                 <MaterialIcons name="close" size={36} color="#fff" />
@@ -77,7 +72,7 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
                             </View>
                             <View style={styles.detailRow}>
                                 <Text style={styles.detailRowTitle}>Time:</Text>
-                                <Text style={styles.detailRowText}>14:45 – 16:00 (Tue, Thu)</Text>
+                                <Text style={styles.detailRowText}>{classInfo.startHours}:{classInfo.startMinutes} – {classInfo.endHours}:{classInfo.endMinutes} ({resolveWeekdays(classInfo)})</Text>
                             </View>
                             <View style={styles.detailRow}>
                                 <Text style={styles.detailRowTitle}>Location:</Text>
