@@ -47,17 +47,19 @@ interface Props {
 export default function BuildingSelection({ currentBuildingCodes = new Set(), mode, selectedBuilding, onSelect }: Props) {
     const colorScheme = useColorScheme()
     const theme = Colors[colorScheme];
-
-    const [queries, setQueries] = useState<Record<FieldType, string>>({
-        start: "",
-        end: ""
-    });
+    const [queries, setQueries] = useState<Record<FieldType, string>>({start: "", end: ""});
 
     useEffect(() => {
         if (mode === "directions" && selectedBuilding) {
             setQueries(prev => ({ start: prev.start || "Current Location", end: selectedBuilding.buildingName }));
         }
     }, [mode]);
+
+    useEffect(() => {
+        if (mode === "browse" && selectedBuilding) {
+            setQueries(prev => ({ ...prev, start: selectedBuilding.buildingName }));
+        }
+    }, [selectedBuilding, mode]);
 
     const [, setSelectedBuildings] = useState<Record<FieldType, SearchBuilding>>({
         start: emptyBuilding,
@@ -226,7 +228,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background, shadowColor: theme.text }]} testID="building-selection">
+        <>
             <View style={styles.inputRow}>
                 {mode === "browse" ? (renderInput("start", "Search building")) : (
                     <>
@@ -240,19 +242,14 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
             </View>
             {renderResults("start")}
             {renderResults("end")}
-        </View>
+        </>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        zIndex: 10,
-        padding: 8
-    },
     inputRow: {
         flexDirection: "row",
-        alignItems: "center",
-        marginBottom: 6
+        alignItems: "center"
     },
     inputWrapper: {
         flex: 1,

@@ -227,8 +227,7 @@ export default function MapViewer({
         onPress={(e) => {
           if (suppressNextMapPress.current) return;
           const action = e?.nativeEvent?.action;
-
-          if (!action || action === "press") {
+          if (!action) {
             setSelectedBuilding(null);
             setShouldDisplayRoutes(false);
           }
