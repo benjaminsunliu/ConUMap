@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { View, TextInput, FlatList, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -48,25 +48,27 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
     const colorScheme = useColorScheme()
     const theme = Colors[colorScheme];
     const [queries, setQueries] = useState<Record<FieldType, string>>({start: "", end: ""});
-
-    useEffect(() => {
-        if (mode === "directions" && selectedBuilding) {
-            setQueries(prev => ({ start: prev.start || "Current Location", end: selectedBuilding.buildingName }));
-        }
-    }, [mode, selectedBuilding]);
-
-    useEffect(() => {
-        if (mode === "browse" && selectedBuilding) {
-            setQueries(prev => ({ ...prev, start: selectedBuilding.buildingName }));
-        }
-    }, [selectedBuilding, mode]);
-
+    const [focusedField, setFocusedField] = useState<FieldType | null>(null);
     const [, setSelectedBuildings] = useState<Record<FieldType, SearchBuilding>>({
         start: emptyBuilding,
         end: emptyBuilding
     });
+    
+    const prevModeRef = useRef(mode);
 
-    const [focusedField, setFocusedField] = useState<FieldType | null>(null);
+    useEffect(() => {
+        const enteringDirections = prevModeRef.current !== "directions" && mode === "directions";
+
+        if (enteringDirections && selectedBuilding) {
+            setQueries(prev => ({ ...prev, end: selectedBuilding.buildingName }));
+        }
+
+        if (mode === "browse" && selectedBuilding) {
+            setQueries(prev => ({ ...prev, start: selectedBuilding.buildingName }));
+        }
+
+        prevModeRef.current = mode;
+    }, [mode, selectedBuilding]);
 
     const filterBuildings = useCallback((text: string, fieldType: FieldType) => {
         const q = text.toLowerCase();
