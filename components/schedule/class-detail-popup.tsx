@@ -45,8 +45,6 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
 
         c.dayOfWeek.forEach((n) => {result += (WEEK_DAYS[n] + ", ")})
 
-        console.log(result)
-
         return result.slice(0, -2);
     }
 
