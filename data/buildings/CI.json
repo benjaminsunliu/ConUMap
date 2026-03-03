@@ -1,0 +1,60 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4974269652217,
+        "longitude": -73.5797547280965
+      },
+      {
+        "latitude": 45.4974366746176,
+        "longitude": -73.5797735308202
+      },
+      {
+        "latitude": 45.4974594197792,
+        "longitude": -73.579751538598
+      },
+      {
+        "latitude": 45.4974904963022,
+        "longitude": -73.5798141562255
+      },
+      {
+        "latitude": 45.497545834616,
+        "longitude": -73.5797588480992
+      },
+      {
+        "latitude": 45.4975846830202,
+        "longitude": -73.5798381406833
+      },
+      {
+        "latitude": 45.4974066437538,
+        "longitude": -73.5800156485673
+      },
+      {
+        "latitude": 45.4973674712368,
+        "longitude": -73.5799371607606
+      },
+      {
+        "latitude": 45.4973273093448,
+        "longitude": -73.5798549641675
+      },
+      {
+        "latitude": 45.4974269652217,
+        "longitude": -73.5797547280965
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4974481,
+    "longitude": -73.5798674
+  },
+  "buildingCode": "CI",
+  "buildingName": "CI Annex",
+  "overview": [
+    "The CI Annex is a Victorian-era building, forming part of a trio of historic homes just north of the Hall Building. Built around 1884, it showcases grey limestone walls, decorative stonework and a distinctive two-storey bay window with angled sides.",
+    "After serving as a private residence and later a restaurant, the building was acquired by the university in 1971."
+  ],
+  "accessibility": [],
+  "address": "2149 Mackay St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/ci.html"
+}

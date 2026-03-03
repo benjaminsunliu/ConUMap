@@ -1,10 +1,10 @@
 import React from "react"
 import BuildingInfoPopup from "../components/map/building-info-popup"
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react-native";
-import { concordiaBuildings } from "../data/parsedBuildings"
+import { CAMPUS_BUILDINGS } from "../constants/map"
 import { Linking } from 'react-native';
 
-const mockBuilding = concordiaBuildings[14];  // Hall Building
+const mockBuilding = CAMPUS_BUILDINGS[22];  // Hall Building
 
 jest.mock('react-native', () => {
     const rn = jest.requireActual('react-native');
@@ -67,7 +67,7 @@ describe('building-info-popup', () => {
             await fireEvent.press(websiteButton);
         });
         
-        expect(Linking.openURL).toHaveBeenCalledWith(mockBuilding.link);
+        expect(Linking.openURL).toHaveBeenCalledWith(mockBuilding.url);
     });
 });
 

@@ -5,13 +5,25 @@ export type Coordinate = {
 
 export type Polygon = Coordinate[];
 
-export type Building = {
-  polygons: Polygon[];
-  code: string;
-  location: Coordinate;
+type RelatedInfo = {
+  name: string;
+  url: string;
 };
 
-export type Campus = Building[];
+export type BuildingInfo = {
+  polygons: Polygon[];
+  location: Coordinate;
+  buildingCode: string;
+  buildingName: string;
+  overview: string[];
+  services?: RelatedInfo[];
+  departments?: RelatedInfo[];
+  venues?: RelatedInfo[];
+  accessibility: string[];
+  address: string;
+  campus: string;
+  url: string;
+};
 
 export type CoordinateDelta = {
   latitudeDelta: number;

@@ -1,0 +1,48 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4597160619138,
+        "longitude": -73.6418795252247
+      },
+      {
+        "latitude": 45.4598037268178,
+        "longitude": -73.6421070482814
+      },
+      {
+        "latitude": 45.4596271221891,
+        "longitude": -73.6422443845596
+      },
+      {
+        "latitude": 45.4595394579799,
+        "longitude": -73.6420168626765
+      },
+      {
+        "latitude": 45.4597160619138,
+        "longitude": -73.6418795252247
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4596694,
+    "longitude": -73.6420526
+  },
+  "buildingCode": "HC",
+  "buildingName": "Hingston Hall, wing HC",
+  "overview": [
+    "Hingston Hall, wing HC, the smallest wing of the Hingston complex, complements the residential wings with academic space.",
+    "It contains offices, classrooms and two Fine Arts amphitheatres, serving as a key space for learning and research at the Loyola Campus."
+  ],
+  "services": [
+    {
+      "name": "Loyola Student Residence",
+      "url": "https://www.concordia.ca/students/housing/residences/loyola-residences.html"
+    }
+  ],
+  "accessibility": [
+    "entranceAutomatedDoor"
+  ],
+  "address": "7141 Sherbrooke St. W.",
+  "campus": "LOY",
+  "url": "https://www.concordia.ca/maps/buildings/hc.html"
+}

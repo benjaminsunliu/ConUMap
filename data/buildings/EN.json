@@ -1,0 +1,53 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4969323095399,
+        "longitude": -73.5795529388848
+      },
+      {
+        "latitude": 45.4967000477093,
+        "longitude": -73.5797842802126
+      },
+      {
+        "latitude": 45.4966760230819,
+        "longitude": -73.5797334490531
+      },
+      {
+        "latitude": 45.4968030078587,
+        "longitude": -73.5796062706743
+      },
+      {
+        "latitude": 45.4967875475273,
+        "longitude": -73.5795734859469
+      },
+      {
+        "latitude": 45.4968914104079,
+        "longitude": -73.5794697472717
+      },
+      {
+        "latitude": 45.4969323095399,
+        "longitude": -73.5795529388848
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4968138,
+    "longitude": -73.5796195
+  },
+  "buildingCode": "EN",
+  "buildingName": "EN Annex",
+  "overview": [
+    "This four-storey row house was built in 1940. It has an Art Deco flair, with rounded balconies and decorative concrete framing its windows and doors. Acquired in 1971 by the university, it now houses offices and student services."
+  ],
+  "departments": [
+    {
+      "name": "Research Chair on Gambling",
+      "url": "https://www.concordia.ca/research/lifestyle-addiction.html"
+    }
+  ],
+  "accessibility": [],
+  "address": "2070 Mackay St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/en.html"
+}

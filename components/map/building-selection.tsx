@@ -43,7 +43,7 @@ interface Props {
 }
 
 export default function BuildingSelection({ currentBuildingCodes = new Set(), onSelect }: Props) {
-    const colorScheme = useColorScheme() ?? "light";
+    const colorScheme = useColorScheme()
     const theme = Colors[colorScheme];
 
     const [queries, setQueries] = useState<Record<FieldType, string>>({

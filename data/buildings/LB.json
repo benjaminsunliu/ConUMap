@@ -1,0 +1,167 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4967290356968,
+        "longitude": -73.5785791067169
+      },
+      {
+        "latitude": 45.4967061329409,
+        "longitude": -73.5785308839501
+      },
+      {
+        "latitude": 45.4966684315951,
+        "longitude": -73.5785665996882
+      },
+      {
+        "latitude": 45.4962551742886,
+        "longitude": -73.577698780706
+      },
+      {
+        "latitude": 45.4964959113351,
+        "longitude": -73.577464874399
+      },
+      {
+        "latitude": 45.4965831527425,
+        "longitude": -73.5776511440844
+      },
+      {
+        "latitude": 45.4966370883208,
+        "longitude": -73.5776013590509
+      },
+      {
+        "latitude": 45.4966155543521,
+        "longitude": -73.5775564169593
+      },
+      {
+        "latitude": 45.496892296862,
+        "longitude": -73.5772933087358
+      },
+      {
+        "latitude": 45.4970083219392,
+        "longitude": -73.577538644865
+      },
+      {
+        "latitude": 45.4969774601587,
+        "longitude": -73.577567672881
+      },
+      {
+        "latitude": 45.4969978494418,
+        "longitude": -73.5776118596604
+      },
+      {
+        "latitude": 45.4969882404829,
+        "longitude": -73.5776207950782
+      },
+      {
+        "latitude": 45.4969937370459,
+        "longitude": -73.5776310443142
+      },
+      {
+        "latitude": 45.4970408336724,
+        "longitude": -73.5775879481697
+      },
+      {
+        "latitude": 45.4971154337745,
+        "longitude": -73.5777475406371
+      },
+      {
+        "latitude": 45.497070682136,
+        "longitude": -73.5777925242258
+      },
+      {
+        "latitude": 45.4970775229245,
+        "longitude": -73.577806886371
+      },
+      {
+        "latitude": 45.4970854213868,
+        "longitude": -73.5777993682524
+      },
+      {
+        "latitude": 45.497108216581,
+        "longitude": -73.5778478596577
+      },
+      {
+        "latitude": 45.4971413047383,
+        "longitude": -73.577816906224
+      },
+      {
+        "latitude": 45.4972596303715,
+        "longitude": -73.5780578215289
+      },
+      {
+        "latitude": 45.4970184079805,
+        "longitude": -73.578295484113
+      },
+      {
+        "latitude": 45.4970012731094,
+        "longitude": -73.5782573500428
+      },
+      {
+        "latitude": 45.4969646664758,
+        "longitude": -73.5782954868039
+      },
+      {
+        "latitude": 45.4969408652714,
+        "longitude": -73.5782471800773
+      },
+      {
+        "latitude": 45.4968949963946,
+        "longitude": -73.5782915948847
+      },
+      {
+        "latitude": 45.4969127577037,
+        "longitude": -73.5783299726621
+      },
+      {
+        "latitude": 45.4968688933457,
+        "longitude": -73.5783709572706
+      },
+      {
+        "latitude": 45.496890779169,
+        "longitude": -73.5784152833381
+      },
+      {
+        "latitude": 45.4967290356968,
+        "longitude": -73.5785791067169
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4968739,
+    "longitude": -73.5780374
+  },
+  "buildingCode": "LB",
+  "buildingName": "J.W. McConnell Building",
+  "overview": [
+    "Opened in 1992, the J.W. McConnell (LB) Building is a central academic and cultural hub on the Sir George Williams Campus. Its tiered, stepped profile was designed to complement the surrounding neighbourhood, with its height gradually increasing from two to 10 storeys.",
+    "The lower floors feature a mix of public and student-focused spaces, including a student service centre, bookstore, print shop, art gallery and more. An underground tunnel urls the building to the Hall Building and Guy-Concordia metro station.",
+    "The second to fifth floors house the R. Howard Webster Library, offering a variety of study spaces and services.",
+    "Upper levels contain classrooms, academic department offices and conference spaces."
+  ],
+  "services": [
+    {
+      "name": "Welcome Centre",
+      "url": "https://www.concordia.ca/admissions/undergraduate/welcome-centre.html"
+    }
+  ],
+  "departments": [
+    {
+      "name": "Mathematics and Statistics",
+      "url": "https://www.concordia.ca/artsci/math-stats.html"
+    }
+  ],
+  "venues": [
+    {
+      "name": "SHIFT Centre for Social Transformation",
+      "url": "https://www.concordia.ca/about/shift.html"
+    }
+  ],
+  "accessibility": [
+    "entranceAutomatedDoor",
+    "elevator"
+  ],
+  "address": "1400 De Maisonneuve Blvd. W.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/lb.html"
+}

@@ -1,0 +1,114 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4591399912472,
+        "longitude": -73.6422436438324
+      },
+      {
+        "latitude": 45.4591049702739,
+        "longitude": -73.6422713426249
+      },
+      {
+        "latitude": 45.4589627714889,
+        "longitude": -73.6419063705945
+      },
+      {
+        "latitude": 45.4589971408267,
+        "longitude": -73.6418792578238
+      },
+      {
+        "latitude": 45.4589700627892,
+        "longitude": -73.6418103176288
+      },
+      {
+        "latitude": 45.4593683495053,
+        "longitude": -73.641495100383
+      },
+      {
+        "latitude": 45.459556841626,
+        "longitude": -73.6419795323706
+      },
+      {
+        "latitude": 45.4595268428534,
+        "longitude": -73.642003263324
+      },
+      {
+        "latitude": 45.4595029331161,
+        "longitude": -73.6419418430954
+      },
+      {
+        "latitude": 45.4593579895672,
+        "longitude": -73.6420567168413
+      },
+      {
+        "latitude": 45.459362962778,
+        "longitude": -73.6420695003405
+      },
+      {
+        "latitude": 45.4593388819682,
+        "longitude": -73.6420883290704
+      },
+      {
+        "latitude": 45.4593609868397,
+        "longitude": -73.6421444864352
+      },
+      {
+        "latitude": 45.459162479683,
+        "longitude": -73.6423014110025
+      },
+      {
+        "latitude": 45.4591399912472,
+        "longitude": -73.6422436438324
+      }
+    ],
+    [
+      {
+        "latitude": 45.4592897678687,
+        "longitude": -73.6420270234696
+      },
+      {
+        "latitude": 45.4592024915459,
+        "longitude": -73.641803150824
+      },
+      {
+        "latitude": 45.4590461464361,
+        "longitude": -73.6419267585927
+      },
+      {
+        "latitude": 45.4591334496977,
+        "longitude": -73.6421508179797
+      },
+      {
+        "latitude": 45.4592897678687,
+        "longitude": -73.6420270234696
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4594409,
+    "longitude": -73.6419039
+  },
+  "buildingCode": "HB",
+  "buildingName": "Hingston Hall, wing HB",
+  "overview": [
+    "Hingston Hall, wing HB, opened in 1964 as part of the original Hingston Hall complex. It underwent major renovations in 2012 to convert the building into a modern student residence.",
+    "Today, the building provides housing for 118 students, supporting Loyola Campus’ vibrant community."
+  ],
+  "services": [
+    {
+      "name": "Concordia University Faculty Association (CUFA)",
+      "url": "https://cufa.net/"
+    },
+    {
+      "name": "Loyola Student Residence",
+      "url": "https://www.concordia.ca/students/housing/residences/loyola-residences.html"
+    }
+  ],
+  "accessibility": [
+    "entranceAutomatedDoor"
+  ],
+  "address": "7141 Sherbrooke St. W.",
+  "campus": "LOY",
+  "url": "https://www.concordia.ca/maps/buildings/hb.html"
+}
