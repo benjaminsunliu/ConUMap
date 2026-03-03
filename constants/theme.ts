@@ -56,7 +56,9 @@ export const Colors = {
       inputText: "#000",
       magnifierColor: "#3c050a",
       borderColor: "#000",
-      clearButton: "#000"
+      clearButton: "#000",
+      containerBackground: "#fbf6ec",
+      swapButton: "#000"
     }
   },
 
@@ -107,11 +109,13 @@ export const Colors = {
       backgroundColor: "#420A0F"
     },
     buildingSelection: {
-      inputBackground: "#5e0e16",
-      inputText: "#fbf6ec",
-      magnifierColor: "#fbf6ec",
-      borderColor: "#000",
-      clearButton: "#fbf6ec"
+      inputBackground: "#ffffff",
+      inputText: "#000",
+      magnifierColor: "#420A0F",
+      borderColor: "#252424",
+      clearButton: "#420A0F",
+      containerBackground: "#420A0F",
+      swapButton: "#FFFFFF"
     }
   }
 };

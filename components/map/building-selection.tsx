@@ -234,13 +234,22 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
         <View style={styles.buildingSelectionContainer}>
             <View style={styles.inputRow}>
                 {mode === "browse" ? (renderInput("start", "Search building")) : (
-                    <>
-                        {renderInput("start", "Your location")}
+                    <View style={[{backgroundColor: theme.buildingSelection.containerBackground}, styles.directionContainer]}>
+                        <View style={styles.icons}>
+                            <Ionicons name="ellipse-outline" size={15} color={theme.buildingSelection.swapButton} />
+                            <Ionicons name="ellipsis-vertical-outline" size={20} color={theme.buildingSelection.swapButton} />
+                            <Ionicons name="ellipsis-vertical-outline" size={20} color={theme.buildingSelection.swapButton} />
+                            <Ionicons name="pin" size={24} color={theme.buildingSelection.swapButton} />
+                        </View>
+                        <View>
+                            {renderInput("start", "Your location")}
+                            {renderInput("end", "Destination")}
+                        </View>
                         <TouchableOpacity testID="swap-fields" onPress={swapFields} style={styles.swapButton}>
-                            <Ionicons name="swap-vertical" size={24} color={theme.tint} />
+                            <Ionicons name="swap-vertical" size={24} color={theme.buildingSelection.swapButton} />
                         </TouchableOpacity>
-                        {renderInput("end", "Destination")}
-                    </>
+                        
+                    </View>
                 )}
             </View>
             {renderResults("start")}
@@ -250,6 +259,23 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
 }
 
 const styles = StyleSheet.create({
+    icons: {
+        position: "relative",
+        paddingTop: "5%",
+        flexDirection: "column",
+        alignSelf: "center",
+        alignItems: "center"
+    },
+    directionContainer: {
+        borderRadius: 16,
+        flexDirection: "row",
+        width:"95%",
+        paddingRight:40,
+        paddingLeft: 10,
+        paddingBottom:10,
+        borderWidth: 1.5,
+        marginTop: 10
+    },
     buildingSelectionContainer: {
         position: "absolute",
         width: "100%",
@@ -258,6 +284,7 @@ const styles = StyleSheet.create({
     inputRow: {
         flexDirection: "row",
         alignItems: "center",
+        justifyContent: "center",
         maxWidth:"100%"
     },
     inputWrapper: {
@@ -266,11 +293,11 @@ const styles = StyleSheet.create({
         marginTop: 10,
         flexDirection: "row",
         alignItems: "center" ,
-        borderWidth: 2,
+        borderWidth: 1,
         borderRadius: 16,
-        maxWidth:"100%",
+        maxWidth:"95%",
         overflow: "hidden",
-        paddingRight: "10%"
+        paddingRight: "8%"
     },
     input: {
         paddingRight: "10%",
@@ -284,7 +311,10 @@ const styles = StyleSheet.create({
         justifyContent: "center"
     },
     swapButton: {
-        padding: 4
+        justifyContent: "center",
+        paddingRight: "5%",
+        paddingLeft: "0%",
+        marginLeft: "0%"
     },
     results: {
         maxHeight: 180,
