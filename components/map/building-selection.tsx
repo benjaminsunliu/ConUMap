@@ -192,7 +192,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
                     )}
                 </View>
             );
-        }, [queries, theme.text, theme.buildingInfoPopup.background, theme.buildingInfoPopup.divider, theme.campusToggle.borderColor, handleChange, clearField, mode, theme.buildingSelection.borderColor, theme.buildingSelection.clearButton, theme.buildingSelection.inputBackground, theme.buildingSelection.inputText, theme.buildingSelection.magnifierColor]
+        }, [queries, theme.text, handleChange, clearField, mode, theme.buildingSelection.borderColor, theme.buildingSelection.clearButton, theme.buildingSelection.inputBackground, theme.buildingSelection.inputText, theme.buildingSelection.magnifierColor]
     );
 
     const renderResults = useCallback(
