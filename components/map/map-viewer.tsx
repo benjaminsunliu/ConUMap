@@ -226,11 +226,8 @@ export default function MapViewer({
         spiralEnabled={false}
         onPress={(e) => {
           if (suppressNextMapPress.current) return;
-          const action = e?.nativeEvent?.action;
-          if (!action) {
             setSelectedBuilding(null);
             setShouldDisplayRoutes(false);
-          }
         }}
         renderCluster={renderCluster}
       >
