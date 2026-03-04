@@ -1,4 +1,3 @@
-import RoutesInfoPopup from "@/components/navigation/routes-info-popup";
 import { Platform } from "react-native";
 
 const white = "#ffffff";
