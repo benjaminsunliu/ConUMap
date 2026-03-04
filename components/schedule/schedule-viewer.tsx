@@ -19,10 +19,13 @@ function getWeekStart(date: Date): Date {
 export default function ScheduleViewer() {
     const classes = MOCK_CLASSES;   // WILL NEED TO BE REPLACED WITH API
 
-    const [selectedClass, setSelectedClass] = useState<ClassInfo | null>(classes[0]);
+    const [selectedClass, setSelectedClass] = useState<ClassInfo | null>(null);
     const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => getWeekStart(new Date()));
     const [visible, setVisible] = useState(true);
 
+    function handleClassPress(classInfo: ClassInfo) {
+        setSelectedClass(classInfo);
+    }
 
     function handleTodayPress() {
         setCurrentWeekStart(getWeekStart(new Date()));
@@ -50,7 +53,7 @@ export default function ScheduleViewer() {
 
             {selectedClass && (
                 <ClassDetailPopup 
-                    classInfo={classes[0]}
+                    classInfo={selectedClass}
                     onClose={() => setSelectedClass(null)}
                 />
             )}
