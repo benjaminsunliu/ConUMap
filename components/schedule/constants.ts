@@ -1,4 +1,4 @@
-export const PIXELS_PER_MINUTES = 0.8;
+export const PIXELS_PER_MINUTES = 0.7;
 export const CALENDAR_START_HOUR = 0;
 export const CALENDAR_END_HOUR = 24;
 export const MINUTES_PER_SLOT = 15;
