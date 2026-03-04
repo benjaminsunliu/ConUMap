@@ -44,9 +44,11 @@ export default function MapViewer({
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
+  const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(
+    null,
+  );
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
-  const [, setShouldDisplayRoutes] = useState(false);
+  const [shouldDisplayRoutes, setShouldDisplayRoutes] = useState(false);
   const [routes, setRoutes] = useState(mockRoutes);
   const [navigationMode, setNavigationMode] = useState<"browse" | "directions">("browse");
 
@@ -188,10 +190,9 @@ export default function MapViewer({
         currentBuildingCodes={inBuildingCodes}
         onSelect={(buildings: Record<FieldType, SearchBuilding | null>, type: FieldType) => {
           if (!!buildings.end || !!buildings.start) setShouldDisplayRoutes(false);
-          console.log("On Select")
-          console.log(buildings);
+          
           const newBuilding = selectBuildingByCode(buildings[type]?.buildingCode ?? "");
-          console.log(newBuilding);
+          
           if (newBuilding) focusBuilding(newBuilding);
         }}
       />

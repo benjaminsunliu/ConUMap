@@ -1,5 +1,5 @@
 import React from "react";
-import {act, render, fireEvent} from '@testing-library/react-native';
+import {render, fireEvent} from '@testing-library/react-native';
 import BuildingSelection from "@/components/map/building-selection";
 
 
