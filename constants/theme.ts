@@ -1,7 +1,10 @@
+import RoutesInfoPopup from "@/components/navigation/routes-info-popup";
 import { Platform } from "react-native";
 
+const white = "#ffffff";
+const black = "#000000"
 const tintColorLight = "#5e0e16";
-const tintColorDark = "#ffffff";
+const tintColorDark = white;
 
 export const Colors = {
   light: {
@@ -16,20 +19,20 @@ export const Colors = {
       polygonFill: "#a0686d",
       polygonHighlighted: "#701922",
       currentBuildingColor: "#484949",
-      currentSelectedBuildingColor: "#000000",
-      polygonStroke: "black",
+      currentSelectedBuildingColor: black,
+      polygonStroke: black,
       marker: "#200003",
-      markerSelected: "#fff",
-      markerText: "#fff",
+      markerSelected: white,
+      markerText: white,
       markerTextSelected: "#200003",
-      markerBorder: "#fff",
+      markerBorder: white,
       markerBorderSelected: "#200003",
       clusterMarker: "#200003",
-      clusterText: "#fff",
+      clusterText: white,
     },
 
     buildingInfoPopup: {
-      background: "#ffffff",
+      background: white,
       handle: "#cccccc",
       title: "#11181C",
       text: "#333333",
@@ -43,22 +46,27 @@ export const Colors = {
       actionButtonIcon: "#1a73e8",
     },
 
+    routesInfoPopup: {
+      icon: black,
+      selectedIcon: black
+    },
+
     campusToggle: {
-      textColor: "#FFFFFF",
-      selectedColor: "#000000",
-      buttonColor: "#fbf6ec",
-      borderColor: "#420A0F",
-      backgroundColor: "#420A0F"
+      textColor: white,
+      selectedColor: black,
+      buttonColor: white,
+      borderColor: black,
+      backgroundColor: black
     },
 
     buildingSelection: {
-      inputBackground: "#fff",
-      inputText: "#000",
+      inputBackground: white,
+      inputText: black,
       magnifierColor: "#3c050a",
-      borderColor: "#000",
-      clearButton: "#000",
+      borderColor: black,
+      clearButton: black,
       containerBackground: "#fbf6ec",
-      swapButton: "#000"
+      swapButton: black
     }
   },
 
@@ -66,56 +74,61 @@ export const Colors = {
     text: "#b28e8b",
     background: "#5e0e16",
     tint: tintColorDark,
-    icon: "#ffffff",
-    tabIconDefault: "#ffffff",
+    icon: white,
+    tabIconDefault: white,
     tabIconSelected: tintColorDark,
 
     map: {
       polygonFill: "#a0686d",
       polygonHighlighted: "#701922",
       currentBuildingColor: "#484949",
-      currentSelectedBuildingColor: "#000000",
-      polygonStroke: "black",
+      currentSelectedBuildingColor: black,
+      polygonStroke: black,
       marker: "#330703",
-      markerSelected: "#fff",
-      markerText: "#fff",
+      markerSelected: white,
+      markerText: white,
       markerTextSelected: "#330703",
-      markerBorder: "#fff",
+      markerBorder: white,
       markerBorderSelected: "#330703",
       clusterMarker: "#330703",
-      clusterText: "#fff",
+      clusterText: white,
     },
 
     buildingInfoPopup: {
-      background: "#ffffff",
-      handle: "#cccccc",
-      title: "#11181C",
-      text: "#333333",
+      background: "#330300",
+      handle: "#A0676D",
+      title: white,
+      text: white,
       divider: "#dddddd",
 
-      openStatus: "#1e8e3e",
-      accessibilityIcon: "#1e8e3e",
+      openStatus: "#02C39A",
+      accessibilityIcon: "#02C39A",
 
-      actionButtonBackground: "#e8f0fe",
+      actionButtonBackground: "#C2E8F6",
       actionButtonText: "#1a73e8",
       actionButtonIcon: "#1a73e8",
     },
 
+    routesInfoPopup: {
+      icon: white,
+      selectedIcon: white
+    },
+
     campusToggle: {
-      textColor: "#FFFFFF",
-      selectedColor: "#FFFFFF",
-      buttonColor: "#a0686d",
-      borderColor: "#420A0F",
-      backgroundColor: "#420A0F"
+      textColor: white,
+      selectedColor: black,
+      buttonColor: white,
+      borderColor: black,
+      backgroundColor: black
     },
     buildingSelection: {
-      inputBackground: "#ffffff",
+      inputBackground: white,
       inputText: "#000",
       magnifierColor: "#420A0F",
       borderColor: "#252424",
       clearButton: "#420A0F",
       containerBackground: "#420A0F",
-      swapButton: "#FFFFFF"
+      swapButton: white
     }
   }
 };

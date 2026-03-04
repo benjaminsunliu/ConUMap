@@ -3,7 +3,6 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    useColorScheme,
     Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -13,6 +12,7 @@ import SwitchSelector from "react-native-switch-selector";
 import { TransportationMode } from "@/types/buildingTypes";
 import ShuttleIconDark from "@/assets/images/shuttle-icon-dark.png";
 import ShuttleIconLight from "@/assets/images/shuttle-icon-light.png";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 
 
 interface Props {
@@ -46,7 +46,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect, onBack 
     // Create the option icons for the routes selector
     const selectorOptions = availableTransports.map((transport, index) => {
       const shuttleIcon = <Image source={colorScheme === "dark" ? ShuttleIconDark : ShuttleIconLight} style={{width: 75, height: 40}}/> 
-      const defaultIcon = <Ionicons name={transportIconMap[transport as keyof typeof transportIconMap]} size={50} color={index === tabIndex ? "#222222" : "#000000"} />
+      const defaultIcon = <Ionicons name={transportIconMap[transport as keyof typeof transportIconMap]} size={50} color={index === tabIndex ? theme.routesInfoPopup.selectedIcon : theme.routesInfoPopup.icon} />
       return {
         label: "",
         value: index,
@@ -81,7 +81,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect, onBack 
       </>
       
     );
-  },[availableTransports, colorScheme, styles.headerTitle, tabIndex,onBack, theme.buildingInfoPopup.text]);
+  },[availableTransports, onBack, theme.buildingInfoPopup.text, theme.routesInfoPopup.selectedIcon, theme.routesInfoPopup.icon, styles.headerTitle, tabIndex, colorScheme]);
 
   if (availableTransports.length <= 0) return null;
   
@@ -111,6 +111,7 @@ const makePopupStyles = (theme: typeof Colors.light) => {
       fontSize: 40,
       fontWeight: "bold",
       marginVertical: 10,
+      color: theme.buildingInfoPopup.title
     },
     noRoutesText: {
       color: theme.buildingInfoPopup.text,
@@ -119,15 +120,15 @@ const makePopupStyles = (theme: typeof Colors.light) => {
 }
 
 function RouteOverview({route, onRouteSelect, testID}: {readonly route: any, readonly onRouteSelect: (route: any) => void, readonly testID?: string}) {
-  const colorScheme = useColorScheme() ?? "light";
+  const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
   const styles = makeOverviewStyles(theme);
 
   return (
     <TouchableOpacity style={styles.overviewContainer} onPress={() => onRouteSelect(route)} testID={testID}>
       <Text style={styles.overviewText}>{route?.legs[0]?.duration?.text} for {route?.legs[0]?.distance?.text}</Text>
-      {route?.legs[0]?.arrival_time && route?.legs[0]?.departure_time ? <Text>From {route?.legs[0]?.departure_time.text} To {route?.legs[0]?.arrival_time.text}</Text> : null}
-      {route?.summary? <Text>Via {route?.summary}</Text> : null}
+      {route?.legs[0]?.arrival_time && route?.legs[0]?.departure_time ? <Text style={styles.routeInfo}>From {route?.legs[0]?.departure_time.text} To {route?.legs[0]?.arrival_time.text}</Text> : null}
+      {route?.summary? <Text style={styles.routeInfo}>Via {route?.summary}</Text> : null}
     </TouchableOpacity>
   );
 }
@@ -136,7 +137,7 @@ const makeOverviewStyles = (theme: typeof Colors.light) =>
   StyleSheet.create({
     overviewContainer: {
       padding: 20,
-      shadowColor: "#000",
+      shadowColor: theme.routesInfoPopup.icon,
       shadowOffset: {
         width: 0,
         height: 2,
@@ -149,6 +150,9 @@ const makeOverviewStyles = (theme: typeof Colors.light) =>
     overviewText: {
       fontSize: 25,
       fontWeight: "500",
+      color: theme.buildingInfoPopup.text,
+    },
+    routeInfo: {
       color: theme.buildingInfoPopup.text,
     },
   }
