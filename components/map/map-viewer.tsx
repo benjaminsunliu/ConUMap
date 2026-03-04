@@ -165,69 +165,58 @@ export default function MapViewer({
     );
   }, [mapColors, selectedBuilding?.buildingCode, inBuildingCodes, handlePolygonPress, polygonRenderVersion]);
 
-  const getMarkerCoordinate = (building: MapBuilding) => {
-    if (building.code === "VE") {
-      return {
-        latitude: building.location.latitude + 0.00008,
-        longitude: building.location.longitude - 0.00015,
-      };
-    }
-    if (building.code === "RA") {
-      return {
-        latitude: building.location.latitude - 0.0009,
-        longitude: building.location.longitude - 0.0008,
-      };
-    }
-    if (building.code === "PC") {
-      return {
-        latitude: building.location.latitude - 0.0006,
-        longitude: building.location.longitude - 0.0005,
-      };
-    }
-    return building.location;
-  }
+  const getOffsetMarkerCoordinate = (building: MapBuilding) => { 
+      // Offset markers to prevent overlaps
 
-   if (IS_E2E) {
+    if (building.code === "VE") { 
+      // VE overlaps with VL
+      return { 
+        latitude: building.location.latitude + 0.00008, 
+        longitude: building.location.longitude - 0.00015, 
+      }; 
+    } 
+    if (building.code === "RA") { 
+      // Misplaced marker for RA
+      return { 
+        latitude: building.location.latitude - 0.0009, 
+        longitude: building.location.longitude - 0.0008, 
+      }; 
+    } 
+    if (building.code === "PC") { 
+      // Misplaced marker for PC
+      return { 
+        latitude: building.location.latitude - 0.0006, 
+        longitude: building.location.longitude - 0.0005, 
+      }; 
+    } 
+    return building.location; 
+  };
+
     useEffect(() => { 
+      if (!IS_E2E) {
+        return;
+      }
       async function updateHitboxPositions() { 
-        if (!mapReady || !mapViewRef.current) 
-          return; 
+        if (!mapReady || !mapViewRef.current) {
+          return;
+        } 
         const next:{building: MapBuilding; x: number; y: number }[] = []; 
         for (const building of CAMPUS_LOCATIONS as MapBuilding[]) { 
-          const coord = getMarkerCoordinate(building); 
+          const coord = getOffsetMarkerCoordinate(building); 
           const point = await mapViewRef.current.pointForCoordinate(coord); 
           next.push({ building, x: point.x, y: point.y }); 
         } 
         setProjectedPoints(next); 
       } updateHitboxPositions();
-    }, [currentRegion]);
-  }
+    }, [currentRegion, mapReady]);
+  
 
   const renderMarkers = useMemo(() => {
     return CAMPUS_LOCATIONS.map((building) => {
       const isSelected = selectedBuilding?.buildingCode === building.code;
 
-      // Offset markers to prevent overlaps
-      let coordinate = building.location;
-      if (building.code === "VE") {
-        // VE overlaps with VL
-        coordinate = {
-          latitude: building.location.latitude + 0.00008,
-          longitude: building.location.longitude - 0.00015,
-        };
-      } else if (building.code === "RA") {
-        // Misplaced marker for RA
-        coordinate = {
-          latitude: building.location.latitude - 0.0009,
-          longitude: building.location.longitude - 0.0008,
-        };
-      } else if (building.code === "PC") {
-        // Misplaced marker for PC
-        coordinate = {
-          latitude: building.location.latitude - 0.0006,
-          longitude: building.location.longitude - 0.0005,
-        };
-      }
+      // Use helper for all marker offsets 
+      const coordinate = getOffsetMarkerCoordinate(building);
 
       return (
         <Marker
