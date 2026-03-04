@@ -151,7 +151,7 @@ export default function MapViewer({
                 : `${building.code}-${index}-${isSelected}-${isInBuilding}`
             }
             testID="polygon"
-            accessibilityLabel="concordia-building"
+            accessibilityLabel={`Concordia building ${building.code}`}
             coordinates={polygon}
             tappable
             fillColor={finalFillColor}
@@ -196,19 +196,35 @@ export default function MapViewer({
       if (!IS_E2E) {
         return;
       }
+      let isCancelled = false;
       async function updateHitboxPositions() { 
-        if (!mapReady || !mapViewRef.current) {
+        if (!mapReady || !mapViewRef.current || isCancelled) {
           return;
         } 
-        const next:{building: MapBuilding; x: number; y: number }[] = []; 
-        for (const building of CAMPUS_LOCATIONS as MapBuilding[]) { 
-          const coord = getOffsetMarkerCoordinate(building); 
-          const point = await mapViewRef.current.pointForCoordinate(coord); 
-          next.push({ building, x: point.x, y: point.y }); 
-        } 
-        setProjectedPoints(next); 
-      } updateHitboxPositions();
-    }, [currentRegion, mapReady]);
+        const next: { building: MapBuilding; x: number; y: number }[] = []; 
+        try {
+          for (const building of CAMPUS_LOCATIONS as MapBuilding[]) { 
+            if (isCancelled || !mapViewRef.current) {
+              return;
+            }
+            const coord = getOffsetMarkerCoordinate(building); 
+            const point = await mapViewRef.current.pointForCoordinate(coord); 
+            next.push({ building, x: point.x, y: point.y }); 
+          } 
+          if (!isCancelled) {
+            setProjectedPoints(next); 
+          }
+        } catch (error) {
+          if (__DEV__) {
+            console.warn("Failed to update hitbox positions", error);
+          }
+        }
+      } 
+      updateHitboxPositions();
+      return () => {
+        isCancelled = true;
+      };
+    }, [IS_E2E, CAMPUS_LOCATIONS,currentRegion, mapReady]);
   
 
   const renderMarkers = useMemo(() => {

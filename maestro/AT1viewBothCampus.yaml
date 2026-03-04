@@ -1,5 +1,6 @@
 appId: host.exp.Exponent
 ---
+# Requires EXPO_APP_URL to be set (e.g. via environment or Maestro .env) to the Expo app URL.
 - openLink: ${EXPO_APP_URL}
 - assertVisible: "Loyola"
 - assertVisible: "SGW"
