@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useCallback } from "react";
-import { View, TextInput, FlatList, TouchableOpacity, Text, StyleSheet } from "react-native";
+import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { View, TextInput, FlatList, TouchableOpacity, Text, StyleSheet, Keyboard } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
@@ -20,12 +20,12 @@ const emptyBuilding: SearchBuilding = {
  * This prioritizes user's current location in search results.
  */
 function prioritizeCurrentBuildings(
-    buildings: SearchBuilding[], 
+    buildings: SearchBuilding[],
     currentCodes: Set<string>
 ): SearchBuilding[] {
     const currentBuildings: SearchBuilding[] = [];
     const otherBuildings: SearchBuilding[] = [];
-    
+
     buildings.forEach(building => {
         if (currentCodes.has(building.buildingCode)) {
             currentBuildings.push(building);
@@ -33,16 +33,19 @@ function prioritizeCurrentBuildings(
             otherBuildings.push(building);
         }
     });
-    
+
     return [...currentBuildings, ...otherBuildings];
 }
 
 interface Props {
     readonly currentBuildingCodes?: Set<string>;
     readonly onSelect: (building: SearchBuilding, type: FieldType) => void;
+    readonly startOverride?: string | null;
+    readonly endOverride?: string | null;
+    readonly startHint?: string | null;
 }
 
-export default function BuildingSelection({ currentBuildingCodes = new Set(), onSelect }: Props) {
+export default function BuildingSelection({ currentBuildingCodes = new Set(), onSelect, startOverride, endOverride, startHint }: Props) {
     const colorScheme = useColorScheme() ?? "light";
     const theme = Colors[colorScheme];
 
@@ -57,6 +60,30 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), on
     });
 
     const [focusedField, setFocusedField] = useState<FieldType | null>(null);
+    const inputRefs = useRef<Record<FieldType, TextInput | null>>({ start: null, end: null });
+
+    // Blur native inputs whenever focus is dismissed so the cursor stops blinking
+    useEffect(() => {
+        if (focusedField === null) {
+            inputRefs.current.start?.blur();
+            inputRefs.current.end?.blur();
+            Keyboard.dismiss();
+        }
+    }, [focusedField]);
+
+    useEffect(() => {
+        if (startOverride != null) {
+            setQueries(q => ({ ...q, start: startOverride }));
+            setFocusedField(null);
+        }
+    }, [startOverride]);
+
+    useEffect(() => {
+        if (endOverride != null) {
+            setQueries(q => ({ ...q, end: endOverride }));
+            setFocusedField(null);
+        }
+    }, [endOverride]);
 
     const filterBuildings = useCallback((text: string, fieldType: FieldType) => {
         const q = text.toLowerCase();
@@ -157,6 +184,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), on
             return (
                 <View style={styles.inputWrapper}>
                     <TextInput
+                        ref={r => { inputRefs.current[type] = r; }}
                         placeholder={placeholder}
                         placeholderTextColor={theme.text}
                         value={value}
@@ -199,7 +227,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), on
                         return (
                             <TouchableOpacity
                                 style={[styles.resultItem, { borderBottomColor: theme.buildingInfoPopup.divider }]}
-                                onPress={() => handleSelect(item, type)} 
+                                onPress={() => handleSelect(item, type)}
                                 testID={`${type}-result-${item.buildingCode.toUpperCase()}`}>
                                 <Text style={[styles.resultTitle, { color: theme.campusToggle.selectedColor }]}>
                                     {isCurrent && "📍 "}{item.buildingCode} – {item.buildingName}
@@ -226,6 +254,9 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), on
                 </TouchableOpacity>
                 {renderInput("end", "Destination")}
             </View>
+            {!!startHint && (
+                <Text style={styles.startHint} testID="start-hint">{startHint}</Text>
+            )}
             {renderResults("start")}
             {renderResults("end")}
         </View>
@@ -282,5 +313,11 @@ const styles = StyleSheet.create({
     },
     currentLabel: {
         fontSize: 11,
+    },
+    startHint: {
+        color: "#e05252",
+        fontSize: 12,
+        marginLeft: 6,
+        marginBottom: 2,
     }
 });

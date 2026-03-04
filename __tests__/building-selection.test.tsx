@@ -1,5 +1,5 @@
 import React from "react";
-import {act, render, fireEvent} from '@testing-library/react-native';
+import { act, render, fireEvent } from '@testing-library/react-native';
 import BuildingSelection from "@/components/map/building-selection";
 
 
@@ -7,27 +7,27 @@ const mockAnimateToRegion = jest.fn();
 
 jest.mock('react-native-map-clustering', () => {
   const React = require("react");
-  const {forwardRef, useImperativeHandle} = React;
+  const { forwardRef, useImperativeHandle } = React;
   const { View } = require("react-native");
-  const  mockCluster =  forwardRef((props: React.PropsWithChildren<any>, ref: any) => {
+  const mockCluster = forwardRef((props: React.PropsWithChildren<any>, ref: any) => {
     useImperativeHandle(ref, () => ({
       animateToRegion: mockAnimateToRegion,
     }));
     return <View {...props}>{props.children}</View>;
-    });
-    mockCluster.displayName = "mockCluster";
+  });
+  mockCluster.displayName = "mockCluster";
   return {
     __esModule: true,
     default: mockCluster
-      
+
   };
 });
 
 jest.mock('expo-location', () => ({
-    hasServicesEnabledAsync: jest.fn(),
-    requestForegroundPermissionsAsync: jest.fn(),
-    getCurrentPositionAsync: jest.fn(),
-  }));
+  hasServicesEnabledAsync: jest.fn(),
+  requestForegroundPermissionsAsync: jest.fn(),
+  getCurrentPositionAsync: jest.fn(),
+}));
 
 jest.mock('react-native-maps', () => {
   const { View } = require("react-native");
@@ -81,7 +81,7 @@ jest.mock('@/data/parsedBuildings', () => ({
     {
       buildingCode: "VE",
       location: { latitude: 45.496, longitude: -73.580 },
-    },  {
+    }, {
       buildingCode: "RA",
       location: { latitude: 45.496, longitude: -73.580 },
     },
@@ -126,18 +126,18 @@ beforeEach(() => {
 const mockOnSelect = jest.fn();
 
 describe("BuildingSelection component", () => {
-  it('should display the building selection, and no results',async ()=>{
-      const selectionView = render(<BuildingSelection onSelect={mockOnSelect}/>)
-      const container = selectionView.getByTestId('building-selection');
-      expect(container).toBeVisible();
-      const startResults = await selectionView.queryByTestId('start-results');
-      expect(startResults).toBeNull();
-      const endResults = await selectionView.queryByTestId('end-results');
-      expect(endResults).toBeNull();
+  it('should display the building selection, and no results', async () => {
+    const selectionView = render(<BuildingSelection onSelect={mockOnSelect} />)
+    const container = selectionView.getByTestId('building-selection');
+    expect(container).toBeVisible();
+    const startResults = await selectionView.queryByTestId('start-results');
+    expect(startResults).toBeNull();
+    const endResults = await selectionView.queryByTestId('end-results');
+    expect(endResults).toBeNull();
   });
 
-  it('should display results when similar text is entered', async ()=>{
-    const selectionView = render(<BuildingSelection onSelect={mockOnSelect}/>)
+  it('should display results when similar text is entered', async () => {
+    const selectionView = render(<BuildingSelection onSelect={mockOnSelect} />)
     const startInput = selectionView.getByPlaceholderText("Start");
     await act(async () => {
       await fireEvent(startInput, 'onFocus');
@@ -149,8 +149,8 @@ describe("BuildingSelection component", () => {
     expect(hallResult).toBeVisible();
   });
 
-  it('should not display results when text that does not match any building is entered', async ()=>{
-    const selectionView = render(<BuildingSelection onSelect={mockOnSelect}/>)
+  it('should not display results when text that does not match any building is entered', async () => {
+    const selectionView = render(<BuildingSelection onSelect={mockOnSelect} />)
     const startInput = selectionView.getByPlaceholderText("Start");
     await act(async () => {
       await fireEvent(startInput, 'onFocus');
@@ -160,38 +160,38 @@ describe("BuildingSelection component", () => {
     expect(startResults).toBeNull();
   });
 
-  it('should clear the input when the clear button is pressed', async ()=>{
-    const selectionView = render(<BuildingSelection onSelect={mockOnSelect}/>)
+  it('should clear the input when the clear button is pressed', async () => {
+    const selectionView = render(<BuildingSelection onSelect={mockOnSelect} />)
     const startInput = selectionView.getByPlaceholderText("Start");
-    await act(async () => {      
+    await act(async () => {
       await fireEvent(startInput, 'onFocus');
       await fireEvent.changeText(startInput, 'Hall');
     });
     const clearButton = await selectionView.findByTestId('clear-start');
-    await act(async () => {      
+    await act(async () => {
       await fireEvent.press(clearButton);
     });
     expect(startInput.props.value).toBe("");
   });
 
-  it('should swap the start and end fields when the swap button is pressed', async ()=>{
-    const selectionView = render(<BuildingSelection onSelect={mockOnSelect}/>)
+  it('should swap the start and end fields when the swap button is pressed', async () => {
+    const selectionView = render(<BuildingSelection onSelect={mockOnSelect} />)
     const startInput = selectionView.getByPlaceholderText("Start");
     const endInput = selectionView.getByPlaceholderText("Destination");
-    await act(async () => {      
+    await act(async () => {
       await fireEvent(startInput, 'onFocus');
       await fireEvent.changeText(startInput, 'Hall');
     });
     const swapButton = await selectionView.findByTestId('swap-fields');
-    await act(async () => {      
+    await act(async () => {
       await fireEvent.press(swapButton);
     });
     expect(startInput.props.value).toBe("");
     expect(endInput.props.value).toBe("Hall");
   });
 
-  it('should remove display results a result is pressed, call the onSelect, and set the query correctly', async ()=>{
-    const selectionView = render(<BuildingSelection onSelect={mockOnSelect}/>)
+  it('should remove display results a result is pressed, call the onSelect, and set the query correctly', async () => {
+    const selectionView = render(<BuildingSelection onSelect={mockOnSelect} />)
     const startInput = selectionView.getByPlaceholderText("Start");
     await act(async () => {
       await fireEvent(startInput, 'onFocus');
@@ -215,8 +215,8 @@ describe("BuildingSelection component", () => {
     expect(startInput.props.value).toBe("Henry F. Hall Building");
   });
 
-  it('should prioritize current buildings when typing in start field', async ()=>{
-    const selectionView = render(<BuildingSelection currentBuildingCodes={new Set(["B"])} onSelect={mockOnSelect}/>)
+  it('should prioritize current buildings when typing in start field', async () => {
+    const selectionView = render(<BuildingSelection currentBuildingCodes={new Set(["B"])} onSelect={mockOnSelect} />)
     const startInput = selectionView.getByPlaceholderText("Start");
     await act(async () => {
       await fireEvent(startInput, 'onFocus');
@@ -234,8 +234,8 @@ describe("BuildingSelection component", () => {
     expect(ciResult).toBeVisible();
   });
 
-  it('should maintain backward compatibility when no currentBuildingCodes provided', async ()=>{
-    const selectionView = render(<BuildingSelection onSelect={mockOnSelect}/>)
+  it('should maintain backward compatibility when no currentBuildingCodes provided', async () => {
+    const selectionView = render(<BuildingSelection onSelect={mockOnSelect} />)
     const startInput = selectionView.getByPlaceholderText("Start");
     // Focus without text - should not show results
     await act(async () => {
@@ -251,6 +251,75 @@ describe("BuildingSelection component", () => {
     expect(startResults).toBeVisible();
     const hallResult = await selectionView.findByTestId('start-result-H');
     expect(hallResult).toBeVisible();
+  });
+
+  it('should update start query when startOverride prop changes', async () => {
+    const { getByPlaceholderText, rerender } = render(
+      <BuildingSelection onSelect={mockOnSelect} startOverride={null} />
+    );
+    const startInput = getByPlaceholderText("Start");
+    expect(startInput.props.value).toBe("");
+
+    rerender(<BuildingSelection onSelect={mockOnSelect} startOverride="Henry F. Hall Building" />);
+    expect(startInput.props.value).toBe("Henry F. Hall Building");
+  });
+
+  it('should update end query when endOverride prop changes', async () => {
+    const { getByPlaceholderText, rerender } = render(
+      <BuildingSelection onSelect={mockOnSelect} endOverride={null} />
+    );
+    const endInput = getByPlaceholderText("Destination");
+    expect(endInput.props.value).toBe("");
+
+    rerender(<BuildingSelection onSelect={mockOnSelect} endOverride="B Annex" />);
+    expect(endInput.props.value).toBe("B Annex");
+  });
+
+  it('should show startHint when startHint prop is provided', () => {
+    const { getByTestId } = render(
+      <BuildingSelection onSelect={mockOnSelect} startHint="Please select a start location" />
+    );
+    const hint = getByTestId("start-hint");
+    expect(hint).toBeVisible();
+    expect(hint.props.children).toBe("Please select a start location");
+  });
+
+  it('should not show startHint when startHint is null', () => {
+    const { queryByTestId } = render(
+      <BuildingSelection onSelect={mockOnSelect} startHint={null} />
+    );
+    expect(queryByTestId("start-hint")).toBeNull();
+  });
+
+  it('should close results when input loses focus (onBlur)', async () => {
+    const selectionView = render(<BuildingSelection onSelect={mockOnSelect} />);
+    const startInput = selectionView.getByPlaceholderText("Start");
+
+    await act(async () => {
+      await fireEvent(startInput, 'onFocus');
+      await fireEvent.changeText(startInput, 'Hall');
+    });
+    expect(await selectionView.findByTestId('start-results')).toBeVisible();
+
+    await act(async () => {
+      await fireEvent(startInput, 'onBlur');
+    });
+    // After blur, focusedField becomes null, hiding results
+    expect(selectionView.queryByTestId('start-results')).toBeNull();
+  });
+
+  it('should search by address', async () => {
+    const selectionView = render(<BuildingSelection onSelect={mockOnSelect} />);
+    const startInput = selectionView.getByPlaceholderText("Start");
+    await act(async () => {
+      await fireEvent(startInput, 'onFocus');
+      await fireEvent.changeText(startInput, '2160 Bishop');
+    });
+    const startResults = await selectionView.findByTestId('start-results');
+    expect(startResults).toBeVisible();
+    // B Annex is at 2160 Bishop St
+    const bResult = await selectionView.findByTestId('start-result-B');
+    expect(bResult).toBeVisible();
   });
 
 });

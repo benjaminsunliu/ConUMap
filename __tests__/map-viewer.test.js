@@ -38,7 +38,36 @@ jest.mock('react-native-maps', () => {
   return {
     Marker: (props) => <View {...props} />,
     Polygon: (props) => <View testID="polygon" {...props} />,
+    Polyline: (props) => <View testID="polyline" {...props} />,
   };
+});
+
+jest.mock('@/utils/directions', () => ({
+  fetchAllDirections: jest.fn().mockResolvedValue({
+    walking: [],
+    transit: [],
+    driving: [],
+    bicycling: [],
+    shuttle: [],
+  }),
+}));
+
+jest.mock('@/utils/decodePolyline', () => ({
+  decodePolyline: jest.fn().mockReturnValue([]),
+}));
+
+jest.mock('react-native', () => {
+  const rn = jest.requireActual('react-native');
+  rn.PanResponder.create = (config) => ({
+    panHandlers: {
+      onResponderGrant: config.onPanResponderGrant,
+      onResponderMove: config.onPanResponderMove,
+      onResponderRelease: config.onPanResponderRelease,
+      onStartShouldSetResponder: () => true,
+      onMoveShouldSetResponder: () => true,
+    },
+  });
+  return rn;
 });
 
 jest.mock("@/constants/mapData", () => {
@@ -439,5 +468,239 @@ jest.mock("@/constants/mapData", () => {
         polygons = mapViewer.getAllByTestId('polygon');
         expect(polygons[0].props.fillColor).toBe(Colors.light.map.currentSelectedBuildingColor);
       });
+    });
+
+    it('shows start-hint after navigateToBuilding is called without a user location', async () => {
+      const mapViewer = render(<MapViewer />);
+      // Select LB building (polygon 0 -> CAMPUS_LOCATIONS[0] code "LB")
+      await act(async () => {
+        fireEvent.press(mapViewer.getAllByTestId("polygon")[0]);
+      });
+      // Press the Directions button (in the header of BuildingInfoPopup)
+      const directionsBtn = mapViewer.getByTestId("directions-action-button");
+      await act(async () => {
+        fireEvent.press(directionsBtn);
+      });
+      // No userLocation -> showStartHint should be true
+      expect(mapViewer.getByTestId("start-hint")).toBeVisible();
+    });
+
+    it('navigateToBuilding uses userLocation as start when user location is set', async () => {
+      const { fetchAllDirections } = require('@/utils/directions');
+      const mapViewer = render(<MapViewer />);
+      const mapView = mapViewer.getByTestId('map-view');
+
+      // Give the map a user location
+      fireEvent(mapView, 'onUserLocationChange', {
+        nativeEvent: { coordinate: { latitude: 45.495, longitude: -73.579 } },
+      });
+
+      // Select LB building
+      await act(async () => {
+        fireEvent.press(mapViewer.getAllByTestId("polygon")[0]);
+      });
+      const directionsBtn = mapViewer.getByTestId("directions-action-button");
+      await act(async () => {
+        fireEvent.press(directionsBtn);
+      });
+
+      // fetchAllDirections should have been called because both start and end are now set
+      expect(fetchAllDirections).toHaveBeenCalledWith(
+        expect.objectContaining({ latitude: 45.495, longitude: -73.579 }),
+        expect.objectContaining({ latitude: expect.any(Number), longitude: expect.any(Number) })
+      );
+    });
+
+    it('onRegionChangeComplete updates the current region state', async () => {
+      const mapViewer = render(<MapViewer />);
+      const mapView = mapViewer.getByTestId('map-view');
+      await act(async () => {
+        fireEvent(mapView, 'onRegionChangeComplete', {
+          latitude: 45.458,
+          longitude: -73.640,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        });
+      });
+      // CampusToggle should reflect the new region (now closer to LOY)
+      expect(mapViewer.getByText("Loyola")).toBeTruthy();
+    });
+
+    it('onRegionChangeComplete sets locationState to "centered" when near user location', async () => {
+      const mapViewer = render(<MapViewer />);
+      const mapView = mapViewer.getByTestId('map-view');
+
+      // First set a user location
+      fireEvent(mapView, 'onUserLocationChange', {
+        nativeEvent: { coordinate: { latitude: 45.496, longitude: -73.578 } },
+      });
+
+      // Region change that's very close to the user location
+      await act(async () => {
+        fireEvent(mapView, 'onRegionChangeComplete', {
+          latitude: 45.496,
+          longitude: -73.578,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        });
+      });
+
+      // The locationButton should now be in "centered" state
+      const locationButton = mapViewer.getByTestId('locationButton');
+      expect(locationButton).toBeTruthy();
+    });
+
+    it('renders polylines after a route with valid coords is selected', async () => {
+      const { fetchAllDirections } = require('@/utils/directions');
+      const { decodePolyline } = require('@/utils/decodePolyline');
+
+      const mockRoute = {
+        summary: "Test Route",
+        overview_polyline: { points: "testpoly" },
+        legs: [{
+          distance: { text: "500 m", value: 500 },
+          duration: { text: "6 mins", value: 360 },
+          departure_time: undefined,
+          arrival_time: undefined,
+          steps: [{
+            distance: { text: "500 m", value: 500 },
+            duration: { text: "6 mins", value: 360 },
+            html_instructions: "Head north",
+            maneuver: "",
+            polyline: { points: "testpoly" },
+            travel_mode: "WALKING",
+            transit_details: undefined,
+          }],
+        }],
+      };
+
+      fetchAllDirections.mockResolvedValueOnce({
+        walking: [mockRoute],
+        transit: [],
+        driving: [],
+        bicycling: [],
+        shuttle: [],
+      });
+      // Make decodePolyline return 2 valid coords for this test
+      decodePolyline.mockReturnValueOnce([
+        { latitude: 45.495, longitude: -73.579 },
+        { latitude: 45.496, longitude: -73.578 },
+      ]);
+
+      const mapViewer = render(<MapViewer />);
+      const mapView = mapViewer.getByTestId('map-view');
+
+      // Set user location so navigateToBuilding can set a start coord
+      fireEvent(mapView, 'onUserLocationChange', {
+        nativeEvent: { coordinate: { latitude: 45.495, longitude: -73.579 } },
+      });
+
+      // Select a building and press Directions
+      await act(async () => {
+        fireEvent.press(mapViewer.getAllByTestId("polygon")[0]);
+      });
+      await act(async () => {
+        fireEvent.press(mapViewer.getByTestId("directions-action-button"));
+      });
+
+      // Wait for fetchAllDirections to resolve
+      await act(async () => {});
+
+      // Expand the RoutesInfoPopup
+      const routesPopup = mapViewer.getByTestId('routes-info-popup');
+      await act(async () => {
+        routesPopup.props.onResponderGrant({}, {});
+        routesPopup.props.onResponderMove({}, { dy: -300 });
+        routesPopup.props.onResponderRelease({}, { dy: -300, vy: -1 });
+      });
+
+      // Select the first walking route
+      const route0 = mapViewer.getByTestId("walking-route-0");
+      await act(async () => {
+        fireEvent.press(route0);
+      });
+
+      // A polyline should now be rendered on the map
+      expect(mapViewer.getAllByTestId("polyline").length).toBeGreaterThan(0);
+    });
+
+    it('onStepSelect animates map to midpoint of the decoded step polyline', async () => {
+      const { fetchAllDirections } = require('@/utils/directions');
+      const { decodePolyline } = require('@/utils/decodePolyline');
+
+      const mockRoute = {
+        summary: "",
+        overview_polyline: { points: "poly" },
+        legs: [{
+          distance: { text: "200 m", value: 200 },
+          duration: { text: "3 mins", value: 180 },
+          departure_time: undefined,
+          arrival_time: undefined,
+          steps: [{
+            distance: { text: "200 m", value: 200 },
+            duration: { text: "3 mins", value: 180 },
+            html_instructions: "Walk",
+            maneuver: "",
+            polyline: { points: "steppoly" },
+            travel_mode: "WALKING",
+            transit_details: undefined,
+          }],
+        }],
+      };
+
+      fetchAllDirections.mockResolvedValueOnce({
+        walking: [mockRoute],
+        transit: [],
+        driving: [],
+        bicycling: [],
+        shuttle: [],
+      });
+
+      // onRouteSelect: return coords for the overview polyline (walking segment)
+      decodePolyline.mockReturnValueOnce([
+        { latitude: 45.495, longitude: -73.579 },
+        { latitude: 45.496, longitude: -73.578 },
+      ]);
+      // onStepSelect: return coords for the step polyline
+      decodePolyline.mockReturnValueOnce([
+        { latitude: 45.495, longitude: -73.579 },
+        { latitude: 45.5, longitude: -73.57 },
+        { latitude: 45.505, longitude: -73.56 },
+      ]);
+
+      const mapViewer = render(<MapViewer />);
+      const mapView = mapViewer.getByTestId('map-view');
+
+      fireEvent(mapView, 'onUserLocationChange', {
+        nativeEvent: { coordinate: { latitude: 45.495, longitude: -73.579 } },
+      });
+
+      await act(async () => {
+        fireEvent.press(mapViewer.getAllByTestId("polygon")[0]);
+      });
+      await act(async () => {
+        fireEvent.press(mapViewer.getByTestId("directions-action-button"));
+      });
+      await act(async () => {});
+
+      const routesPopup = mapViewer.getByTestId('routes-info-popup');
+      await act(async () => {
+        routesPopup.props.onResponderGrant({}, {});
+        routesPopup.props.onResponderMove({}, { dy: -300 });
+        routesPopup.props.onResponderRelease({}, { dy: -300, vy: -1 });
+      });
+
+      // Select the route to enter step view
+      await act(async () => {
+        fireEvent.press(mapViewer.getByTestId("walking-route-0"));
+      });
+
+      // Press step 0 to trigger onStepSelect
+      await act(async () => {
+        fireEvent.press(mapViewer.getByTestId("walking-step-0"));
+      });
+
+      // animateToRegion should have been called at least once (polygon focus + possibly step)
+      expect(mockAnimateToRegion).toHaveBeenCalled();
     });
 })

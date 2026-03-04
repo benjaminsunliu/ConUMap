@@ -1,7 +1,7 @@
-import React, { useRef, useState, useCallback, useMemo } from "react";
+import React, { useRef, useState, useCallback, useMemo, useEffect } from "react";
 import { StyleSheet, View, Text, Platform } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
-import MapView, { Marker, Polygon, Region } from "react-native-maps";
+import MapView, { Marker, Polygon, Polyline, Region } from "react-native-maps";
 import * as LocationPermissions from "expo-location";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
@@ -15,7 +15,43 @@ import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
 import CampusToggle from "./campus-toggle";
 import BuildingSelection from "./building-selection";
 import RoutesInfoPopup from "../navigation/routes-info-popup";
-import mockRoutes from "@/data/mock-data/route-data.json";
+import { fetchAllDirections } from "@/utils/directions";
+import { decodePolyline } from "@/utils/decodePolyline";
+import { TransportationMode } from "@/types/buildingTypes";
+
+interface PolylineSegment {
+  coordinates: Coordinate[];
+  color: string;
+  isDashed: boolean;
+}
+
+interface TransitStopMarker {
+  coordinate: Coordinate;
+  name: string;
+  color: string;
+}
+
+interface TransitionNode {
+  coordinate: Coordinate;
+  fromColor: string;
+  toColor: string;
+}
+
+/** Returns a stroke colour for a polyline segment based on travel mode and vehicle type. */
+function polylineColor(travelMode: string, vehicleType?: string): string {
+  const mode = travelMode?.toUpperCase();
+  if (mode === "TRANSIT") {
+    switch (vehicleType) {
+      case "BUS": return "#049ede";
+      case "TRAM":
+      case "SUBWAY":
+      case "RAIL":
+      case "HEAVY_RAIL": return "#480efa";
+      default: return "#1a73e8";
+    }
+  }
+  return "#1a73e8";
+}
 
 interface Props {
   readonly userLocationDelta?: CoordinateDelta;
@@ -48,7 +84,40 @@ export default function MapViewer({
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
   const [polygonRenderVersion, setPolygonRenderVersion] = useState(0);
   const [shouldDisplayRoutes, setShouldDisplayRoutes] = useState(false);
-  const [routes, setRoutes] = useState(mockRoutes);
+  const [routes, setRoutes] = useState<Record<TransportationMode, any[] | null>>({
+    walking: null,
+    transit: null,
+    driving: null,
+    bicycling: null,
+    shuttle: null,
+  });
+  const [routePolyline, setRoutePolyline] = useState<PolylineSegment[] | null>(null);
+  const [routeStops, setRouteStops] = useState<TransitStopMarker[]>([]);
+  const [routeNodes, setRouteNodes] = useState<TransitionNode[]>([]);
+  const [navCoords, setNavCoords] = useState<{ start: Coordinate | null; end: Coordinate | null }>({
+    start: null,
+    end: null,
+  });
+  const [selectionOverrides, setSelectionOverrides] = useState<{ start: string | null; end: string | null }>({
+    start: null,
+    end: null,
+  });
+  // Persists across route dismissals so "Directions" can reuse the last manually-chosen start
+  const [manualStart, setManualStart] = useState<{ coord: Coordinate | null; label: string }>({
+    coord: null,
+    label: "",
+  });
+  const showStartHint = shouldDisplayRoutes && navCoords.start === null;
+
+  // Auto-fetch directions whenever both endpoints are known
+  useEffect(() => {
+    if (!navCoords.start || !navCoords.end) return;
+    setRoutePolyline(null);
+    setRouteStops([]);
+    setRouteNodes([]);
+    setShouldDisplayRoutes(true);
+    fetchAllDirections(navCoords.start, navCoords.end).then(setRoutes);
+  }, [navCoords]);
 
   const inBuildingCodes = useMemo(() => {
     const codes = new Set<string>();
@@ -85,6 +154,10 @@ export default function MapViewer({
     selectBuildingByCode(building.code);
     focusBuilding(building);
     setShouldDisplayRoutes(false);
+    setRoutePolyline(null);
+    setRouteStops([]);
+    setRouteNodes([]);
+    setNavCoords({ start: null, end: null });
 
     requestAnimationFrame(() => {
       suppressNextMapPress.current = false;
@@ -197,7 +270,7 @@ export default function MapViewer({
           testID={`marker-${building.code}`}
           key={building.code}
           coordinate={coordinate}
-          onPress={() => {handlePolygonPress(building)}}
+          onPress={() => { handlePolygonPress(building) }}
         >
           <View
             style={[
@@ -246,20 +319,68 @@ export default function MapViewer({
   );
 
   const navigateToBuilding = useCallback(() => {
-    // TODO Call backend to get route from current location to building
-    setRoutes(mockRoutes);
+    if (!selectedBuilding) return;
+
+    const mapBuilding = CAMPUS_LOCATIONS.find(b => b.code === selectedBuilding.buildingCode);
+    if (!mapBuilding) return;
+
+    let startCoord: Coordinate | null = null;
+    let startLabel: string | null = null;
+
+    if (inBuildingCodes.size > 0) {
+      const firstCode = [...inBuildingCodes][0];
+      const startBuilding = concordiaBuildings.find(b => b.buildingCode === firstCode);
+      const startMapBuilding = CAMPUS_LOCATIONS.find(b => b.code === firstCode);
+      startLabel = startBuilding?.buildingName ?? firstCode;
+      startCoord = startMapBuilding?.location ?? userLocation ?? null;
+    } else if (userLocation) {
+      startLabel = "Current Location";
+      startCoord = userLocation;
+    } else if (manualStart.coord) {
+      startLabel = manualStart.label;
+      startCoord = manualStart.coord;
+    }
+
+    setSelectionOverrides({
+      start: startLabel ?? "",
+      end: selectedBuilding.buildingName,
+    });
+
+    setNavCoords({ start: startCoord, end: mapBuilding.location });
     setShouldDisplayRoutes(true);
-  }, []);
+  }, [userLocation, selectedBuilding, inBuildingCodes, manualStart]);
 
   return (
     <View style={styles.container}>
       <BuildingSelection
         currentBuildingCodes={inBuildingCodes}
-        onSelect={(building) => {
-          setShouldDisplayRoutes(false);
-          selectBuildingByCode(building.buildingCode);
-          const mapBuilding = CAMPUS_LOCATIONS.find((b) => b.code === building.buildingCode);
-          if (mapBuilding) focusBuilding(mapBuilding);
+        startOverride={selectionOverrides.start}
+        endOverride={selectionOverrides.end}
+        startHint={showStartHint ? "Please select a start location" : null}
+        onSelect={(building, type) => {
+          const coord = building.buildingCode
+            ? CAMPUS_LOCATIONS.find(b => b.code === building.buildingCode)?.location ?? null
+            : null;
+
+          setNavCoords(prev => ({ ...prev, [type]: coord }));
+
+          if (type === "start") {
+            setManualStart({ coord, label: building.buildingName });
+          }
+
+          if (!coord) {
+            setRoutePolyline(null);
+            setRouteStops([]);
+            setRouteNodes([]);
+          }
+
+          if (type === "end") {
+            if (building.buildingCode) {
+              selectBuildingByCode(building.buildingCode);
+              const mapBuilding = CAMPUS_LOCATIONS.find(b => b.code === building.buildingCode);
+              if (mapBuilding) focusBuilding(mapBuilding);
+            }
+          }
         }}
       />
       <CampusToggle mapRef={mapViewRef} viewRegion={currentRegion} />
@@ -299,6 +420,10 @@ export default function MapViewer({
           if (!action || action === "press") {
             setSelectedBuilding(null);
             setShouldDisplayRoutes(false);
+            setRoutePolyline(null);
+            setRouteStops([]);
+            setRouteNodes([]);
+            setNavCoords({ start: null, end: null });
             setPolygonRenderVersion(v => v + 1);
           }
         }}
@@ -306,6 +431,50 @@ export default function MapViewer({
       >
         {renderPolygons}
         {renderMarkers}
+        {routePolyline?.map((segment, idx) => (
+          <Polyline
+            key={`polyline-seg-${idx}`}
+            coordinates={segment.coordinates}
+            strokeColor={segment.color}
+            strokeWidth={segment.isDashed ? 3 : 4}
+            lineDashPattern={segment.isDashed ? [1, 8] : undefined}
+            zIndex={10}
+          />
+        ))}
+        {routeStops.map((stop, idx) => (
+          <Marker
+            key={`stop-${idx}`}
+            coordinate={stop.coordinate}
+            anchor={{ x: 0.5, y: 0.5 }}
+            tracksViewChanges={false}
+          >
+            <View style={{
+              width: 10,
+              height: 10,
+              borderRadius: 5,
+              backgroundColor: "#fff",
+              borderWidth: 2,
+              borderColor: stop.color,
+            }} />
+          </Marker>
+        ))}
+        {routeNodes.map((node, idx) => (
+          <Marker
+            key={`node-${idx}`}
+            coordinate={node.coordinate}
+            anchor={{ x: 0.5, y: 0.5 }}
+            tracksViewChanges={false}
+          >
+            <View style={{
+              width: 18,
+              height: 18,
+              borderRadius: 9,
+              backgroundColor: node.toColor,
+              borderWidth: 3,
+              borderColor: "#fff",
+            }} />
+          </Marker>
+        ))}
       </MapViewCluster>
 
       <LocationButton
@@ -317,9 +486,66 @@ export default function MapViewer({
       />
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
       <BuildingInfoPopup building={selectedBuilding} onNavigate={navigateToBuilding} />
-      <RoutesInfoPopup routes={routes} isOpen={shouldDisplayRoutes} onRouteSelect={(route) => {
-        //TODO implement onRouteSelect
-      }}/>
+      <RoutesInfoPopup
+        routes={routes}
+        isOpen={shouldDisplayRoutes}
+        onRouteSelect={(route) => {
+          const segments: PolylineSegment[] = [];
+          const stops: TransitStopMarker[] = [];
+          const nodes: TransitionNode[] = [];
+          const allSteps = (route?.legs ?? []).flatMap((leg: any) => leg?.steps ?? []);
+
+          for (let i = 0; i < allSteps.length; i++) {
+            const step = allSteps[i];
+            const encoded = step?.polyline?.points;
+            if (!encoded) continue;
+            const coords = decodePolyline(encoded);
+            if (coords.length < 2) continue;
+
+            const mode = step.travel_mode ?? "WALK";
+            const vehicleType = step.transit_details?.line?.vehicle_type;
+            const color = polylineColor(mode, vehicleType);
+            const isWalking = mode.toUpperCase() === "WALK" || mode.toUpperCase() === "WALKING";
+
+            segments.push({ coordinates: coords, color, isDashed: isWalking });
+
+            // Collect transit departure / arrival stop markers
+            const dep = step.transit_details?.departure_stop;
+            const arr = step.transit_details?.arrival_stop;
+            if (dep?.location)
+              stops.push({ coordinate: { latitude: dep.location.lat, longitude: dep.location.lng }, name: dep.name ?? "", color });
+            if (arr?.location)
+              stops.push({ coordinate: { latitude: arr.location.lat, longitude: arr.location.lng }, name: arr.name ?? "", color });
+
+            // Transition node where the mode changes to the next step
+            const nextStep = allSteps[i + 1];
+            if (nextStep) {
+              const nextMode = nextStep.travel_mode ?? "WALK";
+              if (nextMode.toUpperCase() !== mode.toUpperCase()) {
+                const junction = coords[coords.length - 1];
+                const nextColor = polylineColor(nextMode, nextStep.transit_details?.line?.vehicle_type);
+                nodes.push({ coordinate: junction, fromColor: color, toColor: nextColor });
+              }
+            }
+          }
+
+          setRoutePolyline(segments.length > 0 ? segments : null);
+          setRouteStops(stops);
+          setRouteNodes(nodes);
+        }}
+        onStepSelect={(encoded, travelMode, vehicleType) => {
+          const coords = decodePolyline(encoded);
+          if (coords.length >= 2) {
+            const mid = coords[Math.floor(coords.length / 2)];
+            mapViewRef.current?.animateToRegion({
+              latitude: mid.latitude,
+              longitude: mid.longitude,
+              latitudeDelta: 0.005,
+              longitudeDelta: 0.005,
+            });
+          }
+        }}
+      />
     </View>
   );
 }
