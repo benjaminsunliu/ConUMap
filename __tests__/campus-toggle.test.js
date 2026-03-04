@@ -9,6 +9,8 @@ const viewRegionNearLOY = { latitude: 45.458, longitude: -73.640, latitudeDelta:
 
 const viewRegionNearSGW = { latitude: 45.496, longitude: -73.577, latitudeDelta: 0.01, longitudeDelta: 0.01 };
 
+jest.mock('@/utils/e2e', () => ({ IS_E2E: true }));
+
 describe("campus-toggle",()=>{
    
     

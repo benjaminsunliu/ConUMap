@@ -28,7 +28,7 @@ export default function LocationModal({ visible, onRequestClose }: Props) {
             <ThemedText style={styles.text}>
               Please turn on your location settings
             </ThemedText>
-            <Pressable style={styles.button} onPress={onRequestClose}>
+            <Pressable style={styles.button} onPress={onRequestClose} testID="location-modal-close">
               <ThemedText type="subtitle" style={styles.button}>
                 Okay
               </ThemedText>

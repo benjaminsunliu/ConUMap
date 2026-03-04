@@ -1,13 +1,11 @@
 appId: host.exp.Exponent
 ---
-- openLink: exp://172.30.63.128:8081
+- openLink: ${EXPO_APP_URL}
 - assertVisible: "Loyola"
 - assertVisible: "SGW"
 - assertVisible:
-          id: "campus-toggle-selector"
+      id: "campus-toggle-selector"
 - tapOn: "SGW"
-- waitForAnimationToEnd:
-          timeout: 2000
 - assertVisible:
       text: "SGW"
       enabled: true
@@ -15,12 +13,8 @@ appId: host.exp.Exponent
       text: "Loyola"
       selected: false
 - assertVisible:
-   id: "e2e-marker-FB"
-- waitForAnimationToEnd:
-      timeout: 2000
+      id: "e2e-marker-FB"
 - tapOn: "Loyola"
-- waitForAnimationToEnd:
-      timeout: 2000
 - assertVisible:
       text: "Loyola"
       enabled: true
@@ -28,10 +22,8 @@ appId: host.exp.Exponent
       text: "SGW"
       selected: false
 - assertVisible:
-   id: "e2e-marker-GE"
+      id: "e2e-marker-GE"
 - tapOn: "SGW"
-- waitForAnimationToEnd:
-      timeout: 2000
 - assertVisible:
       text: "SGW"
       enabled: true
@@ -39,4 +31,4 @@ appId: host.exp.Exponent
       text: "Loyola"
       selected: false 
 - assertVisible:
-   id: "e2e-marker-FB"
+      id: "e2e-marker-FB"

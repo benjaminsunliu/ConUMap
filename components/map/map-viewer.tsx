@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback, useMemo } from "react";
+import React, { useRef, useState, useCallback, useMemo, useEffect } from "react";
 import { StyleSheet, View, Text, Platform, Pressable } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
 import MapView, { Marker, Polygon, Region } from "react-native-maps";
@@ -14,6 +14,7 @@ import BuildingInfoPopup from "./building-info-popup";
 import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
 import CampusToggle from "./campus-toggle";
 import BuildingSelection from "./building-selection";
+import { IS_E2E } from "@/utils/e2e";
 
 interface Props {
   readonly userLocationDelta?: CoordinateDelta;
@@ -45,6 +46,8 @@ export default function MapViewer({
   const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
   const [polygonRenderVersion, setPolygonRenderVersion] = useState(0);
+  const [projectedPoints, setProjectedPoints] = useState< { building: MapBuilding; x: number; y: number }[] >([]);
+  const [mapReady, setMapReady] = useState(false);
 
   const inBuildingCodes = useMemo(() => {
     const codes = new Set<string>();
@@ -148,6 +151,7 @@ export default function MapViewer({
                 : `${building.code}-${index}-${isSelected}-${isInBuilding}`
             }
             testID="polygon"
+            accessibilityLabel="concordia-building"
             coordinates={polygon}
             tappable
             fillColor={finalFillColor}
@@ -160,6 +164,44 @@ export default function MapViewer({
       })
     );
   }, [mapColors, selectedBuilding?.buildingCode, inBuildingCodes, handlePolygonPress, polygonRenderVersion]);
+
+  const getMarkerCoordinate = (building: MapBuilding) => {
+    if (building.code === "VE") {
+      return {
+        latitude: building.location.latitude + 0.00008,
+        longitude: building.location.longitude - 0.00015,
+      };
+    }
+    if (building.code === "RA") {
+      return {
+        latitude: building.location.latitude - 0.0009,
+        longitude: building.location.longitude - 0.0008,
+      };
+    }
+    if (building.code === "PC") {
+      return {
+        latitude: building.location.latitude - 0.0006,
+        longitude: building.location.longitude - 0.0005,
+      };
+    }
+    return building.location;
+  }
+
+   if (IS_E2E) {
+    useEffect(() => { 
+      async function updateHitboxPositions() { 
+        if (!mapReady || !mapViewRef.current) 
+          return; 
+        const next:{building: MapBuilding; x: number; y: number }[] = []; 
+        for (const building of CAMPUS_LOCATIONS as MapBuilding[]) { 
+          const coord = getMarkerCoordinate(building); 
+          const point = await mapViewRef.current.pointForCoordinate(coord); 
+          next.push({ building, x: point.x, y: point.y }); 
+        } 
+        setProjectedPoints(next); 
+      } updateHitboxPositions();
+    }, [currentRegion]);
+  }
 
   const renderMarkers = useMemo(() => {
     return CAMPUS_LOCATIONS.map((building) => {
@@ -254,6 +296,7 @@ export default function MapViewer({
       />
       <CampusToggle mapRef={mapViewRef} viewRegion={currentRegion} />
       <MapViewCluster
+        onMapReady={() => setMapReady(true)}
         ref={mapViewRef}
         testID="map-view"
         style={styles.map}
@@ -296,55 +339,52 @@ export default function MapViewer({
         {renderPolygons}
         {renderMarkers}
       </MapViewCluster>
-{__DEV__ && (
-       <View
-         style={{
-           position: "absolute",
-           top: 0,
-           left: 0,
-           width: 1,
-           height: 1,
-         }}
-       >
-         {CAMPUS_LOCATIONS.map((building, index) => (
-           <Pressable
-             key={`e2e-${building.code}`}
-             testID={`e2e-marker-${building.code}`}
-             style={{
-               position: "absolute",
-               top: index * 2, 
-               left: 0,
-               width: 20,
-               height: 20,
-               opacity: 0.01,  
-             }}
-             onPress={() => {
-               selectBuildingByCode(building.code);
-               focusBuilding(building);
-             }}
-           />
-         ))}
-           {/* Highlighted buildings */}
-   {Array.from(inBuildingCodes).map((code) => {
-  const building = CAMPUS_LOCATIONS.find((b) => b.code === code);
-  if (!building) return null;
-
-  return (
-    <Marker
-      key={`highlight-marker-${building.code}`}
-      coordinate={building.location}
-      tracksViewChanges={false}
-      pinColor="transparent" 
-      testID={`highlight-label-${building.code}`}
-    >
-      <View style={{ width: 1, height: 1, opacity: 0 }}>
-        <Text>{building.code}</Text>
-      </View>
-    </Marker>
-  );
-})}
-       </View>
-     )}
+{IS_E2E && ( 
+  <View 
+  style={{ 
+    position: "absolute", 
+    top: 0, 
+    left: 0, 
+    width: 1,
+    height: 1,
+    }} 
+    > 
+      {projectedPoints.map(({ building, x, y }) => ( 
+        <Pressable 
+        key={`e2e-${building.code}`} 
+        testID={`e2e-marker-${building.code}`} 
+        style={{ 
+          position: "absolute", 
+          top: y - 20, 
+          left: x - 20, 
+          width: 40, 
+          height: 40, 
+          opacity: 0.01, 
+          zIndex: 9999, 
+          }} 
+          onPress={() => { 
+            selectBuildingByCode(building.code); 
+            focusBuilding(building); 
+            }} 
+            /> 
+            ))}
+      {/* Highlighted buildings */}
+           {Array.from(inBuildingCodes).map((code) => (
+             <View
+               key={`highlight-label-${code}`}
+               testID={`highlight-label-${code}`}
+               style={{
+                 position: "absolute",
+                 top: 0,
+                 left: 0,
+                 width: 1,
+                 height: 1,
+                 opacity: 0.01,
+               }}
+             />
+           ))}      
+    </View>
+    )}
       <LocationButton
         state={locationState}
         onPress={() => {
