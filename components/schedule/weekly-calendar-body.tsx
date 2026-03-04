@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Dimensions, NativeScrollEvent, NativeSyntheticEvent, ScrollView, StyleSheet, Text, View, PanResponder } from 'react-native';
 import DayColumn from './day-column';
 import { ClassInfo } from './types';
-import { CALENDAR_END_HOUR, CALENDAR_START_HOUR, COLUMN_TOTAL_HEIGHT, HOUR_HEIGHT, TIME_GUTTER_WIDTH } from './constants';
+import { CALENDAR_END_HOUR, CALENDAR_START_HOUR, COLUMN_TOTAL_HEIGHT, HOUR_HEIGHT, PIXELS_PER_MINUTE, TIME_GUTTER_WIDTH } from './constants';
 
 const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const SCREEN_WIDTH = Dimensions.get("window").width;
@@ -20,7 +20,23 @@ interface WeeklyCalendarBodyProps {
 
 const todayColor = "rgba(148, 142, 25, 0.1)"
 
+function getCurrentTimeY(): number {
+    const now = new Date();
+    const minutesFromMidnight = now.getHours() * 60 + now.getMinutes();
+    return minutesFromMidnight * PIXELS_PER_MINUTE;
+}
+
 export default function WeeklyCalendarBody({ weekStartDate, classes, onClassPress, onWeekChange }: WeeklyCalendarBodyProps) {
+    // Time state for horizontal time bar
+    const [currentTimeY, setCurrentTimeY] = useState(() => getCurrentTimeY());
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentTimeY(getCurrentTimeY());
+        }, 60000);
+
+        return () => clearInterval(interval);
+    }, [])
+    
     const today = new Date();
 
     // Allows the panResponder for handling horizontal swipes to have the most recent state of week start and week change
@@ -113,6 +129,15 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, onClassPres
                             {HOURS.map((hour) => (
                                 <View key={hour} style={[styles.hourLine, {top: hour * HOUR_HEIGHT}]} />
                             ))}
+                        </View>
+
+                        <View style={[StyleSheet.absoluteFillObject, {height: COLUMN_TOTAL_HEIGHT}]}
+                            pointerEvents='none'
+                        >
+                            <View style={[styles.currentTimeLine, {top: currentTimeY}]} pointerEvents='none'>
+                                <View style={styles.currentTimeDot}/>
+                                <View style={styles.currentTimeBar}/>
+                            </View>
                         </View>
 
                         {weekDates.map((date, i) => (
@@ -215,5 +240,25 @@ const styles = StyleSheet.create({
     right: 0,
     height: StyleSheet.hairlineWidth,
     backgroundColor: '#d4d4d4',
+  },
+  currentTimeLine: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  currentTimeDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#E53935',
+    marginLeft: -4, // pulls the dot to overlap the left edge
+  },
+  currentTimeBar: {
+    flex: 1,
+    height: 1.5,
+    backgroundColor: '#E53935',
   },
 }); 

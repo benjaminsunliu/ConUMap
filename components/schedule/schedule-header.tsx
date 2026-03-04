@@ -26,9 +26,9 @@ export default function ScheduleHeader({
     const year = currentWeekStart.getFullYear();
 
     function handleMonthSelect(selectedMonth: number) {
-        const newDate = new Date(year, selectedMonth, 8);
-        newDate.setDate(newDate.getDate() - newDate.getDay());
-        onWeekChange(newDate);
+        const firstOfMonth = new Date(year, selectedMonth, 1);                  // Locate first day of month
+        firstOfMonth.setDate(firstOfMonth.getDate() - firstOfMonth.getDay());   // Rewind to the closest Sunday before this date
+        onWeekChange(firstOfMonth);
         setMonthPickerVisible(false);
     }
 
