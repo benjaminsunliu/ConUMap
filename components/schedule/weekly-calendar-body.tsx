@@ -88,6 +88,7 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, onClassPres
             </View>
 
             <ScrollView
+                ref={scrollViewRef}
                 style={styles.verticalScroll}
                 showsVerticalScrollIndicator={false}
             >
