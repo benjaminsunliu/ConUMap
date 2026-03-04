@@ -165,7 +165,7 @@ export default function MapViewer({
     );
   }, [mapColors, selectedBuilding?.buildingCode, inBuildingCodes, handlePolygonPress, polygonRenderVersion]);
 
-  const getOffsetMarkerCoordinate = (building: MapBuilding) => { 
+  const getOffsetMarkerCoordinate = useCallback((building: MapBuilding) => { 
       // Offset markers to prevent overlaps
 
     if (building.code === "VE") { 
@@ -190,10 +190,13 @@ export default function MapViewer({
       }; 
     } 
     return building.location; 
-  };
+  },[]);
 
     useEffect(() => { 
       if (!IS_E2E) {
+        return;
+      }
+    if (!currentRegion) {
         return;
       }
       let isCancelled = false;
@@ -201,16 +204,43 @@ export default function MapViewer({
         if (!mapReady || !mapViewRef.current || isCancelled) {
           return;
         } 
-        const next: { building: MapBuilding; x: number; y: number }[] = []; 
         try {
-          for (const building of CAMPUS_LOCATIONS as MapBuilding[]) { 
-            if (isCancelled || !mapViewRef.current) {
-              return;
+          const { latitude, longitude, latitudeDelta, longitudeDelta } = currentRegion;
+          const minLat = latitude - latitudeDelta / 2;
+          const maxLat = latitude + latitudeDelta / 2;
+          const minLng = longitude - longitudeDelta / 2;
+          const maxLng = longitude + longitudeDelta / 2;
+          const visibleBuildings = (CAMPUS_LOCATIONS as MapBuilding[]).filter((building) => {
+            const coord = getOffsetMarkerCoordinate(building);
+            return (
+              coord.latitude >= minLat &&
+              coord.latitude <= maxLat &&
+              coord.longitude >= minLng &&
+              coord.longitude <= maxLng
+            );
+          });
+          if (!visibleBuildings.length || !mapViewRef.current || isCancelled) {
+            return;
+          }
+          const projections = await Promise.all(
+            visibleBuildings.map(async (building) => {
+              if (!mapViewRef.current || isCancelled) {
+                return null;
+              }
+              const coord = getOffsetMarkerCoordinate(building);
+              const point = await mapViewRef.current.pointForCoordinate(coord);
+              return { building, x: point.x, y: point.y };
+            })
+          );
+          if (isCancelled) {
+            return;
+          }
+          const next: { building: MapBuilding; x: number; y: number }[] = [];
+          for (const result of projections) {
+            if (result) {
+              next.push(result);
             }
-            const coord = getOffsetMarkerCoordinate(building); 
-            const point = await mapViewRef.current.pointForCoordinate(coord); 
-            next.push({ building, x: point.x, y: point.y }); 
-          } 
+          }
           if (!isCancelled) {
             setProjectedPoints(next); 
           }
@@ -224,7 +254,7 @@ export default function MapViewer({
       return () => {
         isCancelled = true;
       };
-    }, [IS_E2E, CAMPUS_LOCATIONS,currentRegion, mapReady]);
+    }, [IS_E2E, CAMPUS_LOCATIONS,currentRegion, mapReady, getOffsetMarkerCoordinate]);
   
 
   const renderMarkers = useMemo(() => {
@@ -346,13 +376,8 @@ export default function MapViewer({
       </MapViewCluster>
 {IS_E2E && ( 
   <View 
-  style={{ 
-    position: "absolute", 
-    top: 0, 
-    left: 0, 
-    width: 1,
-    height: 1,
-    }} 
+    pointerEvents="box-none"
+    style={StyleSheet.absoluteFillObject}
     > 
       {projectedPoints.map(({ building, x, y }) => ( 
         <Pressable 
@@ -372,7 +397,7 @@ export default function MapViewer({
             focusBuilding(building); 
             }} 
             /> 
-            ))}
+      ))}
       {/* Highlighted buildings */}
            {Array.from(inBuildingCodes).map((code) => (
              <View

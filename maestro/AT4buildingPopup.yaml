@@ -1,5 +1,6 @@
 appId: host.exp.Exponent
 ---
+# Requires EXPO_APP_URL to be set (e.g. in Maestro .env) before running this flow.
 - openLink: ${EXPO_APP_URL}
 - tapOn: "SGW"
 - tapOn:
