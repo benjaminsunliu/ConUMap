@@ -105,9 +105,9 @@ beforeEach(() => {
 
 const mockOnSelect = jest.fn();
 
-describe("BuildingSelection component", () => {
-  it('should display the building selection, and no results',async ()=>{
-      const selectionView = render(<BuildingSelection onSelect={mockOnSelect}/>)
+describe("BuildingSelection Browse", () => {
+  it('should display the search bar, and no results',async ()=>{
+      const selectionView = render(<BuildingSelection selectedBuilding={null} mode={"browse"} onSelect={mockOnSelect}/>)
       const container = selectionView.getByTestId('building-selection');
       expect(container).toBeVisible();
       const startResults = await selectionView.queryByTestId('start-results');
@@ -116,92 +116,98 @@ describe("BuildingSelection component", () => {
       expect(endResults).toBeNull();
   });
 
-  it('should display results when similar text is entered', async ()=>{
-    const selectionView = render(<BuildingSelection onSelect={mockOnSelect}/>)
-    const startInput = selectionView.getByPlaceholderText("Search building");
-    await act(async () => {
-      await fireEvent(startInput, 'onFocus');
-      await fireEvent.changeText(startInput, 'Hall');
-    });
-    const startResults = await selectionView.findByTestId('start-results');
-    expect(startResults).toBeVisible();
-    const hallResult = await selectionView.findByTestId('start-result-H');
+  it('should display results when similar text is entered to the search', async ()=>{
+    const selectionView = render(<BuildingSelection selectedBuilding={null} mode={"browse"} onSelect={mockOnSelect}/>)
+    const searchInput = selectionView.getByPlaceholderText("Search building");
+    
+    fireEvent(searchInput, "focus");
+    fireEvent.changeText(searchInput, "Hall");
+    
+    expect(searchInput.props.value).toBe("Hall");
+    const searchResults = await selectionView.findByTestId('end-results');
+    expect(searchResults).toBeVisible();
+    const hallResult = await selectionView.findByTestId('end-result-H');
     expect(hallResult).toBeVisible();
   });
 
   it('should not display results when text that does not match any building is entered', async ()=>{
-    const selectionView = render(<BuildingSelection onSelect={mockOnSelect}/>)
-    const startInput = selectionView.getByPlaceholderText("Search building");
-    await act(async () => {
-      await fireEvent(startInput, 'onFocus');
-      await fireEvent.changeText(startInput, 'Nonexistent Building');
-    });
-    const startResults = await selectionView.queryByTestId('start-results');
-    expect(startResults).toBeNull();
+    const selectionView = render(<BuildingSelection selectedBuilding={null} mode={"browse"} onSelect={mockOnSelect}/>)
+    const searchInput = selectionView.getByPlaceholderText("Search building");
+    
+    fireEvent(searchInput, 'focus');
+    fireEvent.changeText(searchInput, 'Nonexistent Building');
+  
+    const searchResults = await selectionView.queryByTestId('end-results');
+    expect(searchResults).toBeNull();
   });
 
   it('should clear the input when the clear button is pressed', async ()=>{
-    const selectionView = render(<BuildingSelection onSelect={mockOnSelect}/>)
-    const startInput = selectionView.getByPlaceholderText("Search building");
-    await act(async () => {      
-      await fireEvent(startInput, 'onFocus');
-      await fireEvent.changeText(startInput, 'Hall');
-    });
-    const clearButton = await selectionView.findByTestId('clear-start');
-    await act(async () => {      
-      await fireEvent.press(clearButton);
-    });
-    expect(startInput.props.value).toBe("");
+    const selectionView = render(<BuildingSelection selectedBuilding={null} mode={"browse"} onSelect={mockOnSelect}/>)
+    const searchInput = selectionView.getByPlaceholderText("Search building");
+       
+    fireEvent(searchInput, 'focus');
+    fireEvent.changeText(searchInput, 'Hall');
+
+    const clearButton = await selectionView.findByTestId('clear-end');
+       
+    fireEvent.press(clearButton);
+
+    expect(searchInput.props.value).toBe("");
   });
 
+});
+
+describe("BuildingSelection Directions", () => {
   it('should swap the start and end fields when the swap button is pressed', async ()=>{
-    const selectionView = render(<BuildingSelection onSelect={mockOnSelect}/>)
-    const startInput = selectionView.getByPlaceholderText("Start");
+    const selectionView = render(<BuildingSelection selectedBuilding={null} mode={"directions"} onSelect={mockOnSelect}/>)
+    const startInput = selectionView.getByPlaceholderText("Your location");
     const endInput = selectionView.getByPlaceholderText("Destination");
-    await act(async () => {      
-      await fireEvent(startInput, 'onFocus');
-      await fireEvent.changeText(startInput, 'Hall');
-    });
+
+    fireEvent(startInput, 'focus');
+    fireEvent.changeText(startInput, 'Hall');
+
     const swapButton = await selectionView.findByTestId('swap-fields');
-    await act(async () => {      
-      await fireEvent.press(swapButton);
-    });
+    
+    fireEvent.press(swapButton);
+    
     expect(startInput.props.value).toBe("");
     expect(endInput.props.value).toBe("Hall");
   });
 
   it('should remove display results a result is pressed, call the onSelect, and set the query correctly', async ()=>{
-    const selectionView = render(<BuildingSelection onSelect={mockOnSelect}/>)
-    const startInput = selectionView.getByPlaceholderText("Search building");
-    await act(async () => {
-      await fireEvent(startInput, 'onFocus');
-      await fireEvent.changeText(startInput, 'Hall');
-    });
+    const selectionView = render(<BuildingSelection selectedBuilding={null} mode={"directions"} onSelect={mockOnSelect}/>)
+    const startInput = selectionView.getByPlaceholderText("Your location");
+      
+    fireEvent(startInput, 'focus');
+    fireEvent.changeText(startInput, 'Hall');
+
     const hallResult = await selectionView.findByTestId('start-result-H');
-    await act(async () => {
-      await fireEvent.press(hallResult);
-    });
+
+    fireEvent.press(hallResult);
+
     const startResultsAfterPress = await selectionView.queryByTestId('start-results');
     expect(startResultsAfterPress).toBeNull();
     expect(mockOnSelect).toHaveBeenCalledWith(
       {
-        buildingCode: "H",
-        buildingName: "Henry F. Hall Building",
-        address: "1455 Blvd. De Maisonneuve Ouest, Montreal, QC H3G 1M8",
-        campus: "SGW"
-      },
-      "start"
+        start: {
+          buildingCode: "H",
+          buildingName: "Henry F. Hall Building",
+          address: "1455 Blvd. De Maisonneuve Ouest, Montreal, QC H3G 1M8",
+          campus: "SGW"
+        },
+        end: null
+      }, "start"
     );
     expect(startInput.props.value).toBe("Henry F. Hall Building");
   });
 
   it('should prioritize current buildings when typing in Search building field', async ()=>{
-    const selectionView = render(<BuildingSelection currentBuildingCodes={new Set(["B"])} onSelect={mockOnSelect}/>)
-    const startInput = selectionView.getByPlaceholderText("Search building");
-    await act(async () => {
-      await fireEvent(startInput, 'onFocus');
-      await fireEvent.changeText(startInput, 'Annex');
-    });
+    const selectionView = render(<BuildingSelection currentBuildingCodes={new Set(["B"])} selectedBuilding={null} mode={"directions"} onSelect={mockOnSelect}/>)
+    const startInput = selectionView.getByPlaceholderText("Your location");
+
+    fireEvent(startInput, 'focus');
+    fireEvent.changeText(startInput, 'Annex');
+    
     const startResults = await selectionView.findByTestId('start-results');
     expect(startResults).toBeVisible();
     // Get all the result items - B (current) should come before CI and CL
@@ -215,22 +221,19 @@ describe("BuildingSelection component", () => {
   });
 
   it('should maintain backward compatibility when no currentBuildingCodes provided', async ()=>{
-    const selectionView = render(<BuildingSelection onSelect={mockOnSelect}/>)
-    const startInput = selectionView.getByPlaceholderText("Search building");
+    const selectionView = render(<BuildingSelection selectedBuilding={null} mode={"directions"} onSelect={mockOnSelect}/>)
+    const startInput = selectionView.getByPlaceholderText("Your location");
     // Focus without text - should not show results
-    await act(async () => {
-      await fireEvent(startInput, 'onFocus');
-    });
+    fireEvent(startInput, 'focus');
+    
     let startResults = await selectionView.queryByTestId('start-results');
     expect(startResults).toBeNull();
     // Type text - should show results
-    await act(async () => {
-      await fireEvent.changeText(startInput, 'Hall');
-    });
+    fireEvent.changeText(startInput, 'Hall');
+
     startResults = await selectionView.findByTestId('start-results');
     expect(startResults).toBeVisible();
     const hallResult = await selectionView.findByTestId('start-result-H');
     expect(hallResult).toBeVisible();
   });
-
 });
