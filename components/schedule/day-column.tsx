@@ -7,13 +7,16 @@ import { ClassInfo } from './types';
 
 interface DayColumnProps {
     dayIndex: number;
+    isToday: boolean;
     classes: ClassInfo[];
     onClassPress: (classInfo: ClassInfo) => void;
 }
 
-export default function DayColumn({ dayIndex, classes, onClassPress }: DayColumnProps) {
+const todayColor = "rgba(148, 142, 25, 0.1)";
+
+export default function DayColumn({ dayIndex, isToday, classes, onClassPress }: DayColumnProps) {
     return (
-        <View style={styles.column}>
+        <View style={[styles.column, isToday && {backgroundColor: todayColor}]}>
             <View style={[styles.eventsArea, { height: COLUMN_TOTAL_HEIGHT}]}>
                {classes.map((cls) => (
                     <ClassBlock 

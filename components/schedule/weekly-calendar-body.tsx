@@ -18,6 +18,8 @@ interface WeeklyCalendarBodyProps {
     onWeekChange: (newWeekStart: Date) => void;
 }
 
+const todayColor = "rgba(148, 142, 25, 0.1)"
+
 export default function WeeklyCalendarBody({ weekStartDate, classes, onClassPress, onWeekChange }: WeeklyCalendarBodyProps) {
     const today = new Date();
 
@@ -74,7 +76,7 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, onClassPres
                 <View style={styles.timeGutterSpacer} />
 
                 {weekDates.map((date, i) => (
-                    <View key={i} style={styles.dayHeader}>
+                    <View key={i} style={[styles.dayHeader, isToday(date) && {backgroundColor: todayColor}]}>
                         <Text style={[styles.dayLabel, isToday(date) && styles.dayLabelToday]}>
                             {WEEK_DAYS[date.getDay()]}
                         </Text>
@@ -117,6 +119,7 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, onClassPres
                             <DayColumn 
                                 key={i}
                                 dayIndex={i}
+                                isToday={isToday(date)}
                                 classes={classes.filter((cls) => cls.dayOfWeek.includes(date.getDay()))}
                                 onClassPress={onClassPress}
                             />
@@ -132,13 +135,13 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, onClassPres
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#fdfcea',
   },
   headerRow: {
     flexDirection: 'row',
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#E0E0E0',
-    backgroundColor: '#fff',
+    backgroundColor: '#fdfcea',
   },
   timeGutterSpacer: {
     width: TIME_GUTTER_WIDTH,
@@ -158,7 +161,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   dayLabelToday: {
-    color: '#1A73E8',
+    color: '#5e0e16',
   },
   dateCircle: {
     width: 24,
@@ -169,7 +172,7 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
   dateCircleToday: {
-    backgroundColor: '#1A73E8',
+    backgroundColor: '#5e0e16',
   },
   dateNumber: {
     fontSize: 12,
@@ -189,7 +192,7 @@ const styles = StyleSheet.create({
   timeGutter: {
     width: TIME_GUTTER_WIDTH,
     position: 'relative',
-    backgroundColor: '#fff',
+    backgroundColor: '#fdfcea',
   },
   timeLabelRow: {
     position: 'absolute',
@@ -198,7 +201,7 @@ const styles = StyleSheet.create({
   },
   timeLabelText: {
     fontSize: 9,
-    color: '#aaa',
+    color: '#7d7d7d',
     fontVariant: ['tabular-nums'],
   },
   columnsContainer: {
@@ -211,6 +214,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#E8E8E8',
+    backgroundColor: '#d4d4d4',
   },
 }); 

@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     courseName: {
-        color: '#fff',
+        color: '#fdfcea',
         fontSize: 11,
         fontWeight: '700',
         letterSpacing: 0.2,
