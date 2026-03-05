@@ -13,12 +13,12 @@ const buildingAddresses = buildingAddressesRaw as SearchBuilding[];
  * This prioritizes user's current location in search results.
  */
 function prioritizeCurrentBuildings(
-    buildings: SearchBuilding[], 
+    buildings: SearchBuilding[],
     currentCodes: Set<string>
 ): SearchBuilding[] {
     const currentBuildings: SearchBuilding[] = [];
     const otherBuildings: SearchBuilding[] = [];
-    
+
     buildings.forEach(building => {
         if (currentCodes.has(building.buildingCode)) {
             currentBuildings.push(building);
@@ -26,7 +26,7 @@ function prioritizeCurrentBuildings(
             otherBuildings.push(building);
         }
     });
-    
+
     return [...currentBuildings, ...otherBuildings];
 }
 
@@ -40,7 +40,7 @@ interface Props {
 export default function BuildingSelection({ currentBuildingCodes = new Set(), mode, selectedBuilding, onSelect }: Props) {
     const colorScheme = useColorScheme()
     const theme = Colors[colorScheme];
-    const [queries, setQueries] = useState<Record<FieldType, string>>({start: "", end: ""});
+    const [queries, setQueries] = useState<Record<FieldType, string>>({ start: "", end: "" });
     const [focusedField, setFocusedField] = useState<FieldType | null>(null);
     const [selectedBuildings, setSelectedBuildings] = useState<Record<FieldType, SearchBuilding | null>>({
         start: null,
@@ -61,15 +61,15 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
         else if (focusedField === null && focusRef.current !== focusedField && selectedBuilding && selectedBuilding !== selectedBuildingRef.current) {
             const previousFocus = focusRef.current === "end" ? "end" : "start";
             setQueries(prev => ({ ...prev, [previousFocus]: selectedBuilding.buildingName }));
-            setSelectedBuildings(prev => ({ ...prev, [previousFocus]: selectedBuilding as SearchBuilding }));
+            setSelectedBuildings(prev => ({ ...prev, [previousFocus]: selectedBuilding }));
         }
         // Only change the text field value if the selected building changes when the field is focused
         else if (focusedField === "end" && selectedBuilding && selectedBuilding !== selectedBuildingRef.current) {
             setQueries(prev => ({ ...prev, end: selectedBuilding.buildingName }));
-            setSelectedBuildings(prev => ({ ...prev, end: selectedBuilding as SearchBuilding }));
+            setSelectedBuildings(prev => ({ ...prev, end: selectedBuilding }));
         } else if (focusedField === "start" && selectedBuilding && selectedBuilding !== selectedBuildingRef.current) {
             setQueries(prev => ({ ...prev, start: selectedBuilding.buildingName }));
-            setSelectedBuildings(prev => ({ ...prev, start: selectedBuilding as SearchBuilding }));
+            setSelectedBuildings(prev => ({ ...prev, start: selectedBuilding }));
         }
         selectedBuildingRef.current = selectedBuilding;
     }, [focusedField, mode, selectedBuilding]);
@@ -126,7 +126,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
 
     const removeInputFocus = useCallback(
         (type: FieldType) => {
-            if(type === "start") {
+            if (type === "start") {
                 startInputRef.current?.blur();
             } else {
                 endInputRef.current?.blur();
@@ -140,7 +140,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
         (building: SearchBuilding, type: FieldType) => {
             setQuery(type, building.buildingName);
             setSelectedBuildings(prev => ({ ...prev, [type]: building }));
-            onSelect({...selectedBuildings, [type]: building}, type);
+            onSelect({ ...selectedBuildings, [type]: building }, type);
             removeInputFocus(type);
         },
         [setQuery, removeInputFocus, onSelect, selectedBuildings]
@@ -150,7 +150,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
         (type: FieldType) => {
             setQuery(type, "");
             setSelectedBuildings(prev => ({ ...prev, [type]: null }));
-            onSelect({...selectedBuildings, [type]: null}, type);
+            onSelect({ ...selectedBuildings, [type]: null }, type);
             removeInputFocus(type);
         },
         [setQuery, removeInputFocus, onSelect, selectedBuildings]
@@ -166,7 +166,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
                 return swappedBuildings;
             });
 
-            onSelect({start: selectedBuildings.end, end: selectedBuildings.start}, "end");
+            onSelect({ start: selectedBuildings.end, end: selectedBuildings.start }, "end");
 
             return {
                 start: prevQueries.end,
@@ -182,7 +182,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
             const value = queries[type];
 
             return (
-                <View style={[{backgroundColor: theme.buildingSelection.inputBackground}, styles.inputWrapper]}>
+                <View style={[{ backgroundColor: theme.buildingSelection.inputBackground }, styles.inputWrapper]}>
                     {mode === "browse" && (
                         <Ionicons name="search" size={18} color={theme.buildingSelection.magnifierColor} style={styles.magnifierIcon} />
                     )}
@@ -230,7 +230,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
                         return (
                             <TouchableOpacity
                                 style={[styles.resultItem, { borderBottomColor: theme.buildingInfoPopup.divider }]}
-                                onPress={() => handleSelect(item, type)} 
+                                onPress={() => handleSelect(item, type)}
                                 testID={`${type}-result-${item.buildingCode.toUpperCase()}`}>
                                 <Text style={[styles.resultTitle, { color: theme.campusToggle.selectedColor }]}>
                                     {isCurrent && "📍 "}{item.buildingCode} – {item.buildingName}
@@ -252,7 +252,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
         <View style={styles.buildingSelectionContainer} testID="building-selection">
             <View style={styles.inputRow}>
                 {mode === "browse" ? (renderInput("end", "Search building")) : (
-                    <View style={[{backgroundColor: theme.buildingSelection.containerBackground}, styles.directionContainer]}>
+                    <View style={[{ backgroundColor: theme.buildingSelection.containerBackground }, styles.directionContainer]}>
                         <View style={styles.icons}>
                             <Ionicons name="ellipse-outline" size={15} color={theme.buildingSelection.swapButton} />
                             <Ionicons name="ellipsis-vertical-outline" size={20} color={theme.buildingSelection.swapButton} />
@@ -266,7 +266,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
                         <TouchableOpacity testID="swap-fields" onPress={swapFields} style={styles.swapButton}>
                             <Ionicons name="swap-vertical" size={24} color={theme.buildingSelection.swapButton} />
                         </TouchableOpacity>
-                        
+
                     </View>
                 )}
             </View>
@@ -287,10 +287,10 @@ const styles = StyleSheet.create({
     directionContainer: {
         borderRadius: 16,
         flexDirection: "row",
-        width:"95%",
-        paddingRight:40,
+        width: "95%",
+        paddingRight: 40,
         paddingLeft: 10,
-        paddingBottom:10,
+        paddingBottom: 10,
         borderWidth: 1.5,
         marginTop: 10
     },
@@ -303,17 +303,17 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        maxWidth:"100%"
+        maxWidth: "100%"
     },
     inputWrapper: {
         flex: 1,
         marginHorizontal: 4,
         marginTop: 10,
         flexDirection: "row",
-        alignItems: "center" ,
+        alignItems: "center",
         borderWidth: 1,
         borderRadius: 16,
-        maxWidth:"95%",
+        maxWidth: "95%",
         overflow: "hidden",
         paddingRight: "8%"
     },
@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
     currentLabel: {
         fontSize: 11,
     },
-    magnifierIcon: { 
+    magnifierIcon: {
         marginRight: 10,
         marginLeft: 10,
     }

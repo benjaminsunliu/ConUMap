@@ -190,9 +190,9 @@ export default function MapViewer({
         currentBuildingCodes={inBuildingCodes}
         onSelect={(buildings: Record<FieldType, SearchBuilding | null>, type: FieldType) => {
           if (!!buildings.end || !!buildings.start) setShouldDisplayRoutes(false);
-          
+
           const newBuilding = selectBuildingByCode(buildings[type]?.buildingCode ?? "");
-          
+
           if (newBuilding) focusBuilding(newBuilding);
         }}
       />
@@ -231,9 +231,9 @@ export default function MapViewer({
         spiralEnabled={false}
         onPress={(e) => {
           if (suppressNextMapPress.current) return;
-            setSelectedBuilding(null);
-            setShouldDisplayRoutes(false);
-            setNavigationMode("browse");
+          setSelectedBuilding(null);
+          setShouldDisplayRoutes(false);
+          setNavigationMode("browse");
         }}
         renderCluster={renderCluster}
       >
@@ -249,16 +249,16 @@ export default function MapViewer({
         }}
       />
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
-      
+
       {navigationMode === "browse" && selectedBuilding && (
-        <BuildingInfoPopup building={selectedBuilding} onNavigate={navigateToBuilding}/>
+        <BuildingInfoPopup building={selectedBuilding} onNavigate={navigateToBuilding} />
       )}
 
       {navigationMode === "directions" && (
         <RoutesInfoPopup routes={routes} isOpen={true} onRouteSelect={(route) => {
           //TODO implement onRouteSelect
-          }} 
-          onBack={handleBackFromDirections}/>
+        }}
+          onBack={handleBackFromDirections} />
       )}
     </View>
   );
@@ -313,7 +313,7 @@ function renderBuildings(
             }
           ]}
         >
-          <Text style={[ styles.markerText, { color: isSelected ? mapColors.markerTextSelected : mapColors.markerText } ]} >
+          <Text style={[styles.markerText, { color: isSelected ? mapColors.markerTextSelected : mapColors.markerText }]} >
             {building.buildingCode}
           </Text>
         </View>
