@@ -274,9 +274,12 @@ function RouteStep({
   const travelMode: string = step?.travel_mode ?? "WALKING";
   const iconMap: Record<string, keyof typeof Ionicons.glyphMap> = {
     WALKING: "walk-outline",
+    WALK: "walk-outline",
     TRANSIT: "bus-outline",
     DRIVING: "car-outline",
+    DRIVE: "car-outline",
     BICYCLING: "bicycle-outline",
+    BICYCLE: "bicycle-outline",
   };
   const icon = iconMap[travelMode] ?? "navigate-outline";
 

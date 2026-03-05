@@ -89,7 +89,7 @@ describe("fetchDirections", () => {
     expect(result).toEqual([]);
   });
 
-  it("returns null when the API returns no 'routes' key", async () => {
+  it("returns empty array when the API returns no 'routes' key", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,

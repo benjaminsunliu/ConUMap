@@ -190,7 +190,6 @@ export async function fetchDirections(
     }
 
     const data = await response.json();
-    console.log(`[directions] raw response (${mode}):`, JSON.stringify(data, null, 2));
 
     if (!data.routes || data.routes.length === 0) return [];
     return data.routes.map(normalizeRoute);

@@ -112,12 +112,27 @@ export default function MapViewer({
   // Auto-fetch directions whenever both endpoints are known
   useEffect(() => {
     if (!navCoords.start || !navCoords.end) return;
+    let cancelled = false;
     setRoutePolyline(null);
     setRouteStops([]);
     setRouteNodes([]);
     setShouldDisplayRoutes(true);
-    fetchAllDirections(navCoords.start, navCoords.end).then(setRoutes);
-  }, [navCoords]);
+    (async () => {
+      try {
+        const routes = await fetchAllDirections(navCoords.start!, navCoords.end!);
+        if (!cancelled) {
+          setRoutes(routes);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Failed to fetch directions:", error);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [navCoords.start, navCoords.end]);
 
   const inBuildingCodes = useMemo(() => {
     const codes = new Set<string>();
