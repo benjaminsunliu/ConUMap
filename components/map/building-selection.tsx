@@ -57,17 +57,11 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
         if (mode === "browse") {
             setQueries(prev => ({ ...prev, end: selectedBuilding?.buildingName ?? "" }));
         }
-        // Edge case where they selected a building in the start search bar
-        else if (focusedField === null && focusRef.current !== focusedField && selectedBuilding && selectedBuilding !== selectedBuildingRef.current) {
-            const previousFocus = focusRef.current === "end" ? "end" : "start";
-            setQueries(prev => ({ ...prev, [previousFocus]: selectedBuilding.buildingName }));
-            setSelectedBuildings(prev => ({ ...prev, [previousFocus]: selectedBuilding }));
-        }
         // Only change the text field value if the selected building changes when the field is focused
-        else if (focusedField === "end" && selectedBuilding && selectedBuilding !== selectedBuildingRef.current) {
+        else if (focusedField === "end" && selectedBuilding && selectedBuilding?.buildingCode !== selectedBuildingRef.current?.buildingCode) {
             setQueries(prev => ({ ...prev, end: selectedBuilding.buildingName }));
             setSelectedBuildings(prev => ({ ...prev, end: selectedBuilding }));
-        } else if (focusedField === "start" && selectedBuilding && selectedBuilding !== selectedBuildingRef.current) {
+        } else if (focusedField === "start" && selectedBuilding && selectedBuilding?.buildingCode !== selectedBuildingRef.current?.buildingCode) {
             setQueries(prev => ({ ...prev, start: selectedBuilding.buildingName }));
             setSelectedBuildings(prev => ({ ...prev, start: selectedBuilding }));
         }
