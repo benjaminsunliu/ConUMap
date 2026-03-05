@@ -1246,6 +1246,63 @@ jest.mock("@/constants/map", () => {
       expect(polylines[0].props.strokeColor).toBe('#480efa');
     });
 
+    it('polylineColor returns #1a73e8 for TRANSIT with unknown vehicle type (default case)', async () => {
+      const { fetchAllDirections } = require('@/utils/directions');
+      const { decodePolyline } = require('@/utils/decodePolyline');
+
+      fetchAllDirections.mockResolvedValueOnce({
+        transit: [{
+          summary: '',
+          overview_polyline: { points: 'p' },
+          legs: [{
+            distance: { text: '1 km', value: 1000 },
+            duration: { text: '10 mins', value: 600 },
+            departure_time: undefined,
+            arrival_time: undefined,
+            steps: [{
+              distance: { text: '1 km', value: 1000 },
+              duration: { text: '10 mins', value: 600 },
+              html_instructions: 'Take transit',
+              maneuver: '',
+              polyline: { points: 'transitPoly' },
+              travel_mode: 'TRANSIT',
+              transit_details: {
+                line: { vehicle_type: 'FERRY' },
+                departure_stop: { name: 'Ferry Stop A', location: { lat: 45.495, lng: -73.579 } },
+                arrival_stop: { name: 'Ferry Stop B', location: { lat: 45.500, lng: -73.570 } },
+              },
+            }],
+          }],
+        }],
+        walking: [], driving: [], bicycling: [], shuttle: [],
+      });
+      decodePolyline.mockReturnValueOnce([
+        { latitude: 45.495, longitude: -73.579 },
+        { latitude: 45.500, longitude: -73.570 },
+      ]);
+
+      const mapViewer = render(<MapViewer />);
+      const mapView = mapViewer.getByTestId('map-view');
+      fireEvent(mapView, 'onUserLocationChange', {
+        nativeEvent: { coordinate: { latitude: 45.495, longitude: -73.579 } },
+      });
+      await act(async () => { fireEvent.press(mapViewer.getAllByTestId('polygon')[0]); });
+      await act(async () => { fireEvent.press(mapViewer.getByTestId('directions-action-button')); });
+      await act(async () => {});
+
+      const routesPopup = mapViewer.getByTestId('routes-info-popup');
+      await act(async () => {
+        routesPopup.props.onResponderGrant({}, {});
+        routesPopup.props.onResponderMove({}, { dy: -300 });
+        routesPopup.props.onResponderRelease({}, { dy: -300, vy: -1 });
+      });
+      await act(async () => { fireEvent.press(mapViewer.getByTestId('transit-selector')); });
+      await act(async () => { fireEvent.press(mapViewer.getByTestId('transit-route-0')); });
+
+      const polylines = mapViewer.getAllByTestId('polyline');
+      expect(polylines[0].props.strokeColor).toBe('#1a73e8');
+    });
+
     it('renderCluster renders "9+" for clusters with more than 9 points', () => {
       const mapViewer = render(<MapViewer />);
       const mapView = mapViewer.getByTestId('map-view');
