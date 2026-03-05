@@ -189,7 +189,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
                     <TextInput
                         ref={type === "start" ? startInputRef : endInputRef}
                         placeholder={placeholder}
-                        placeholderTextColor={theme.text}
+                        placeholderTextColor={theme.placeholder}
                         value={value}
                         onFocus={() => setFocusedField(type)}
                         onBlur={() => setFocusedField(prev => (prev === type ? null : prev))}
