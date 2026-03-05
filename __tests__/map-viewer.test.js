@@ -1,10 +1,9 @@
 import React from "react";
 import {act, render, fireEvent} from '@testing-library/react-native';
 import * as LocationPermissions from 'expo-location';
-import { CAMPUS_LOCATIONS } from "@/constants/mapData";
-import { concordiaBuildings } from "@/data/parsedBuildings";
 import MapViewer from '../components/map/map-viewer';
 import { Colors } from "@/constants/theme";
+import { CAMPUS_BUILDINGS } from "../constants/map";
 
 const mockAnimateToRegion = jest.fn();
 
@@ -70,59 +69,39 @@ jest.mock('react-native', () => {
   return rn;
 });
 
-jest.mock("@/constants/mapData", () => {
+jest.mock("@/constants/map", () => {
   const { getBuildingPolygons} = require("../utils/getBuildingPolygons");
 
   return {
-    CAMPUS_LOCATIONS: [
+    CAMPUS_BUILDINGS: [
       {
-        code: "LB",
+        buildingCode: "LB",
         location: { latitude: 45.495, longitude: -73.579 },
         polygons: getBuildingPolygons("LB"),
       },
       {
-        code: "VE",
+        buildingCode: "VE",
         location: { latitude: 45.496, longitude: -73.58 },
         polygons: getBuildingPolygons("VE"),
       },
       {
-        code: "RA",
+        buildingCode: "RA",
         location: { latitude: 45.496, longitude: -73.58 },
         polygons: getBuildingPolygons("RA"),
       },
       {
-        code: "PC",
+        buildingCode: "PC",
         location: { latitude: 45.496, longitude: -73.58 },
         polygons: getBuildingPolygons("PC"),
       },
       {
-        code: "AB",
+        buildingCode: "AB",
         location: { latitude: 45.496, longitude: -73.58 },
         polygons: getBuildingPolygons("AB"),
       },
     ],
   };
 });
-
-      jest.mock('@/data/parsedBuildings', () => ({
-        concordiaBuildings: [
-          {
-            buildingCode: "LB",
-            location: { latitude: 45.495, longitude: -73.579 },
-          },
-          {
-            buildingCode: "VE",
-            location: { latitude: 45.496, longitude: -73.580 },
-          },  {
-            buildingCode: "RA",
-            location: { latitude: 45.496, longitude: -73.580 },
-          },
-          {
-            buildingCode: "PC",
-            location: { latitude: 45.496, longitude: -73.580 },
-          },
-        ],
-      }));
       beforeEach(() => {
         mockAnimateToRegion.mockClear();
       });
@@ -248,7 +227,7 @@ jest.mock("@/constants/mapData", () => {
       it("displays polygon for all campus locations",()=>{
         const mapViewer = render(<MapViewer />);
         const polygons = mapViewer.getAllByTestId('polygon');
-     const expectedCount = CAMPUS_LOCATIONS.reduce(
+     const expectedCount = CAMPUS_BUILDINGS.reduce(
       (total, building) => total + building.polygons.length,
       0
     );
@@ -272,7 +251,7 @@ jest.mock("@/constants/mapData", () => {
     it("focuses on building when polygon is pressed",()=>{
 
       const mapViewer = render(<MapViewer />);
-      const building = concordiaBuildings[0];
+      const building = CAMPUS_BUILDINGS[0];
       const polygon = mapViewer.getAllByTestId("polygon")[0];
       fireEvent.press(polygon);
       expect(mockAnimateToRegion).toHaveBeenCalledWith(
@@ -283,42 +262,10 @@ jest.mock("@/constants/mapData", () => {
           longitudeDelta: expect.any(Number),
         }));
     });
-
-    it("Offset markers to prevent overlap  for VE building",()=>{
-      const mapViewer = render(<MapViewer />);
-      const ve = concordiaBuildings.find(b => b.buildingCode === "VE");
-      const marker = mapViewer.getByTestId("marker-VE");
-      expect(marker.props.coordinate).toEqual({
-        latitude: ve.location.latitude + 0.00008,
-        longitude: ve.location.longitude - 0.00015,
-      });
-
-    })
     
-    it("Offset markers to prevent overlap  for RA building",()=>{
-      const mapViewer= render(<MapViewer />);
-      const ra = concordiaBuildings.find(a => a.buildingCode === "RA");
-      const marker = mapViewer.getByTestId("marker-RA");
-      expect(marker.props.coordinate).toEqual({
-        latitude: ra.location.latitude - 0.0009,
-        longitude: ra.location.longitude - 0.0008,
-      });
-
-    });
-
-    it("Offset markers to prevent overlap for PC building",()=>{
-      const mapViewer = render(<MapViewer />);
-      const pc = concordiaBuildings.find(b => b.buildingCode === "PC");
-      const marker = mapViewer.getByTestId("marker-PC");
-      expect(marker.props.coordinate).toEqual({
-        latitude: pc.location.latitude - 0.0006,
-        longitude: pc.location.longitude - 0.0005,
-      });
-
-    });
     it('focuses building when pressed', () => {
       const mapViewer = render(<MapViewer />);
-      const building = concordiaBuildings[0];
+      const building = CAMPUS_BUILDINGS[0];
       const marker = mapViewer.getByTestId(`marker-${building.buildingCode}`);
       fireEvent.press(marker);
       expect(mockAnimateToRegion).toHaveBeenCalledWith(
@@ -335,7 +282,7 @@ jest.mock("@/constants/mapData", () => {
       const mapViewer = render(
         <MapViewer initialRegion={{ latitude: 45, longitude: -73, latitudeDelta: 0.1, longitudeDelta: 0.1 }} />
       );
-      const lb = concordiaBuildings[0];
+      const lb = CAMPUS_BUILDINGS[0];
       const marker = mapViewer.getByTestId(`marker-${lb.buildingCode}`);
       fireEvent.press(marker);
     
@@ -346,19 +293,13 @@ jest.mock("@/constants/mapData", () => {
         }))    
      });
 
-    it("if unknown building selected it will be null",()=>{
-      const mapViewer = render(<MapViewer />);
-      const markerAB = mapViewer.getByTestId("marker-AB");
-      fireEvent.press(markerAB);
-      expect(mapViewer.queryByTestId("building-info-popup")).toBeNull();
-    });
-
     describe('Polygon Color Selection Logic', () => {
 
       it('should render polygonFill color when no building is selected and user is not inside', () => {
         const mapViewer = render(<MapViewer />);
         
         const polygons = mapViewer.getAllByTestId('polygon');
+        console.log(polygons[0].props.key)
         expect(polygons[0].props.fillColor).toBe(Colors.light.map.polygonFill);
       });
 

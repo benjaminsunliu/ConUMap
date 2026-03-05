@@ -37,12 +37,12 @@ jest.mock('react-native-maps', () => {
   };
 });
 
-jest.mock("@/constants/mapData", () => {
+jest.mock("@/constants/map", () => {
 
   const { getBuildingPolygons } = require("@/utils/getBuildingPolygons");
-
+  
   return {
-    CAMPUS_LOCATIONS: [
+    CAMPUS_BUILDINGS: [
       {
         code: "LB",
         location: { latitude: 45.495, longitude: -73.579 },
@@ -71,26 +71,6 @@ jest.mock("@/constants/mapData", () => {
     ],
   };
 });
-
-jest.mock('@/data/parsedBuildings', () => ({
-  concordiaBuildings: [
-    {
-      buildingCode: "LB",
-      location: { latitude: 45.495, longitude: -73.579 },
-    },
-    {
-      buildingCode: "VE",
-      location: { latitude: 45.496, longitude: -73.580 },
-    }, {
-      buildingCode: "RA",
-      location: { latitude: 45.496, longitude: -73.580 },
-    },
-    {
-      buildingCode: "PC",
-      location: { latitude: 45.496, longitude: -73.580 },
-    },
-  ],
-}));
 
 jest.mock("@/data/building-addresses.json", () => [
   {

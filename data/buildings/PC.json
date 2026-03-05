@@ -1,0 +1,55 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.456683256284016,
+        "longitude": -73.63698575645685
+      },
+      {
+        "latitude": 45.45694571528955,
+        "longitude": -73.63676983863115
+      },
+      {
+        "latitude": 45.457278490856524,
+        "longitude": -73.63762143999338
+      },
+      {
+        "latitude": 45.457017914819666,
+        "longitude": -73.63783199340105
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4570268,
+    "longitude": -73.63638239999999
+  },
+  "buildingCode": "PC",
+  "buildingName": "PERFORM Centre",
+  "overview": [
+    "Located on the south side of Sherbrooke Street at the Loyola Campus, the PERFORM Centre building, which houses the School of Health and its laboratories, makes a striking impression as it inclines towards de Maisonneuve Street.",
+    "Students and the general public can join fitness classes, work out or consult with a personal trainer at the PERFORM Gym, as well as meet with a dietitian, attend workshops or visit kinesiology and athletic therapy internship clinics.",
+    "Designed with natural lighting and advanced energy recuperation systems, the centre earned LEED Gold certification in 2011 for its sustainable construction."
+  ],
+  "services": [
+    {
+      "name": "Athletic Therapy Clinic",
+      "url": "https://www.concordia.ca/schoolofhealth/for-public/assessment-rehabilitation.html"
+    },
+    {
+      "name": "Nutrition Centre",
+      "url": "https://www.concordia.ca/schoolofhealth/for-public/nutrition.html"
+    },
+    {
+      "name": "PERFORM Gym",
+      "url": "https://www.concordia.ca/schoolofhealth/for-public/gym-fitness-classes.html"
+    },
+    {
+      "name": "School of Health",
+      "url": "https://www.concordia.ca/schoolofhealth.html"
+    }
+  ],
+  "accessibility": ["wheelchairLift", "entranceAutomatedDoor", "elevator"],
+  "address": "7200 Sherbrooke St. W.",
+  "campus": "LOY",
+  "url": "https://www.concordia.ca/maps/buildings/pc.html"
+}

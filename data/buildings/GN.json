@@ -1,0 +1,304 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4939026657172,
+        "longitude": -73.577172341666
+      },
+      {
+        "latitude": 45.4937175398812,
+        "longitude": -73.5767846513606
+      },
+      {
+        "latitude": 45.4938361098278,
+        "longitude": -73.5766695748613
+      },
+      {
+        "latitude": 45.4938966006487,
+        "longitude": -73.5766612958295
+      },
+      {
+        "latitude": 45.4940651477302,
+        "longitude": -73.5770146178946
+      },
+      {
+        "latitude": 45.4939026657172,
+        "longitude": -73.577172341666
+      }
+    ],
+    [
+      {
+        "latitude": 45.4929261204166,
+        "longitude": -73.5773789967915
+      },
+      {
+        "latitude": 45.4928385723552,
+        "longitude": -73.5771976314539
+      },
+      {
+        "latitude": 45.4928962403787,
+        "longitude": -73.5771411504732
+      },
+      {
+        "latitude": 45.4928093210759,
+        "longitude": -73.5769610493378
+      },
+      {
+        "latitude": 45.4927939609224,
+        "longitude": -73.5769760323332
+      },
+      {
+        "latitude": 45.4927724565581,
+        "longitude": -73.5769723614841
+      },
+      {
+        "latitude": 45.4927109632923,
+        "longitude": -73.5770329374857
+      },
+      {
+        "latitude": 45.4926780786454,
+        "longitude": -73.5769650599107
+      },
+      {
+        "latitude": 45.4926768254972,
+        "longitude": -73.5769234940966
+      },
+      {
+        "latitude": 45.4927265954913,
+        "longitude": -73.5768745303471
+      },
+      {
+        "latitude": 45.4927465786112,
+        "longitude": -73.5768688794964
+      },
+      {
+        "latitude": 45.4926088254854,
+        "longitude": -73.576583252756
+      },
+      {
+        "latitude": 45.4926146329669,
+        "longitude": -73.5765775805357
+      },
+      {
+        "latitude": 45.4925931836518,
+        "longitude": -73.5765332076078
+      },
+      {
+        "latitude": 45.4927323165123,
+        "longitude": -73.5763964014829
+      },
+      {
+        "latitude": 45.492899344199,
+        "longitude": -73.5767424308809
+      },
+      {
+        "latitude": 45.4929261568233,
+        "longitude": -73.576747059359
+      },
+      {
+        "latitude": 45.4929481272377,
+        "longitude": -73.5767929648555
+      },
+      {
+        "latitude": 45.4929406656802,
+        "longitude": -73.5768314943599
+      },
+      {
+        "latitude": 45.493025204712,
+        "longitude": -73.5770064599239
+      },
+      {
+        "latitude": 45.4933647522418,
+        "longitude": -73.5766728074293
+      },
+      {
+        "latitude": 45.4933412515715,
+        "longitude": -73.5766245334878
+      },
+      {
+        "latitude": 45.4934712415604,
+        "longitude": -73.5764967963123
+      },
+      {
+        "latitude": 45.4934926359111,
+        "longitude": -73.5765407942479
+      },
+      {
+        "latitude": 45.4937936219443,
+        "longitude": -73.5762449936157
+      },
+      {
+        "latitude": 45.49356992723,
+        "longitude": -73.5757819421033
+      },
+      {
+        "latitude": 45.493713566455,
+        "longitude": -73.5756406331774
+      },
+      {
+        "latitude": 45.4939332131499,
+        "longitude": -73.5760952420008
+      },
+      {
+        "latitude": 45.4940347092222,
+        "longitude": -73.5759955427464
+      },
+      {
+        "latitude": 45.4941230547214,
+        "longitude": -73.5761782860251
+      },
+      {
+        "latitude": 45.4940174610127,
+        "longitude": -73.5762822400071
+      },
+      {
+        "latitude": 45.4943911698336,
+        "longitude": -73.5770560029141
+      },
+      {
+        "latitude": 45.4940935149512,
+        "longitude": -73.5773483998571
+      },
+      {
+        "latitude": 45.494124568331,
+        "longitude": -73.5774128639915
+      },
+      {
+        "latitude": 45.4939750895593,
+        "longitude": -73.5775596486194
+      },
+      {
+        "latitude": 45.4938690723966,
+        "longitude": -73.5773401157951
+      },
+      {
+        "latitude": 45.4941937822746,
+        "longitude": -73.5770209360426
+      },
+      {
+        "latitude": 45.4938973937136,
+        "longitude": -73.5764071943467
+      },
+      {
+        "latitude": 45.4935515201532,
+        "longitude": -73.5767470352545
+      },
+      {
+        "latitude": 45.4936135437977,
+        "longitude": -73.5768753974726
+      },
+      {
+        "latitude": 45.4936679553104,
+        "longitude": -73.5768218570828
+      },
+      {
+        "latitude": 45.4937271602842,
+        "longitude": -73.5769441153413
+      },
+      {
+        "latitude": 45.4936714457269,
+        "longitude": -73.5769988324814
+      },
+      {
+        "latitude": 45.4937476682501,
+        "longitude": -73.5771564286651
+      },
+      {
+        "latitude": 45.4936349636552,
+        "longitude": -73.5772672268513
+      },
+      {
+        "latitude": 45.4935799443782,
+        "longitude": -73.5771533332214
+      },
+      {
+        "latitude": 45.4936014922436,
+        "longitude": -73.5771322495288
+      },
+      {
+        "latitude": 45.493576622525,
+        "longitude": -73.5770806949938
+      },
+      {
+        "latitude": 45.4935291856552,
+        "longitude": -73.5771274656661
+      },
+      {
+        "latitude": 45.4934501170441,
+        "longitude": -73.5769635780721
+      },
+      {
+        "latitude": 45.493478639479,
+        "longitude": -73.5769357251867
+      },
+      {
+        "latitude": 45.4934384759115,
+        "longitude": -73.5768525174198
+      },
+      {
+        "latitude": 45.4933527202472,
+        "longitude": -73.5769368004042
+      },
+      {
+        "latitude": 45.4933639923897,
+        "longitude": -73.5769601974088
+      },
+      {
+        "latitude": 45.4931076211085,
+        "longitude": -73.5772121068346
+      },
+      {
+        "latitude": 45.4931991635411,
+        "longitude": -73.5774015417977
+      },
+      {
+        "latitude": 45.4930884946965,
+        "longitude": -73.5775101159807
+      },
+      {
+        "latitude": 45.4929933136561,
+        "longitude": -73.577313017312
+      },
+      {
+        "latitude": 45.4929261204166,
+        "longitude": -73.5773789967915
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4935904,
+    "longitude": -73.57700249999999
+  },
+  "buildingCode": "GN",
+  "buildingName": "Grey Nuns Building",
+  "overview": [
+    "The Sisters of Charity of Montreal, also known as the Grey Nuns, have played an important part in the city’s history. Their former Mother House, built in 1871, was acquired by Concordia in 2007, serving a new purpose while preserving its outstanding heritage.",
+    "Today, the five-floor Grey Nuns Building houses approximately 600 undergraduate students and offers a beautiful reading room, an early-childhood observation nursery and a kitchen serving both campuses."
+  ],
+  "services": [
+    {
+      "name": "Summer accommodations",
+      "url": "https://www.concordia.ca/summer/accommodations.html/greynunsresidence/"
+    }
+  ],
+  "departments": [
+    {
+      "name": "Philosophy (1175 St-Mathieu St.)",
+      "url": "https://www.concordia.ca/artsci/philosophy.html"
+    }
+  ],
+  "venues": [
+    {
+      "name": "Grey Nuns Garden",
+      "url": "https://www.concordia.ca/maps/buildings/gg.html"
+    }
+  ],
+  "accessibility": [
+    "entranceRamp",
+    "entranceAutomatedDoor",
+    "elevator"
+  ],
+  "address": "1190 Guy St. (main entrance)\r\n1175 St-Mathieu St.\r\n1185 St-Mathieu St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/gn.html"
+}

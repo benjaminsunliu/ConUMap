@@ -1,0 +1,55 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4974269652217,
+        "longitude": -73.5797547280965
+      },
+      {
+        "latitude": 45.4974366746176,
+        "longitude": -73.5797735308202
+      },
+      {
+        "latitude": 45.4974594197792,
+        "longitude": -73.579751538598
+      },
+      {
+        "latitude": 45.4974905240077,
+        "longitude": -73.5798143442795
+      },
+      {
+        "latitude": 45.4973674712368,
+        "longitude": -73.5799371607606
+      },
+      {
+        "latitude": 45.4973273093448,
+        "longitude": -73.5798549641675
+      },
+      {
+        "latitude": 45.4974269652217,
+        "longitude": -73.5797547280965
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4974066,
+    "longitude": -73.5798502
+  },
+  "buildingCode": "S",
+  "buildingName": "S Annex",
+  "overview": [
+    "The S Annex is a historic three-storey Victorian residence, just steps from the Hall Building. Built around 1884, it features a grey limestone exterior with intricate stone carvings and a two-storey bay window with an octagonal layout that continues into the mansard roof.",
+    "Once known as “Odstone Hall,” the building served as a private home for nearly a century before becoming university property in 1970.",
+    "Today, the S Annex houses part of the Department of Philosophy and is connected internally to the M Annex next door."
+  ],
+  "services": [
+    {
+      "name": "Philosophy",
+      "url": "https://www.concordia.ca/artsci/philosophy.html"
+    }
+  ],
+  "accessibility": [],
+  "address": "2145 Mackay St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/s.html"
+}

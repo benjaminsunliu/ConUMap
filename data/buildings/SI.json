@@ -1,0 +1,43 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.458186969914046,
+        "longitude": -73.64255301654339
+      },
+      {
+        "latitude": 45.45793909745282,
+        "longitude": -73.64193610846996
+      },
+      {
+        "latitude": 45.45755317620534,
+        "longitude": -73.64237297326326
+      },
+      {
+        "latitude": 45.457626080482484,
+        "longitude": -73.64259626716375
+      },
+      {
+        "latitude": 45.45787936331917,
+        "longitude": -73.64252619445324
+      },
+      {
+        "latitude": 45.457954148563125,
+        "longitude": -73.64269752055407
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.457659,
+    "longitude": -73.64251999999999
+  },
+  "buildingCode": "SI",
+  "buildingName": "St. Ignatius of Loyola Church",
+  "overview": [
+    "Situated at the western edge of Loyola Campus, St. Ignatius of Loyola Church is a heritage landmark built in 1917. The church showcases Romanesque Revival architecture, with its striking stone façade and traditional bell tower, and remains a significant historical feature of Concordia’s campus."
+  ],
+  "accessibility": [],
+  "address": "4455 West Broadway St.",
+  "campus": "LOY",
+  "url": "https://www.concordia.ca/maps/buildings/si.html"
+}

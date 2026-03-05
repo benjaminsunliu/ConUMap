@@ -1,15 +1,15 @@
+import { Colors } from "@/constants/theme";
+import { BuildingInfo } from "@/types/mapTypes";
+import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback, useMemo } from "react";
 import {
+    Linking,
     StyleSheet,
     Text,
-    View,
     TouchableOpacity,
-    Linking,
     useColorScheme,
+    View
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { BuildingInfo } from "@/data/parsedBuildings";
-import { Colors } from "@/constants/theme";
 import InfoPopup from "../ui/popup";
 
 interface Props {
@@ -18,23 +18,23 @@ interface Props {
 }
 
 const WEEKDAYS = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
 ];
 
 const DEFAULT_OPENING_HOURS = [
-    "7:00 AM – 11:00 PM",
-    "7:00 AM – 11:00 PM",
-    "7:00 AM – 11:00 PM",
-    "7:00 AM – 11:00 PM",
-    "7:00 AM – 11:00 PM",
-    "7:00 AM – 9:00 PM",
-    "7:00 AM – 9:00 PM",
+  "7:00 AM – 11:00 PM",
+  "7:00 AM – 11:00 PM",
+  "7:00 AM – 11:00 PM",
+  "7:00 AM – 11:00 PM",
+  "7:00 AM – 11:00 PM",
+  "7:00 AM – 9:00 PM",
+  "7:00 AM – 9:00 PM",
 ];
 
 export default function BuildingInfoPopup({ building, onNavigate }: Props) {
@@ -42,8 +42,7 @@ export default function BuildingInfoPopup({ building, onNavigate }: Props) {
     const theme = Colors[colorScheme];
     const styles = makeStyles(theme);
 
-    const todayIdx =
-        new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+  const todayIdx = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
 
     const ACTIONS = useMemo(() => [
         { label: "Directions", icon: "navigate-outline", type: "directions" as const },
@@ -53,14 +52,14 @@ export default function BuildingInfoPopup({ building, onNavigate }: Props) {
     const handleAction = useCallback(async (type: "directions" | "website") => {
         const urls: Record<typeof type, string> = {
             directions: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent((building?.address)||"")}`,
-            website: building?.link || "",
+            website: building?.url || "",
         };
 
-        const url = urls[type];
-        if (!url) {
-            console.warn(`No URL available for action: ${type}`);
-            return;
-        }
+    const url = urls[type];
+    if (!url) {
+      console.warn(`No URL available for action: ${type}`);
+      return;
+    }
 
         try {
             const canOpen = await Linking.canOpenURL(url);
@@ -72,15 +71,13 @@ export default function BuildingInfoPopup({ building, onNavigate }: Props) {
         } catch (error) {
             console.error(`Failed to open URL (${type}):`, error);
         }
-    }, [building?.address, building?.link]);
+    }, [building?.address, building?.url]);
 
     const formatCamelCase = useCallback((text: string) =>
         text
-            .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-            .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
-            .replace(/\s+/g, " ")
+            .replaceAll(/(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])/g, " ")
             .trim()
-            .replace(/^./, (c) => c.toUpperCase()), []);
+            .replace(/^./, (match) => match.toUpperCase()), []);
 
     const header = useMemo(() => {
         return (
@@ -147,33 +144,33 @@ export default function BuildingInfoPopup({ building, onNavigate }: Props) {
 /* ---------- Subcomponents ---------- */
 
 const ListItem = ({
-    text,
-    theme,
+  text,
+  theme,
 }: {
-    readonly text: string;
-    readonly theme: typeof Colors.light;
+  readonly text: string;
+  readonly theme: typeof Colors.light;
 }) => (
-    <View style={{ flexDirection: "row", alignItems: "center", marginTop: 2 }}>
-        <Ionicons
-            name="checkmark-circle-outline"
-            size={18}
-            color={theme.buildingInfoPopup.accessibilityIcon}
-            style={{ marginRight: 6 }}
-        />
-        <Text style={{ color: theme.buildingInfoPopup.text }}>{text}</Text>
-    </View>
+  <View style={{ flexDirection: "row", alignItems: "center", marginTop: 2 }}>
+    <Ionicons
+      name="checkmark-circle-outline"
+      size={18}
+      color={theme.buildingInfoPopup.accessibilityIcon}
+      style={{ marginRight: 6 }}
+    />
+    <Text style={{ color: theme.buildingInfoPopup.text }}>{text}</Text>
+  </View>
 );
 
 const ActionButton = ({
-    label,
-    icon,
-    onPress,
-    theme,
+  label,
+  icon,
+  onPress,
+  theme,
 }: {
-    readonly label: string;
-    readonly icon: string;
-    readonly onPress: () => void;
-    readonly theme: typeof Colors.light;
+  readonly label: string;
+  readonly icon: string;
+  readonly onPress: () => void;
+  readonly theme: typeof Colors.light;
 }) => (
     <TouchableOpacity
         style={[

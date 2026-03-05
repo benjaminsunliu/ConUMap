@@ -1,0 +1,201 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4572499976447,
+        "longitude": -73.6407647736335
+      },
+      {
+        "latitude": 45.4575244789134,
+        "longitude": -73.6414723634341
+      },
+      {
+        "latitude": 45.457907931472,
+        "longitude": -73.641169728514
+      },
+      {
+        "latitude": 45.4578932304326,
+        "longitude": -73.6411318630395
+      },
+      {
+        "latitude": 45.4579788796594,
+        "longitude": -73.6410642397323
+      },
+      {
+        "latitude": 45.4579983354857,
+        "longitude": -73.6411144047975
+      },
+      {
+        "latitude": 45.4583161707973,
+        "longitude": -73.6408610995721
+      },
+      {
+        "latitude": 45.4583394803179,
+        "longitude": -73.6409214427859
+      },
+      {
+        "latitude": 45.458192750888,
+        "longitude": -73.6410381860445
+      },
+      {
+        "latitude": 45.4582559285046,
+        "longitude": -73.6412013573026
+      },
+      {
+        "latitude": 45.4581791286045,
+        "longitude": -73.6412619490213
+      },
+      {
+        "latitude": 45.4582085307675,
+        "longitude": -73.6413376805619
+      },
+      {
+        "latitude": 45.4582772679952,
+        "longitude": -73.641283454495
+      },
+      {
+        "latitude": 45.4583273835942,
+        "longitude": -73.6414128960257
+      },
+      {
+        "latitude": 45.4576724722197,
+        "longitude": -73.641925074392
+      },
+      {
+        "latitude": 45.4576410498015,
+        "longitude": -73.6418446166943
+      },
+      {
+        "latitude": 45.4574384492673,
+        "longitude": -73.6420037411084
+      },
+      {
+        "latitude": 45.4572092219752,
+        "longitude": -73.6414125410386
+      },
+      {
+        "latitude": 45.4571842470099,
+        "longitude": -73.6414323029863
+      },
+      {
+        "latitude": 45.4571683714521,
+        "longitude": -73.641391457363
+      },
+      {
+        "latitude": 45.4571794744891,
+        "longitude": -73.641382695127
+      },
+      {
+        "latitude": 45.4571488981991,
+        "longitude": -73.6413039848223
+      },
+      {
+        "latitude": 45.4571593498403,
+        "longitude": -73.6412958089382
+      },
+      {
+        "latitude": 45.4570419346156,
+        "longitude": -73.6409931876149
+      },
+      {
+        "latitude": 45.4570173396417,
+        "longitude": -73.6410125229322
+      },
+      {
+        "latitude": 45.4569961366528,
+        "longitude": -73.6409584909684
+      },
+      {
+        "latitude": 45.4570249665488,
+        "longitude": -73.6409358533229
+      },
+      {
+        "latitude": 45.4569834322577,
+        "longitude": -73.6408287050145
+      },
+      {
+        "latitude": 45.45720242332,
+        "longitude": -73.6406556646887
+      },
+      {
+        "latitude": 45.4572459260257,
+        "longitude": -73.6407681839922
+      },
+      {
+        "latitude": 45.4572499976447,
+        "longitude": -73.6407647736335
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4578426,
+    "longitude": -73.6415682
+  },
+  "buildingCode": "SP",
+  "buildingName": "Richard J. Renaud Science Complex",
+  "overview": [
+    "Opened in 2003, the Richard J. Renaud Science Complex changed the face of Concordia's west-end campus. This state-of-the-art teaching and research facility includes teaching facilities, offices and laboratories for various science departments.",
+    "The avant-garde design promotes interdisciplinarity and innovation in one of the top university sciences facilities in Canada. The award-winning building also features energy-efficient sustainable architecture. The complex includes the former Bryan Building (built in 1968), which has been completely renovated and fully integrated into the new structure.",
+    "The complex connects directly to the Centre for Structural and Functional Genomics (GE), Applied Science Hub (HU) and the Loyola Jesuit Hall and Conference Centre (RF)."
+  ],
+  "services": [
+    {
+      "name": "Café",
+      "url": "https://hivecafe.ca/"
+    },
+    {
+      "name": "Campus Safety and Prevention Services",
+      "url": "https://www.concordia.ca/campus-life/security.html"
+    },
+    {
+      "name": "First Stop",
+      "url": "https://www.concordia.ca/students/first-stop.html"
+    },
+    {
+      "name": "Science College",
+      "url": "https://www.concordia.ca/artsci/science-college.html"
+    }
+  ],
+  "departments": [
+    {
+      "name": "Biology",
+      "url": "https://www.concordia.ca/artsci/biology.html"
+    },
+    {
+      "name": "Centre for Biological Applications of Mass Spectrometry",
+      "url": "https://www.concordia.ca/research/mass-spec.html"
+    },
+    {
+      "name": "Centre for NanoScience Research",
+      "url": "https://www.concordia.ca/research/nanoscience.html"
+    },
+    {
+      "name": "Centre for Research in Molecular Modeling",
+      "url": "https://www.concordia.ca/research/molecular-modeling.html"
+    },
+    {
+      "name": "Centre for Studies in Behavioral Neurobiology",
+      "url": "https://www.concordia.ca/research/molecular-modeling.html"
+    },
+    {
+      "name": "Chemistry and Biochemistry",
+      "url": "https://www.concordia.ca/artsci/chemistry.html"
+    },
+    {
+      "name": "Physics",
+      "url": "https://www.concordia.ca/artsci/physics.html"
+    },
+    {
+      "name": "Psychology",
+      "url": "https://www.concordia.ca/artsci/psychology.html"
+    }
+  ],
+  "accessibility": [
+    "entranceRamp",
+    "entranceAutomatedDoor",
+    "elevator"
+  ],
+  "address": "7141 Sherbrooke St. W.",
+  "campus": "LOY",
+  "url": "https://www.concordia.ca/maps/buildings/sp.html"
+}

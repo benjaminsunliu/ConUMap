@@ -1,0 +1,46 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4967986678572,
+        "longitude": -73.5793322982505
+      },
+      {
+        "latitude": 45.4966512204061,
+        "longitude": -73.5794799206353
+      },
+      {
+        "latitude": 45.4966119346256,
+        "longitude": -73.5793996619966
+      },
+      {
+        "latitude": 45.4967599305649,
+        "longitude": -73.5792537596414
+      },
+      {
+        "latitude": 45.4967986678572,
+        "longitude": -73.5793322982505
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4967636,
+    "longitude": -73.5792835
+  },
+  "buildingCode": "RR",
+  "buildingName": "RR Annex",
+  "overview": [
+    "The RR Annex, built in 1875, was transformed over the years from a private home to apartments, and even a restaurant in the 1960s. It retains its Victorian charm with a stone bay window mansard roof, and preserved stained glass elements.",
+    "The building was acquired by Concordia in 1979 and now houses the Liberal Arts College."
+  ],
+  "services": [
+    {
+      "name": "Liberal Arts College",
+      "url": "https://www.concordia.ca/artsci/liberal-arts-college.html"
+    }
+  ],
+  "accessibility": [],
+  "address": "2040 Mackay St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/rr.html"
+}

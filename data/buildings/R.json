@@ -1,0 +1,62 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4968008208597,
+        "longitude": -73.5793439052364
+      },
+      {
+        "latitude": 45.4968371021925,
+        "longitude": -73.5794198040332
+      },
+      {
+        "latitude": 45.4968257575084,
+        "longitude": -73.5794309881814
+      },
+      {
+        "latitude": 45.4968319411297,
+        "longitude": -73.5794438980169
+      },
+      {
+        "latitude": 45.4967386830908,
+        "longitude": -73.5795344362081
+      },
+      {
+        "latitude": 45.4967324717897,
+        "longitude": -73.579521338355
+      },
+      {
+        "latitude": 45.4967107583698,
+        "longitude": -73.5795423136647
+      },
+      {
+        "latitude": 45.496674477241,
+        "longitude": -73.5794664151307
+      },
+      {
+        "latitude": 45.4968008208597,
+        "longitude": -73.5793439052364
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4968115,
+    "longitude": -73.5793896
+  },
+  "buildingCode": "R",
+  "buildingName": "R Annex",
+  "overview": [
+    "Built in 1875, the R Annex is one of a trio of similar Victorian houses on this block. It features a stone facade, bay window and intricate slate-roofed dormers.",
+    "The annex was acquired by the university in 1970 and now houses offices, including part of the Department of Religions and Cultures."
+  ],
+  "services": [
+    {
+      "name": "Religions and Cultures",
+      "url": "https://www.concordia.ca/artsci/religions-cultures.html"
+    }
+  ],
+  "accessibility": [],
+  "address": "2050 Mackay St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/r.html"
+}

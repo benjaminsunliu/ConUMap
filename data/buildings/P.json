@@ -1,0 +1,40 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4966767271164,
+        "longitude": -73.5790808477654
+      },
+      {
+        "latitude": 45.496723031564,
+        "longitude": -73.5791706628816
+      },
+      {
+        "latitude": 45.4966297401099,
+        "longitude": -73.5792689883769
+      },
+      {
+        "latitude": 45.4965834912667,
+        "longitude": -73.5791795495828
+      },
+      {
+        "latitude": 45.4966767271164,
+        "longitude": -73.5790808477654
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4966588,
+    "longitude": -73.57920159999999
+  },
+  "buildingCode": "P",
+  "buildingName": "P Annex",
+  "overview": [
+    "Designed and likely built by architect William Tutin Thomas in 1873-74, this three-storey Victorian building includes a striking bay window with a copper-clad oriel.",
+    "Originally a private residence for brokers and businessmen, the P Annex was acquired by the university in 1969 and is now used for offices and student services."
+  ],
+  "accessibility": [],
+  "address": "2020 Mackay St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/p.html"
+}

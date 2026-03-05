@@ -1,0 +1,324 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4585890444863,
+        "longitude": -73.6408772869513
+      },
+      {
+        "latitude": 45.4586801381204,
+        "longitude": -73.6407985119765
+      },
+      {
+        "latitude": 45.4587656349228,
+        "longitude": -73.6410434135512
+      },
+      {
+        "latitude": 45.4587851652835,
+        "longitude": -73.6410337817405
+      },
+      {
+        "latitude": 45.4588225485177,
+        "longitude": -73.6411307292453
+      },
+      {
+        "latitude": 45.4588024297448,
+        "longitude": -73.641145397086
+      },
+      {
+        "latitude": 45.4588079540898,
+        "longitude": -73.6411619356442
+      },
+      {
+        "latitude": 45.4586467679607,
+        "longitude": -73.6412836990154
+      },
+      {
+        "latitude": 45.4586411413492,
+        "longitude": -73.6412704836223
+      },
+      {
+        "latitude": 45.4585062439627,
+        "longitude": -73.641376403155
+      },
+      {
+        "latitude": 45.4584840209662,
+        "longitude": -73.6413154218922
+      },
+      {
+        "latitude": 45.4585370462476,
+        "longitude": -73.6412767428744
+      },
+      {
+        "latitude": 45.4585235554084,
+        "longitude": -73.6412461196636
+      },
+      {
+        "latitude": 45.4585453547232,
+        "longitude": -73.6412288337043
+      },
+      {
+        "latitude": 45.4585098572153,
+        "longitude": -73.6411366941731
+      },
+      {
+        "latitude": 45.4584281724403,
+        "longitude": -73.6412021937158
+      },
+      {
+        "latitude": 45.4583815457209,
+        "longitude": -73.6410774329832
+      },
+      {
+        "latitude": 45.4584725211565,
+        "longitude": -73.6410079055759
+      },
+      {
+        "latitude": 45.458413027044,
+        "longitude": -73.6408517473394
+      },
+      {
+        "latitude": 45.4584611281071,
+        "longitude": -73.6408116759182
+      },
+      {
+        "latitude": 45.4584372457533,
+        "longitude": -73.6407504451182
+      },
+      {
+        "latitude": 45.4584887179595,
+        "longitude": -73.6407102295275
+      },
+      {
+        "latitude": 45.4585134741824,
+        "longitude": -73.6407733946252
+      },
+      {
+        "latitude": 45.4585395360268,
+        "longitude": -73.6407529936233
+      },
+      {
+        "latitude": 45.4585890444863,
+        "longitude": -73.6408772869513
+      }
+    ],
+    [
+      {
+        "latitude": 45.4585208608007,
+        "longitude": -73.640685034277
+      },
+      {
+        "latitude": 45.4583791494107,
+        "longitude": -73.6407957736703
+      },
+      {
+        "latitude": 45.458288067748,
+        "longitude": -73.6405590484041
+      },
+      {
+        "latitude": 45.4582807370996,
+        "longitude": -73.640564372429
+      },
+      {
+        "latitude": 45.4581655166129,
+        "longitude": -73.6402606533331
+      },
+      {
+        "latitude": 45.4581718691469,
+        "longitude": -73.6402556996114
+      },
+      {
+        "latitude": 45.4580776515112,
+        "longitude": -73.6400146981164
+      },
+      {
+        "latitude": 45.4581036322558,
+        "longitude": -73.6399947518581
+      },
+      {
+        "latitude": 45.4580924575034,
+        "longitude": -73.6399668476527
+      },
+      {
+        "latitude": 45.4581219391978,
+        "longitude": -73.6399436219669
+      },
+      {
+        "latitude": 45.4581082196506,
+        "longitude": -73.6399074228682
+      },
+      {
+        "latitude": 45.4580900595336,
+        "longitude": -73.6399223691219
+      },
+      {
+        "latitude": 45.4580862631194,
+        "longitude": -73.6399135855623
+      },
+      {
+        "latitude": 45.4579642333517,
+        "longitude": -73.6400076738254
+      },
+      {
+        "latitude": 45.4579871594348,
+        "longitude": -73.6400664064559
+      },
+      {
+        "latitude": 45.4579119371099,
+        "longitude": -73.6401266871755
+      },
+      {
+        "latitude": 45.4577985269392,
+        "longitude": -73.6398312888425
+      },
+      {
+        "latitude": 45.4578764941739,
+        "longitude": -73.6397706190755
+      },
+      {
+        "latitude": 45.4578930300438,
+        "longitude": -73.6398149533159
+      },
+      {
+        "latitude": 45.4579036174965,
+        "longitude": -73.6398066969935
+      },
+      {
+        "latitude": 45.4579163430144,
+        "longitude": -73.6398351180342
+      },
+      {
+        "latitude": 45.4580219205454,
+        "longitude": -73.6397535448525
+      },
+      {
+        "latitude": 45.4580208358951,
+        "longitude": -73.639741129547
+      },
+      {
+        "latitude": 45.4579983776984,
+        "longitude": -73.6396715170233
+      },
+      {
+        "latitude": 45.4580654273612,
+        "longitude": -73.6396309215869
+      },
+      {
+        "latitude": 45.4580865293883,
+        "longitude": -73.6396882783852
+      },
+      {
+        "latitude": 45.4580898474012,
+        "longitude": -73.6396887773383
+      },
+      {
+        "latitude": 45.4580959502411,
+        "longitude": -73.6396951868686
+      },
+      {
+        "latitude": 45.4582019689471,
+        "longitude": -73.6396166169914
+      },
+      {
+        "latitude": 45.4581898275843,
+        "longitude": -73.6395811225177
+      },
+      {
+        "latitude": 45.4581996554648,
+        "longitude": -73.6395737199856
+      },
+      {
+        "latitude": 45.4581730191629,
+        "longitude": -73.6395088037371
+      },
+      {
+        "latitude": 45.4582552453557,
+        "longitude": -73.6394429805971
+      },
+      {
+        "latitude": 45.4583770539877,
+        "longitude": -73.6397634323295
+      },
+      {
+        "latitude": 45.4582976433774,
+        "longitude": -73.639823318343
+      },
+      {
+        "latitude": 45.458276649559,
+        "longitude": -73.6397656937339
+      },
+      {
+        "latitude": 45.4581522303785,
+        "longitude": -73.6398615938007
+      },
+      {
+        "latitude": 45.4581551294048,
+        "longitude": -73.6398702925016
+      },
+      {
+        "latitude": 45.4581418281119,
+        "longitude": -73.6398811620684
+      },
+      {
+        "latitude": 45.4581545656232,
+        "longitude": -73.63991569451
+      },
+      {
+        "latitude": 45.4581660710766,
+        "longitude": -73.6399458518892
+      },
+      {
+        "latitude": 45.4582187587328,
+        "longitude": -73.6399018618318
+      },
+      {
+        "latitude": 45.4583151280049,
+        "longitude": -73.6401444564348
+      },
+      {
+        "latitude": 45.4583216203185,
+        "longitude": -73.6401414600105
+      },
+      {
+        "latitude": 45.45843855574,
+        "longitude": -73.640445805528
+      },
+      {
+        "latitude": 45.4584315753495,
+        "longitude": -73.6404494963462
+      },
+      {
+        "latitude": 45.4585208608007,
+        "longitude": -73.640685034277
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4586562,
+    "longitude": -73.64099279999999
+  },
+  "buildingCode": "RF",
+  "buildingName": "Loyola Jesuit Hall and Conference Centre",
+  "overview": [
+    "Originally known as the Refectory, this historic building is one of the oldest structures on the Loyola Campus. Built in the shape of a cross, it originally featured elegant dining halls, an infirmary and a distinctive sundial on its south façade.",
+    "In 2012, the building officially reopened as the Loyola Jesuit Hall and Conference Centre after a major restoration. This transformation marked a key milestone in the revitalization of the Loyola Campus.",
+    "Today, this historic building is an important gathering place for community and social events. The space includes an alumni centre, lounge, large conference and meeting rooms, catering facilities and offices."
+  ],
+  "services": [
+    {
+      "name": "Conference services",
+      "url": "https://www.concordia.ca/hospitality.html"
+    },
+    {
+      "name": "Loyola Jesuit Hall and Conference Centre",
+      "url": "https://www.concordia.ca/hospitality/venues/loyola-jesuit-hall-conference-centre.html"
+    }
+  ],
+  "accessibility": [
+    "wheelchairLift",
+    "entranceAutomatedDoor"
+  ],
+  "address": "7141 Sherbrooke St. W.",
+  "campus": "LOY",
+  "url": "https://www.concordia.ca/maps/buildings/rf.html"
+}

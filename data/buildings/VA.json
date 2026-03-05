@@ -1,0 +1,62 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4958165008769,
+        "longitude": -73.5738113202676
+      },
+      {
+        "latitude": 45.4960699358036,
+        "longitude": -73.5735584381851
+      },
+      {
+        "latitude": 45.4961863538075,
+        "longitude": -73.573795364965
+      },
+      {
+        "latitude": 45.4956696296501,
+        "longitude": -73.5743104064646
+      },
+      {
+        "latitude": 45.4954025681043,
+        "longitude": -73.5737655853715
+      },
+      {
+        "latitude": 45.4956655535115,
+        "longitude": -73.5735033925962
+      },
+      {
+        "latitude": 45.4958165008769,
+        "longitude": -73.5738113202676
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4957332,
+    "longitude": -73.57391439999999
+  },
+  "buildingCode": "VA",
+  "buildingName": "Visual Arts Building",
+  "overview": [
+    "Concordia’s Visual Arts Building has been home to the Faculty of Fine Arts' visual arts programs since 1979. Originally built in 1923, the four-storey, L-shaped building features large windows, a concrete structure and a chamomile-coloured façade. Its courtyard entrance and green space out front — once a used car lot — are frequently used for student art installations. Today, the Visual Arts Building houses facilities for the creative arts, including the VAV Gallery, which showcases student artwork to the university community and public."
+  ],
+  "services": [
+    {
+      "name": "VAV Gallery",
+      "url": "https://www.vavgallery.ca/"
+    }
+  ],
+  "departments": [
+    {
+      "name": "Studio Arts",
+      "url": "https://www.concordia.ca/finearts/studio-arts.html"
+    }
+  ],
+  "accessibility": [
+    "entranceAutomatedDoor",
+    "elevator"
+  ],
+  "address": "1395 René-Lévesque Blvd. W.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/va.html"
+}
