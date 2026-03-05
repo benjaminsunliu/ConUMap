@@ -354,20 +354,23 @@ export default function MapViewer({
       >
         {renderedPolygons}
         {renderedMarkers}
-        {routePolyline?.map((segment, idx) => (
-          <Polyline
-            key={`polyline-seg-${idx}-${segment.isDashed}`}
-            coordinates={segment.coordinates}
-            strokeColor={segment.color}
-            strokeWidth={segment.isDashed ? (Platform.OS === "android" ? 6 : 3) : 3}
-            {...(segment.isDashed ? { lineDashPattern: Platform.OS === "android" ? [8, 16] : [1, 8] } : {})}
-            zIndex={10}
-          />
-        ))}
-        {routeStops.map((stop, idx) =>
+        {routePolyline?.map((segment, idx) => {
+          const strokeWidth = segment.isDashed ? (Platform.OS === "android" ? 6 : 3) : 3;
+          return (
+            <Polyline
+              key={`polyline-seg-${idx}-${segment.isDashed}`}
+              coordinates={segment.coordinates}
+              strokeColor={segment.color}
+              strokeWidth={strokeWidth}
+              {...(segment.isDashed ? { lineDashPattern: Platform.OS === "android" ? [8, 16] : [1, 8] } : {})}
+              zIndex={10}
+            />
+          );
+        })}
+        {routeStops.map((stop) =>
           Platform.OS === "android" ? (
             <Circle
-              key={`stop-${idx}`}
+              key={`stop-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
               center={stop.coordinate}
               radius={5}
               fillColor="#fff"
@@ -377,7 +380,7 @@ export default function MapViewer({
             />
           ) : (
             <Marker
-              key={`stop-${idx}`}
+              key={`stop-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
               coordinate={stop.coordinate}
               anchor={{ x: 0.5, y: 0.5 }}
               zIndex={11}
@@ -394,9 +397,9 @@ export default function MapViewer({
           )
         )}
         {Platform.OS === "android"
-          ? routeNodes.map((node, idx) => (
+          ? routeNodes.map((node) => (
             <Circle
-              key={`node-${idx}`}
+              key={`node-${node.coordinate.latitude}-${node.coordinate.longitude}`}
               center={node.coordinate}
               radius={7}
               fillColor={node.toColor}
@@ -405,9 +408,9 @@ export default function MapViewer({
               zIndex={12}
             />
           ))
-          : routeNodes.map((node, idx) => (
+          : routeNodes.map((node) => (
             <Marker
-              key={`node-${idx}`}
+              key={`node-${node.coordinate.latitude}-${node.coordinate.longitude}`}
               coordinate={node.coordinate}
               anchor={{ x: 0.5, y: 0.5 }}
               zIndex={12}
@@ -472,7 +475,7 @@ export default function MapViewer({
               const nextVehicleType = nextStep.transit_details?.line?.vehicle_type;
               const nextColor = polylineColor(nextMode, nextVehicleType);
               if (nextColor !== color) {
-                const junction = coords[coords.length - 1];
+                const junction = coords.at(-1);
                 nodes.push({ coordinate: junction, fromColor: color, toColor: nextColor });
               }
             }

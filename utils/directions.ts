@@ -35,18 +35,23 @@ const FIELD_MASK = [
 /** Parses a duration string from the API (e.g. "120s") into seconds as a number. */
 function parseDurationSeconds(d: string | undefined): number {
   if (!d) return 0;
-  return Math.round(parseFloat(d.replace("s", ""))) || 0;
+  return Math.round(Number.parseFloat(d.replace("s", ""))) || 0;
 }
 
 /** Format seconds into a human-readable string ("2 mins", "1 hr 5 mins"). */
 function formatDuration(seconds: number): string {
   const mins = Math.round(seconds / 60);
   if (mins < 60) return `${mins} min${mins !== 1 ? "s" : ""}`;
-  const hrs = Math.floor(mins / 60);
-  const rem = mins % 60;
-  return rem > 0
-    ? `${hrs} hr ${rem} min${rem !== 1 ? "s" : ""}`
-    : `${hrs} hr${hrs !== 1 ? "s" : ""}`;
+  if (mins >= 60) {
+    const hrs = Math.floor(mins / 60);
+    const rem = mins % 60;
+    const hrsText = `${hrs} hr` + (hrs !== 1 ? "s" : "");
+    const remText = rem > 0
+      ? `${hrsText} ${rem} min` + (rem !== 1 ? "s" : "")
+      : hrsText;
+    return remText;
+  }
+  return `${mins} min${mins !== 1 ? "s" : ""}`;
 }
 
 /** Format distance in meters into a human-readable string ("850 m", "1.2 km"). */

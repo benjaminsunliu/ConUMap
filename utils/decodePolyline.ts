@@ -16,24 +16,24 @@ export function decodePolyline(encoded: string): Coordinate[] {
     let byte: number;
 
     do {
-      byte = encoded.charCodeAt(index++) - 63;
+      byte = encoded.codePointAt(index++)! - 63; 
       result |= (byte & 0x1f) << shift;
       shift += 5;
     } while (byte >= 0x20);
 
-    const dlat = (result & 1) !== 0 ? ~(result >> 1) : result >> 1;
+    const dlat = (result & 1) === 0 ? result >> 1 : ~(result >> 1);
     lat += dlat;
 
     shift = 0;
     result = 0;
 
     do {
-      byte = encoded.charCodeAt(index++) - 63;
+      byte = encoded.codePointAt(index++)! - 63; 
       result |= (byte & 0x1f) << shift;
       shift += 5;
     } while (byte >= 0x20);
 
-    const dlng = (result & 1) !== 0 ? ~(result >> 1) : result >> 1;
+    const dlng = (result & 1) === 0 ? result >> 1 : ~(result >> 1);
     lng += dlng;
 
     coordinates.push({

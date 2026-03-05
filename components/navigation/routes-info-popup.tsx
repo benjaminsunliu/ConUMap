@@ -25,13 +25,13 @@ interface Props {
 
 function stripHtml(html: string): string {
   return html
-    .replace(/<div[^>]*>(.*?)<\/div>/gi, " – $1")
-    .replace(/<b>(.*?)<\/b>/gi, "$1")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&")
+    .replaceAll(/<div[^>]*>(.*?)<\/div>/gi, " – $1")
+    .replaceAll(/<b>(.*?)<\/b>/gi, "$1")
+    .replaceAll(/<[^>]+>/g, "")
+    .replaceAll("&nbsp;", " ")
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&amp;", "&")
     .trim();
 }
 
@@ -48,7 +48,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect, onStepS
   const theme = Colors[colorScheme];
   const styles = makePopupStyles(theme);
   const [tabIndex, setTabIndex] = React.useState(0);
-  const [selectedRoute, setSelectedRoute] = React.useState<any | null>(null);
+  const [selectedRoute, setSelectedRoute] = React.useState<any>(null);
 
   const availableTransports = useMemo(
     () => Object.keys(routes).filter(key => routes[key as TransportationMode] !== null),
@@ -116,6 +116,24 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect, onStepS
   const currentMode = availableTransports[tabIndex] as TransportationMode;
   const currentRoutes = routes[currentMode];
 
+  const routeList = (currentRoutes?.length ?? 0) > 0 ? (
+    currentRoutes?.map((route: any, index: number) => (
+      <RouteOverview
+        testID={`${currentMode}-route-${index}`}
+        route={route}
+        key={`${currentMode}-${route?.legs?.[0]?.duration?.value}-${route?.legs?.[0]?.distance?.value}`}
+        onRouteSelect={(r) => {
+          onRouteSelect(r);
+          setSelectedRoute(r);
+        }}
+      />
+    ))
+  ) : (
+    <Text testID="no-routes-text" style={styles.noRoutesText}>
+      No route found for this mode of transportation.
+    </Text>
+  );
+
   return (
     <InfoPopup shouldDisplay={isOpen} header={header} testID="routes-info-popup">
       {selectedRoute ? (
@@ -135,7 +153,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect, onStepS
 
           {selectedRoute?.legs?.[0]?.steps?.map((step: any, idx: number) => (
             <RouteStep
-              key={`step-${idx}`}
+              key={step?.polyline?.points ?? idx}
               testID={`${currentMode}-step-${idx}`}
               step={step}
               onPress={() => {
@@ -151,23 +169,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect, onStepS
           ))}
         </>
       ) : (
-        (currentRoutes?.length ?? 0) > 0 ? (
-          currentRoutes?.map((route: any, index: number) => (
-            <RouteOverview
-              testID={`${currentMode}-route-${index}`}
-              route={route}
-              key={`${currentMode}-route-${index}`}
-              onRouteSelect={(r) => {
-                onRouteSelect(r);
-                setSelectedRoute(r);
-              }}
-            />
-          ))
-        ) : (
-          <Text testID="no-routes-text" style={styles.noRoutesText}>
-            No route found for this mode of transportation.
-          </Text>
-        )
+        routeList
       )}
     </InfoPopup>
   );
