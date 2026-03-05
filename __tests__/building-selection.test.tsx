@@ -1,4 +1,4 @@
-import React, { act } from "react";
+import React from "react";
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import BuildingSelection from "@/components/map/building-selection";
 import MapViewer from "@/components/map/map-viewer";

@@ -49,7 +49,6 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
     const selectedBuildingRef = useRef(selectedBuilding);
     const startInputRef = useRef<TextInput>(null);
     const endInputRef = useRef<TextInput>(null);
-    const focusRef = useRef<FieldType>(focusedField);
 
     useEffect(() => {
 
