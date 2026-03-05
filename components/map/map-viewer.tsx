@@ -10,7 +10,7 @@ import * as LocationPermissions from "expo-location";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
-import MapView, { Marker, Polygon, Polyline, Region } from "react-native-maps";
+import MapView, { Circle, Marker, Polygon, Polyline, Region } from "react-native-maps";
 import RoutesInfoPopup from "../navigation/routes-info-popup";
 import BuildingInfoPopup from "./building-info-popup";
 import BuildingSelection from "./building-selection";
@@ -356,48 +356,73 @@ export default function MapViewer({
         {renderedMarkers}
         {routePolyline?.map((segment, idx) => (
           <Polyline
-            key={`polyline-seg-${idx}`}
+            key={`polyline-seg-${idx}-${segment.isDashed}`}
             coordinates={segment.coordinates}
             strokeColor={segment.color}
-            strokeWidth={segment.isDashed ? 3 : 4}
-            lineDashPattern={segment.isDashed ? [1, 8] : undefined}
+            strokeWidth={segment.isDashed ? (Platform.OS === "android" ? 6 : 3) : 3}
+            {...(segment.isDashed ? { lineDashPattern: Platform.OS === "android" ? [8, 16] : [1, 8] } : {})}
             zIndex={10}
           />
         ))}
-        {routeStops.map((stop, idx) => (
-          <Marker
-            key={`stop-${idx}`}
-            coordinate={stop.coordinate}
-            anchor={{ x: 0.5, y: 0.5 }}
-            tracksViewChanges={false}
-          >
-            <View style={{
-              width: 10,
-              height: 10,
-              borderRadius: 5,
-              backgroundColor: "#fff",
-              borderWidth: 2,
-              borderColor: stop.color,
-            }} />
-          </Marker>
-        ))}
-        {routeNodes.map((node, idx) => (
-          <Marker
-            key={`node-${idx}`}
-            coordinate={node.coordinate}
-            anchor={{ x: 0.5, y: 0.5 }}
-            tracksViewChanges={false}
-          >
-            <View style={{
-              width: 18,
-              height: 18,
-              borderRadius: 9,
-              backgroundColor: node.toColor,
-              borderWidth: 3,
-              borderColor: "#fff",
-            }} />
-          </Marker>
-        ))}
+        {routeStops.map((stop, idx) =>
+          Platform.OS === "android" ? (
+            <Circle
+              key={`stop-${idx}`}
+              center={stop.coordinate}
+              radius={5}
+              fillColor="#fff"
+              strokeColor={stop.color}
+              strokeWidth={2}
+              zIndex={11}
+            />
+          ) : (
+            <Marker
+              key={`stop-${idx}`}
+              coordinate={stop.coordinate}
+              anchor={{ x: 0.5, y: 0.5 }}
+              zIndex={11}
+            >
+              <View collapsable={false} style={{
+                width: 10,
+                height: 10,
+                borderRadius: 5,
+                backgroundColor: "#fff",
+                borderWidth: 2,
+                borderColor: stop.color,
+              }} />
+            </Marker>
+          )
+        )}
+        {Platform.OS === "android"
+          ? routeNodes.map((node, idx) => (
+            <Circle
+              key={`node-${idx}`}
+              center={node.coordinate}
+              radius={7}
+              fillColor={node.toColor}
+              strokeColor="#fff"
+              strokeWidth={3}
+              zIndex={12}
+            />
+          ))
+          : routeNodes.map((node, idx) => (
+            <Marker
+              key={`node-${idx}`}
+              coordinate={node.coordinate}
+              anchor={{ x: 0.5, y: 0.5 }}
+              zIndex={12}
+            >
+              <View collapsable={false} style={{
+                width: 18,
+                height: 18,
+                borderRadius: 9,
+                backgroundColor: node.toColor,
+                borderWidth: 3,
+                borderColor: "#fff",
+              }} />
+            </Marker>
+          ))
+        }
       </MapViewCluster>
 
       <LocationButton
@@ -440,13 +465,14 @@ export default function MapViewer({
             if (arr?.location)
               stops.push({ coordinate: { latitude: arr.location.lat, longitude: arr.location.lng }, name: arr.name ?? "", color });
 
-            // Transition node where the mode changes to the next step
+            // Transition node where the mode or vehicle type changes to the next step
             const nextStep = allSteps[i + 1];
             if (nextStep) {
               const nextMode = nextStep.travel_mode ?? "WALK";
-              if (nextMode.toUpperCase() !== mode.toUpperCase()) {
+              const nextVehicleType = nextStep.transit_details?.line?.vehicle_type;
+              const nextColor = polylineColor(nextMode, nextVehicleType);
+              if (nextColor !== color) {
                 const junction = coords[coords.length - 1];
-                const nextColor = polylineColor(nextMode, nextStep.transit_details?.line?.vehicle_type);
                 nodes.push({ coordinate: junction, fromColor: color, toColor: nextColor });
               }
             }
