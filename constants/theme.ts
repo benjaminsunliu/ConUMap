@@ -65,7 +65,8 @@ export const Colors = {
       borderColor: black,
       clearButton: black,
       containerBackground: "#fbf6ec",
-      swapButton: black
+      swapButton: black,
+      resultTitle: "#2e0306"
     }
   },
 
@@ -127,7 +128,8 @@ export const Colors = {
       borderColor: "#252424",
       clearButton: "#420A0F",
       containerBackground: "#420A0F",
-      swapButton: white
+      swapButton: white,
+      resultTitle: white
     }
   }
 };

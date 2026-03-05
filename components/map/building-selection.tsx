@@ -232,7 +232,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
                                 style={[styles.resultItem, { borderBottomColor: theme.buildingInfoPopup.divider }]}
                                 onPress={() => handleSelect(item, type)}
                                 testID={`${type}-result-${item.buildingCode.toUpperCase()}`}>
-                                <Text style={[styles.resultTitle, { color: theme.campusToggle.selectedColor }]}>
+                                <Text style={[styles.resultTitle, { color: theme.buildingSelection.resultTitle }]}>
                                     {isCurrent && "📍 "}{item.buildingCode} – {item.buildingName}
                                     {isCurrent && <Text style={styles.currentLabel}> (Current Building)</Text>}
                                 </Text>
