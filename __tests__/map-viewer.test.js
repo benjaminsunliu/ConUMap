@@ -381,4 +381,99 @@ jest.mock("@/constants/map", () => {
         expect(polygons[0].props.fillColor).toBe(Colors.light.map.currentSelectedBuildingColor);
       });
     });
-})
+
+    it("sets locationState to centered when region matches user location", async () => {
+      const mapViewer = render(<MapViewer />);
+      const mapView = mapViewer.getByTestId("map-view");
+
+      // simulate user location
+      fireEvent(mapView, "onUserLocationChange", {
+        nativeEvent: {
+          coordinate: { latitude: 45.49575, longitude: -73.5793055556 },
+        },
+      });
+
+      // simulate region change very close to user
+      fireEvent(mapView, "onRegionChangeComplete", {
+        latitude: 45.49575,
+        longitude: -73.5793055556,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+
+      expect(mapViewer.getByTestId("map-view").props.followsUserLocation).toBe( true );
+    });
+    
+    it("renders cluster marker with 9+ when count > 9", () => {
+      const cluster = {
+        id: "1",
+        geometry: { coordinates: [-73.5, 45.5] },
+        properties: { point_count: 15 },
+        onPress: jest.fn(),
+      };
+
+      const mapViewer = render(<MapViewer />);
+      const mapView = mapViewer.getByTestId("map-view");
+      const renderCluster = mapView.props.renderCluster;
+      const clusterElement = renderCluster(cluster);
+      const { getByText: getByTextCluster } = render(clusterElement);
+      expect(getByTextCluster("9+")).toBeTruthy();
+    });
+
+    it("switches to directions mode when navigate is triggered", async () => {
+      const mapViewer = render(<MapViewer />);
+
+      const marker = mapViewer.getByTestId("marker-LB");
+      fireEvent.press(marker);
+
+      const directionsButton = await mapViewer.findByTestId(
+        "directions-action-button"
+      );
+
+      await act(async () => {
+        fireEvent.press(directionsButton);
+      });
+
+      expect(mapViewer.getByTestId("routes-info-popup")).toBeTruthy();
+    });
+
+    it("returns to browse mode when back from directions is pressed", async () => {
+      const mapViewer = render(<MapViewer />);
+
+      const marker = mapViewer.getByTestId("marker-LB");
+      fireEvent.press(marker);
+
+      const directionsButton = await mapViewer.findByTestId(
+        "directions-action-button"
+      );
+
+      await act(async () => {
+        fireEvent.press(directionsButton);
+      });
+
+      const backButton = await mapViewer.findByTestId("routes-back-button");
+
+      await act(async () => {
+        fireEvent.press(backButton);
+      });
+
+      expect(mapViewer.queryByTestId("routes-info-popup")).toBeNull();
+    });
+
+    it("renders cluster count normally when <= 9", () => {
+      const cluster = {
+        id: "2",
+        geometry: { coordinates: [-73.5, 45.5] },
+        properties: { point_count: 5 },
+        onPress: jest.fn(),
+      };
+
+      const mapViewer = render(<MapViewer />);
+      const mapView = mapViewer.getByTestId("map-view");
+
+      const clusterElement = mapView.props.renderCluster(cluster);
+
+      const { getByText } = render(clusterElement);
+      expect(getByText("5")).toBeTruthy();
+    });    
+}); 

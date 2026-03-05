@@ -19,7 +19,7 @@ describe("campus-toggle",()=>{
   });
   it("initial selection is LOY if viewRegion is closer to LOY", () => {
     const { getByText } = render(<CampusToggle mapRef={mapRef} viewRegion={viewRegionNearLOY} />);
-    const loyButton = getByText("Loyola");
+    const loyButton = getByText("LOY");
     expect(loyButton.props.style.some(((s) => s.color === "#000000"))).toBeTruthy();
   });
   
@@ -34,7 +34,7 @@ describe("campus-toggle",()=>{
 
   it("pressing LOY button animates map to LOY_CENTER", () => {
     const { getByText } = render(<CampusToggle mapRef={mapRef} viewRegion={viewRegionNearSGW} />);
-    const loyButton = getByText("Loyola");
+    const loyButton = getByText("LOY");
     fireEvent.press(loyButton);
     expect(mapRef.current?.animateToRegion).toHaveBeenCalledWith(
       expect.objectContaining({ latitude: 45.4578596, longitude: -73.6395856 })

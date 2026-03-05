@@ -15,6 +15,7 @@ import BuildingSelection from "./building-selection";
 import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
+import { FieldType, SearchBuilding } from "@/types/buildingTypes";
 
 interface Props {
   readonly userLocationDelta?: CoordinateDelta;
@@ -47,8 +48,9 @@ export default function MapViewer({
     null,
   );
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
-  const [shouldDisplayRoutes, setShouldDisplayRoutes] = useState(false);
+  const [, setShouldDisplayRoutes] = useState(false);
   const [routes, setRoutes] = useState(mockRoutes);
+  const [navigationMode, setNavigationMode] = useState<"browse" | "directions">("browse");
 
   const inBuildingCodes = useMemo(() => {
     const codes = new Set<string>();
@@ -172,15 +174,25 @@ export default function MapViewer({
     // TODO Call backend to get route from current location to building
     setRoutes(mockRoutes);
     setShouldDisplayRoutes(true);
+    setNavigationMode("directions");
+  }, []);
+
+  const handleBackFromDirections = useCallback(() => {
+    setNavigationMode("browse");
+    setShouldDisplayRoutes(false);
   }, []);
 
   return (
     <View style={styles.container}>
       <BuildingSelection
+        mode={navigationMode}
+        selectedBuilding={selectedBuilding}
         currentBuildingCodes={inBuildingCodes}
-        onSelect={(building) => {
-          setShouldDisplayRoutes(false);
-          const newBuilding = selectBuildingByCode(building.buildingCode);
+        onSelect={(buildings: Record<FieldType, SearchBuilding | null>, type: FieldType) => {
+          if (!!buildings.end || !!buildings.start) setShouldDisplayRoutes(false);
+
+          const newBuilding = selectBuildingByCode(buildings[type]?.buildingCode ?? "");
+
           if (newBuilding) focusBuilding(newBuilding);
         }}
       />
@@ -219,12 +231,9 @@ export default function MapViewer({
         spiralEnabled={false}
         onPress={(e) => {
           if (suppressNextMapPress.current) return;
-          const action = e?.nativeEvent?.action;
-
-          if (!action || action === "press") {
-            setSelectedBuilding(null);
-            setShouldDisplayRoutes(false);
-          }
+          setSelectedBuilding(null);
+          setShouldDisplayRoutes(false);
+          setNavigationMode("browse");
         }}
         renderCluster={renderCluster}
       >
@@ -240,10 +249,17 @@ export default function MapViewer({
         }}
       />
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
-      <BuildingInfoPopup building={selectedBuilding} onNavigate={navigateToBuilding} />
-      <RoutesInfoPopup routes={routes} isOpen={shouldDisplayRoutes} onRouteSelect={(route) => {
-        //TODO implement onRouteSelect
-      }}/>
+
+      {navigationMode === "browse" && selectedBuilding && (
+        <BuildingInfoPopup building={selectedBuilding} onNavigate={navigateToBuilding} />
+      )}
+
+      {navigationMode === "directions" && (
+        <RoutesInfoPopup routes={routes} isOpen={true} onRouteSelect={(route) => {
+          //TODO implement onRouteSelect
+        }}
+          onBack={handleBackFromDirections} />
+      )}
     </View>
   );
 }
@@ -293,18 +309,11 @@ function renderBuildings(
             styles.marker,
             {
               backgroundColor: isSelected ? mapColors.markerSelected : mapColors.marker,
-              borderColor: isSelected
-                ? mapColors.markerBorderSelected
-                : mapColors.markerBorder,
-            },
+              borderColor: isSelected ? mapColors.markerBorderSelected : mapColors.markerBorder
+            }
           ]}
         >
-          <Text
-            style={[
-              styles.markerText,
-              { color: isSelected ? mapColors.markerTextSelected : mapColors.markerText },
-            ]}
-          >
+          <Text style={[styles.markerText, { color: isSelected ? mapColors.markerTextSelected : mapColors.markerText }]} >
             {building.buildingCode}
           </Text>
         </View>
@@ -325,11 +334,7 @@ function getPolygonZIndex(isSelected: boolean, isInBuilding: boolean) {
   return 0;
 }
 
-function getPolygonColor(
-  isSelected: boolean,
-  isInBuilding: boolean,
-  colorScheme: ColorSchemeName,
-) {
+function getPolygonColor(isSelected: boolean, isInBuilding: boolean, colorScheme: ColorSchemeName) {
   const mapColors = Colors[colorScheme].map;
 
   if (isSelected && isInBuilding) {
