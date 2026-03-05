@@ -202,6 +202,7 @@ export default function MapViewer({
       let isCancelled = false;
       async function updateHitboxPositions() { 
         if (!mapReady || !mapViewRef.current || isCancelled) {
+          setProjectedPoints([]);
           return;
         } 
         try {
@@ -220,6 +221,7 @@ export default function MapViewer({
             );
           });
           if (!visibleBuildings.length || !mapViewRef.current || isCancelled) {
+            setProjectedPoints([]);
             return;
           }
           const projections = await Promise.all(
@@ -245,8 +247,9 @@ export default function MapViewer({
             setProjectedPoints(next); 
           }
         } catch (error) {
-          if (__DEV__) {
+          if (IS_E2E) {
             console.warn("Failed to update hitbox positions", error);
+            setProjectedPoints([]);
           }
         }
       } 
@@ -295,7 +298,7 @@ export default function MapViewer({
         </Marker>
       );
     });
-  }, [mapColors, selectedBuilding?.buildingCode, focusBuilding, selectBuildingByCode]);
+  }, [mapColors, selectedBuilding?.buildingCode, focusBuilding, selectBuildingByCode, getOffsetMarkerCoordinate]);
 
   const renderCluster = useCallback(
     (cluster: Cluster) => {
