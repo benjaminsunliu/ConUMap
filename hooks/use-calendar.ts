@@ -1,4 +1,24 @@
-export async function fetchCalendarForDate(token: string, date: Date) {
+import { AuthContext } from "@/components/authentication/AuthContextProvider";
+import { ONE_DAY_MS } from "@/constants/time";
+import { useQuery } from "@tanstack/react-query";
+import { useContext } from "react";
+
+export function useCalendar(date: Date) {
+  const authContext = useContext(AuthContext);
+  return useQuery({
+    queryKey: ["fetching-calendar", date],
+    queryFn: async () => {
+      if (!authContext.isLoggedIn) {
+        throw new Error("User is not logged in");
+      }
+      const response = await fetchCalendarForDate(authContext.data.authToken, date);
+      return response.scheduleList || null;
+    },
+    enabled: false,
+  });
+}
+
+async function fetchCalendarForDate(token: string, date: Date) {
   const requestDate = dateToRequestDate(date);
   const request = `https://prod-dataserv.concordia.ca/SIS/api/Schedule/${token}/${requestDate}/fresh`;
   const response = await fetch(request);
@@ -11,10 +31,11 @@ export async function fetchCalendarForDate(token: string, date: Date) {
 }
 
 function dateToRequestDate(date: Date) {
-  const year = date.getFullYear();
-
-  const month = date.getMonth().toString().padStart(2, "0");
-  const day = (date.getDate() - date.getDay()).toString().padStart(2, "0");
+  const daysFromMonday = (date.getDay() + 6) % 7;
+  const startOfWeek = new Date(date.getTime() - daysFromMonday * ONE_DAY_MS);
+  const year = startOfWeek.getFullYear();
+  const month = (startOfWeek.getMonth() + 1).toString().padStart(2, "0");
+  const day = startOfWeek.getDate().toString().padStart(2, "0");
   return `${year}${month}${day}`;
 }
 

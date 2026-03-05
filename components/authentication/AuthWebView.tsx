@@ -1,7 +1,6 @@
-import { useContext, useEffect, useRef } from "react";
-import { WebView, WebViewMessageEvent, WebViewNavigation } from "react-native-webview";
-import { AuthContext } from "./AuthContextProvider";
 import { LoggedInData } from "@/types/authTypes";
+import { useRef } from "react";
+import { WebView, WebViewMessageEvent, WebViewNavigation } from "react-native-webview";
 import { WebViewErrorEvent } from "react-native-webview/lib/WebViewTypes";
 
 interface AuthWebViewProps {
@@ -9,34 +8,25 @@ interface AuthWebViewProps {
 }
 
 export default function AuthWebView({ onLogin }: AuthWebViewProps) {
-  const authContext = useContext(AuthContext);
   const visitedAuthScreen = useRef(false);
   const webviewRef = useRef<WebView>(null);
 
-  if (authContext.isLoggedIn) {
-    throw new Error("You shouldn't be here when you're already logged in");
-  }
-
   const handleMessage = (event: WebViewMessageEvent) => {
     const cookieString = event.nativeEvent.data;
-    console.log(cookieString);
     const data = parseCookies(cookieString);
-    authContext.login(data);
     onLogin(data);
   };
 
   const handleNavigationChange = (event: WebViewNavigation) => {
-    console.log(`Navigation changed: ${event.url}`);
-    if (event.url === authScreenURL) {
+    if (event.url.startsWith(authScreenURL)) {
       visitedAuthScreen.current = true;
       return;
     }
-    if (!visitedAuthScreen || event.url !== authenticationURL) {
+    if (!visitedAuthScreen.current || event.url !== authenticationURL) {
       // I have no idea where you are but you're not in the right spot
       return;
     }
 
-    console.log("Back to main hub page");
     visitedAuthScreen.current = false;
     webviewRef.current?.injectJavaScript(getCookiesJs);
   };
@@ -50,6 +40,7 @@ export default function AuthWebView({ onLogin }: AuthWebViewProps) {
       onError={(event: WebViewErrorEvent) => {
         console.error(event);
       }}
+      incognito={true} // think twice before setting this to false
     />
   );
 }
@@ -62,7 +53,7 @@ function parseCookies(cookieString: string) {
     const cookieValue = values.at(-1);
     const cookieName = values.at(0);
     if (!cookieName || !cookieValue) {
-      console.log(`Couldn't parse a cookie: ${cookieName}, ${cookieValue}`);
+      console.warn(`Couldn't parse a cookie: ${cookieName}, ${cookieValue}`);
       return;
     }
     cookies[cookieName] = cookieValue;

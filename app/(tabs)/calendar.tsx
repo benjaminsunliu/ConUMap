@@ -1,49 +1,73 @@
-import { FlatList, Text, View } from "react-native";
-
-import { AuthContext } from "@/components/authentication/AuthContextProvider";
 import AuthWebView from "@/components/authentication/AuthWebView";
-import { ClassSchedule, fetchCalendarForDate } from "@/hooks/use-calendar";
-import React, { useContext, useEffect, useState } from "react";
+import { ONE_WEEK_MS } from "@/constants/time";
+import { useCalendar } from "@/hooks/use-calendar";
+import { useIsLoggedIn, useLogin, useLogout } from "@/hooks/use-login";
+import React, { useEffect, useState } from "react";
+import { Button, FlatList, Text, View } from "react-native";
+import { Directions, Gesture, GestureDetector } from "react-native-gesture-handler";
 
-export default function TabTwoScreen() {
-  const authContext = useContext(AuthContext);
-  const [data, setData] = useState<ClassSchedule[]>([]);
+export default function CalendarScreen() {
+  const [date, setDate] = useState(new Date());
+  const { isLoading: fetchingLogin, isLoggedIn } = useIsLoggedIn();
+  const { isLoading: logginIn, login } = useLogin();
+  const { isLoading: logginOut, logout } = useLogout();
+  const {
+    isLoading: calendarLoading,
+    data: calendarData,
+    refetch: fetchCalendar,
+  } = useCalendar(date);
+
+  // TODO: whoever is on UI should change this gesture because its a bit finnicky
+  const swipeLeftGesture = Gesture.Fling()
+    .direction(Directions.LEFT)
+    .onStart(() => {
+      setDate((currentDate) => new Date(currentDate.getTime() + ONE_WEEK_MS));
+    })
+    .runOnJS(true); // SUPER duper important
+
+  const swipeRightGesture = Gesture.Fling()
+    .direction(Directions.RIGHT)
+    .onStart(() => {
+      setDate((currentDate) => new Date(currentDate.getTime() - ONE_WEEK_MS));
+    })
+    .runOnJS(true);
 
   useEffect(() => {
-    const a = async () => {
-      if (!authContext.isLoggedIn) {
-        return;
-      }
-      const newData = await fetchCalendarForDate(authContext.data.authToken, new Date());
-      debugger;
-      console.log("Getting new data");
-      setData(newData.scheduleList || []);
-    };
-    a();
-  }, []);
+    if (isLoggedIn) {
+      fetchCalendar();
+    }
+  }, [isLoggedIn, date, fetchCalendar]);
 
-  return authContext.isLoggedIn ? (
-    <View>
-      <Text>You are logged in!</Text>
-      <FlatList
-        data={data}
-        renderItem={(info) => (
-          <View>
-            <Text>
-              {info.item.SUBJECT}
-              {info.item.CATALOG_NBR} - {info.item.CU_BUILDING}
-              {info.item.ROOM}
-            </Text>
-          </View>
-        )}
-      />
-    </View>
-  ) : (
-    <AuthWebView
-      onLogin={async (loggedInData) => {
-        const newData = await fetchCalendarForDate(loggedInData.authToken, new Date());
-        setData(newData.scheduleList || []);
-      }}
-    />
-  );
+  if (fetchingLogin || logginIn || logginOut || calendarLoading) {
+    return (
+      <View>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  if (isLoggedIn) {
+    return (
+      <GestureDetector gesture={Gesture.Race(swipeLeftGesture, swipeRightGesture)}>
+        <View style={{ flex: 1 }}>
+          <Button title="Logout" onPress={() => logout()} />
+          <FlatList
+            data={calendarData}
+            renderItem={(info) => (
+              <View>
+                <Text>
+                  {info.item.SUBJECT}
+                  {info.item.CATALOG_NBR} - {info.item.CU_BUILDING}
+                  {info.item.ROOM}
+                </Text>
+              </View>
+            )}
+          />
+        </View>
+      </GestureDetector>
+    );
+  }
+
+  // really important to not render the web view when you are not logged in
+  return <AuthWebView onLogin={login} />;
 }

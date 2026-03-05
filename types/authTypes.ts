@@ -2,14 +2,14 @@ export type AuthContextData = LoggedInContext | LoggedOutContext;
 
 export type LoggedInContext = {
   isLoggedIn: true;
-  data: LoggedInData;
-  logout: () => void;
+  readonly data: LoggedInData;
+  logout: () => Promise<void>;
 };
 
 export type LoggedOutContext = {
   isLoggedIn: false;
   data: null;
-  login: (data: LoggedInData) => void;
+  login: (data: LoggedInData) => Promise<void>;
 };
 
 export type LoggedInData = {

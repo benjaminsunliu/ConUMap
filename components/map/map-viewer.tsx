@@ -43,9 +43,7 @@ export default function MapViewer({
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(
-    null,
-  );
+  const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
   const [shouldDisplayRoutes, setShouldDisplayRoutes] = useState(false);
   const [routes, setRoutes] = useState(mockRoutes);
@@ -77,12 +75,12 @@ export default function MapViewer({
     [currentRegion.latitudeDelta, currentRegion.longitudeDelta],
   );
 
-  const selectBuildingByCode = useCallback((code: string) => {
+  const selectBuildingByCode = (code: string) => {
     const selectedBuilding =
       CAMPUS_BUILDINGS.find((building) => building.buildingCode === code) || null;
     setSelectedBuilding(selectedBuilding);
     return selectedBuilding;
-  }, []);
+  };
 
   const handleBuildingPress = useCallback(
     (building: BuildingInfo) => {
@@ -95,10 +93,10 @@ export default function MapViewer({
         suppressNextMapPress.current = false;
       });
     },
-    [selectBuildingByCode, focusBuilding],
+    [focusBuilding],
   );
 
-  const requestLocation = useCallback(async () => {
+  const requestLocation = async () => {
     if (userLocation) return;
     const locationEnabled = await LocationPermissions.hasServicesEnabledAsync();
     if (!locationEnabled) {
@@ -115,14 +113,14 @@ export default function MapViewer({
       longitude: location.coords.longitude,
     });
     setLocationState("on");
-  }, [userLocation]);
+  };
 
-  const centerLocation = useCallback(() => {
+  const centerLocation = () => {
     if (!userLocation) return;
 
     mapViewRef.current?.animateToRegion({ ...userLocation, ...userLocationDelta });
     setLocationState("centered");
-  }, [userLocation, userLocationDelta]);
+  };
 
   const [renderedPolygons, renderedMarkers] = useMemo(
     () =>
@@ -241,9 +239,13 @@ export default function MapViewer({
       />
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
       <BuildingInfoPopup building={selectedBuilding} onNavigate={navigateToBuilding} />
-      <RoutesInfoPopup routes={routes} isOpen={shouldDisplayRoutes} onRouteSelect={(route) => {
-        //TODO implement onRouteSelect
-      }}/>
+      <RoutesInfoPopup
+        routes={routes}
+        isOpen={shouldDisplayRoutes}
+        onRouteSelect={(route) => {
+          //TODO implement onRouteSelect
+        }}
+      />
     </View>
   );
 }
