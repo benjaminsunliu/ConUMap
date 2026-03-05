@@ -210,7 +210,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
                     )}
                 </View>
             );
-        }, [queries, theme.text, handleChange, clearField, mode, theme.buildingSelection.borderColor, theme.buildingSelection.clearButton, theme.buildingSelection.inputBackground, theme.buildingSelection.inputText, theme.buildingSelection.magnifierColor]
+        }, [queries, theme.buildingSelection.inputBackground, theme.buildingSelection.magnifierColor, theme.buildingSelection.borderColor, theme.buildingSelection.inputText, theme.buildingSelection.clearButton, theme.placeholder, mode, handleChange, clearField]
     );
 
     const renderResults = useCallback(
@@ -245,7 +245,7 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), mo
                 />
             );
         },
-        [mode, results, focusedField, theme.background, theme.buildingInfoPopup.divider, theme.campusToggle.selectedColor, theme.text, handleSelect, currentBuildingCodes]
+        [results, focusedField, mode, theme.background, theme.buildingInfoPopup.divider, theme.buildingSelection.resultTitle, theme.text, currentBuildingCodes, handleSelect]
     );
 
     return (
