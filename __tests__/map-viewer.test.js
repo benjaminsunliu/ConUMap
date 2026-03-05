@@ -476,4 +476,4 @@ jest.mock("@/constants/map", () => {
       const { getByText } = render(clusterElement);
       expect(getByText("5")).toBeTruthy();
     });    
-})
+}); 

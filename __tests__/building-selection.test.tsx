@@ -1,6 +1,7 @@
-import React from "react";
-import { render, fireEvent } from '@testing-library/react-native';
+import React, { act } from "react";
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import BuildingSelection from "@/components/map/building-selection";
+import MapViewer from "@/components/map/map-viewer";
 
 
 const mockAnimateToRegion = jest.fn();
@@ -28,49 +29,6 @@ jest.mock('expo-location', () => ({
   requestForegroundPermissionsAsync: jest.fn(),
   getCurrentPositionAsync: jest.fn(),
 }));
-
-jest.mock('react-native-maps', () => {
-  const { View } = require("react-native");
-  return {
-    Marker: (props: any) => <View {...props} />,
-    Polygon: (props: any) => <View testID="polygon" {...props} />,
-  };
-});
-
-jest.mock("@/constants/map", () => {
-
-  const { getBuildingPolygons } = require("@/utils/getBuildingPolygons");
-
-  return {
-    CAMPUS_BUILDINGS: [
-      {
-        code: "LB",
-        location: { latitude: 45.495, longitude: -73.579 },
-        polygons: getBuildingPolygons("LB"),
-      },
-      {
-        code: "VE",
-        location: { latitude: 45.496, longitude: -73.58 },
-        polygons: getBuildingPolygons("VE"),
-      },
-      {
-        code: "RA",
-        location: { latitude: 45.496, longitude: -73.58 },
-        polygons: getBuildingPolygons("RA"),
-      },
-      {
-        code: "PC",
-        location: { latitude: 45.496, longitude: -73.58 },
-        polygons: getBuildingPolygons("PC"),
-      },
-      {
-        code: "AB",
-        location: { latitude: 45.496, longitude: -73.58 },
-        polygons: getBuildingPolygons("AB"),
-      },
-    ],
-  };
-});
 
 jest.mock("@/data/building-addresses.json", () => [
   {
@@ -174,7 +132,7 @@ describe("BuildingSelection Directions", () => {
     expect(endInput.props.value).toBe("Hall");
   });
 
-  it('should remove display results a result is pressed, call the onSelect, and set the query correctly', async () => {
+  it('should remove display results when a result is pressed, call the onSelect, and set the query correctly', async () => {
     const selectionView = render(<BuildingSelection selectedBuilding={null} mode={"directions"} onSelect={mockOnSelect} />)
     const startInput = selectionView.getByPlaceholderText("Your location");
 
@@ -199,6 +157,8 @@ describe("BuildingSelection Directions", () => {
       }, "start"
     );
     expect(startInput.props.value).toBe("Henry F. Hall Building");
+    expect((await selectionView.findByPlaceholderText("Destination")).props.value).toBeFalsy();
+
   });
 
   it('should prioritize current buildings when typing in Search building field', async () => {
@@ -259,7 +219,7 @@ describe("BuildingSelection Directions", () => {
     expect(endInput.props.value).toBe("CI Annex");
   });
 
-  it("should update previously focused field when selectedBuilding changes and no field focused", async () => {
+  it("shouldn't update previously focused field when selectedBuilding changes and no field focused", async () => {
     const selectionView = render(<BuildingSelection selectedBuilding={null} mode="directions" onSelect={mockOnSelect} />);
     const startInput = selectionView.getByPlaceholderText("Your location");
 
@@ -303,4 +263,52 @@ describe("BuildingSelection Directions", () => {
 
     expect(startInput.props.value).toBe("CI Annex");
   });
+});
+
+describe("BuildingSelection Integration Tests", () => {
+  it('should remove display results when a result is pressed, call the onSelect, and set the query correctly', async () => {
+      const mapViewer = render(<MapViewer />);
+
+      let searchBar = await mapViewer.findByPlaceholderText("Search building");
+
+      fireEvent(searchBar, "focus");
+      fireEvent.changeText(searchBar, "CL");
+      
+      const clResult = await mapViewer.findByTestId("end-result-CL");
+      fireEvent.press(clResult);
+
+      searchBar = await mapViewer.findByPlaceholderText("Search building");
+
+      await waitFor(() => {
+        expect(searchBar.props.value).toBeTruthy();
+      });
+
+      const directionsButton = await mapViewer.findByTestId(
+        "directions-action-button"
+      );
+
+      fireEvent.press(directionsButton);
+
+      const startInput = mapViewer.getByPlaceholderText("Your location");
+  
+      fireEvent(startInput, 'focus');
+      fireEvent.changeText(startInput, 'Hall');
+  
+      const hallResult = await mapViewer.findByTestId('start-result-H');
+  
+      fireEvent.press(hallResult);
+  
+      const startResultsAfterPress = await mapViewer.queryByTestId('start-results');
+      expect(startResultsAfterPress).toBeNull();
+      
+      await waitFor(() => {
+        expect(mapViewer.getByPlaceholderText("Your location").props.value)
+          .toBe("Henry F. Hall Building");
+      });
+      
+      await waitFor(() => {
+        expect(mapViewer.getByPlaceholderText("Destination").props.value).toBe("CL Annex");
+      });
+  
+    });
 });
