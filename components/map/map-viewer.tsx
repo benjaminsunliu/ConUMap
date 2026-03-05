@@ -355,7 +355,8 @@ export default function MapViewer({
         {renderedPolygons}
         {renderedMarkers}
         {routePolyline?.map((segment, idx) => {
-          const strokeWidth = segment.isDashed ? (Platform.OS === "android" ? 6 : 3) : 3;
+          const dashedWidth = Platform.OS === "android" ? 6 : 3;
+          const strokeWidth = segment.isDashed ? dashedWidth : 3;
           return (
             <Polyline
               key={`polyline-seg-${idx}-${segment.isDashed}`}
