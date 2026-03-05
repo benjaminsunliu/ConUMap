@@ -43,6 +43,16 @@ const transportIconMap: Record<TransportationMode, keyof typeof Ionicons.glyphMa
   shuttle: "school-outline"
 };
 
+function getRouteKey(route: any, mode: TransportationMode, index: number): string {
+  const overviewPolyline = route?.overview_polyline?.points;
+  if (overviewPolyline) return `${mode}-${overviewPolyline}-${index}`;
+
+  const firstLeg = route?.legs?.[0];
+  const duration = firstLeg?.duration?.value ?? "na";
+  const distance = firstLeg?.distance?.value ?? "na";
+  return `${mode}-${duration}-${distance}-${index}`;
+}
+
 export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect, onStepSelect }: Props) {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
@@ -121,7 +131,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect, onStepS
       <RouteOverview
         testID={`${currentMode}-route-${index}`}
         route={route}
-        key={`${currentMode}-${route?.legs?.[0]?.duration?.value}-${route?.legs?.[0]?.distance?.value}`}
+        key={getRouteKey(route, currentMode, index)}
         onRouteSelect={(r) => {
           onRouteSelect(r);
           setSelectedRoute(r);

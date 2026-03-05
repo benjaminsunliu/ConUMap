@@ -383,10 +383,10 @@ export default function MapViewer({
             />
           );
         })}
-        {routeStops.map((stop) =>
+        {routeStops.map((stop, stopIndex) =>
           Platform.OS === "android" ? (
             <Circle
-              key={`stop-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
+              key={`stop-${stopIndex}-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
               center={stop.coordinate}
               radius={5}
               fillColor="#fff"
@@ -396,7 +396,7 @@ export default function MapViewer({
             />
           ) : (
             <Marker
-              key={`stop-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
+              key={`stop-${stopIndex}-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
               coordinate={stop.coordinate}
               anchor={{ x: 0.5, y: 0.5 }}
               zIndex={11}
@@ -413,9 +413,9 @@ export default function MapViewer({
           )
         )}
         {Platform.OS === "android"
-          ? routeNodes.map((node) => (
+          ? routeNodes.map((node, nodeIndex) => (
             <Circle
-              key={`node-${node.coordinate.latitude}-${node.coordinate.longitude}`}
+              key={`node-${nodeIndex}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
               center={node.coordinate}
               radius={7}
               fillColor={node.toColor}
@@ -424,9 +424,9 @@ export default function MapViewer({
               zIndex={12}
             />
           ))
-          : routeNodes.map((node) => (
+          : routeNodes.map((node, nodeIndex) => (
             <Marker
-              key={`node-${node.coordinate.latitude}-${node.coordinate.longitude}`}
+              key={`node-${nodeIndex}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
               coordinate={node.coordinate}
               anchor={{ x: 0.5, y: 0.5 }}
               zIndex={12}

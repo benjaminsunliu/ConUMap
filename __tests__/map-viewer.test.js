@@ -453,6 +453,34 @@ jest.mock("@/constants/map", () => {
       );
     });
 
+    it('logs an error when fetching directions fails', async () => {
+      const { fetchAllDirections } = require('@/utils/directions');
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      fetchAllDirections.mockRejectedValueOnce(new Error('directions failed'));
+
+      const mapViewer = render(<MapViewer />);
+      const mapView = mapViewer.getByTestId('map-view');
+
+      fireEvent(mapView, 'onUserLocationChange', {
+        nativeEvent: { coordinate: { latitude: 45.495, longitude: -73.579 } },
+      });
+
+      await act(async () => {
+        fireEvent.press(mapViewer.getAllByTestId('polygon')[0]);
+      });
+      await act(async () => {
+        fireEvent.press(mapViewer.getByTestId('directions-action-button'));
+      });
+      await act(async () => {});
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Failed to fetch directions:',
+        expect.any(Error),
+      );
+
+      consoleErrorSpy.mockRestore();
+    });
+
     it('onRegionChangeComplete updates the current region state', async () => {
       const mapViewer = render(<MapViewer />);
       const mapView = mapViewer.getByTestId('map-view');
