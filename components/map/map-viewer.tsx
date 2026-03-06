@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback, useMemo } from "react";
+import React, { useRef, useState, useCallback, useMemo, useEffect } from "react";
 import { StyleSheet, View, Text, Platform } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
 import MapView, { Marker, Polygon, Region } from "react-native-maps";
@@ -16,6 +16,7 @@ import CampusToggle from "./campus-toggle";
 import BuildingSelection from "./building-selection";
 import RoutesInfoPopup from "../navigation/routes-info-popup";
 import mockRoutes from "@/data/mock-data/route-data.json";
+import { useLocalSearchParams } from "expo-router/build/hooks";
 
 interface Props {
   readonly userLocationDelta?: CoordinateDelta;
@@ -49,6 +50,17 @@ export default function MapViewer({
   const [polygonRenderVersion, setPolygonRenderVersion] = useState(0);
   const [shouldDisplayRoutes, setShouldDisplayRoutes] = useState(false);
   const [routes, setRoutes] = useState(mockRoutes);
+  const { buildingId, buildingName } = useLocalSearchParams<{
+    buildingId?: string;
+    buildingName?: string;
+  }>();
+
+  useEffect(() => {
+    if (!buildingId) return;
+    const building = CAMPUS_LOCATIONS.find((b) => b.code === buildingId);
+    focusBuilding(building ?? CAMPUS_LOCATIONS[0]);
+    selectBuildingByCode(buildingId);
+  }, [buildingId]);
 
   const inBuildingCodes = useMemo(() => {
     const codes = new Set<string>();
