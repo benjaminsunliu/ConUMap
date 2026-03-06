@@ -36,6 +36,32 @@ interface TransitionNode {
     toColor: string;
 }
 
+function collectStopsFromStep(step: any, color: string): TransitStopMarker[] {
+    const dep = step.transit_details?.departure_stop;
+    const arr = step.transit_details?.arrival_stop;
+    const stops: TransitStopMarker[] = [];
+
+    if (dep?.location) {
+        stops.push({ coordinate: { latitude: dep.location.lat, longitude: dep.location.lng }, name: dep.name ?? "", color });
+    }
+    if (arr?.location) {
+        stops.push({ coordinate: { latitude: arr.location.lat, longitude: arr.location.lng }, name: arr.name ?? "", color });
+    }
+    return stops;
+}
+
+function getTransitionNode(coords: Coordinate[], color: string, nextStep: any): TransitionNode | null {
+    const nextMode = nextStep.travel_mode ?? "WALK";
+    const nextVehicleType = nextStep.transit_details?.line?.vehicle_type;
+    const nextColor = polylineColor(nextMode, nextVehicleType);
+
+    if (nextColor === color) {
+        return null;
+    }
+    const junction = coords.at(-1);
+    return junction ? { coordinate: junction, fromColor: color, toColor: nextColor } : null;
+}
+
 function polylineColor(travelMode: string, vehicleType?: string): string {
     const mode = travelMode?.toUpperCase();
     if (mode === "TRANSIT") {
@@ -592,38 +618,12 @@ export default function MapViewer({
                             const isWalking = mode.toUpperCase() === "WALK" || mode.toUpperCase() === "WALKING";
 
                             segments.push({ coordinates: coords, color, isDashed: isWalking });
-
-                            const dep = step.transit_details?.departure_stop;
-                            const arr = step.transit_details?.arrival_stop;
-
-                            if (dep?.location) {
-                                stops.push({
-                                    coordinate: { latitude: dep.location.lat, longitude: dep.location.lng },
-                                    name: dep.name ?? "",
-                                    color,
-                                });
-                            }
-
-                            if (arr?.location) {
-                                stops.push({
-                                    coordinate: { latitude: arr.location.lat, longitude: arr.location.lng },
-                                    name: arr.name ?? "",
-                                    color,
-                                });
-                            }
+                            stops.push(...collectStopsFromStep(step, color));
 
                             const nextStep = allSteps[index + 1];
                             if (nextStep) {
-                                const nextMode = nextStep.travel_mode ?? "WALK";
-                                const nextVehicleType = nextStep.transit_details?.line?.vehicle_type;
-                                const nextColor = polylineColor(nextMode, nextVehicleType);
-
-                                if (nextColor !== color) {
-                                    const junction = coords.at(-1);
-                                    if (junction) {
-                                        nodes.push({ coordinate: junction, fromColor: color, toColor: nextColor });
-                                    }
-                                }
+                                const node = getTransitionNode(coords, color, nextStep);
+                                if (node) nodes.push(node);
                             }
                         }
 
