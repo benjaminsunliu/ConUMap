@@ -230,7 +230,7 @@ const getOffsetMarkerCoordinate = useCallback((building: BuildingInfo) => {
       return () => {
         isCancelled = true;
       };
-    }, [IS_E2E, CAMPUS_BUILDINGS,currentRegion, mapReady, getOffsetMarkerCoordinate]);
+    }, [currentRegion, mapReady, getOffsetMarkerCoordinate]);
   
 
   const renderCluster = useCallback(
