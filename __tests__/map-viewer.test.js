@@ -270,7 +270,6 @@ jest.mock("@/constants/map", () => {
         const mapViewer = render(<MapViewer />);
         
         const polygons = mapViewer.getAllByTestId('polygon');
-        console.log(polygons[0].props.key)
         expect(polygons[0].props.fillColor).toBe(Colors.light.map.polygonFill);
       });
 

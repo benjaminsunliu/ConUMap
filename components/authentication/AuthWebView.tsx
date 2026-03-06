@@ -37,9 +37,6 @@ export default function AuthWebView({ onLogin }: Readonly<AuthWebViewProps>) {
       source={{ uri: authenticationURL }}
       onMessage={handleMessage}
       onNavigationStateChange={handleNavigationChange}
-      onError={(event: WebViewErrorEvent) => {
-        console.error(event);
-      }}
       incognito={true} // think twice before setting this to false
     />
   );

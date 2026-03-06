@@ -19,7 +19,6 @@ export function useCalendar(date: Date) {
 }
 
 async function fetchCalendarForDate(token: string, date: Date) {
-  debugger;
   const requestDate = dateToRequestDate(date);
   const request = `https://prod-dataserv.concordia.ca/SIS/api/Schedule/${token}/${requestDate}/fresh`;
   const response = await fetch(request);
