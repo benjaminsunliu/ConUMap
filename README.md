@@ -21,7 +21,7 @@ ConUMaps is a mobile application that helps Concordia students navigate the SGW 
 
 ### Testing & Quality Assurance
 - **Jest** and **React Native Testing Library** for unit testing
-- **Detox** for end-to-end testing of user workflows
+- **Maestro** for end-to-end testing of user workflows
 - **ESLint** and **SonarQube** for static code analysis and maintaining coding standards
 
 ## Team members
