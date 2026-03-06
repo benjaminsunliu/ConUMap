@@ -1,7 +1,6 @@
 import { LoggedInData } from "@/types/authTypes";
 import { useRef } from "react";
 import { WebView, WebViewMessageEvent, WebViewNavigation } from "react-native-webview";
-import { WebViewErrorEvent } from "react-native-webview/lib/WebViewTypes";
 
 interface AuthWebViewProps {
   onLogin: (data: LoggedInData) => void;
