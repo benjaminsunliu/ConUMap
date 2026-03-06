@@ -49,7 +49,7 @@ export default function CalendarScreen() {
   if (isLoggedIn) {
     return (
       <GestureDetector gesture={Gesture.Race(swipeLeftGesture, swipeRightGesture)}>
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1 }} testID="courses-view">
           <Button title="Logout" onPress={() => logout()} />
           <FlatList
             data={calendarData}
