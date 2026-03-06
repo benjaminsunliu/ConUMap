@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { timeToPixels } from '@/constants/scheduleConstant';
+import { timeToPixels } from './constants';
 import { ClassInfo } from './types';
 
 interface ClassBlockProps {
