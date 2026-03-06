@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import ClassBlock from './class-block';
-import { COLUMN_TOTAL_HEIGHT } from './constants';
+import { COLUMN_TOTAL_HEIGHT } from '@/constants/scheduleConstant';
 import { ClassInfo } from './types';
 
 
