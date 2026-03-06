@@ -164,6 +164,7 @@ export default function MapViewer({
     const [routePolyline, setRoutePolyline] = useState<PolylineSegment[] | null>(null);
     const [routeStops, setRouteStops] = useState<TransitStopMarker[]>([]);
     const [routeNodes, setRouteNodes] = useState<TransitionNode[]>([]);
+    const [routeKey, setRouteKey] = useState(0);
     const [navCoords, setNavCoords] = useState<{ start: Coordinate | null; end: Coordinate | null }>({
         start: null,
         end: null,
@@ -568,7 +569,7 @@ export default function MapViewer({
 
                     return (
                         <Polyline
-                            key={`polyline-seg-${index}-${segment.isDashed}`}
+                            key={`polyline-seg-${routeKey}-${index}-${segment.isDashed}`}
                             coordinates={segment.coordinates}
                             strokeColor={segment.color}
                             strokeWidth={strokeWidth}
@@ -581,7 +582,7 @@ export default function MapViewer({
                 {routeStops.map((stop, index) =>
                     Platform.OS === "android" ? (
                         <Circle
-                            key={`stop-${index}-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
+                            key={`stop-${routeKey}-${index}-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
                             center={stop.coordinate}
                             radius={5}
                             fillColor="#fff"
@@ -591,7 +592,7 @@ export default function MapViewer({
                         />
                     ) : (
                         <Marker
-                            key={`stop-${index}-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
+                            key={`stop-${routeKey}-${index}-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
                             coordinate={stop.coordinate}
                             anchor={{ x: 0.5, y: 0.5 }}
                             zIndex={11}
@@ -614,7 +615,7 @@ export default function MapViewer({
                 {Platform.OS === "android"
                     ? routeNodes.map((node, index) => (
                         <Circle
-                            key={`node-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
+                            key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
                             center={node.coordinate}
                             radius={7}
                             fillColor={node.toColor}
@@ -625,7 +626,7 @@ export default function MapViewer({
                     ))
                     : routeNodes.map((node, index) => (
                         <Marker
-                            key={`node-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
+                            key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
                             coordinate={node.coordinate}
                             anchor={{ x: 0.5, y: 0.5 }}
                             zIndex={12}
@@ -644,10 +645,20 @@ export default function MapViewer({
                         </Marker>
                     ))}
                 {navigationMode === "directions" && navCoords.start && (
-                    <NavEndpointMarker coordinate={navCoords.start} label="A" color="#049ede" />
+                    <NavEndpointMarker
+                        key={`nav-start-${routeKey}-${navCoords.start.latitude}-${navCoords.start.longitude}`}
+                        coordinate={navCoords.start}
+                        label="A"
+                        color="#049ede"
+                    />
                 )}
                 {navigationMode === "directions" && navCoords.end && (
-                    <NavEndpointMarker coordinate={navCoords.end} label="B" color="#049ede" />
+                    <NavEndpointMarker
+                        key={`nav-end-${routeKey}-${navCoords.end.latitude}-${navCoords.end.longitude}`}
+                        coordinate={navCoords.end}
+                        label="B"
+                        color="#049ede"
+                    />
                 )}
             </MapViewCluster>
 
@@ -674,6 +685,11 @@ export default function MapViewer({
                     isOpen={shouldDisplayRoutes}
                     onBack={handleBackFromDirections}
                     onRouteSelect={(route: any) => {
+                        setRouteKey((k) => k + 1);
+                        setRoutePolyline(null);
+                        setRouteStops([]);
+                        setRouteNodes([]);
+
                         const segments: PolylineSegment[] = [];
                         const stops: TransitStopMarker[] = [];
                         const nodes: TransitionNode[] = [];
