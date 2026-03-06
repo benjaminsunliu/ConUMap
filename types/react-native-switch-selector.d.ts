@@ -5,19 +5,21 @@ declare module 'react-native-switch-selector' {
 
     interface Props {
         initial: number
-        value: number
+        value?: number
         textColor: string
         selectedColor: string
         buttonColor: string
         borderColor: string
         backgroundColor: string
-        disableValueChangeOnPress: boolean
-        bold: boolean
-        fontSize: number
+        disableValueChangeOnPress?: boolean
+        bold?: boolean
+        fontSize?: number
         hasPadding?: boolean
         options?: object[]
         testID?: string
         accessibilityLabel?: string
+        borderRadius?: number
+        height?: number
         onPress: (value: number) => void
     }
 
