@@ -1,4 +1,4 @@
-import { ClassInfo } from './types'
+import { ClassInfo } from '@/types/calendarTypes';
 
 export const MOCK_CLASSES: ClassInfo[] = [
     {

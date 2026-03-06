@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Dimensions, NativeScrollEvent, NativeSyntheticEvent, ScrollView, StyleSheet, Text, View, PanResponder } from 'react-native';
+import { Dimensions, ScrollView, StyleSheet, Text, View, PanResponder } from 'react-native';
 import DayColumn from './day-column';
-import { ClassInfo } from './types';
+import { ClassInfo } from '@/types/calendarTypes';
 import { CALENDAR_END_HOUR, CALENDAR_START_HOUR, COLUMN_TOTAL_HEIGHT, HOUR_HEIGHT, PIXELS_PER_MINUTE, TIME_GUTTER_WIDTH } from '@/constants/scheduleConstant';
 
-const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const HOURS = Array.from(
     { length: CALENDAR_END_HOUR - CALENDAR_START_HOUR },
@@ -24,13 +23,6 @@ function getCurrentTimeY(): number {
     const now = new Date();
     const minutesFromMidnight = now.getHours() * 60 + now.getMinutes();
     return minutesFromMidnight * PIXELS_PER_MINUTE;
-}
-
-function resolveWeekday(cls: ClassInfo): number {
-    for (let i = 0; i < WEEK_DAYS.length; i++) {
-        if (WEEK_DAYS[i].toLowerCase() === cls.DAY_OF_WEEK) return i;
-    }
-    return 0;
 }
 
 export default function WeeklyCalendarBody({ weekStartDate, classes, onClassPress, onWeekChange }: WeeklyCalendarBodyProps) {
@@ -101,7 +93,7 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, onClassPres
                 {weekDates.map((date, i) => (
                     <View key={i} style={[styles.dayHeader, isToday(date) && {backgroundColor: todayColor}]}>
                         <Text style={[styles.dayLabel, isToday(date) && styles.dayLabelToday]}>
-                            {WEEK_DAYS[date.getDay()]}
+                            {date.toLocaleDateString("en-US", { weekday: 'short' })}
                         </Text>
                         <View style={[styles.dateCircle, isToday(date) && styles.dateCircleToday]}>
                             <Text style={[styles.dateNumber, isToday(date) && styles.dateNumberToday]}>
@@ -152,7 +144,7 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, onClassPres
                                 key={i}
                                 dayIndex={i}
                                 isToday={isToday(date)}
-                                classes={classes.filter((cls) => resolveWeekday(cls) === date.getDay())}
+                                classes={classes.filter((cls) => cls.DAY_OF_WEEK.includes(date.toLocaleDateString("en-US", { weekday: 'short' }).toLowerCase()))}
                                 onClassPress={onClassPress}
                             />
                         ))}

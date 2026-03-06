@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { timeToPixels } from '@/constants/scheduleConstant';
-import { ClassInfo } from './types';
+import { ClassInfo } from '@/types/calendarTypes';
 
 interface ClassBlockProps {
     classInfo: ClassInfo;
@@ -46,13 +46,6 @@ function darkenColor(hex: string, amount: number): string {
     const g = Math.max(0, ((num >> 8) & 0xFF) - amount);
     const b = Math.max(0, (num & 0xFF) - amount);
     return `rgb(${r}, ${g}, ${b})`;
-}
-
-function formatTime(time: string): string {
-    const [hours, minutes] = time.split(':').map(Number);
-    const period = hours >= 12 ? 'PM' : 'AM';
-    const displayHour = hours % 12 || 12;
-    return `${displayHour}:${String(minutes).padStart(2, '0')} ${period}`;
 }
 
 const styles = StyleSheet.create({

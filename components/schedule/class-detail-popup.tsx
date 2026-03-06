@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from 'expo-router';
-import { ClassInfo } from "./types";
+import { getWeekdayKey, ClassInfo } from '@/types/calendarTypes';
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Weekdays } from '@/types/calendarTypes';
 
 interface ClassDetailPopupProps {
     classInfo: ClassInfo;
@@ -39,11 +38,6 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
         })
     }
 
-    function formatWeekday(cls: ClassInfo): string {
-        let day = cls.DAY_OF_WEEK;
-
-        return "" + day[0].toUpperCase() + day.slice(1,);
-    }
 
     return (
         <Modal visible transparent animationType='none' onRequestClose={handleClose}>
@@ -67,13 +61,13 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
                             </View>
                             <View style={styles.detailRow}>
                                 <Text style={styles.detailRowTitle}>Time:</Text>
-                                <Text style={styles.detailRowText}>{classInfo.START_HOURS}:{classInfo.START_MINUTES} – {classInfo.END_HOURS}:{classInfo.END_MINUTES} ({formatWeekday(classInfo)})</Text>
+                                <Text style={styles.detailRowText}>{classInfo.START_HOURS}:{classInfo.START_MINUTES} – {classInfo.END_HOURS}:{classInfo.END_MINUTES} ({getWeekdayKey(classInfo.DAY_OF_WEEK)})</Text>
                             </View>
                             <View style={styles.detailRow}>
                                 <Text style={styles.detailRowTitle}>Location:</Text>
-                                <Text style={styles.detailRowText}>Room H501</Text>
-                                <Text style={styles.detailRowText}>Hall Building</Text>
-                                <Text style={styles.detailRowText}>SGW Campus</Text>
+                                <Text style={styles.detailRowText}>Room {classInfo.CU_BLDG + "-" + classInfo.ROOM}</Text>
+                                <Text style={styles.detailRowText}>{classInfo.CU_BUILDING}</Text>
+                                {/* <Text style={styles.detailRowText}>SGW Campus</Text> */}
                             </View>
                         </View>
                         <Pressable

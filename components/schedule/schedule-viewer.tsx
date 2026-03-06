@@ -4,7 +4,7 @@ import ClassDetailPopup from "./class-detail-popup";
 import ScheduleHeader from "./schedule-header";
 import WeeklyCalendarBody from "./weekly-calendar-body";
 import { MOCK_CLASSES } from './MOCK-DATA';
-import { ClassInfo } from "./types";
+import { ClassInfo } from "@/types/calendarTypes";
 
 function getWeekStart(date: Date): Date {
     const d = new Date(date);
@@ -21,11 +21,6 @@ export default function ScheduleViewer() {
 
     const [selectedClass, setSelectedClass] = useState<ClassInfo | null>(null);
     const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => getWeekStart(new Date()));
-    const [visible, setVisible] = useState(true);
-
-    function handleClassPress(classInfo: ClassInfo) {
-        setSelectedClass(classInfo);
-    }
 
     function handleTodayPress() {
         setCurrentWeekStart(getWeekStart(new Date()));
