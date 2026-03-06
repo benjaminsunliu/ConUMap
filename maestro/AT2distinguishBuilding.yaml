@@ -1,10 +1,9 @@
 appId: host.exp.Exponent
 ---
-- openLink: exp://192.168.0.110:8081
-- assertVisible: "Loyola"
-- assertVisible: "SGW"
-- assertVisible:
-           id: "campus-toggle-selector"
+# Requires EXPO_APP_URL to be set (e.g. in Maestro .env) before running this flow.
+- openLink: ${EXPO_APP_URL}
 - tapOn: "SGW"
-- waitForAnimationToEnd:
-           timeout: 2000
+- assertVisible:
+   label: "Concordia building FB"
+- assertVisible:
+   id: "e2e-marker-FB"

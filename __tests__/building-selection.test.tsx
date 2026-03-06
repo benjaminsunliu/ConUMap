@@ -6,6 +6,8 @@ import MapViewer from "@/components/map/map-viewer";
 
 const mockAnimateToRegion = jest.fn();
 
+jest.mock('@/utils/e2e', () => ({ IS_E2E: true }));
+
 jest.mock('react-native-map-clustering', () => {
   const React = require("react");
   const { forwardRef, useImperativeHandle } = React;

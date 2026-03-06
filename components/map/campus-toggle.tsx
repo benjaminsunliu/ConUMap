@@ -5,6 +5,7 @@ import SwitchSelector from "react-native-switch-selector";
 import MapView from "react-native-maps";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
+import { IS_E2E } from "@/utils/e2e";
 
 interface Props {
   mapRef: React.RefObject<MapView | null>;
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
     left: "2%",
     backgroundColor: "transparent",
     position: "relative",
-    height: 0,
-    zIndex: 5
+    height: IS_E2E ? 7 : 0,
+    zIndex: 5,
   },
 });

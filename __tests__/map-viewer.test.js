@@ -1,36 +1,35 @@
-import React from "react";
-import {act, render, fireEvent} from '@testing-library/react-native';
+import React from 'react';
+import { act, render, fireEvent, waitFor } from '@testing-library/react-native';
 import * as LocationPermissions from 'expo-location';
 import MapViewer from '../components/map/map-viewer';
-import { Colors } from "@/constants/theme";
+import { Colors } from '@/constants/theme';
 import { CAMPUS_BUILDINGS } from "../constants/map";
 
 const mockAnimateToRegion = jest.fn();
-
+jest.mock('@/utils/e2e', () => ({ IS_E2E: true }));
 jest.mock('react-native-map-clustering', () => {
   const React = require('react');
   const { forwardRef, useImperativeHandle } = React;
   const { View } = require('react-native');
 
-  const  mockCluster =  forwardRef((props, ref) => {
+  const mockCluster = forwardRef((props, ref) => {
     useImperativeHandle(ref, () => ({
       animateToRegion: mockAnimateToRegion,
     }));
     return <View {...props}>{props.children}</View>;
-    });
-    mockCluster.displayName = "mockCluster";
+  });
+  mockCluster.displayName = 'mockCluster';
   return {
     __esModule: true,
-    default: mockCluster
-      
+    default: mockCluster,
   };
 });
 
 jest.mock('expo-location', () => ({
-    hasServicesEnabledAsync: jest.fn(),
-    requestForegroundPermissionsAsync: jest.fn(),
-    getCurrentPositionAsync: jest.fn(),
-  }));
+  hasServicesEnabledAsync: jest.fn(),
+  requestForegroundPermissionsAsync: jest.fn(),
+  getCurrentPositionAsync: jest.fn(),
+}));
 
 jest.mock('react-native-maps', () => {
   const { View } = require('react-native');
@@ -48,208 +47,229 @@ jest.mock("@/constants/map", () => {
       {
         buildingCode: "LB",
         location: { latitude: 45.495, longitude: -73.579 },
-        polygons: getBuildingPolygons("LB"),
+        polygons: getBuildingPolygons('LB'),
       },
       {
         buildingCode: "VE",
         location: { latitude: 45.496, longitude: -73.58 },
-        polygons: getBuildingPolygons("VE"),
+        polygons: getBuildingPolygons('VE'),
       },
       {
         buildingCode: "RA",
         location: { latitude: 45.496, longitude: -73.58 },
-        polygons: getBuildingPolygons("RA"),
+        polygons: getBuildingPolygons('RA'),
       },
       {
         buildingCode: "PC",
         location: { latitude: 45.496, longitude: -73.58 },
-        polygons: getBuildingPolygons("PC"),
+        polygons: getBuildingPolygons('PC'),
       },
       {
         buildingCode: "AB",
         location: { latitude: 45.496, longitude: -73.58 },
-        polygons: getBuildingPolygons("AB"),
+        polygons: getBuildingPolygons('AB'),
       },
     ],
   };
 });
       beforeEach(() => {
-        mockAnimateToRegion.mockClear();
+        jest.clearAllMocks();
       });
 
-  describe('map tab',()=>{
-    it(' should display the map',()=>{
-        const mapView = render(<MapViewer/>)
-        const map = mapView.getByTestId('map-view')
-        expect(map).toBeVisible();
+describe('map tab', () => {
+  it(' should display the map', () => {
+    const mapView = render(<MapViewer />);
+    const map = mapView.getByTestId('map-view');
+    expect(map).toBeVisible();
+  });
+
+  it('shows correct default location ', () => {
+    const mapView = render(<MapViewer />);
+    const mapView_ = mapView.getByTestId('map-view');
+    expect(mapView_.props.initialRegion).toEqual({
+      latitude: 45.49575,
+      longitude: -73.5793055556,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0922,
     });
+    expect(mockAnimateToRegion).not.toHaveBeenCalled();
+  });
 
-    it('shows correct default location ', () => {
-  
-        const mapView = render(<MapViewer />);
-        const mapView_ = mapView.getByTestId('map-view');
-        expect(mapView_.props.initialRegion).toEqual({
-            latitude: 45.49575,
-            longitude: -73.5793055556,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0922,
-          });
+  it('if location enabled is on and ForegroundPermissions is undetermined it would not try to getCurrentPosition  ', async () => {
+    LocationPermissions.hasServicesEnabledAsync.mockResolvedValue(true);
+    LocationPermissions.requestForegroundPermissionsAsync.mockResolvedValue({
+      status: 'undetermined',
     });
+    LocationPermissions.getCurrentPositionAsync.mockResolvedValue({
+      coords: { latitude: 45.49575, longitude: -73.5793055556 },
+    });
+    const mapViewer = render(<MapViewer />);
+    const locationButton = mapViewer.getByTestId('locationButton');
+    act(() => {
+      fireEvent.press(locationButton);
+    });
+    await waitFor(() => {
+      expect(LocationPermissions.hasServicesEnabledAsync).toHaveBeenCalled();
+      expect(LocationPermissions.requestForegroundPermissionsAsync).toHaveBeenCalled();
+      expect(LocationPermissions.getCurrentPositionAsync).not.toHaveBeenCalled();
+    });
+  });
 
-      it('if location enabled is  on and ForegroundPermissions is not granted it would not try to getCurrentPosition  ', async () => {
+  it('if location enabled is on and ForegroundPermissions is granted it would try to getCurrentPosition', async () => {
+    LocationPermissions.hasServicesEnabledAsync.mockResolvedValue(true);
+    LocationPermissions.requestForegroundPermissionsAsync.mockResolvedValue({ status: 'granted' });
+    LocationPermissions.getCurrentPositionAsync.mockResolvedValue({
+      coords: { latitude: 45.49575, longitude: -73.5793055556 },
+    });
+    const mapViewer = render(<MapViewer />);
+    const locationButton = mapViewer.getByTestId('locationButton');
+    act(() => {
+      fireEvent.press(locationButton);
+    });
+    await waitFor(() => {
+      expect(LocationPermissions.hasServicesEnabledAsync).toHaveBeenCalled();
+      expect(LocationPermissions.requestForegroundPermissionsAsync).toHaveBeenCalled();
+      expect(LocationPermissions.getCurrentPositionAsync).toHaveBeenCalled();
+    });
+  });
 
-        LocationPermissions.hasServicesEnabledAsync.mockResolvedValue(true);
-        LocationPermissions.requestForegroundPermissionsAsync.mockResolvedValue({ status: null });
-        LocationPermissions.getCurrentPositionAsync.mockResolvedValue({
-          coords: { latitude: 45.49575, longitude:  -73.5793055556 },
-      });
+  it('if location enabled is  on and ForegroundPermissions is denied it would not try to getCurrentPosition  ', async () => {
+    LocationPermissions.hasServicesEnabledAsync.mockResolvedValue(true);
+    LocationPermissions.requestForegroundPermissionsAsync.mockResolvedValue({ status: 'denied' });
+    LocationPermissions.getCurrentPositionAsync.mockResolvedValue({
+      coords: { latitude: 45.49575, longitude: -73.5793055556 },
+    });
+    const mapViewer = render(<MapViewer />);
+    const locationButton = mapViewer.getByTestId('locationButton');
+    act(() => {
+      fireEvent.press(locationButton);
+    });
+    await waitFor(() => {
+      expect(LocationPermissions.hasServicesEnabledAsync).toHaveBeenCalled();
+      expect(LocationPermissions.requestForegroundPermissionsAsync).toHaveBeenCalled();
+      expect(LocationPermissions.getCurrentPositionAsync).not.toHaveBeenCalled();
+    });
+  });
 
-       const mapViewer = render(<MapViewer />);
-       const locationButton = mapViewer.getByTestId('locationButton');
-       await act(async () => {
-        await fireEvent.press(locationButton);
-       });
-       expect(mockAnimateToRegion).not.toHaveBeenCalled();
-       expect(LocationPermissions.hasServicesEnabledAsync).toHaveBeenCalled();
-       expect(LocationPermissions.requestForegroundPermissionsAsync).toHaveBeenCalled();
-       expect(LocationPermissions.getCurrentPositionAsync).not.toHaveBeenCalled();
+  it('if user changes location and presses location button it will center location', async () => {
+    const mapViewer = render(<MapViewer />);
+    const mapView = mapViewer.getByTestId('map-view');
 
-     });
-
-     it('if location state is on  it will center location ', async () => {
-
-       const mapViewer = render(<MapViewer />);
-       const mapView = mapViewer.getByTestId('map-view');
-        //user location updates which makes locationState on
-       fireEvent(mapView, 'onUserLocationChange', {
-        nativeEvent: { coordinate: { latitude: 45.49575, longitude: -73.5793055556  } },
-      });
-         const locationButton = mapViewer.getByTestId('locationButton')
-         await act(async () => {
-          await fireEvent.press(locationButton);
-         });
-         expect(mockAnimateToRegion).toHaveBeenCalled();
-
-     });
-
-     it('if location state is off , locationEnabled is false and location button is pressed, modalOpen will be true ', async () => {
-
-        LocationPermissions.hasServicesEnabledAsync.mockResolvedValue(false);
-        const mapViewer = render(<MapViewer />);
-        const locationButton = mapViewer.getByTestId('locationButton')
-        await act(async () => {
-          await fireEvent.press(locationButton);
-        });
-       expect(LocationPermissions.hasServicesEnabledAsync).toHaveBeenCalled();
-       const modal = await mapViewer.findByTestId('location-modal');
-       expect(modal).toBeVisible();
-
-     });
-    
-
-      it('closes modal if onRequestClose is called ', async()=>{
-        
-        const mapViewer = render(<MapViewer />);
-        const locationButton = mapViewer.getByTestId('locationButton')
-
-        await act(async () => {
-          await fireEvent.press(locationButton);
-        });
-        const modal = await mapViewer.findByTestId("location-modal");
-        expect(modal).toBeVisible();
-        fireEvent(modal, "onRequestClose");
-        const modal_ = mapViewer.queryByTestId("location-modal");
-        expect(modal_).toBeNull();
-
-      });
-
-      it('just returns if coordinate is null', ()=>{
-
-        const mapViewer = render(<MapViewer />);
-        const mapView = mapViewer.getByTestId('map-view');
-        fireEvent(mapView, 'onUserLocationChange', {
-            nativeEvent: { coordinate: null }
-          });
-          expect(mapView).toBeTruthy();
-      });
-
-      it('if userLocation exists it sets it null when dragging',async()=>{
-       const userLocationDelta = {  latitudeDelta: 0.00922,
-            longitudeDelta: 0.00421}
-        const mapViewer = render(<MapViewer   userLocationDelta={ userLocationDelta }
-            initialRegion={{ latitude: 45.49575, longitude: -73.5793055556, latitudeDelta: 0.0922,
-                longitudeDelta: 0.0922, }}/>);
-        const mapView = mapViewer.getByTestId('map-view');
-        fireEvent(mapView, 'onUserLocationChange', {
+    act(() => {
+      fireEvent(mapView, 'onUserLocationChange', {
         nativeEvent: { coordinate: { latitude: 45.49575, longitude: -73.5793055556 } },
-        });
-        const locationButton = mapViewer.getByTestId('locationButton')
-        await act(async () => {
-         await fireEvent.press(locationButton);
-        });
-        expect(mapViewer.getByTestId('map-view').props.followsUserLocation).toBe(true);
-        await act(async () => {
-         await fireEvent(mapView, "panDrag");
-        });
-        //no longer following user because dragged
-      expect(mapViewer.getByTestId('map-view').props.followsUserLocation).toBe(false);
       });
+    });
+    const locationButton = mapViewer.getByTestId('locationButton');
+    act(() => {
+      fireEvent.press(locationButton);
+    });
+    expect(mockAnimateToRegion).toHaveBeenCalled();
+  });
+
+  it(' if locationEnabled is false and location button is pressed, modal will be visible', async () => {
+    LocationPermissions.hasServicesEnabledAsync.mockResolvedValue(false);
+    const mapViewer = render(<MapViewer />);
+    const locationButton = mapViewer.getByTestId('locationButton');
+    act(() => {
+      fireEvent.press(locationButton);
+    });
+    const modal = await mapViewer.findByTestId('location-modal');
+    expect(modal).toBeVisible();
+  });
+
+  it('does not center or follow user when coordinate is null', () => {
+    const mapViewer = render(<MapViewer />);
+    const mapView = mapViewer.getByTestId('map-view');
+    const invalidCoords = [null, undefined, NaN, { latitude: 'x', longitude: 'y' }];
+    invalidCoords.forEach((coord) => {
+      act(() => fireEvent(mapView, 'onUserLocationChange', { nativeEvent: { coordinate: coord } }));
+    });
+    expect(mockAnimateToRegion).not.toHaveBeenCalled();
+    expect(mapViewer.getByTestId('map-view').props.followsUserLocation).toBe(false);
+  });
+
+  it('Stops following user after drag, and re-centers when location button pressed again', async () => {
+    const mapViewer = render(<MapViewer />);
+    const mapView = mapViewer.getByTestId('map-view');
+    act(() => {
+      fireEvent(mapView, 'onUserLocationChange', {
+        nativeEvent: { coordinate: { latitude: 45.49575, longitude: -73.5793055556 } },
+      });
+    });
+    const locationButton = mapViewer.getByTestId('locationButton');
+    act(() => {
+      fireEvent.press(locationButton); // to center location
+    });
+    expect(mockAnimateToRegion).toHaveBeenCalled();
+    expect(mapViewer.getByTestId('map-view').props.followsUserLocation).toBe(true); //because location state is centered
+    act(() => {
+      fireEvent(mapView, 'panDrag');
+    });
+    //no longer following user because dragged
+    expect(mapViewer.getByTestId('map-view').props.followsUserLocation).toBe(false);
+    act(() => {
+      fireEvent.press(locationButton);
+    });
+    expect(mockAnimateToRegion).toHaveBeenCalled();
+    expect(mapViewer.getByTestId('map-view').props.followsUserLocation).toBe(true);
+  });
+
 
       it("displays polygon for all campus locations",()=>{
         const mapViewer = render(<MapViewer />);
         const polygons = mapViewer.getAllByTestId('polygon');
-     const expectedCount = CAMPUS_BUILDINGS.reduce(
+        const expectedCount = CAMPUS_BUILDINGS.reduce(
       (total, building) => total + building.polygons.length,
-      0
+      0,
     );
-      expect(polygons).toHaveLength(expectedCount);
+    expect(polygons).toHaveLength(expectedCount);
+  });
+
+  it('deselects building when map is pressed', async () => {
+    const mapViewer = render(<MapViewer />);
+    const polygons = mapViewer.getAllByTestId('polygon');
+    await act(async () => {
+      await fireEvent.press(polygons[0]);
     });
+    const map = mapViewer.getByTestId('map-view');
+    fireEvent(map, 'press');
+    expect(mapViewer.queryByTestId("building-info-popup")).toBeNull();
+  });
 
-    it("deselects building when map is pressed",async()=>{
-
-      const mapViewer = render(<MapViewer />);
-      const polygons = mapViewer.getAllByTestId("polygon");
-      await act(async () => {
-       await fireEvent.press(polygons[0]);
-      });
-          const map = mapViewer.getByTestId("map-view");
-      fireEvent(map, "press", {
-        nativeEvent: { action: "press" },
-      });
-      expect(mapViewer.queryByTestId("building-info-popup")).toBeNull();
-    })
-
-    it("focuses on building when polygon is pressed",()=>{
-
-      const mapViewer = render(<MapViewer />);
-      const building = CAMPUS_BUILDINGS[0];
-      const polygon = mapViewer.getAllByTestId("polygon")[0];
-      fireEvent.press(polygon);
-      expect(mockAnimateToRegion).toHaveBeenCalledWith(
-        expect.objectContaining({
-          latitude: building.location.latitude,
-          longitude: building.location.longitude,
-          latitudeDelta: expect.any(Number),
-          longitudeDelta: expect.any(Number),
-        }));
+  it('focuses on building when polygon is pressed', () => {
+    const mapViewer = render(<MapViewer />);
+    const building = CAMPUS_BUILDINGS[0];
+    const polygons = mapViewer.getAllByTestId('polygon');
+    act(() => {
+      fireEvent.press(polygons[0]);
     });
-    
-    it('focuses building when pressed', () => {
-      const mapViewer = render(<MapViewer />);
-      const building = CAMPUS_BUILDINGS[0];
-      const marker = mapViewer.getByTestId(`marker-${building.buildingCode}`);
-      fireEvent.press(marker);
-      expect(mockAnimateToRegion).toHaveBeenCalledWith(
-        expect.objectContaining({
-          latitude: building.location.latitude,
-          longitude: building.location.longitude,
-          latitudeDelta: expect.any(Number),
-          longitudeDelta: expect.any(Number),
-        })
-      );
-    });
+    expect(mockAnimateToRegion).toHaveBeenCalledWith(
+      expect.objectContaining({
+        latitude: building.location.latitude,
+        longitude: building.location.longitude,
+        latitudeDelta: expect.any(Number),
+        longitudeDelta: expect.any(Number),
+      }),
+    );
+  });
 
-    it(" focusBuilding makes deltas smaller if they are large",()=>{
+  it('focuses building when pressed', () => {
+    const mapViewer = render(<MapViewer />);
+    const building = CAMPUS_BUILDINGS[0];
+    const marker = mapViewer.getByTestId(`marker-${building.buildingCode}`);
+    fireEvent.press(marker);
+    expect(mockAnimateToRegion).toHaveBeenCalledWith(
+      expect.objectContaining({
+        latitude: building.location.latitude,
+        longitude: building.location.longitude,
+        latitudeDelta: expect.any(Number),
+        longitudeDelta: expect.any(Number),
+      }),
+    );
+  });
+
+  it(" focusBuilding makes deltas smaller if they are large",()=>{
       const mapViewer = render(
         <MapViewer initialRegion={{ latitude: 45, longitude: -73, latitudeDelta: 0.1, longitudeDelta: 0.1 }} />
       );
@@ -262,7 +282,24 @@ jest.mock("@/constants/map", () => {
           latitudeDelta: 0.0025,
           longitudeDelta: 0.0025,
         }))    
-     });
+    });
+
+  it("closes modal when close button is pressed", async () => {
+      const onRequestClose = jest.fn();
+      const mapViewer = render(<MapViewer />);
+      const locationButton = mapViewer.getByTestId("locationButton");
+
+      await act(async () => {
+        fireEvent.press(locationButton);
+      });
+
+      const modal = await mapViewer.findByTestId("location-modal");
+      expect(modal).toBeVisible();
+      const locationModalClose = mapViewer.getByTestId("location-modal-close");
+      fireEvent.press(locationModalClose);
+
+      expect(mapViewer.queryByTestId("location-modal")).toBeNull();
+    });
 
     describe('Polygon Color Selection Logic', () => {
 

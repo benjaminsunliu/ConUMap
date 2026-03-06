@@ -5,8 +5,8 @@ import { ColorSchemeName, useColorScheme } from "@/hooks/use-color-scheme";
 import { BuildingInfo, Coordinate, CoordinateDelta } from "@/types/mapTypes";
 import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
 import * as LocationPermissions from "expo-location";
-import React, { useCallback, useMemo, useRef, useState } from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
+import { Platform, StyleSheet, Text, View, Pressable } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
 import MapView, { Marker, Polygon, Region } from "react-native-maps";
 import RoutesInfoPopup from "../navigation/routes-info-popup";
@@ -15,6 +15,7 @@ import BuildingSelection from "./building-selection";
 import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
+import { IS_E2E } from "@/utils/e2e";
 import { FieldType, SearchBuilding } from "@/types/buildingTypes";
 
 interface Props {
@@ -37,19 +38,19 @@ export default function MapViewer({
   userLocationDelta = defaultFocusDelta,
   initialRegion = defaultInitialRegion,
 }: Props) {
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme() ?? "light";
   const mapColors = Colors[colorScheme].map;
   const mapViewRef = useRef<MapView>(null);
   const suppressNextMapPress = useRef(false);
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(
-    null,
-  );
+  const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
   const [, setShouldDisplayRoutes] = useState(false);
   const [routes, setRoutes] = useState(mockRoutes);
+  const [projectedPoints, setProjectedPoints] = useState< { building: BuildingInfo; x: number; y: number }[] >([]);
+  const [mapReady, setMapReady] = useState(false);
   const [navigationMode, setNavigationMode] = useState<"browse" | "directions">("browse");
 
   const inBuildingCodes = useMemo(() => {
@@ -137,6 +138,69 @@ export default function MapViewer({
     [selectedBuilding?.buildingCode, inBuildingCodes, colorScheme, handleBuildingPress],
   );
 
+    useEffect(() => { 
+
+      if (!IS_E2E || !currentRegion) return
+      let isCancelled = false;
+      async function updateHitboxPositions() { 
+        if (!mapReady || !mapViewRef.current || isCancelled) {
+          setProjectedPoints([]);
+          return;
+        } 
+        try {
+          const { latitude, longitude, latitudeDelta, longitudeDelta } = currentRegion;
+          const minLat = latitude - latitudeDelta / 2;
+          const maxLat = latitude + latitudeDelta / 2;
+          const minLng = longitude - longitudeDelta / 2;
+          const maxLng = longitude + longitudeDelta / 2;
+          const visibleBuildings = (CAMPUS_BUILDINGS as BuildingInfo[]).filter((building) => {
+            const coord = building.location;
+            return (
+              coord.latitude >= minLat &&
+              coord.latitude <= maxLat &&
+              coord.longitude >= minLng &&
+              coord.longitude <= maxLng
+            );
+          });
+          if (!visibleBuildings.length || !mapViewRef.current || isCancelled) {
+            setProjectedPoints([]);
+            return;
+          }
+          const projections = await Promise.all(
+            visibleBuildings.map(async (building) => {
+              if (!mapViewRef.current || isCancelled) {
+                return null;
+              }
+              const point = await mapViewRef.current.pointForCoordinate(building.location);
+              return { building, x: point.x, y: point.y };
+            })
+          );
+          if (isCancelled) {
+            return;
+          }
+          const next: { building: BuildingInfo; x: number; y: number }[] = [];
+          for (const result of projections) {
+            if (result) {
+              next.push(result);
+            }
+          }
+          if (!isCancelled) {
+            setProjectedPoints(next); 
+          }
+        } catch (error) {
+          if (IS_E2E) {
+            console.warn("Failed to update hitbox positions", error);
+            setProjectedPoints([]);
+          }
+        }
+      } 
+      updateHitboxPositions();
+      return () => {
+        isCancelled = true;
+      };
+    }, [currentRegion, mapReady]);
+  
+
   const renderCluster = useCallback(
     (cluster: Cluster) => {
       const { id, geometry, properties, onPress } = cluster;
@@ -198,6 +262,7 @@ export default function MapViewer({
       />
       <CampusToggle mapRef={mapViewRef} viewRegion={currentRegion} />
       <MapViewCluster
+        onMapReady={() => setMapReady(true)}
         ref={mapViewRef}
         testID="map-view"
         style={styles.map}
@@ -221,7 +286,7 @@ export default function MapViewer({
         }}
         onUserLocationChange={({ nativeEvent }) => {
           const coordinate = nativeEvent?.coordinate;
-          if (!coordinate) return;
+          if (!coordinate || typeof coordinate.latitude !== "number" || typeof coordinate.longitude !== "number") return;
           if (!userLocation) setLocationState("on");
           setUserLocation({
             latitude: coordinate.latitude,
@@ -240,7 +305,47 @@ export default function MapViewer({
         {renderedPolygons}
         {renderedMarkers}
       </MapViewCluster>
-
+{IS_E2E && ( 
+  <View 
+    pointerEvents="box-none"
+    style={StyleSheet.absoluteFillObject}
+    > 
+      {projectedPoints.map(({ building, x, y }) => ( 
+        <Pressable 
+        key={`e2e-${building.buildingCode}`} 
+        testID={`e2e-marker-${building.buildingCode}`} 
+        style={{ 
+          position: "absolute", 
+          top: y - 20, 
+          left: x - 20, 
+          width: 40, 
+          height: 40, 
+          opacity: 0.01, 
+          zIndex: 9999, 
+          }} 
+          onPress={() => { 
+            selectBuildingByCode(building.buildingCode); 
+            focusBuilding(building); 
+            }} 
+            /> 
+      ))}
+      {/* Highlighted buildings */}
+           {Array.from(inBuildingCodes).map((code) => (
+             <View
+               key={`highlight-label-${code}`}
+               testID={`highlight-label-${code}`}
+               style={{
+                 position: "absolute",
+                 top: 0,
+                 left: 0,
+                 width: 1,
+                 height: 1,
+                 opacity: 0.01,
+               }}
+             />
+           ))}      
+    </View>
+    )}
       <LocationButton
         state={locationState}
         onPress={() => {
@@ -356,7 +461,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     paddingVertical: 4,
     borderRadius: 12,
-    borderWidth: 2,
+    borderWidth: 2
   },
   markerText: {
     fontWeight: "700",
@@ -366,11 +471,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 4,
     borderRadius: 50,
-    borderWidth: 2,
+    borderWidth: 2
   },
   clusterText: {
     fontWeight: "800",
-    fontSize: 12,
+    fontSize: 12
   },
 });
 
