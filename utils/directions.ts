@@ -160,9 +160,13 @@ export async function fetchDirections(
     return null;
   }
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10_000);
+
   try {
     const response = await fetch(ROUTES_BASE_URL, {
       method: "POST",
+      signal: controller.signal,
       headers: {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": apiKey,
@@ -184,6 +188,8 @@ export async function fetchDirections(
       }),
     });
 
+    clearTimeout(timeoutId);
+
     if (!response.ok) {
       console.warn(`Routes API HTTP error: ${response.status}`);
       return null;
@@ -194,7 +200,12 @@ export async function fetchDirections(
     if (!data.routes || data.routes.length === 0) return [];
     return data.routes.map(normalizeRoute);
   } catch (error) {
-    console.error("Failed to fetch directions:", error);
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === "AbortError") {
+      console.warn("fetchDirections timed out after 10 s");
+    } else {
+      console.error("Failed to fetch directions:", error);
+    }
     return null;
   }
 }
