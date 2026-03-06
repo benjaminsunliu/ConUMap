@@ -1,5 +1,3 @@
-name: Static Analysis
-
 on:
   push:
     branches:
@@ -26,3 +24,6 @@ jobs:
 
       - name: Run ESLint for static analysis
         run: npm run lint -- --max-warnings=0
+
+      - name: Run Knip for dead-code detection
+        run: npm run knip
