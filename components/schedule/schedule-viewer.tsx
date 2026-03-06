@@ -21,11 +21,6 @@ export default function ScheduleViewer() {
 
     const [selectedClass, setSelectedClass] = useState<ClassInfo | null>(null);
     const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => getWeekStart(new Date()));
-    const [visible, setVisible] = useState(true);
-
-    function handleClassPress(classInfo: ClassInfo) {
-        setSelectedClass(classInfo);
-    }
 
     function handleTodayPress() {
         setCurrentWeekStart(getWeekStart(new Date()));
