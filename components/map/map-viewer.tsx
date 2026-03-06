@@ -138,33 +138,6 @@ export default function MapViewer({
     [selectedBuilding?.buildingCode, inBuildingCodes, colorScheme, handleBuildingPress],
   );
 
-const getOffsetMarkerCoordinate = useCallback((building: BuildingInfo) => { 
-      // Offset markers to prevent overlaps
-
-    if (building.buildingCode === "VE") { 
-      // VE overlaps with VL
-      return { 
-        latitude: building.location.latitude + 0.00008, 
-        longitude: building.location.longitude - 0.00015, 
-      }; 
-    } 
-    if (building.buildingCode === "RA") { 
-      // Misplaced marker for RA
-      return { 
-        latitude: building.location.latitude - 0.0009, 
-        longitude: building.location.longitude - 0.0008, 
-      }; 
-    } 
-    if (building.buildingCode === "PC") { 
-      // Misplaced marker for PC
-      return { 
-        latitude: building.location.latitude - 0.0006, 
-        longitude: building.location.longitude - 0.0005, 
-      }; 
-    } 
-    return building.location; 
-  },[]);
-
     useEffect(() => { 
       if (!IS_E2E) {
         return;
@@ -185,7 +158,7 @@ const getOffsetMarkerCoordinate = useCallback((building: BuildingInfo) => {
           const minLng = longitude - longitudeDelta / 2;
           const maxLng = longitude + longitudeDelta / 2;
           const visibleBuildings = (CAMPUS_BUILDINGS as BuildingInfo[]).filter((building) => {
-            const coord = getOffsetMarkerCoordinate(building);
+            const coord = building.location;
             return (
               coord.latitude >= minLat &&
               coord.latitude <= maxLat &&
@@ -202,7 +175,7 @@ const getOffsetMarkerCoordinate = useCallback((building: BuildingInfo) => {
               if (!mapViewRef.current || isCancelled) {
                 return null;
               }
-              const coord = getOffsetMarkerCoordinate(building);
+              const coord = building.location;
               const point = await mapViewRef.current.pointForCoordinate(coord);
               return { building, x: point.x, y: point.y };
             })
@@ -230,7 +203,7 @@ const getOffsetMarkerCoordinate = useCallback((building: BuildingInfo) => {
       return () => {
         isCancelled = true;
       };
-    }, [currentRegion, mapReady, getOffsetMarkerCoordinate]);
+    }, [currentRegion, mapReady]);
   
 
   const renderCluster = useCallback(

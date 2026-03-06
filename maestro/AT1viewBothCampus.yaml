@@ -2,7 +2,7 @@ appId: host.exp.Exponent
 ---
 # Requires EXPO_APP_URL to be set (e.g. via environment or Maestro .env) to the Expo app URL.
 - openLink: ${EXPO_APP_URL}
-- assertVisible: "Loyola"
+- assertVisible: "LOY"
 - assertVisible: "SGW"
 - assertVisible:
       id: "campus-toggle-selector"
@@ -11,13 +11,13 @@ appId: host.exp.Exponent
       text: "SGW"
       enabled: true
 - assertVisible:
-      text: "Loyola"
+      text: "LOY"
       selected: false
 - assertVisible:
       id: "e2e-marker-FB"
-- tapOn: "Loyola"
+- tapOn: "LOY"
 - assertVisible:
-      text: "Loyola"
+      text: "LOY"
       enabled: true
 - assertVisible:
       text: "SGW"
@@ -29,7 +29,7 @@ appId: host.exp.Exponent
       text: "SGW"
       enabled: true
 - assertVisible:
-      text: "Loyola"
+      text: "LOY"
       selected: false 
 - assertVisible:
       id: "e2e-marker-FB"

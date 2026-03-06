@@ -8,6 +8,6 @@ appId: host.exp.Exponent
 - assertVisible:
           text: "FB – Faubourg Building"
 - tapOn:
-    point: "50%, 15%"
+    point: "95%, 50%"
 - assertNotVisible: 
             text: "FB – Faubourg Building"
