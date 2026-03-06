@@ -48,7 +48,7 @@ export default function MapViewer({
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
   const [shouldDisplayRoutes, setShouldDisplayRoutes] = useState(false);
   const [routes, setRoutes] = useState(mockRoutes);
-  const [projectedPoints, setProjectedPoints] = useState< { building: MapBuilding; x: number; y: number }[] >([]);
+  const [projectedPoints, setProjectedPoints] = useState< { building: BuildingInfo; x: number; y: number }[] >([]);
   const [mapReady, setMapReady] = useState(false);
 
   const inBuildingCodes = useMemo(() => {
@@ -136,24 +136,24 @@ export default function MapViewer({
     [selectedBuilding?.buildingCode, inBuildingCodes, colorScheme, handleBuildingPress],
   );
 
-const getOffsetMarkerCoordinate = useCallback((building: MapBuilding) => { 
+const getOffsetMarkerCoordinate = useCallback((building: BuildingInfo) => { 
       // Offset markers to prevent overlaps
 
-    if (building.code === "VE") { 
+    if (building.buildingCode === "VE") { 
       // VE overlaps with VL
       return { 
         latitude: building.location.latitude + 0.00008, 
         longitude: building.location.longitude - 0.00015, 
       }; 
     } 
-    if (building.code === "RA") { 
+    if (building.buildingCode === "RA") { 
       // Misplaced marker for RA
       return { 
         latitude: building.location.latitude - 0.0009, 
         longitude: building.location.longitude - 0.0008, 
       }; 
     } 
-    if (building.code === "PC") { 
+    if (building.buildingCode === "PC") { 
       // Misplaced marker for PC
       return { 
         latitude: building.location.latitude - 0.0006, 
@@ -182,7 +182,7 @@ const getOffsetMarkerCoordinate = useCallback((building: MapBuilding) => {
           const maxLat = latitude + latitudeDelta / 2;
           const minLng = longitude - longitudeDelta / 2;
           const maxLng = longitude + longitudeDelta / 2;
-          const visibleBuildings = (CAMPUS_LOCATIONS as MapBuilding[]).filter((building) => {
+          const visibleBuildings = (CAMPUS_BUILDINGS as BuildingInfo[]).filter((building) => {
             const coord = getOffsetMarkerCoordinate(building);
             return (
               coord.latitude >= minLat &&
@@ -208,7 +208,7 @@ const getOffsetMarkerCoordinate = useCallback((building: MapBuilding) => {
           if (isCancelled) {
             return;
           }
-          const next: { building: MapBuilding; x: number; y: number }[] = [];
+          const next: { building: BuildingInfo; x: number; y: number }[] = [];
           for (const result of projections) {
             if (result) {
               next.push(result);
@@ -228,7 +228,7 @@ const getOffsetMarkerCoordinate = useCallback((building: MapBuilding) => {
       return () => {
         isCancelled = true;
       };
-    }, [IS_E2E, CAMPUS_LOCATIONS,currentRegion, mapReady, getOffsetMarkerCoordinate]);
+    }, [IS_E2E, CAMPUS_BUILDINGS,currentRegion, mapReady, getOffsetMarkerCoordinate]);
   
 
   const renderCluster = useCallback(
@@ -335,8 +335,8 @@ const getOffsetMarkerCoordinate = useCallback((building: MapBuilding) => {
     > 
       {projectedPoints.map(({ building, x, y }) => ( 
         <Pressable 
-        key={`e2e-${building.code}`} 
-        testID={`e2e-marker-${building.code}`} 
+        key={`e2e-${building.buildingCode}`} 
+        testID={`e2e-marker-${building.buildingCode}`} 
         style={{ 
           position: "absolute", 
           top: y - 20, 
@@ -347,7 +347,7 @@ const getOffsetMarkerCoordinate = useCallback((building: MapBuilding) => {
           zIndex: 9999, 
           }} 
           onPress={() => { 
-            selectBuildingByCode(building.code); 
+            selectBuildingByCode(building.buildingCode); 
             focusBuilding(building); 
             }} 
             /> 

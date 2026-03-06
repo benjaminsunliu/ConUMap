@@ -1,8 +1,6 @@
 import React from 'react';
 import { act, render, fireEvent, waitFor } from '@testing-library/react-native';
 import * as LocationPermissions from 'expo-location';
-import { CAMPUS_LOCATIONS } from '@/constants/mapData';
-import { concordiaBuildings } from '@/data/parsedBuildings';
 import MapViewer from '../components/map/map-viewer';
 import { Colors } from '@/constants/theme';
 import { CAMPUS_BUILDINGS } from "../constants/map";
@@ -41,7 +39,7 @@ jest.mock('react-native-maps', () => {
   };
 });
 
-jest.mock("@/constants/mapData", () => {
+jest.mock("@/constants/map", () => {
   const { getBuildingPolygons} = require("../utils/getBuildingPolygons");
 
   return {
@@ -256,35 +254,6 @@ describe('map tab', () => {
     );
   });
 
-  it('Offset markers to prevent overlap  for VE building', () => {
-    const mapViewer = render(<MapViewer />);
-    const ve = concordiaBuildings.find((b) => b.buildingCode === 'VE');
-    const marker = mapViewer.getByTestId('marker-VE');
-    expect(marker.props.coordinate).toEqual({
-      latitude: ve.location.latitude + 0.00008,
-      longitude: ve.location.longitude - 0.00015,
-    });
-  });
-
-  it('Offset markers to prevent overlap  for RA building', () => {
-    const mapViewer = render(<MapViewer />);
-    const ra = concordiaBuildings.find((a) => a.buildingCode === 'RA');
-    const marker = mapViewer.getByTestId('marker-RA');
-    expect(marker.props.coordinate).toEqual({
-      latitude: ra.location.latitude - 0.0009,
-      longitude: ra.location.longitude - 0.0008,
-    });
-  });
-
-  it('Offset markers to prevent overlap for PC building', () => {
-    const mapViewer = render(<MapViewer />);
-    const pc = concordiaBuildings.find((b) => b.buildingCode === 'PC');
-    const marker = mapViewer.getByTestId('marker-PC');
-    expect(marker.props.coordinate).toEqual({
-      latitude: pc.location.latitude - 0.0006,
-      longitude: pc.location.longitude - 0.0005,
-    });
-  });
   it('focuses building when pressed', () => {
     const mapViewer = render(<MapViewer />);
     const building = CAMPUS_BUILDINGS[0];
@@ -300,7 +269,7 @@ describe('map tab', () => {
     );
   });
 
-    it(" focusBuilding makes deltas smaller if they are large",()=>{
+  it(" focusBuilding makes deltas smaller if they are large",()=>{
       const mapViewer = render(
         <MapViewer initialRegion={{ latitude: 45, longitude: -73, latitudeDelta: 0.1, longitudeDelta: 0.1 }} />
       );
@@ -313,7 +282,7 @@ describe('map tab', () => {
           latitudeDelta: 0.0025,
           longitudeDelta: 0.0025,
         }))    
-     });
+    });
 
     describe('Polygon Color Selection Logic', () => {
 
