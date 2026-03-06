@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import ClassDetailPopup from "./class-detail-popup";
 import ScheduleHeader from "./schedule-header";
@@ -16,8 +16,30 @@ function getWeekStart(date: Date): Date {
     return d;
 }
 
+function buildColorMap(classes: ClassInfo[]): Map<string, string> {
+    // Build a color mapping for the classes in the user's class list
+    const PALETTE = ["#5e0e16", "#193764", "#46243d", "#9f6619", "#19645b", "#823e42", "#ab435e", "#a36c70",];
+
+    const colorMap = new Map<string, string>();
+    let colorIndex = 0;
+
+    for (const cls of classes) {
+        // Uniquely identifies a class based on code and ssr component, but is shared across days of the week
+        // e.g. SOEN-345-LEC applies to the Monday and Wednesday lectures
+        const key = `${cls.SUBJECT}-${cls.CATALOG_NBR}-${cls.SSR_COMPONENT}`;
+        
+        if (!colorMap.has(key)) {
+            colorMap.set(key, PALETTE[colorIndex % PALETTE.length]);
+            colorIndex++;
+        }
+    }
+
+    return colorMap;
+}
+
 export default function ScheduleViewer() {
     const classes = MOCK_CLASSES;   // WILL NEED TO BE REPLACED WITH API
+    const colorMap = useMemo(() => buildColorMap(classes), [classes]);
 
     const [selectedClass, setSelectedClass] = useState<ClassInfo | null>(null);
     const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() => getWeekStart(new Date()));
@@ -42,6 +64,7 @@ export default function ScheduleViewer() {
             <WeeklyCalendarBody
                 weekStartDate={currentWeekStart}
                 classes={classes}
+                colorMap={colorMap}
                 onClassPress={setSelectedClass}
                 onWeekChange={setCurrentWeekStart}
             />

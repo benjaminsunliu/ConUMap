@@ -13,6 +13,7 @@ const HOURS = Array.from(
 interface WeeklyCalendarBodyProps {
     weekStartDate: Date;
     classes: ClassInfo[];
+    colorMap: Map<string, string>;
     onClassPress: (classInfo: ClassInfo) => void;
     onWeekChange: (newWeekStart: Date) => void;
 }
@@ -25,7 +26,7 @@ function getCurrentTimeY(): number {
     return minutesFromMidnight * PIXELS_PER_MINUTE;
 }
 
-export default function WeeklyCalendarBody({ weekStartDate, classes, onClassPress, onWeekChange }: WeeklyCalendarBodyProps) {
+export default function WeeklyCalendarBody({ weekStartDate, classes, colorMap, onClassPress, onWeekChange }: WeeklyCalendarBodyProps) {
     // Time state for horizontal time bar
     const [currentTimeY, setCurrentTimeY] = useState(() => getCurrentTimeY());
     useEffect(() => {
@@ -145,6 +146,7 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, onClassPres
                                 dayIndex={i}
                                 isToday={isToday(date)}
                                 classes={classes.filter((cls) => cls.DAY_OF_WEEK.includes(date.toLocaleDateString("en-US", { weekday: 'short' }).toLowerCase()))}
+                                colorMap={colorMap}
                                 onClassPress={onClassPress}
                             />
                         ))}

@@ -9,18 +9,20 @@ interface DayColumnProps {
     dayIndex: number;
     isToday: boolean;
     classes: ClassInfo[];
+    colorMap: Map<string, string>;
     onClassPress: (classInfo: ClassInfo) => void;
 }
 
 const todayColor = "rgba(148, 142, 25, 0.1)";
 
-export default function DayColumn({ dayIndex, isToday, classes, onClassPress }: DayColumnProps) {
+export default function DayColumn({ dayIndex, isToday, classes, colorMap, onClassPress }: DayColumnProps) {
     return (
         <View style={[styles.column, isToday && {backgroundColor: todayColor}]}>
             <View style={[styles.eventsArea, { height: COLUMN_TOTAL_HEIGHT}]}>
                {classes.map((cls) => (
                     <ClassBlock 
                         key={`${dayIndex}-${cls.SUBJECT}-${cls.CATALOG_NBR}`}
+                        colorMap={colorMap}
                         classInfo={cls}
                         onPress={onClassPress}/>
                 ))}

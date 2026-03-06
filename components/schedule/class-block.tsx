@@ -5,14 +5,16 @@ import { ClassInfo } from '@/types/calendarTypes';
 
 interface ClassBlockProps {
     classInfo: ClassInfo;
+    colorMap: Map<string, string>
     onPress: (ClassInfo: ClassInfo) => void;
 }
 
-export default function ClassBlock({ classInfo, onPress }: ClassBlockProps) {
+export default function ClassBlock({ classInfo, colorMap, onPress }: ClassBlockProps) {
     const topOffset = timeToPixels(`${classInfo.START_HOURS}:${classInfo.START_MINUTES}`);
     const height = timeToPixels(`${classInfo.END_HOURS}:${classInfo.END_MINUTES}`) - topOffset;
-    
-    const classColor = "#4597f4";
+
+    const courseKey = `${classInfo.SUBJECT}-${classInfo.CATALOG_NBR}-${classInfo.SSR_COMPONENT}`
+    const color = colorMap.get(courseKey) ?? "#707070";
 
     return (
         <Pressable
@@ -22,12 +24,12 @@ export default function ClassBlock({ classInfo, onPress }: ClassBlockProps) {
                 {
                     top: topOffset,
                     height,
-                    backgroundColor: classColor,
+                    backgroundColor: color,
                     opacity: pressed ? 0.8 : 1,
                 },
             ]}
         >
-            <View style={[styles.accentBar, {backgroundColor: darkenColor(classColor, 30) }]}/>
+            <View style={[styles.accentBar, {backgroundColor: darkenColor(color, 30) }]}/>
             <View style={styles.content}>
                 <Text style={styles.courseName} numberOfLines={1}>
                     {classInfo.SUBJECT}
