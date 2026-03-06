@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import ClassBlock from './class-block';
 import { COLUMN_TOTAL_HEIGHT } from '@/constants/scheduleConstant';
-import { ClassInfo } from './types';
+import { ClassInfo } from '@/types/calendarTypes';
 
 
 interface DayColumnProps {
@@ -20,7 +20,7 @@ export default function DayColumn({ dayIndex, isToday, classes, onClassPress }: 
             <View style={[styles.eventsArea, { height: COLUMN_TOTAL_HEIGHT}]}>
                {classes.map((cls) => (
                     <ClassBlock 
-                        key={`${dayIndex}-${cls.subject}-${cls.catalogNumber}`}
+                        key={`${dayIndex}-${cls.subject}-${cls.catalog_nbr}`}
                         classInfo={cls}
                         onPress={onClassPress}/>
                 ))}

@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from 'expo-router';
-import { ClassInfo } from "./types";
+import { Weekdays, getWeekdayKey, ClassInfo } from '@/types/calendarTypes';
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Weekdays } from '@/types/calendarTypes';
 
 interface ClassDetailPopupProps {
     classInfo: ClassInfo;
@@ -34,18 +33,11 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
     function handleLocateOnMap() {
         onClose();
         navigation.navigate('map-tab', {
-            buildingId: classInfo.buildingId,
-            buildingName: classInfo.buildingId,
+            buildingId: classInfo.cu_bldg,
+            buildingName: classInfo.cu_building,
         })
     }
 
-    function resolveWeekdays(c: ClassInfo): string {
-        let result: string = "";
-
-        c.dayOfWeek.forEach((n) => {result += (Weekdays[n].substring(0, 3) + ", ")})
-
-        return result.slice(0, -2);
-    }
 
     return (
         <Modal visible transparent animationType='none' onRequestClose={handleClose}>
@@ -55,8 +47,8 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
                     <View style={styles.body}>
                         <View style={styles.headerRow}>
                             <View style={styles.headerText}>
-                                <Text style={styles.courseCode}>{classInfo.subject} {classInfo.catalogNumber}</Text>
-                                <Text style={styles.lecTutLab}>{classInfo.lecTutLab} – Section {classInfo.classSection}</Text>
+                                <Text style={styles.courseCode}>{classInfo.subject} {classInfo.catalog_nbr}</Text>
+                                <Text style={styles.lecTutLab}>{classInfo.xlatlongname} – Section {classInfo.class_section}</Text>
                             </View>
                             <Pressable onPress={handleClose} style={styles.closeButton} accessibilityLabel="Close">
                                 <MaterialIcons name="close" size={36} color="#fff" />
@@ -65,11 +57,11 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
                         <View style={styles.details}>
                             <View style={styles.detailRow}>
                                 <Text style={styles.detailRowTitle}>Instructor:</Text>
-                                <Text style={styles.detailRowText}>{classInfo.instructor}</Text>
+                                <Text style={styles.detailRowText}>{classInfo.instr_name}</Text>
                             </View>
                             <View style={styles.detailRow}>
                                 <Text style={styles.detailRowTitle}>Time:</Text>
-                                <Text style={styles.detailRowText}>{classInfo.startHours}:{classInfo.startMinutes} – {classInfo.endHours}:{classInfo.endMinutes} ({resolveWeekdays(classInfo)})</Text>
+                                <Text style={styles.detailRowText}>{classInfo.start_hours}:{classInfo.start_minutes} – {classInfo.end_hours}:{classInfo.end_minutes} ({getWeekdayKey(classInfo.day_of_week)})</Text>
                             </View>
                             <View style={styles.detailRow}>
                                 <Text style={styles.detailRowTitle}>Location:</Text>
@@ -81,7 +73,7 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
                         <Pressable
                             onPress={handleLocateOnMap}
                             style={({ pressed }) => [styles.mapButton, {opacity: pressed ? 0.85 : 1}]}
-                            accessibilityLabel={`Find ${classInfo.buildingId} ${classInfo.roomCode} on map`}
+                            accessibilityLabel={`Find ${classInfo.cu_bldg} ${classInfo.room} on map`}
                         >
                             <Text style={styles.mapButtonText}>Open Directions in Map</Text>
                         </Pressable>

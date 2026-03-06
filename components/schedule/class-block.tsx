@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { timeToPixels } from '@/constants/scheduleConstant';
-import { ClassInfo } from './types';
+import { ClassInfo } from '@/types/calendarTypes';
 
 interface ClassBlockProps {
     classInfo: ClassInfo;
@@ -9,8 +9,8 @@ interface ClassBlockProps {
 }
 
 export default function ClassBlock({ classInfo, onPress }: ClassBlockProps) {
-    const topOffset = timeToPixels(`${classInfo.startHours}:${classInfo.startMinutes}`);
-    const height = timeToPixels(`${classInfo.endHours}:${classInfo.endMinutes}`) - topOffset;
+    const topOffset = timeToPixels(`${classInfo.start_hours}:${classInfo.start_minutes}`);
+    const height = timeToPixels(`${classInfo.end_hours}:${classInfo.end_minutes}`) - topOffset;
     
     const classColor = "#4597f4";
 
@@ -33,7 +33,7 @@ export default function ClassBlock({ classInfo, onPress }: ClassBlockProps) {
                     {classInfo.subject}
                 </Text>
                 <Text style={styles.courseName} numberOfLines={1}>
-                    {classInfo.catalogNumber}
+                    {classInfo.catalog_nbr}
                 </Text>
             </View>
         </Pressable>
