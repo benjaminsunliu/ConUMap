@@ -3,13 +3,12 @@ import { Animated, Modal, Pressable, StyleSheet, Text, View } from 'react-native
 import { useNavigation } from 'expo-router';
 import { ClassInfo } from "./types";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { Weekdays } from '@/types/calendarTypes';
 
 interface ClassDetailPopupProps {
     classInfo: ClassInfo;
     onClose: () => void;
 }
-
-const WEEK_DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupProps) {
     const backdropOpacity = useRef(new Animated.Value(0)).current;
@@ -34,7 +33,7 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
 
     function handleLocateOnMap() {
         onClose();
-        navigation.navigate('Map', {
+        navigation.navigate('map-tab', {
             buildingId: classInfo.buildingId,
             buildingName: classInfo.buildingId,
         })
@@ -43,7 +42,7 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
     function resolveWeekdays(c: ClassInfo): string {
         let result: string = "";
 
-        c.dayOfWeek.forEach((n) => {result += (WEEK_DAYS[n] + ", ")})
+        c.dayOfWeek.forEach((n) => {result += (Weekdays[n].substring(0, 3) + ", ")})
 
         return result.slice(0, -2);
     }
