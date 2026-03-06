@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Dimensions, NativeScrollEvent, NativeSyntheticEvent, ScrollView, StyleSheet, Text, View, PanResponder } from 'react-native';
+import { Dimensions, ScrollView, StyleSheet, Text, View, PanResponder } from 'react-native';
 import DayColumn from './day-column';
 import { ClassInfo } from '@/types/calendarTypes';
 import { CALENDAR_END_HOUR, CALENDAR_START_HOUR, COLUMN_TOTAL_HEIGHT, HOUR_HEIGHT, PIXELS_PER_MINUTE, TIME_GUTTER_WIDTH } from '@/constants/scheduleConstant';
 
-const WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const HOURS = Array.from(
     { length: CALENDAR_END_HOUR - CALENDAR_START_HOUR },
@@ -94,7 +93,7 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, onClassPres
                 {weekDates.map((date, i) => (
                     <View key={i} style={[styles.dayHeader, isToday(date) && {backgroundColor: todayColor}]}>
                         <Text style={[styles.dayLabel, isToday(date) && styles.dayLabelToday]}>
-                            {WEEK_DAYS[date.getDay()]}
+                            {date.toLocaleDateString("en-US", { weekday: 'short' })}
                         </Text>
                         <View style={[styles.dateCircle, isToday(date) && styles.dateCircleToday]}>
                             <Text style={[styles.dateNumber, isToday(date) && styles.dateNumberToday]}>
@@ -145,7 +144,7 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, onClassPres
                                 key={i}
                                 dayIndex={i}
                                 isToday={isToday(date)}
-                                classes={classes.filter((cls) => cls.day_of_week.includes(date.toLocaleDateString("en-US", { weekday: 'short' }).toLowerCase()))}
+                                classes={classes.filter((cls) => cls.DAY_OF_WEEK.includes(date.toLocaleDateString("en-US", { weekday: 'short' }).toLowerCase()))}
                                 onClassPress={onClassPress}
                             />
                         ))}

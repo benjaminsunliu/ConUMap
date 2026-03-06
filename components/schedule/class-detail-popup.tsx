@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Animated, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from 'expo-router';
-import { Weekdays, getWeekdayKey, ClassInfo } from '@/types/calendarTypes';
+import { getWeekdayKey, ClassInfo } from '@/types/calendarTypes';
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 interface ClassDetailPopupProps {
@@ -33,8 +33,8 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
     function handleLocateOnMap() {
         onClose();
         navigation.navigate('map-tab', {
-            buildingId: classInfo.cu_bldg,
-            buildingName: classInfo.cu_building,
+            buildingId: classInfo.CU_BLDG,
+            buildingName: classInfo.CU_BUILDING,
         })
     }
 
@@ -47,8 +47,8 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
                     <View style={styles.body}>
                         <View style={styles.headerRow}>
                             <View style={styles.headerText}>
-                                <Text style={styles.courseCode}>{classInfo.subject} {classInfo.catalog_nbr}</Text>
-                                <Text style={styles.lecTutLab}>{classInfo.xlatlongname} – Section {classInfo.class_section}</Text>
+                                <Text style={styles.courseCode}>{classInfo.SUBJECT} {classInfo.CATALOG_NBR}</Text>
+                                <Text style={styles.xlatLongName}>{classInfo.XLATLONGNAME} – Section {classInfo.CLASS_SECTION}</Text>
                             </View>
                             <Pressable onPress={handleClose} style={styles.closeButton} accessibilityLabel="Close">
                                 <MaterialIcons name="close" size={36} color="#fff" />
@@ -57,23 +57,23 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
                         <View style={styles.details}>
                             <View style={styles.detailRow}>
                                 <Text style={styles.detailRowTitle}>Instructor:</Text>
-                                <Text style={styles.detailRowText}>{classInfo.instr_name}</Text>
+                                <Text style={styles.detailRowText}>{classInfo.INSTR_NAME}</Text>
                             </View>
                             <View style={styles.detailRow}>
                                 <Text style={styles.detailRowTitle}>Time:</Text>
-                                <Text style={styles.detailRowText}>{classInfo.start_hours}:{classInfo.start_minutes} – {classInfo.end_hours}:{classInfo.end_minutes} ({getWeekdayKey(classInfo.day_of_week)})</Text>
+                                <Text style={styles.detailRowText}>{classInfo.START_HOURS}:{classInfo.START_MINUTES} – {classInfo.END_HOURS}:{classInfo.END_MINUTES} ({getWeekdayKey(classInfo.DAY_OF_WEEK)})</Text>
                             </View>
                             <View style={styles.detailRow}>
                                 <Text style={styles.detailRowTitle}>Location:</Text>
-                                <Text style={styles.detailRowText}>Room H501</Text>
-                                <Text style={styles.detailRowText}>Hall Building</Text>
-                                <Text style={styles.detailRowText}>SGW Campus</Text>
+                                <Text style={styles.detailRowText}>Room {classInfo.CU_BLDG + "-" + classInfo.ROOM}</Text>
+                                <Text style={styles.detailRowText}>{classInfo.CU_BUILDING}</Text>
+                                {/* <Text style={styles.detailRowText}>SGW Campus</Text> */}
                             </View>
                         </View>
                         <Pressable
                             onPress={handleLocateOnMap}
                             style={({ pressed }) => [styles.mapButton, {opacity: pressed ? 0.85 : 1}]}
-                            accessibilityLabel={`Find ${classInfo.cu_bldg} ${classInfo.room} on map`}
+                            accessibilityLabel={`Find ${classInfo.CU_BLDG}${classInfo.ROOM} on map`}
                         >
                             <Text style={styles.mapButtonText}>Open Directions in Map</Text>
                         </Pressable>
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
         marginBottom: 3,
     },
-    lecTutLab: {
+    xlatLongName: {
         fontSize: 20,
         color: '#fdfcea'
     },
