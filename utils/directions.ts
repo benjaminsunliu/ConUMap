@@ -4,6 +4,144 @@ import { TransportationMode } from "@/types/buildingTypes";
 const ROUTES_BASE_URL =
   "https://routes.googleapis.com/directions/v2:computeRoutes";
 
+// ---------------------------------------------------------------------------
+// Raw Google Routes API v2 shapes
+// ---------------------------------------------------------------------------
+
+interface RawLatLng {
+  latitude: number;
+  longitude: number;
+}
+
+interface RawLocation {
+  latLng?: RawLatLng;
+}
+
+interface RawStop {
+  name?: string;
+  location?: RawLocation;
+}
+
+interface RawStopDetails {
+  departureStop?: RawStop;
+  arrivalStop?: RawStop;
+}
+
+interface RawLocalizedTimeText {
+  text?: string;
+}
+
+interface RawLocalizedTime {
+  time?: RawLocalizedTimeText;
+}
+
+interface RawLocalizedValues {
+  departureTime?: RawLocalizedTime;
+  arrivalTime?: RawLocalizedTime;
+}
+
+interface RawVehicle {
+  type?: string;
+}
+
+interface RawTransitLine {
+  name?: string;
+  nameShort?: string;
+  vehicle?: RawVehicle;
+}
+
+interface RawTransitDetails {
+  stopDetails?: RawStopDetails;
+  localizedValues?: RawLocalizedValues;
+  transitLine?: RawTransitLine;
+}
+
+interface RawNavigationInstruction {
+  instructions?: string;
+  maneuver?: string;
+}
+
+interface RawPolyline {
+  encodedPolyline?: string;
+}
+
+interface RawStep {
+  distanceMeters?: number;
+  staticDuration?: string;
+  duration?: string;
+  polyline?: RawPolyline;
+  navigationInstruction?: RawNavigationInstruction;
+  travelMode?: string;
+  transitDetails?: RawTransitDetails;
+}
+
+interface RawLeg {
+  distanceMeters?: number;
+  duration?: string;
+  steps?: RawStep[];
+}
+
+interface RawRoute {
+  description?: string;
+  polyline?: RawPolyline;
+  legs?: RawLeg[];
+}
+
+// ---------------------------------------------------------------------------
+// Normalized (app-internal) route shapes
+// ---------------------------------------------------------------------------
+
+interface NormalizedTextValue {
+  text: string;
+  value: number;
+}
+
+interface NormalizedLatLng {
+  lat: number;
+  lng: number;
+}
+
+interface NormalizedTransitLine {
+  name?: string;
+  short_name?: string;
+  vehicle_type?: string;
+}
+
+interface NormalizedTransitStop {
+  name?: string;
+  location?: NormalizedLatLng;
+}
+
+interface NormalizedTransitDetails {
+  line: NormalizedTransitLine;
+  departure_stop: NormalizedTransitStop;
+  arrival_stop: NormalizedTransitStop;
+}
+
+export interface NormalizedStep {
+  distance: NormalizedTextValue;
+  duration: NormalizedTextValue;
+  html_instructions: string;
+  maneuver: string;
+  polyline: { points: string };
+  travel_mode: string;
+  transit_details?: NormalizedTransitDetails;
+}
+
+export interface NormalizedLeg {
+  distance: NormalizedTextValue;
+  duration: NormalizedTextValue;
+  departure_time?: { text: string };
+  arrival_time?: { text: string };
+  steps: NormalizedStep[];
+}
+
+export interface NormalizedRoute {
+  summary: string;
+  overview_polyline: { points: string };
+  legs: NormalizedLeg[];
+}
+
 const MODE_MAP: Record<Exclude<TransportationMode, "shuttle">, string> = {
   walking: "WALK",
   transit: "TRANSIT",
@@ -65,11 +203,11 @@ function formatDistance(meters: number): string {
  * Converts a single Routes API v2 route object into the Directions-API shape
  * expected by the app's popup and map components.
  */
-function normalizeRoute(r: any): any {
-  const legs = (r.legs ?? []).map((leg: any) => {
+function normalizeRoute(r: RawRoute): NormalizedRoute {
+  const legs = (r.legs ?? []).map((leg: RawLeg): NormalizedLeg => {
     const durSecs = parseDurationSeconds(leg.duration);
 
-    const steps = (leg.steps ?? []).map((step: any) => {
+    const steps = (leg.steps ?? []).map((step: RawStep): NormalizedStep => {
       const stepDurSecs = parseDurationSeconds(step.staticDuration ?? step.duration);
       const td = step.transitDetails;
 
@@ -110,10 +248,10 @@ function normalizeRoute(r: any): any {
       };
     });
 
-    const firstTransitStep = leg.steps?.find((s: any) => s.transitDetails?.localizedValues);
+    const firstTransitStep = leg.steps?.find((s: RawStep) => s.transitDetails?.localizedValues);
     const lastTransitStep = [...(leg.steps ?? [])]
       .reverse()
-      .find((s: any) => s.transitDetails?.localizedValues);
+      .find((s: RawStep) => s.transitDetails?.localizedValues);
 
     const departureText = firstTransitStep?.transitDetails?.localizedValues?.departureTime?.time?.text;
     const arrivalText   = lastTransitStep?.transitDetails?.localizedValues?.arrivalTime?.time?.text;
@@ -151,7 +289,7 @@ export async function fetchDirections(
   origin: Coordinate,
   destination: Coordinate,
   mode: Exclude<TransportationMode, "shuttle">
-): Promise<any[] | null> {
+): Promise<NormalizedRoute[] | null> {
   const apiKey = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
   if (!apiKey) {
     console.warn(
@@ -218,7 +356,7 @@ export async function fetchDirections(
 export async function fetchAllDirections(
   origin: Coordinate,
   destination: Coordinate
-): Promise<Record<TransportationMode, any[] | null>> {
+): Promise<Record<TransportationMode, NormalizedRoute[] | null>> {
   const modes: Exclude<TransportationMode, "shuttle">[] = [
     "walking",
     "transit",

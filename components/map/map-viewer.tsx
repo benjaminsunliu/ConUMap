@@ -36,6 +36,34 @@ interface TransitionNode {
     toColor: string;
 }
 
+interface NavEndpointMarkerProps {
+    coordinate: Coordinate;
+    label: "A" | "B";
+    color: string;
+}
+
+/**
+ * A simple pin marker indicating the start (A) or end (B) of a navigation route.
+ */
+function NavEndpointMarker({ coordinate, label, color }: NavEndpointMarkerProps) {
+    return (
+        <Marker coordinate={coordinate} anchor={{ x: 0.5, y: 1 }} zIndex={20}>
+            <View style={[styles.navPinWrapper]}>
+                <View style={[styles.navPinBubble, { backgroundColor: color }]}>
+                    <Text style={styles.navPinLabel}>{label}</Text>
+                </View>
+                <View style={[styles.navPinTail, { borderTopColor: color }]} />
+            </View>
+        </Marker>
+    );
+}
+
+/**
+ * Extracts departure and arrival stops from a transit step, returning them as markers with the given color.
+ * @param step A step object from the directions API response, expected to contain transit_details if it's a transit step.
+ * @param color The color to use for the stop markers, typically matching the transit line color.
+ * @returns An array of TransitStopMarker objects for the departure and arrival stops, if available.
+ */
 function collectStopsFromStep(step: any, color: string): TransitStopMarker[] {
     const dep = step.transit_details?.departure_stop;
     const arr = step.transit_details?.arrival_stop;
@@ -50,6 +78,13 @@ function collectStopsFromStep(step: any, color: string): TransitStopMarker[] {
     return stops;
 }
 
+/**
+ * Determines if a transition node is needed between the current step and the next step in the directions route, based on changes in travel mode or transit line color. If a transition is needed, it returns a TransitionNode object with the coordinate of the junction and the colors for the transition. If no transition is needed (i.e., the next step has the same mode and line color), it returns null.
+ * @param coords The array of coordinates for the current step's polyline, used to find the junction point for the transition node.
+ * @param color The color of the current step's polyline, used to compare against the next step's color to determine if a transition node is needed.
+ * @param nextStep The next step in the directions route, used to determine the travel mode and transit line color for the next segment of the route.
+ * @returns A TransitionNode object if a transition is needed, or null if the next step has the same mode and line color as the current step.
+ */
 function getTransitionNode(coords: Coordinate[], color: string, nextStep: any): TransitionNode | null {
     const nextMode = nextStep.travel_mode ?? "WALK";
     const nextVehicleType = nextStep.transit_details?.line?.vehicle_type;
@@ -62,6 +97,12 @@ function getTransitionNode(coords: Coordinate[], color: string, nextStep: any): 
     return junction ? { coordinate: junction, fromColor: color, toColor: nextColor } : null;
 }
 
+/**
+ * Determines the appropriate polyline color for a given travel mode and vehicle type, following Google Maps styling conventions. Transit modes are colored based on the type of transit (e.g., bus,
+ * @param travelMode The travel mode for the step, such as
+ * @param vehicleType The type of vehicle for transit steps, used to determine specific colors for different transit types (e.g., bus, subway, tram). This parameter is optional and only relevant when the travel mode is "TRANSIT".
+ * @returns A string representing the hex color code to use for the polyline corresponding to the given travel mode and vehicle type. Transit modes have specific colors based on vehicle
+ */
 function polylineColor(travelMode: string, vehicleType?: string): string {
     const mode = travelMode?.toUpperCase();
     if (mode === "TRANSIT") {
@@ -208,6 +249,10 @@ export default function MapViewer({
         }
     }, [navigationMode, navCoords.start, selectionOverrides.start, inBuildingCodes, userLocation]);
 
+    /**
+     * Animates the map to center on the given building's location, using a tighter zoom level for better focus. The latitude and longitude deltas are adjusted to be no larger than 0.0025 to ensure a close-up view of the building, while still respecting the current zoom level if it's already close enough. This function is used when a building is selected to provide a focused view of that building on the map.
+      * @param building The BuildingInfo object representing the building to focus on, which contains its location and other details.
+     */
     const focusBuilding = useCallback(
         (building: BuildingInfo) => {
             mapViewRef.current?.animateToRegion({
@@ -220,12 +265,20 @@ export default function MapViewer({
         [currentRegion.latitudeDelta, currentRegion.longitudeDelta]
     );
 
+    /**
+     * Selects a building based on its building code, updating the selectedBuilding state. It searches the CAMPUS_BUILDINGS array for a building with the matching code and sets it as the selected building. If no building is found with the given code, it sets selectedBuilding to null. This function is used when a building is selected from the list or when navigating to a building, ensuring that the correct building information is displayed in the UI.
+     * @param code The building code of the building to select, which is a unique identifier for each building on campus.
+     */
     const selectBuildingByCode = useCallback((code: string) => {
         const nextBuilding = CAMPUS_BUILDINGS.find((building) => building.buildingCode === code) || null;
         setSelectedBuilding(nextBuilding);
         return nextBuilding;
     }, []);
 
+    /**
+     * Handles the event when a building is pressed on the map. It updates the selected building, focuses the map on that building, and resets any existing navigation state to switch back to browse mode. The function also sets a flag to suppress the next map press event, preventing unintended deselection of the building when the map is tapped immediately after selecting a building. This ensures a smooth user experience when interacting with buildings on the map.
+     * @param building The BuildingInfo object representing the building that was pressed, which contains its details and location.
+     */
     const handleBuildingPress = useCallback(
         (building: BuildingInfo) => {
             suppressNextMapPress.current = true;
@@ -247,6 +300,9 @@ export default function MapViewer({
         [selectBuildingByCode, focusBuilding]
     );
 
+    /**
+     * Requests the user's current location, handling permissions and potential errors. If location services are disabled, it opens a modal to inform the user. If permissions are granted, it retrieves the current location and updates the userLocation state, as well as setting the location button state to "on". This function is called when the user presses the location button while location is currently off, allowing them to enable location tracking and center the map on their current position.
+     */
     const requestLocation = useCallback(async () => {
         if (userLocation) {
             return;
@@ -271,6 +327,9 @@ export default function MapViewer({
         setLocationState("on");
     }, [userLocation]);
 
+    /**
+     * Animates the map to center on the user's current location, using the provided userLocationDelta for zoom level. This function is called when the user presses the location button while location tracking is on, allowing them to quickly re-center the map on their current position if they've panned away. It checks if the userLocation is available before attempting to animate the map, ensuring that it only tries to center when a valid location is present.
+     */
     const centerLocation = useCallback(() => {
         if (!userLocation) {
             return;
@@ -291,6 +350,11 @@ export default function MapViewer({
         [selectedBuilding?.buildingCode, inBuildingCodes, colorScheme, handleBuildingPress]
     );
 
+    /**
+     * Renders a cluster marker for a group of nearby points on the map. It displays the count of points in the cluster and styles the marker based on the current color scheme. When the cluster marker is pressed, it triggers the onPress function provided by the clustering library, which typically zooms in to reveal the individual points within the cluster. This function is used as a custom renderer for clusters in the MapViewCluster component, allowing for a consistent and visually appealing representation of clustered markers on the map.
+     * @param cluster The Cluster object representing the cluster of points, which includes its geometry, properties (such as point count), and an onPress handler for when the cluster marker is tapped.
+     * @returns A React element representing the cluster marker, styled according to the current color scheme and displaying the number of points in the cluster.
+     */
     const renderCluster = useCallback(
         (cluster: Cluster) => {
             const { id, geometry, properties, onPress } = cluster;
@@ -322,6 +386,9 @@ export default function MapViewer({
         [mapColors]
     );
 
+    /**
+     * Handles the navigation action when the user chooses to navigate to a selected building. It determines the starting point for navigation based on the user's current location, any buildings they are currently in, or a manually selected start point. It then sets the navigation coordinates and mode to "directions", which triggers the fetching and display of routes from the start location to the selected building. This function is called when the user presses the navigate button in the BuildingInfoPopup, allowing them to easily get directions to the building they are interested in.
+     */
     const navigateToBuilding = useCallback(() => {
         if (!selectedBuilding) {
             return;
@@ -358,6 +425,9 @@ export default function MapViewer({
         setShouldDisplayRoutes(true);
     }, [selectedBuilding, inBuildingCodes, userLocation, manualStart]);
 
+    /**
+     * Handles the action of going back from the directions view to the browse mode. It resets all navigation-related state, including the navigation mode, route display, navigation coordinates, selection overrides, and any displayed routes or stops. This function is called when the user presses the back button in the RoutesInfoPopup, allowing them to exit the directions view and return to browsing the map without any active navigation routes displayed.
+     */
     const handleBackFromDirections = useCallback(() => {
         setNavigationMode("browse");
         setShouldDisplayRoutes(false);
@@ -368,6 +438,9 @@ export default function MapViewer({
         setRouteNodes([]);
     }, []);
 
+    /**
+     * Handles the action of swapping the start and end fields in the navigation directions. It updates the navigation coordinates, selection overrides, and manual start point to reflect the swap. This allows users to quickly reverse their route without having to manually re-enter the start and end locations. The function also resets any displayed routes or stops, prompting a new route calculation based on the updated coordinates. This is typically called when the user presses a swap button in the BuildingSelection component while in directions mode.
+     */
     const handleSwapFields = useCallback(() => {
         setNavCoords((prev) => ({ start: prev.end, end: prev.start }));
         setSelectionOverrides((prev) => ({ start: prev.end, end: prev.start }));
@@ -570,6 +643,12 @@ export default function MapViewer({
                             />
                         </Marker>
                     ))}
+                {navigationMode === "directions" && navCoords.start && (
+                    <NavEndpointMarker coordinate={navCoords.start} label="A" color="#049ede" />
+                )}
+                {navigationMode === "directions" && navCoords.end && (
+                    <NavEndpointMarker coordinate={navCoords.end} label="B" color="#049ede" />
+                )}
             </MapViewCluster>
 
             <LocationButton
@@ -649,6 +728,14 @@ export default function MapViewer({
     );
 }
 
+/**
+ * Renders the building polygons and markers on the map, applying different colors and z-indexes based on whether the building is selected or if the user is currently inside the building. It iterates through the CAMPUS_BUILDINGS array and creates Polygon components for each building's polygons, as well as Marker components for each building's location. The colors and z-indexes are determined by the getPolygonColor and getPolygonZIndex helper functions, which take into account the selection state and whether the user is inside the building. The onPress handler for both polygons and markers calls the provided onPress function with the building information when tapped.
+ * @param selectedBuildingCode The building code of the currently selected building, used to determine if a building should be rendered as selected.
+ * @param inBuildingCodes A set of building codes that the user is currently inside, used to determine if a building should be rendered with the "in building" color.
+ * @param colorScheme The current color scheme (light or dark) used to apply the appropriate colors for polygons and markers based on the theme.
+ * @param onPress A callback function that is called when a building polygon or marker is pressed, receiving the BuildingInfo object of the pressed building as an argument. This allows the parent component to handle building selection and other interactions when a building is tapped on the map.
+ * @returns 
+ */
 function renderBuildings(
     selectedBuildingCode: string | undefined,
     inBuildingCodes: Set<string>,
@@ -756,6 +843,32 @@ const styles = StyleSheet.create({
     clusterText: {
         fontWeight: "800",
         fontSize: 12,
+    },
+    navPinWrapper: {
+        alignItems: "center" as const,
+    },
+    navPinBubble: {
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        alignItems: "center" as const,
+        justifyContent: "center" as const,
+        borderWidth: 2,
+        borderColor: "#fff",
+    },
+    navPinLabel: {
+        color: "#fff",
+        fontWeight: "800" as const,
+        fontSize: 13,
+    },
+    navPinTail: {
+        width: 0,
+        height: 0,
+        borderLeftWidth: 5,
+        borderRightWidth: 5,
+        borderTopWidth: 8,
+        borderLeftColor: "transparent",
+        borderRightColor: "transparent",
     },
 });
 

@@ -8,6 +8,10 @@ import { SearchBuilding, FieldType } from "@/types/buildingTypes";
 
 const buildingAddresses = buildingAddressesRaw as SearchBuilding[];
 
+/**
+ * Separates buildings into current and other, returning current buildings first.
+ * This prioritizes user's current location in search results.
+ */
 function prioritizeCurrentBuildings(
     buildings: SearchBuilding[],
     currentCodes: Set<string>
