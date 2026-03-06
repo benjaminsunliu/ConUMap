@@ -1,0 +1,106 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4585591499338,
+        "longitude": -73.6433481748265
+      },
+      {
+        "latitude": 45.4584941068952,
+        "longitude": -73.6434014499521
+      },
+      {
+        "latitude": 45.4584646569441,
+        "longitude": -73.6433283981106
+      },
+      {
+        "latitude": 45.4584489935071,
+        "longitude": -73.6433412642807
+      },
+      {
+        "latitude": 45.4584091351866,
+        "longitude": -73.6432425098978
+      },
+      {
+        "latitude": 45.4584270519682,
+        "longitude": -73.6432279129406
+      },
+      {
+        "latitude": 45.458397491732,
+        "longitude": -73.6431541101892
+      },
+      {
+        "latitude": 45.4584682082598,
+        "longitude": -73.643096280091
+      },
+      {
+        "latitude": 45.4584788351096,
+        "longitude": -73.6431224663152
+      },
+      {
+        "latitude": 45.4584904267042,
+        "longitude": -73.6431130101163
+      },
+      {
+        "latitude": 45.4584850168532,
+        "longitude": -73.6430992598496
+      },
+      {
+        "latitude": 45.458538847918,
+        "longitude": -73.643055013337
+      },
+      {
+        "latitude": 45.458569799674,
+        "longitude": -73.6431312624657
+      },
+      {
+        "latitude": 45.4585834537778,
+        "longitude": -73.6431197796985
+      },
+      {
+        "latitude": 45.4586237236778,
+        "longitude": -73.6432203324316
+      },
+      {
+        "latitude": 45.4586052912001,
+        "longitude": -73.6432354360966
+      },
+      {
+        "latitude": 45.4586347137707,
+        "longitude": -73.6433083004756
+      },
+      {
+        "latitude": 45.4585657070598,
+        "longitude": -73.6433647183882
+      },
+      {
+        "latitude": 45.4585591499338,
+        "longitude": -73.6433481748265
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4585225,
+    "longitude": -73.6432361
+  },
+  "buildingCode": "JR",
+  "buildingName": "Jesuit Residence",
+  "overview": [
+    "Tucked into the northwest corner of Loyola Campus, the Jesuit Residence is a quiet, seven-storey building with a long history. Originally built in 1969 to house the Jesuit priests of Loyola College, it remained in use by the Jesuit Order until Concordia purchased the property. The residence reopened for student housing in 2006.",
+    "Today, the residence offers 52 private rooms spread across six floors, most of which are reserved for graduate students. The top floor offers common areas for cooking, eating and small gatherings, while the basement has a laundry room and a games room."
+  ],
+  "services": [
+    {
+      "name": "Loyola Student Residence",
+      "url": "https://www.concordia.ca/students/housing/residences/loyola-residences.html"
+    }
+  ],
+  "accessibility": [
+    "wheelchairLift",
+    "entranceAutomatedDoor",
+    "elevator"
+  ],
+  "address": "7141 Sherbrooke St. W.",
+  "campus": "LOY",
+  "url": "https://www.concordia.ca/maps/buildings/jr.html"
+}

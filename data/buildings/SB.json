@@ -1,0 +1,128 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4964371147247,
+        "longitude": -73.5862072347505
+      },
+      {
+        "latitude": 45.4964669331947,
+        "longitude": -73.585738035541
+      },
+      {
+        "latitude": 45.4964929471525,
+        "longitude": -73.585738237716
+      },
+      {
+        "latitude": 45.4965104388295,
+        "longitude": -73.5857788156798
+      },
+      {
+        "latitude": 45.4965095469652,
+        "longitude": -73.5857918070491
+      },
+      {
+        "latitude": 45.4965540374265,
+        "longitude": -73.5857921571582
+      },
+      {
+        "latitude": 45.4965731446704,
+        "longitude": -73.5858366877971
+      },
+      {
+        "latitude": 45.4965821859183,
+        "longitude": -73.5858289078733
+      },
+      {
+        "latitude": 45.4966593520445,
+        "longitude": -73.5860080267778
+      },
+      {
+        "latitude": 45.4966522654248,
+        "longitude": -73.5860140417973
+      },
+      {
+        "latitude": 45.4966840452384,
+        "longitude": -73.5860874808863
+      },
+      {
+        "latitude": 45.496538131766,
+        "longitude": -73.5862114702156
+      },
+      {
+        "latitude": 45.4965191631731,
+        "longitude": -73.5861678798293
+      },
+      {
+        "latitude": 45.4965213111927,
+        "longitude": -73.586135347569
+      },
+      {
+        "latitude": 45.4965047392179,
+        "longitude": -73.5861350990752
+      },
+      {
+        "latitude": 45.4965000815877,
+        "longitude": -73.5862077334339
+      },
+      {
+        "latitude": 45.4964371147247,
+        "longitude": -73.5862072347505
+      }
+    ],
+    [
+      {
+        "latitude": 45.4965792763635,
+        "longitude": -73.5859996262131
+      },
+      {
+        "latitude": 45.4965451965287,
+        "longitude": -73.5859205944801
+      },
+      {
+        "latitude": 45.4965212505738,
+        "longitude": -73.5859203997206
+      },
+      {
+        "latitude": 45.4965113629343,
+        "longitude": -73.5860758154181
+      },
+      {
+        "latitude": 45.4965376763122,
+        "longitude": -73.5860760457711
+      },
+      {
+        "latitude": 45.4965405578838,
+        "longitude": -73.586032454621
+      },
+      {
+        "latitude": 45.4965792763635,
+        "longitude": -73.5859996262131
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4965899,
+    "longitude": -73.5860888
+  },
+  "buildingCode": "SB",
+  "buildingName": "Samuel Bronfman Building",
+  "overview": [
+    "Built in 1970, the Samuel Bronfman Building was originally home to the Canadian Jewish Congress. It was designed by architect Fred Lebensold and stands out for its bold concrete structure and unique triangular shape. In 1999, the building was acquired by Concordia.",
+    "It now houses offices, centres and institutes for the Faculty of Arts and Science. You’ll also find some quiet common areas and an indoor parking garage for faculty and staff."
+  ],
+  "services": [
+    {
+      "name": "Arts and Science Research Groups",
+      "url": "https://www.concordia.ca/artsci/research/centres.html"
+    }
+  ],
+  "accessibility": [
+    "entranceRamp",
+    "entranceAutomatedDoor",
+    "elevator"
+  ],
+  "address": "1590 Docteur-Penfield",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/sb.html"
+}

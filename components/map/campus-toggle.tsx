@@ -1,9 +1,6 @@
 import { Coordinate, CoordinateDelta, Region } from "@/types/mapTypes";
 import React, { useEffect } from "react";
-import {
-  View,
-  StyleSheet,
-} from "react-native";
+import { View, StyleSheet } from "react-native";
 import SwitchSelector from "react-native-switch-selector";
 import MapView from "react-native-maps";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -15,12 +12,14 @@ interface Props {
   viewRegion: Region;
 }
 
-const LOY = 0;
-const SGW = 1;
+enum Campus {
+  Loyola = 0,
+  SGW = 1,
+}
 
 const SGW_CENTER: Coordinate = {
   latitude: 45.4957849,
-  longitude: -73.577225
+  longitude: -73.577225,
 };
 
 const LOY_CENTER: Coordinate = {
@@ -31,20 +30,32 @@ const LOY_CENTER: Coordinate = {
 const DEFAULT_ZOOM: CoordinateDelta = {
   latitudeDelta: 0.01,
   longitudeDelta: 0.01,
-}
+};
 
-export default function CampusToggle({ mapRef, viewRegion }: Props) {
-  const colorScheme = useColorScheme() ?? "light";
+export default function CampusToggle({ mapRef, viewRegion }: Readonly<Props>) {
+  const colorScheme = useColorScheme();
   const [switchValue, setSwitchValue] = React.useState<number>(() => {
-    let sgwDistance = Math.hypot(viewRegion.latitude - SGW_CENTER.latitude, viewRegion.longitude - SGW_CENTER.longitude);
-    let loyDistance = Math.hypot(viewRegion.latitude - LOY_CENTER.latitude, viewRegion.longitude - LOY_CENTER.longitude);
-    return sgwDistance < loyDistance ? SGW : LOY;
+    let sgwDistance = Math.hypot(
+      viewRegion.latitude - SGW_CENTER.latitude,
+      viewRegion.longitude - SGW_CENTER.longitude,
+    );
+    let loyDistance = Math.hypot(
+      viewRegion.latitude - LOY_CENTER.latitude,
+      viewRegion.longitude - LOY_CENTER.longitude,
+    );
+    return sgwDistance < loyDistance ? Campus.SGW : Campus.Loyola;
   });
 
   useEffect(() => {
-    let sgwDistance = Math.hypot(viewRegion.latitude - SGW_CENTER.latitude, viewRegion.longitude - SGW_CENTER.longitude);
-    let loyDistance = Math.hypot(viewRegion.latitude - LOY_CENTER.latitude, viewRegion.longitude - LOY_CENTER.longitude);
-    let newSwitchValue = sgwDistance < loyDistance ? SGW : LOY;
+    let sgwDistance = Math.hypot(
+      viewRegion.latitude - SGW_CENTER.latitude,
+      viewRegion.longitude - SGW_CENTER.longitude,
+    );
+    let loyDistance = Math.hypot(
+      viewRegion.latitude - LOY_CENTER.latitude,
+      viewRegion.longitude - LOY_CENTER.longitude,
+    );
+    let newSwitchValue = sgwDistance < loyDistance ? Campus.SGW : Campus.Loyola;
 
     if (newSwitchValue !== switchValue) {
       setSwitchValue(newSwitchValue);
@@ -52,8 +63,7 @@ export default function CampusToggle({ mapRef, viewRegion }: Props) {
   }, [viewRegion, switchValue]);
 
   const focusCampusOnPress = (value: number) => {
-
-    let newFocus: Coordinate = value === SGW ? SGW_CENTER : LOY_CENTER;
+    let newFocus: Coordinate = value === Campus.SGW ? SGW_CENTER : LOY_CENTER;
 
     mapRef.current?.animateToRegion({
       ...newFocus,
@@ -64,20 +74,20 @@ export default function CampusToggle({ mapRef, viewRegion }: Props) {
   return (
     <View style={styles.container}>
       <SwitchSelector
-        initial={switchValue === LOY ? 0 : 1}
+        initial={switchValue === Campus.Loyola ? Campus.Loyola : Campus.SGW}
         value={switchValue}
         textColor={Colors[colorScheme].campusToggle.textColor}
         selectedColor={Colors[colorScheme].campusToggle.selectedColor}
         buttonColor={Colors[colorScheme].campusToggle.buttonColor}
         borderColor={Colors[colorScheme].campusToggle.borderColor}
         backgroundColor={Colors[colorScheme].campusToggle.backgroundColor}
-        disableValueChangeOnPress={true}
+        disableValueChangeOnPress={false}
         bold={true}
         fontSize={20}
         hasPadding
         options={[
-          { label: "Loyola", value: LOY },
-          { label: "SGW", value: SGW }
+          { label: "Loyola", value: Campus.Loyola },
+          { label: "SGW", value: Campus.SGW },
         ]}
         testID="campus-toggle-selector"
         accessibilityLabel="campus-toggle-selector"

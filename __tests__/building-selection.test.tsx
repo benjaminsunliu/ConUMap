@@ -37,12 +37,12 @@ jest.mock('react-native-maps', () => {
   };
 });
 
-jest.mock("@/constants/mapData", () => {
+jest.mock("@/constants/map", () => {
 
   const { getBuildingPolygons } = require("@/utils/getBuildingPolygons");
-
+  
   return {
-    CAMPUS_LOCATIONS: [
+    CAMPUS_BUILDINGS: [
       {
         code: "LB",
         location: { latitude: 45.495, longitude: -73.579 },
@@ -71,26 +71,6 @@ jest.mock("@/constants/mapData", () => {
     ],
   };
 });
-
-jest.mock('@/data/parsedBuildings', () => ({
-  concordiaBuildings: [
-    {
-      buildingCode: "LB",
-      location: { latitude: 45.495, longitude: -73.579 },
-    },
-    {
-      buildingCode: "VE",
-      location: { latitude: 45.496, longitude: -73.580 },
-    },  {
-      buildingCode: "RA",
-      location: { latitude: 45.496, longitude: -73.580 },
-    },
-    {
-      buildingCode: "PC",
-      location: { latitude: 45.496, longitude: -73.580 },
-    },
-  ],
-}));
 
 jest.mock("@/data/building-addresses.json", () => [
   {
@@ -215,7 +195,42 @@ describe("BuildingSelection component", () => {
     expect(startInput.props.value).toBe("Henry F. Hall Building");
   });
 
+  it('should prioritize current buildings when typing in start field', async ()=>{
+    const selectionView = render(<BuildingSelection currentBuildingCodes={new Set(["B"])} onSelect={mockOnSelect}/>)
+    const startInput = selectionView.getByPlaceholderText("Start");
+    await act(async () => {
+      await fireEvent(startInput, 'onFocus');
+      await fireEvent.changeText(startInput, 'Annex');
+    });
+    const startResults = await selectionView.findByTestId('start-results');
+    expect(startResults).toBeVisible();
+    // Get all the result items - B (current) should come before CI and CL
+    const allResults = selectionView.getAllByTestId(/^start-result-/);
+    expect(allResults.length).toBeGreaterThan(0);
+    // Verify that B (current building) is the first result
+    expect(allResults[0].props.testID).toBe('start-result-B');
+    // Verify other annex buildings also appear
+    const ciResult = await selectionView.findByTestId('start-result-CI');
+    expect(ciResult).toBeVisible();
+  });
 
-
+  it('should maintain backward compatibility when no currentBuildingCodes provided', async ()=>{
+    const selectionView = render(<BuildingSelection onSelect={mockOnSelect}/>)
+    const startInput = selectionView.getByPlaceholderText("Start");
+    // Focus without text - should not show results
+    await act(async () => {
+      await fireEvent(startInput, 'onFocus');
+    });
+    let startResults = await selectionView.queryByTestId('start-results');
+    expect(startResults).toBeNull();
+    // Type text - should show results
+    await act(async () => {
+      await fireEvent.changeText(startInput, 'Hall');
+    });
+    startResults = await selectionView.findByTestId('start-results');
+    expect(startResults).toBeVisible();
+    const hallResult = await selectionView.findByTestId('start-result-H');
+    expect(hallResult).toBeVisible();
+  });
 
 });

@@ -1,0 +1,38 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.49446736090339,
+        "longitude": -73.57927903532982
+      },
+      {
+        "latitude": 45.49426218699242,
+        "longitude": -73.5789367184043
+      },
+      {
+        "latitude": 45.494165592830484,
+        "longitude": -73.57903998345137
+      },
+      {
+        "latitude": 45.49437711267723,
+        "longitude": -73.57940107584
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.494258641914726,
+    "longitude": -73.5790133953522
+  },
+  "buildingCode": "CL",
+  "buildingName": "CL Annex",
+  "overview": [
+    "Located on the Sir George Williams Campus, the CL Annex is a dedicated space for learning and academic services. The building is home to classrooms and facilities that support Concordia Continuing Education programs, providing a convenient downtown location for students pursuing professional development and lifelong learning."
+  ],
+  "accessibility": [
+    "entranceAutomatedDoor",
+    "elevator"
+  ],
+  "address": "1665 Ste-Catherine St. W.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/cl.html"
+}

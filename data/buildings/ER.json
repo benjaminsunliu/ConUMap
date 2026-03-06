@@ -1,0 +1,89 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4961974565762,
+        "longitude": -73.580090767413
+      },
+      {
+        "latitude": 45.4961642551432,
+        "longitude": -73.5799956829177
+      },
+      {
+        "latitude": 45.4962530413227,
+        "longitude": -73.5799329219036
+      },
+      {
+        "latitude": 45.4962384830517,
+        "longitude": -73.5798912265793
+      },
+      {
+        "latitude": 45.4963613549795,
+        "longitude": -73.5798042845009
+      },
+      {
+        "latitude": 45.496356310941,
+        "longitude": -73.5797900899922
+      },
+      {
+        "latitude": 45.496530271504,
+        "longitude": -73.5796671040144
+      },
+      {
+        "latitude": 45.4966657648606,
+        "longitude": -73.5800546518386
+      },
+      {
+        "latitude": 45.4966521304675,
+        "longitude": -73.5800643240436
+      },
+      {
+        "latitude": 45.4966770789289,
+        "longitude": -73.5801354572773
+      },
+      {
+        "latitude": 45.4964113971129,
+        "longitude": -73.5803233388934
+      },
+      {
+        "latitude": 45.4964206092264,
+        "longitude": -73.5803497916397
+      },
+      {
+        "latitude": 45.4962918426162,
+        "longitude": -73.5804408188786
+      },
+      {
+        "latitude": 45.496174995259,
+        "longitude": -73.5801066647163
+      },
+      {
+        "latitude": 45.4961974565762,
+        "longitude": -73.580090767413
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4963286,
+    "longitude": -73.5801041
+  },
+  "buildingCode": "ER",
+  "buildingName": "ER Building",
+  "overview": [
+    "Built in 1954, the ER Building is a 14-storey office tower on Concordia’s Sir George Williams Campus. It houses academic departments and research centres and institutes. Concordia occupies space on 11 floors."
+  ],
+  "departments": [
+    {
+      "name": "Urban Studies",
+      "url": "https://www.concordia.ca/academics/undergraduate/urban-planning-urban-studies.html"
+    }
+  ],
+  "accessibility": [
+    "entranceRamp",
+    "entranceAutomatedDoor",
+    "elevator"
+  ],
+  "address": "2155 Guy St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/er.html"
+}

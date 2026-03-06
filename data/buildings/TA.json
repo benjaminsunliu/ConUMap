@@ -1,0 +1,46 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4599936489802,
+        "longitude": -73.6408312185796
+      },
+      {
+        "latitude": 45.4600325391171,
+        "longitude": -73.6409334037436
+      },
+      {
+        "latitude": 45.4599785125656,
+        "longitude": -73.6409753230402
+      },
+      {
+        "latitude": 45.4599395949683,
+        "longitude": -73.6408729502701
+      },
+      {
+        "latitude": 45.4599936489802,
+        "longitude": -73.6408312185796
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.45998609999999,
+    "longitude": -73.6409032
+  },
+  "buildingCode": "TA",
+  "buildingName": "Terrebonne Building",
+  "overview": [
+    "Located a short walk from the heart of Loyola Campus, Concordia’s Terrebonne Building is a standalone facility that plays an important role in the university’s campus network.",
+    "It houses the Centre for the Arts in Human Development (CAHD) — an educational, clinical and research centre serving adults with disabilities, neurodivergence and other needs."
+  ],
+  "services": [
+    {
+      "name": "Centre for the Arts in Human Development (CAHD)",
+      "url": "https://www.concordia.ca/finearts/research-creation/cahd.html"
+    }
+  ],
+  "accessibility": [],
+  "address": "7079 de Terrebonne St.",
+  "campus": "LOY",
+  "url": "https://www.concordia.ca/maps/buildings/ta.html"
+}

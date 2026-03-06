@@ -1,0 +1,46 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4579249,
+        "longitude": -73.6352242
+      },
+      {
+        "latitude": 45.4583538,
+        "longitude": -73.6359626
+      },
+      {
+        "latitude": 45.4573846,
+        "longitude": -73.6370915
+      },
+      {
+        "latitude": 45.4569612,
+        "longitude": -73.6363623
+      },
+      {
+        "latitude": 45.4579249,
+        "longitude": -73.6352242
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4576754,
+    "longitude": -73.6361431
+  },
+  "buildingCode": "DO",
+  "buildingName": "Stinger Dome",
+  "overview": [
+    "Each winter, Concordia’s Loyola Campus transforms its south field into the Stinger Dome — an air-supported indoor facility that hosts intramural sports, recreational activities, camps and tournaments.",
+    "Opened in 2009, the Stinger Dome provides a versatile, weather-proof space for students and community members to stay active from November to April."
+  ],
+  "services": [
+    {
+      "name": "Concordia Stingers",
+      "url": "https://stingers.ca/"
+    }
+  ],
+  "accessibility": [],
+  "address": "7141 Sherbrooke St. W.",
+  "campus": "LOY",
+  "url": "https://www.concordia.ca/maps/buildings/do.html"
+}

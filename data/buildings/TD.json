@@ -1,0 +1,57 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4949336841042,
+        "longitude": -73.5781588337631
+      },
+      {
+        "latitude": 45.4950271487253,
+        "longitude": -73.5780557026722
+      },
+      {
+        "latitude": 45.495179561549,
+        "longitude": -73.5784097591447
+      },
+      {
+        "latitude": 45.4951168435512,
+        "longitude": -73.5784820912087
+      },
+      {
+        "latitude": 45.4950370321314,
+        "longitude": -73.5783462248431
+      },
+      {
+        "latitude": 45.4950559365428,
+        "longitude": -73.5783232259694
+      },
+      {
+        "latitude": 45.4950323438368,
+        "longitude": -73.5782813396289
+      },
+      {
+        "latitude": 45.4950136584027,
+        "longitude": -73.5783048225717
+      },
+      {
+        "latitude": 45.4949336841042,
+        "longitude": -73.5781588337631
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4950991,
+    "longitude": -73.5783387
+  },
+  "buildingCode": "TD",
+  "buildingName": "Toronto-Dominion Building",
+  "overview": [
+    "The classic bank building at Guy Street and Sainte-Catherine Street, the Toronto-Dominion Building opened in 1903 as a branch of the Bank of Toronto. The building was one of the first commercial projects of the Montreal architectural firm Ross and MacFarlane.",
+    "Inspiration for the design came from the Knickerbocker Trust Company Building in New York, which had been conceived four years earlier by architects McKim, Mead and Whyte, and was modeled on the Temple of Zeus in Agrigento (ca 480 BCE).",
+    "In 2005, TD Canada Trust donated this heritage bank building to Concordia. The Toronto-Dominion Building is adjacent to the John Molson Building."
+  ],
+  "accessibility": [],
+  "address": "1410 Guy St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/td.html"
+}

@@ -13,7 +13,7 @@ interface Props {
   onRequestClose: () => void;
 }
 
-export default function LocationModal({ visible, onRequestClose }: Props) {
+export default function LocationModal({ visible, onRequestClose }: Readonly<Props>) {
   return (
     <Modal
       testID="location-modal"

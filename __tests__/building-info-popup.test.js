@@ -1,9 +1,10 @@
 import React from "react"
 import BuildingInfoPopup from "../components/map/building-info-popup"
-import { act, render, screen, waitFor } from "@testing-library/react-native";
-import { concordiaBuildings } from "../data/parsedBuildings"
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react-native";
+import { CAMPUS_BUILDINGS } from "../constants/map"
+import { Linking } from 'react-native';
 
-const mockBuilding = concordiaBuildings[0];  // B Annex
+const mockBuilding = CAMPUS_BUILDINGS[22];  // Hall Building
 
 jest.mock('react-native', () => {
     const rn = jest.requireActual('react-native');
@@ -21,36 +22,65 @@ jest.mock('react-native', () => {
     return rn;
 });
 
+const mockOnNavigate = jest.fn();
+
+jest.spyOn(Linking, 'openURL').mockImplementation(jest.fn());
+jest.spyOn(Linking, 'canOpenURL').mockResolvedValue(true);
+
+
 describe('building-info-popup', () => { 
     it("renders nothing if building is null",()=>{
         const { queryByTestId } = render(<BuildingInfoPopup building={null} />);
-        expect(queryByTestId("info-popup")).toBeNull();
+        expect(queryByTestId("building-info-popup")).toBeNull();
     });
     
     it("returns a non-null object if a valid building object is supplied", () => {
         const { queryByTestId } = render(<BuildingInfoPopup building={mockBuilding} />);
-        expect(queryByTestId("info-popup")).toBeDefined();
+        expect(queryByTestId("building-info-popup")).toBeDefined();
     });
 
     it("renders the correct popup for the supplied building", () => {
         const { getByText } = render(<BuildingInfoPopup building={mockBuilding} />);
         
-        expect(getByText('B – B Annex')).toBeTruthy();
-        expect(getByText('SGW Campus | 2160 Bishop St.')).toBeTruthy();
+        expect(getByText('H – Henry F. Hall Building')).toBeTruthy();
+        expect(getByText('SGW Campus | 1455 De Maisonneuve Blvd. W.')).toBeTruthy();
         expect(getByText(/^Today:/)).toBeTruthy();
-    })
- })
+    });
 
- describe('building-info-popup-panresponder', () => {
+    it('calls the on navigate function when "Directions" is pressed', async () => {
+        render(<BuildingInfoPopup building={mockBuilding} onNavigate={mockOnNavigate}/>);
+
+        const directionsButton = screen.getByTestId('directions-action-button');
+
+        await act(async () => {
+            await fireEvent.press(directionsButton);
+        });
+        
+        expect(mockOnNavigate).toHaveBeenCalled();
+    });
+
+    it('opens the correct link when "Website" is pressed', async () => {
+        render(<BuildingInfoPopup building={mockBuilding} onNavigate={mockOnNavigate}/>);
+
+        const websiteButton = screen.getByTestId('website-action-button');
+        await act(async () => {
+            await fireEvent.press(websiteButton);
+        });
+        
+        expect(Linking.openURL).toHaveBeenCalledWith(mockBuilding.url);
+    });
+});
+
+describe('building-info-popup-panresponder', () => {
     it('expands when dragging the past the midpoint', async () => {
         render(<BuildingInfoPopup building={mockBuilding}/>);
 
-        const popup = screen.getByTestId('info-popup');
+        const popup = screen.getByTestId('building-info-popup');
 
         await act(async () => {
-        popup.props.onResponderGrant({}, {});
-        popup.props.onResponderMove({}, { dy: -300 });
-        popup.props.onResponderRelease({}, { dy: -300, vy: -1 });
+            popup.props.onResponderGrant({}, {});
+            popup.props.onResponderMove({}, { dy: -300 });
+            popup.props.onResponderRelease({}, { dy: -300, vy: -1 });
         });
 
         const openingHoursTitle = await screen.findByText('Opening Hours');
@@ -61,7 +91,7 @@ describe('building-info-popup', () => {
     it('stays collapsed when the drag is too small', async () => {
         render(<BuildingInfoPopup building={mockBuilding}/>);
 
-        const popup = screen.getByTestId('info-popup');
+        const popup = screen.getByTestId('building-info-popup');
 
         expect(screen.queryByText('Opening Hours')).toBeNull();  // Should initially be null
         
@@ -74,4 +104,4 @@ describe('building-info-popup', () => {
         });
     });
 
- });
+});

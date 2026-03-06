@@ -15,12 +15,35 @@ const emptyBuilding: SearchBuilding = {
     campus: ""
 };
 
+/**
+ * Separates buildings into current and other, returning current buildings first.
+ * This prioritizes user's current location in search results.
+ */
+function prioritizeCurrentBuildings(
+    buildings: SearchBuilding[], 
+    currentCodes: Set<string>
+): SearchBuilding[] {
+    const currentBuildings: SearchBuilding[] = [];
+    const otherBuildings: SearchBuilding[] = [];
+    
+    buildings.forEach(building => {
+        if (currentCodes.has(building.buildingCode)) {
+            currentBuildings.push(building);
+        } else {
+            otherBuildings.push(building);
+        }
+    });
+    
+    return [...currentBuildings, ...otherBuildings];
+}
+
 interface Props {
+    readonly currentBuildingCodes?: Set<string>;
     readonly onSelect: (building: SearchBuilding, type: FieldType) => void;
 }
 
-export default function BuildingSelection({ onSelect }: Props) {
-    const colorScheme = useColorScheme() ?? "light";
+export default function BuildingSelection({ currentBuildingCodes = new Set(), onSelect }: Props) {
+    const colorScheme = useColorScheme()
     const theme = Colors[colorScheme];
 
     const [queries, setQueries] = useState<Record<FieldType, string>>({
@@ -35,22 +58,42 @@ export default function BuildingSelection({ onSelect }: Props) {
 
     const [focusedField, setFocusedField] = useState<FieldType | null>(null);
 
-    const filterBuildings = useCallback((text: string) => {
+    const filterBuildings = useCallback((text: string, fieldType: FieldType) => {
         const q = text.toLowerCase();
-        return buildingAddresses.filter(
+        const filtered = buildingAddresses.filter(
             b =>
                 b.buildingName.toLowerCase().includes(q) ||
                 b.buildingCode.toLowerCase().includes(q) ||
                 b.address.toLowerCase().includes(q)
         );
-    }, []);
+
+        if (fieldType === "start" && currentBuildingCodes.size > 0) {
+            return prioritizeCurrentBuildings(filtered, currentBuildingCodes);
+        }
+
+        return filtered;
+    }, [currentBuildingCodes]);
 
     const results = useMemo(
-        () => ({
-            start: queries.start ? filterBuildings(queries.start) : [],
-            end: queries.end ? filterBuildings(queries.end) : []
-        }),
-        [queries, filterBuildings]
+        () => {
+            let startResults: SearchBuilding[];
+            if (queries.start) {
+                // User is typing - filter and prioritize current buildings
+                startResults = filterBuildings(queries.start, "start");
+            } else if (currentBuildingCodes.size > 0) {
+                // No search text - show only current buildings
+                startResults = buildingAddresses.filter(b => currentBuildingCodes.has(b.buildingCode));
+            } else {
+                // No search text and no current building - show nothing
+                startResults = [];
+            }
+
+            return {
+                start: startResults,
+                end: queries.end ? filterBuildings(queries.end, "end") : []
+            };
+        },
+        [queries, filterBuildings, currentBuildingCodes]
     );
 
     const setQuery = useCallback((type: FieldType, value: string) => {
@@ -151,23 +194,27 @@ export default function BuildingSelection({ onSelect }: Props) {
                     style={[styles.results, { backgroundColor: theme.background, borderColor: theme.buildingInfoPopup.divider }]}
                     keyboardShouldPersistTaps="handled"
                     testID={`${type}-results`}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity
-                            style={[styles.resultItem, { borderBottomColor: theme.buildingInfoPopup.divider }]}
-                            onPress={() => handleSelect(item, type)} 
-                            testID={`${type}-result-${item.buildingCode.toUpperCase()}`}>
-                            <Text style={[styles.resultTitle, { color: theme.campusToggle.selectedColor }]}>
-                                {item.buildingCode} – {item.buildingName}
-                            </Text>
-                            <Text style={[styles.resultAddress, { color: theme.text }]}>
-                                {item.address}
-                            </Text>
-                        </TouchableOpacity>
-                    )}
+                    renderItem={({ item }) => {
+                        const isCurrent = type === "start" && currentBuildingCodes.has(item.buildingCode);
+                        return (
+                            <TouchableOpacity
+                                style={[styles.resultItem, { borderBottomColor: theme.buildingInfoPopup.divider }]}
+                                onPress={() => handleSelect(item, type)} 
+                                testID={`${type}-result-${item.buildingCode.toUpperCase()}`}>
+                                <Text style={[styles.resultTitle, { color: theme.campusToggle.selectedColor }]}>
+                                    {isCurrent && "📍 "}{item.buildingCode} – {item.buildingName}
+                                    {isCurrent && <Text style={styles.currentLabel}> (Current Building)</Text>}
+                                </Text>
+                                <Text style={[styles.resultAddress, { color: theme.text }]}>
+                                    {item.address}
+                                </Text>
+                            </TouchableOpacity>
+                        );
+                    }}
                 />
             );
         },
-        [results, focusedField, theme.background, theme.buildingInfoPopup.divider, theme.campusToggle.selectedColor, theme.text, handleSelect]
+        [results, focusedField, theme.background, theme.buildingInfoPopup.divider, theme.campusToggle.selectedColor, theme.text, handleSelect, currentBuildingCodes]
     );
 
     return (
@@ -232,5 +279,8 @@ const styles = StyleSheet.create({
     },
     resultAddress: {
         fontSize: 12
+    },
+    currentLabel: {
+        fontSize: 11,
     }
 });

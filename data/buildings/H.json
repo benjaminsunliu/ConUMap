@@ -1,0 +1,62 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4968299107234,
+        "longitude": -73.5788489042803
+      },
+      {
+        "latitude": 45.4973732706121,
+        "longitude": -73.5783380857457
+      },
+      {
+        "latitude": 45.4977094511199,
+        "longitude": -73.5790334928957
+      },
+      {
+        "latitude": 45.4971650215363,
+        "longitude": -73.5795441094622
+      },
+      {
+        "latitude": 45.4968299107234,
+        "longitude": -73.5788489042803
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4973223,
+    "longitude": -73.5790288
+  },
+  "buildingCode": "H",
+  "buildingName": "Henry F. Hall Building",
+  "overview": [
+    "Completed in 1966, the Henry F. Hall Building is a prominent academic and social hub on the Sir George Williams Campus. Its cube-like form and exterior of pre-fabricated, stressed concrete reflect the Brutalist architectural style, a movement often associated with French architect Le Corbusier.",
+    "Inside, the building brings together many academic departments — particularly in the social sciences — along with classrooms and engineering teaching and research labs.",
+    "Beyond academics, it's a lively centre of student life, home to the Student Success Centre, Concordia Theatre and student spaces like the Hive Café, Reggie's Pub, the People's Potato and student association offices."
+  ],
+  "services": [
+    {
+      "name": "Zen Den",
+      "url": "https://www.concordia.ca/health/cuwellness.html"
+    }
+  ],
+  "departments": [
+    {
+      "name": "Sociology and Anthropology",
+      "url": "https://www.concordia.ca/artsci/sociology-anthropology.html"
+    }
+  ],
+  "venues": [
+    {
+      "name": "Sir George Williams University Alumni Auditorium",
+      "url": "https://www.concordia.ca/maps/buildings/concordia-panoramas/h-h110.html"
+    }
+  ],
+  "accessibility": [
+    "entranceAutomatedDoor",
+    "elevator"
+  ],
+  "address": "1455 De Maisonneuve Blvd. W.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/h.html"
+}

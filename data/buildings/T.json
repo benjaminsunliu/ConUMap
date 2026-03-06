@@ -1,0 +1,46 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4966297401099,
+        "longitude": -73.5792689883769
+      },
+      {
+        "latitude": 45.4967110104138,
+        "longitude": -73.5791832678477
+      },
+      {
+        "latitude": 45.4967519238942,
+        "longitude": -73.5792615453942
+      },
+      {
+        "latitude": 45.4966677622944,
+        "longitude": -73.5793446780529
+      },
+      {
+        "latitude": 45.4966297401099,
+        "longitude": -73.5792689883769
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4966973,
+    "longitude": -73.57927049999999
+  },
+  "buildingCode": "T",
+  "buildingName": "T Annex",
+  "overview": [
+    "The T Annex dates to 1875 and features a classic Victorian facade of grey stone, with a bay window topped by a copper oriel. The three-storey rowhouse was divided into apartments in 1957 and became university property soon after.",
+    "The annex now accommodates offices and student services."
+  ],
+  "services": [
+    {
+      "name": "Graduate Students Association",
+      "url": "https://gsaconcordia.ca/"
+    }
+  ],
+  "accessibility": [],
+  "address": "2030 Mackay St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/t.html"
+}

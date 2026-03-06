@@ -1,0 +1,147 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4599882339157,
+        "longitude": -73.640201341293
+      },
+      {
+        "latitude": 45.4599890802148,
+        "longitude": -73.6402030878094
+      },
+      {
+        "latitude": 45.4598698426124,
+        "longitude": -73.640239858259
+      },
+      {
+        "latitude": 45.4598661523182,
+        "longitude": -73.6402297881855
+      },
+      {
+        "latitude": 45.4597144594813,
+        "longitude": -73.6403408856113
+      },
+      {
+        "latitude": 45.4596475424707,
+        "longitude": -73.6401582825607
+      },
+      {
+        "latitude": 45.459624353395,
+        "longitude": -73.640174142253
+      },
+      {
+        "latitude": 45.4594311833373,
+        "longitude": -73.6396800081021
+      },
+      {
+        "latitude": 45.4594552221463,
+        "longitude": -73.6396538594478
+      },
+      {
+        "latitude": 45.459410694611,
+        "longitude": -73.6395474393349
+      },
+      {
+        "latitude": 45.4593483705756,
+        "longitude": -73.6396001483967
+      },
+      {
+        "latitude": 45.4592925612444,
+        "longitude": -73.6394530372725
+      },
+      {
+        "latitude": 45.4595842736695,
+        "longitude": -73.6392287121414
+      },
+      {
+        "latitude": 45.4596361924694,
+        "longitude": -73.63936036578
+      },
+      {
+        "latitude": 45.4596790357383,
+        "longitude": -73.6393286811032
+      },
+      {
+        "latitude": 45.4598237482288,
+        "longitude": -73.6396936209979
+      },
+      {
+        "latitude": 45.4599057544473,
+        "longitude": -73.6399167215764
+      },
+      {
+        "latitude": 45.4599075317161,
+        "longitude": -73.6399217964911
+      },
+      {
+        "latitude": 45.4599092990249,
+        "longitude": -73.6399217784911
+      },
+      {
+        "latitude": 45.4599203776549,
+        "longitude": -73.6399419907126
+      },
+      {
+        "latitude": 45.4599203580648,
+        "longitude": -73.6399458772755
+      },
+      {
+        "latitude": 45.459927941579,
+        "longitude": -73.6399724247668
+      },
+      {
+        "latitude": 45.4599421388314,
+        "longitude": -73.6399606210943
+      },
+      {
+        "latitude": 45.459945876309,
+        "longitude": -73.6399669924006
+      },
+      {
+        "latitude": 45.4599314761984,
+        "longitude": -73.6399723887717
+      },
+      {
+        "latitude": 45.4599651084416,
+        "longitude": -73.6400688919695
+      },
+      {
+        "latitude": 45.4599366371958,
+        "longitude": -73.6400949916417
+      },
+      {
+        "latitude": 45.4599932287521,
+        "longitude": -73.6401971847091
+      },
+      {
+        "latitude": 45.4599882339157,
+        "longitude": -73.640201341293
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.45963709999999,
+    "longitude": -73.6397743
+  },
+  "buildingCode": "PS",
+  "buildingName": "Physical Services Building",
+  "overview": [
+    "Built in 1923 as the Loyola College Arena, the Physical Services Building has played many roles over the years. Originally home to the college’s first rink, it was expanded in 1941 with a south wall addition to house a Canadian Officers Training Corps (COTC) drill hall, which was later repurposed as a cafeteria after World War II.",
+    "Following the opening of the Athletics Complex in 1967 and the relocation of the COTC, the building was converted for Facilities Operations Services.",
+    "Today, this two-storey structure continues to support Concordia’s Facilities Operations Services and also serves as a workspace for student theatre workshops and engineering projects, including vehicle design and fabrication initiatives."
+  ],
+  "services": [
+    {
+      "name": "Environmental Health and Safety",
+      "url": "https://www.concordia.ca/campus-life/safety.html"
+    },
+    {
+      "name": "Facilities Management",
+      "url": "https://www.concordia.ca/offices/facilities.html"
+    }
+  ],
+  "accessibility": [],
+  "address": "7141 Sherbrooke St. W.",
+  "campus": "LOY",
+  "url": "https://www.concordia.ca/maps/buildings/ps.html"
+}
