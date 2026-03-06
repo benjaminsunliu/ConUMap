@@ -139,12 +139,8 @@ export default function MapViewer({
   );
 
     useEffect(() => { 
-      if (!IS_E2E) {
-        return;
-      }
-    if (!currentRegion) {
-        return;
-      }
+
+      if (!IS_E2E || !currentRegion) return
       let isCancelled = false;
       async function updateHitboxPositions() { 
         if (!mapReady || !mapViewRef.current || isCancelled) {
@@ -175,8 +171,7 @@ export default function MapViewer({
               if (!mapViewRef.current || isCancelled) {
                 return null;
               }
-              const coord = building.location;
-              const point = await mapViewRef.current.pointForCoordinate(coord);
+              const point = await mapViewRef.current.pointForCoordinate(building.location);
               return { building, x: point.x, y: point.y };
             })
           );

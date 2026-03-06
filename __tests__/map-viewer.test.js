@@ -284,6 +284,23 @@ describe('map tab', () => {
         }))    
     });
 
+  it("closes modal when close button is pressed", async () => {
+      const onRequestClose = jest.fn();
+      const mapViewer = render(<MapViewer />);
+      const locationButton = mapViewer.getByTestId("locationButton");
+
+      await act(async () => {
+        fireEvent.press(locationButton);
+      });
+
+      const modal = await mapViewer.findByTestId("location-modal");
+      expect(modal).toBeVisible();
+      const locationModalClose = mapViewer.getByTestId("location-modal-close");
+      fireEvent.press(locationModalClose);
+
+      expect(mapViewer.queryByTestId("location-modal")).toBeNull();
+    });
+
     describe('Polygon Color Selection Logic', () => {
 
       it('should render polygonFill color when no building is selected and user is not inside', () => {
