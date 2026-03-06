@@ -1,0 +1,133 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4938224310594,
+        "longitude": -73.5790675793437
+      },
+      {
+        "latitude": 45.4936253317537,
+        "longitude": -73.5787278267861
+      },
+      {
+        "latitude": 45.4938485663982,
+        "longitude": -73.578464404337
+      },
+      {
+        "latitude": 45.4938347082701,
+        "longitude": -73.5784404879638
+      },
+      {
+        "latitude": 45.4938823658608,
+        "longitude": -73.5783841887415
+      },
+      {
+        "latitude": 45.49389163144,
+        "longitude": -73.5783999809559
+      },
+      {
+        "latitude": 45.4939229605407,
+        "longitude": -73.578363117757
+      },
+      {
+        "latitude": 45.493910878984,
+        "longitude": -73.5783422413871
+      },
+      {
+        "latitude": 45.4941040322076,
+        "longitude": -73.5781141243649
+      },
+      {
+        "latitude": 45.4941111110426,
+        "longitude": -73.5781260965672
+      },
+      {
+        "latitude": 45.4942034157231,
+        "longitude": -73.5780171102815
+      },
+      {
+        "latitude": 45.4941860040851,
+        "longitude": -73.5779871135714
+      },
+      {
+        "latitude": 45.4943716169905,
+        "longitude": -73.577767934105
+      },
+      {
+        "latitude": 45.4943922272942,
+        "longitude": -73.5778036071554
+      },
+      {
+        "latitude": 45.4944351389261,
+        "longitude": -73.5777531697142
+      },
+      {
+        "latitude": 45.4944025217638,
+        "longitude": -73.5776941232604
+      },
+      {
+        "latitude": 45.4944086795991,
+        "longitude": -73.5776357197305
+      },
+      {
+        "latitude": 45.4944430329004,
+        "longitude": -73.5776003421639
+      },
+      {
+        "latitude": 45.4946956374377,
+        "longitude": -73.5780392058659
+      },
+      {
+        "latitude": 45.4943622108617,
+        "longitude": -73.5784295241273
+      },
+      {
+        "latitude": 45.4943695640644,
+        "longitude": -73.5784423565512
+      },
+      {
+        "latitude": 45.4943013994673,
+        "longitude": -73.5785228036446
+      },
+      {
+        "latitude": 45.4942942652392,
+        "longitude": -73.5785104552821
+      },
+      {
+        "latitude": 45.4938224310594,
+        "longitude": -73.5790675793437
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4943435,
+    "longitude": -73.57845429999999
+  },
+  "buildingCode": "FG",
+  "buildingName": "Faubourg Ste-Catherine Building",
+  "overview": [
+    "Located on the site of a former auto showroom, the Faubourg Ste-Catherine Building has a colourful history. Built in 1926, the building was originally a McLaughlin-Buick dealership and then later hosted a bowling alley, a pool room and a tavern. In 1985, the building was redeveloped into an indoor urban market inspired by Boston's Faneuil Hall, with an attached tower originally intended as a hotel.",
+    "Today, the building houses classrooms as well as the Department of Education's Student Resource Centre. You can also find a selection of restaurants in the building's sunlit atrium."
+  ],
+  "services": [
+    {
+      "name": "Records Management and Archives (RMA) Research Room and Vault",
+      "url": "https://www.concordia.ca/offices/archives.html"
+    }
+  ],
+  "departments": [
+    {
+      "name": "Education",
+      "url": "https://www.concordia.ca/artsci/education.html"
+    }
+  ],
+  "accessibility": [
+    "wheelchairLift",
+    "entranceRamp",
+    "entranceAutomatedDoor",
+    "elevator"
+  ],
+  "address": "1610 Ste-Catherine St. W.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/fg.html"
+}

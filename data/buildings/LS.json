@@ -1,0 +1,48 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4963829863991,
+        "longitude": -73.57923712581396
+      },
+      {
+        "latitude": 45.49653409970922,
+        "longitude": -73.5795683786273
+      },
+      {
+        "latitude": 45.49641400813814,
+        "longitude": -73.57967834919691
+      },
+      {
+        "latitude": 45.496366535469946,
+        "longitude": -73.57958145439625
+      },
+      {
+        "latitude": 45.49626994491753,
+        "longitude": -73.57967030256987
+      },
+      {
+        "latitude": 45.49616254354915,
+        "longitude": -73.57944466173649
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.49634409999999,
+    "longitude": -73.5795189
+  },
+  "buildingCode": "LS",
+  "buildingName": "Learning Square",
+  "overview": [
+    "The Learning Square opened in 2019 to provide extra classroom space while the Henry F. Hall Building underwent renovations. This bright, modular two-storey structure was designed for flexibility and future reuse by Montreal-based firm Lapointe Magne et associés.",
+    "It houses eight state-of-the-art classrooms and includes universal accessibility features like gender-neutral washrooms and step-free entry."
+  ],
+  "accessibility": [
+    "groundFloor",
+    "entranceRamp",
+    "entranceAutomatedDoor"
+  ],
+  "address": "1535 De Maisonneuve Blvd. W.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/ls.html"
+}

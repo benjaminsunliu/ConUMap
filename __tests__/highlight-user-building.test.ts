@@ -1,6 +1,6 @@
 import { isPointInPolygon } from "../utils/currentBuilding/pointInPolygon";
 import { Coordinate, Polygon } from "../types/mapTypes";
-import { CAMPUS_LOCATIONS } from "../constants/mapData";
+import { CAMPUS_BUILDINGS } from "@/constants/map";
 
 /**
  * Tests for the point-in-polygon algorithm used to determine if a user's location
@@ -12,7 +12,7 @@ describe("isPointInPolygon (Is the point (the user in the app context) in the po
 
   beforeAll(() => {
     // Get the B Annex building polygon from the actual data source
-    const bAnnexBuilding = CAMPUS_LOCATIONS.find(building => building.code === "B");
+    const bAnnexBuilding = CAMPUS_BUILDINGS.find(building => building.buildingCode === "B");
     expect(bAnnexBuilding).toBeDefined();
     
     if (bAnnexBuilding) {

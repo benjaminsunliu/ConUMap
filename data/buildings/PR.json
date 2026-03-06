@@ -1,0 +1,46 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.497018231365,
+        "longitude": -73.5798284849611
+      },
+      {
+        "latitude": 45.4969333671852,
+        "longitude": -73.579913869306
+      },
+      {
+        "latitude": 45.4968942423805,
+        "longitude": -73.5798326976489
+      },
+      {
+        "latitude": 45.4969788651099,
+        "longitude": -73.5797486816604
+      },
+      {
+        "latitude": 45.497018231365,
+        "longitude": -73.5798284849611
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4969561,
+    "longitude": -73.57983109999999
+  },
+  "buildingCode": "PR",
+  "buildingName": "PR Annex",
+  "overview": [
+    "Built around 1957, the PR Annex reflects a modern style with artificial stone at street level and brick above. Its metal accents and clean lines are typical of mid-century design.",
+    "The four-storey building was acquired by the university in 1974 and now serves as space for offices and student services."
+  ],
+  "services": [
+    {
+      "name": "Concordia University Library Employees' Union (CULEU)",
+      "url": "https://www.concordia.ca/hr/labour-agreements/culeu.html"
+    }
+  ],
+  "accessibility": [],
+  "address": "2100 Mackay St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/pr.html"
+}

@@ -1,0 +1,45 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4969490409659,
+        "longitude": -73.5796655016554
+      },
+      {
+        "latitude": 45.4968568191684,
+        "longitude": -73.5797570632412
+      },
+      {
+        "latitude": 45.4968142517275,
+        "longitude": -73.5796705633521
+      },
+      {
+        "latitude": 45.496906825471,
+        "longitude": -73.57957838521
+      },
+      {
+        "latitude": 45.4969490409659,
+        "longitude": -73.5796655016554
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4968817,
+    "longitude": -73.5796678
+  },
+  "buildingCode": "X",
+  "buildingName": "X Annex",
+  "overview": [
+    "Built around 1878, the X Annex is a Victorian home known for its ornate stone details with carved accents around windows and doors. The building was acquired by the university in 1969 and now offers space for offices and student services."
+  ],
+  "services": [
+    {
+      "name": "Concordia International",
+      "url": "https://www.concordia.ca/offices/ci.html"
+    }
+  ],
+  "accessibility": [],
+  "address": "2080 Mackay St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/x.html"
+}

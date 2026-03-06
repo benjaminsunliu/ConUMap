@@ -1,6 +1,6 @@
 <div align="center">
 
-![Last Commit](https://img.shields.io/github/last-commit/benjaminsunliu/ConUMap) ![Build](https://github.com/benjaminsunliu/ConUMap/actions/workflows/build.yml/badge.svg) ![Lint](https://github.com/benjaminsunliu/ConUMap/actions/workflows/staticanalysis.yml/badge.svg) ![Tests](https://github.com/benjaminsunliu/ConUMap/actions/workflows/tests.yml/badge.svg)
+![Last Commit](https://img.shields.io/github/last-commit/benjaminsunliu/ConUMap) ![CI](https://github.com/benjaminsunliu/ConUMap/actions/workflows/ci.yml/badge.svg) ![Lint](https://github.com/benjaminsunliu/ConUMap/actions/workflows/staticanalysis.yml/badge.svg)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=benjaminsunliu_ConUMap&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=benjaminsunliu_ConUMap) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=benjaminsunliu_ConUMap&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=benjaminsunliu_ConUMap) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=benjaminsunliu_ConUMap&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=benjaminsunliu_ConUMap) [![codecov](https://codecov.io/github/benjaminsunliu/ConUMap/graph/badge.svg?token=CDUC55T9S8)](https://codecov.io/github/benjaminsunliu/ConUMap)
 
 # ConUMaps
@@ -21,7 +21,7 @@ ConUMaps is a mobile application that helps Concordia students navigate the SGW 
 
 ### Testing & Quality Assurance
 - **Jest** and **React Native Testing Library** for unit testing
-- **Detox** for end-to-end testing of user workflows
+- **Maestro** for end-to-end testing of user workflows
 - **ESLint** and **SonarQube** for static code analysis and maintaining coding standards
 
 ## Team members
