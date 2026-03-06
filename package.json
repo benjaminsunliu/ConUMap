@@ -46,6 +46,7 @@
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
+    "cheerio": "^1.2.0",
     "expo": "~54.0.33",
     "expo-constants": "~18.0.13",
     "expo-font": "~14.0.10",
@@ -90,6 +91,7 @@
     "jest-expo": "~54.0.17",
     "metro-react-native-babel-preset": "^0.77.0",
     "prettier": "^3.8.1",
+    "react-test-renderer": "^19.1.0",
     "typescript": "~5.9.2"
   },
   "private": true
