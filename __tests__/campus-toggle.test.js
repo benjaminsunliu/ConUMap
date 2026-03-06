@@ -51,7 +51,7 @@ describe("campus-toggle",()=>{
     // Rerender with a region near LOY
     rerender(<CampusToggle mapRef={mapRef} viewRegion={viewRegionNearLOY} />);
 
-    // Now Loyola should be selected as the active tab
-    expect(getByText("Loyola").props.style.some(s => s.color === "#000000")).toBeTruthy();
+    // Now LOY should be selected as the active tab
+    expect(getByText("LOY").props.style.some(s => s.color === "#000000")).toBeTruthy();
   });
 })

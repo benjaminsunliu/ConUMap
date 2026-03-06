@@ -1,7 +1,6 @@
 import React from "react";
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { act, render, fireEvent, waitFor } from '@testing-library/react-native';
 import BuildingSelection from "@/components/map/building-selection";
-import MapViewer from "@/components/map/map-viewer";
 
 
 const mockAnimateToRegion = jest.fn();
@@ -28,6 +27,16 @@ jest.mock('expo-location', () => ({
     hasServicesEnabledAsync: jest.fn(),
     requestForegroundPermissionsAsync: jest.fn(),
     getCurrentPositionAsync: jest.fn(),
+}));
+
+jest.mock('@/utils/directions', () => ({
+    fetchAllDirections: jest.fn().mockResolvedValue({
+        walking: [],
+        transit: [],
+        driving: [],
+        bicycling: [],
+        shuttle: [],
+    }),
 }));
 
 jest.mock("@/data/building-addresses.json", () => [
@@ -267,6 +276,7 @@ describe("BuildingSelection Directions", () => {
 
 describe("BuildingSelection Integration Tests", () => {
     it('should remove display results when a result is pressed, call the onSelect, and set the query correctly', async () => {
+        const MapViewer = require("@/components/map/map-viewer").default;
         const mapViewer = render(<MapViewer />);
 
         let searchBar = await mapViewer.findByPlaceholderText("Search building");
@@ -287,7 +297,9 @@ describe("BuildingSelection Integration Tests", () => {
             "directions-action-button"
         );
 
-        fireEvent.press(directionsButton);
+        await act(async () => {
+            fireEvent.press(directionsButton);
+        });
 
         const startInput = mapViewer.getByPlaceholderText("Your location");
 
@@ -297,6 +309,8 @@ describe("BuildingSelection Integration Tests", () => {
         const hallResult = await mapViewer.findByTestId('start-result-H');
 
         fireEvent.press(hallResult);
+
+        await act(async () => { });
 
         const startResultsAfterPress = await mapViewer.queryByTestId('start-results');
         expect(startResultsAfterPress).toBeNull();

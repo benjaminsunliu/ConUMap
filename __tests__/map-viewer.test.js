@@ -300,7 +300,6 @@ jest.mock("@/constants/map", () => {
         const mapViewer = render(<MapViewer />);
         
         const polygons = mapViewer.getAllByTestId('polygon');
-        console.log(polygons[0].props.key)
         expect(polygons[0].props.fillColor).toBe(Colors.light.map.polygonFill);
       });
 
@@ -493,7 +492,7 @@ jest.mock("@/constants/map", () => {
         });
       });
       // CampusToggle should reflect the new region (now closer to LOY)
-      expect(mapViewer.getByText("Loyola")).toBeTruthy();
+      expect(mapViewer.getByText("LOY")).toBeTruthy();
     });
 
     it('onRegionChangeComplete sets locationState to "centered" when near user location', async () => {
@@ -1006,7 +1005,7 @@ jest.mock("@/constants/map", () => {
       await act(async () => { fireEvent.press(mapViewer.getByTestId('directions-action-button')); });
 
       // Type in the start field to show results (must focus first so the dropdown renders)
-      const startInput = mapViewer.getByPlaceholderText('Start');
+      const startInput = mapViewer.getByPlaceholderText('Your location');
       await act(async () => {
         fireEvent(startInput, 'onFocus');
         fireEvent.changeText(startInput, 'VE');
@@ -1409,7 +1408,7 @@ jest.mock("@/constants/map", () => {
       await act(async () => { fireEvent.press(mapViewer.getByTestId('directions-action-button')); });
 
       // 2. Set manual start to VE via the BuildingSelection start field
-      const startInput = mapViewer.getByPlaceholderText('Start');
+      const startInput = mapViewer.getByPlaceholderText('Your location');
       await act(async () => {
         fireEvent(startInput, 'onFocus');
         fireEvent.changeText(startInput, 'VE');
