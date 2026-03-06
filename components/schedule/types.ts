@@ -1,15 +1,22 @@
 export interface ClassInfo {
-    subject: string,
-    catalogNumber: string;
-    fullName: string;
-    lecTutLab: string;
-    classSection: string;
-    instructor: string;
-    roomCode: string;
-    buildingId: string;
-    dayOfWeek: number[];
-    startHours: string;
-    startMinutes: string;
-    endHours: string;
-    endMinutes: string;
+    STRM: string,
+    SUBJECT: string,
+    CATALOG_NBR: string,
+    SSR_COMPONENT: string,
+    XLATLONGNAME: string,
+    CLASS_SECTION: string,
+    DAY_OF_WEEK: string,
+    START_HOURS: string,
+    START_MINUTES: string,
+    END_HOURS: string,
+    END_MINUTES: string,
+    CU_BLDG: string,
+    CU_BUILDING: string,
+    ROOM: string,
+    INSTRUCTION_MODE: string,
+    EXPR20_20: string,
+    START_DT: string,
+    END_DT: string,
+    ACAD_CAREER: string,
+    INSTR_NAME: string
 }

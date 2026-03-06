@@ -9,8 +9,8 @@ interface ClassBlockProps {
 }
 
 export default function ClassBlock({ classInfo, onPress }: ClassBlockProps) {
-    const topOffset = timeToPixels(`${classInfo.startHours}:${classInfo.startMinutes}`);
-    const height = timeToPixels(`${classInfo.endHours}:${classInfo.endMinutes}`) - topOffset;
+    const topOffset = timeToPixels(`${classInfo.START_HOURS}:${classInfo.START_MINUTES}`);
+    const height = timeToPixels(`${classInfo.END_HOURS}:${classInfo.END_MINUTES}`) - topOffset;
     
     const classColor = "#4597f4";
 
@@ -30,10 +30,10 @@ export default function ClassBlock({ classInfo, onPress }: ClassBlockProps) {
             <View style={[styles.accentBar, {backgroundColor: darkenColor(classColor, 30) }]}/>
             <View style={styles.content}>
                 <Text style={styles.courseName} numberOfLines={1}>
-                    {classInfo.subject}
+                    {classInfo.SUBJECT}
                 </Text>
                 <Text style={styles.courseName} numberOfLines={1}>
-                    {classInfo.catalogNumber}
+                    {classInfo.CATALOG_NBR}
                 </Text>
             </View>
         </Pressable>

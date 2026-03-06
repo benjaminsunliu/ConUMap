@@ -26,6 +26,13 @@ function getCurrentTimeY(): number {
     return minutesFromMidnight * PIXELS_PER_MINUTE;
 }
 
+function resolveWeekday(cls: ClassInfo): number {
+    for (let i = 0; i < WEEK_DAYS.length; i++) {
+        if (WEEK_DAYS[i].toLowerCase() === cls.DAY_OF_WEEK) return i;
+    }
+    return 0;
+}
+
 export default function WeeklyCalendarBody({ weekStartDate, classes, onClassPress, onWeekChange }: WeeklyCalendarBodyProps) {
     // Time state for horizontal time bar
     const [currentTimeY, setCurrentTimeY] = useState(() => getCurrentTimeY());
@@ -145,7 +152,7 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, onClassPres
                                 key={i}
                                 dayIndex={i}
                                 isToday={isToday(date)}
-                                classes={classes.filter((cls) => cls.dayOfWeek.includes(date.getDay()))}
+                                classes={classes.filter((cls) => resolveWeekday(cls) === date.getDay())}
                                 onClassPress={onClassPress}
                             />
                         ))}

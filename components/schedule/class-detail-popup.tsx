@@ -34,17 +34,15 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
     function handleLocateOnMap() {
         onClose();
         navigation.navigate('map-tab', {
-            buildingId: classInfo.buildingId,
-            buildingName: classInfo.buildingId,
+            buildingId: classInfo.CU_BLDG,
+            buildingName: classInfo.CU_BUILDING,
         })
     }
 
-    function resolveWeekdays(c: ClassInfo): string {
-        let result: string = "";
+    function formatWeekday(cls: ClassInfo): string {
+        let day = cls.DAY_OF_WEEK;
 
-        c.dayOfWeek.forEach((n) => {result += (Weekdays[n].substring(0, 3) + ", ")})
-
-        return result.slice(0, -2);
+        return "" + day[0].toUpperCase() + day.slice(1,);
     }
 
     return (
@@ -55,8 +53,8 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
                     <View style={styles.body}>
                         <View style={styles.headerRow}>
                             <View style={styles.headerText}>
-                                <Text style={styles.courseCode}>{classInfo.subject} {classInfo.catalogNumber}</Text>
-                                <Text style={styles.lecTutLab}>{classInfo.lecTutLab} – Section {classInfo.classSection}</Text>
+                                <Text style={styles.courseCode}>{classInfo.SUBJECT} {classInfo.CATALOG_NBR}</Text>
+                                <Text style={styles.xlatLongName}>{classInfo.XLATLONGNAME} – Section {classInfo.CLASS_SECTION}</Text>
                             </View>
                             <Pressable onPress={handleClose} style={styles.closeButton} accessibilityLabel="Close">
                                 <MaterialIcons name="close" size={36} color="#fff" />
@@ -65,11 +63,11 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
                         <View style={styles.details}>
                             <View style={styles.detailRow}>
                                 <Text style={styles.detailRowTitle}>Instructor:</Text>
-                                <Text style={styles.detailRowText}>{classInfo.instructor}</Text>
+                                <Text style={styles.detailRowText}>{classInfo.INSTR_NAME}</Text>
                             </View>
                             <View style={styles.detailRow}>
                                 <Text style={styles.detailRowTitle}>Time:</Text>
-                                <Text style={styles.detailRowText}>{classInfo.startHours}:{classInfo.startMinutes} – {classInfo.endHours}:{classInfo.endMinutes} ({resolveWeekdays(classInfo)})</Text>
+                                <Text style={styles.detailRowText}>{classInfo.START_HOURS}:{classInfo.START_MINUTES} – {classInfo.END_HOURS}:{classInfo.END_MINUTES} ({formatWeekday(classInfo)})</Text>
                             </View>
                             <View style={styles.detailRow}>
                                 <Text style={styles.detailRowTitle}>Location:</Text>
@@ -81,7 +79,7 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
                         <Pressable
                             onPress={handleLocateOnMap}
                             style={({ pressed }) => [styles.mapButton, {opacity: pressed ? 0.85 : 1}]}
-                            accessibilityLabel={`Find ${classInfo.buildingId} ${classInfo.roomCode} on map`}
+                            accessibilityLabel={`Find ${classInfo.CU_BLDG}${classInfo.ROOM} on map`}
                         >
                             <Text style={styles.mapButtonText}>Open Directions in Map</Text>
                         </Pressable>
@@ -135,7 +133,7 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
         marginBottom: 3,
     },
-    lecTutLab: {
+    xlatLongName: {
         fontSize: 20,
         color: '#fdfcea'
     },

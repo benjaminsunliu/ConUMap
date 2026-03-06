@@ -20,7 +20,7 @@ export default function DayColumn({ dayIndex, isToday, classes, onClassPress }: 
             <View style={[styles.eventsArea, { height: COLUMN_TOTAL_HEIGHT}]}>
                {classes.map((cls) => (
                     <ClassBlock 
-                        key={`${dayIndex}-${cls.subject}-${cls.catalogNumber}`}
+                        key={`${dayIndex}-${cls.SUBJECT}-${cls.CATALOG_NBR}`}
                         classInfo={cls}
                         onPress={onClassPress}/>
                 ))}
