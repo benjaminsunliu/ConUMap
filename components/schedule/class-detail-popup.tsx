@@ -6,10 +6,11 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 interface ClassDetailPopupProps {
     classInfo: ClassInfo;
+    colorMap: Map<string, string>;
     onClose: () => void;
 }
 
-export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupProps) {
+export default function ClassDetailPopup({classInfo, colorMap, onClose}: ClassDetailPopupProps) {
     const backdropOpacity = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
@@ -21,6 +22,9 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
     }, []);
 
     const navigation = useNavigation<any>();
+
+    const courseKey = `${classInfo.SUBJECT}-${classInfo.CATALOG_NBR}`
+    const color = colorMap.get(courseKey) ?? "#707070";
 
     function handleClose() {
         Animated.timing(backdropOpacity, {
@@ -43,7 +47,7 @@ export default function ClassDetailPopup({classInfo, onClose}: ClassDetailPopupP
         <Modal visible transparent animationType='none' onRequestClose={handleClose}>
             <Animated.View style={[styles.backdrop, {opacity: backdropOpacity}]}>
                 <Pressable style={StyleSheet.absoluteFill} onPress={handleClose} />
-                <Pressable style={styles.card}>
+                <Pressable style={[styles.card, {backgroundColor: color}]}>
                     <View style={styles.body}>
                         <View style={styles.headerRow}>
                             <View style={styles.headerText}>
@@ -92,7 +96,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
     card: {
-        backgroundColor: '#5e0e16',
         borderRadius: 18,
         maxHeight: '75%',
         overflow: 'hidden', 

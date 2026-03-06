@@ -72,6 +72,7 @@ export default function ScheduleViewer() {
             {selectedClass && (
                 <ClassDetailPopup 
                     classInfo={selectedClass}
+                    colorMap={colorMap}
                     onClose={() => setSelectedClass(null)}
                 />
             )}
