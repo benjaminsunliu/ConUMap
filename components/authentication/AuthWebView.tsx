@@ -37,6 +37,7 @@ export default function AuthWebView({ onLogin }: Readonly<AuthWebViewProps>) {
       onMessage={handleMessage}
       onNavigationStateChange={handleNavigationChange}
       incognito={true} // think twice before setting this to false
+      sharedCookiesEnabled={true}
     />
   );
 }

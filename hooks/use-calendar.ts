@@ -25,9 +25,9 @@ async function fetchCalendarForDate(token: string, date: Date) {
   const text = await response.text();
 
   // why couldn't they just send normal json smh
-  const parsedText = text.replaceAll(`\n`, "").replaceAll(`\\`, "").slice(1, -1);
-  const json = JSON.parse(parsedText);
-  return json as CalendarResponse;
+  const parsedText = text.replaceAll("\\n", "").replaceAll("\\", "").slice(1, -1);
+  const jsObject = JSON.parse(parsedText);
+  return jsObject as CalendarResponse;
 }
 
 function dateToRequestDate(date: Date) {
