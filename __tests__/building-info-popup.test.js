@@ -69,6 +69,90 @@ describe('building-info-popup', () => {
 
         expect(Linking.openURL).toHaveBeenCalledWith(mockBuilding.url);
     });
+
+    it('does not open URL when building has no link', async () => {
+        Linking.openURL.mockClear();
+        const buildingNoLink = { ...mockBuilding, url: "" };
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        render(<BuildingInfoPopup building={buildingNoLink} />);
+
+        const websiteButton = screen.getByTestId('website-action-button');
+        await act(async () => {
+            await fireEvent.press(websiteButton);
+        });
+
+        expect(Linking.openURL).not.toHaveBeenCalled();
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('No URL available'));
+        warnSpy.mockRestore();
+    });
+
+    it('does not open URL when canOpenURL returns false', async () => {
+        Linking.openURL.mockClear();
+        jest.spyOn(Linking, 'canOpenURL').mockResolvedValueOnce(false);
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        render(<BuildingInfoPopup building={mockBuilding} />);
+
+        const websiteButton = screen.getByTestId('website-action-button');
+        await act(async () => {
+            await fireEvent.press(websiteButton);
+        });
+
+        expect(Linking.openURL).not.toHaveBeenCalled();
+        expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Cannot open URL'));
+        warnSpy.mockRestore();
+    });
+
+    it('catches errors thrown by Linking.openURL', async () => {
+        jest.spyOn(Linking, 'canOpenURL').mockResolvedValueOnce(true);
+        jest.spyOn(Linking, 'openURL').mockRejectedValueOnce(new Error('Permission denied'));
+        const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+        render(<BuildingInfoPopup building={mockBuilding} />);
+
+        const websiteButton = screen.getByTestId('website-action-button');
+        await act(async () => {
+            await fireEvent.press(websiteButton);
+        });
+
+        expect(errorSpy).toHaveBeenCalledWith(
+            expect.stringContaining('Failed to open URL'),
+            expect.any(Error)
+        );
+        errorSpy.mockRestore();
+    });
+
+    it('falls back to Linking when Directions is pressed without onNavigate prop', async () => {
+        render(<BuildingInfoPopup building={mockBuilding} />);
+
+        const directionsButton = screen.getByTestId('directions-action-button');
+        await act(async () => {
+            await fireEvent.press(directionsButton);
+        });
+
+        expect(Linking.openURL).toHaveBeenCalledWith(
+            expect.stringContaining('google.com/maps')
+        );
+    });
+
+    it('shows accessibility items when building has accessibility features', async () => {
+        const buildingWithAccessibility = {
+            ...mockBuilding,
+            accessibility: ["wheelchairAccessible", "elevatorAvailable"],
+        };
+        render(<BuildingInfoPopup building={buildingWithAccessibility} />);
+
+        const popup = screen.getByTestId('building-info-popup');
+        await act(async () => {
+            popup.props.onResponderGrant({}, {});
+            popup.props.onResponderMove({}, { dy: -300 });
+            popup.props.onResponderRelease({}, { dy: -300, vy: -1 });
+        });
+
+        const accessibilityTitle = await screen.findByText('Accessibility');
+        expect(accessibilityTitle).toBeTruthy();
+        // formatCamelCase should split the camelCase strings
+        expect(await screen.findByText('Wheelchair Accessible')).toBeTruthy();
+        expect(await screen.findByText('Elevator Available')).toBeTruthy();
+    });
 });
 
 describe('building-info-popup-panresponder', () => {
