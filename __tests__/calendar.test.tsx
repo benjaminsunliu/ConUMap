@@ -4,16 +4,8 @@ import { queryClient } from "@/hooks/query";
 import { ClassSchedule } from "@/hooks/use-calendar";
 import { LoggedInContext, LoggedInData, LoggedOutContext } from "@/types/authTypes";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { render, waitFor } from "@testing-library/react-native";
+import { render } from "@testing-library/react-native";
 import React from "react";
-
-jest.mock("@/hooks/use-calendar", () => ({
-  useCalendar: jest.fn().mockReturnValue({
-    isLoading: false,
-    data: calendarFetchValue,
-    refetch: jest.fn(),
-  }),
-}));
 
 jest.mock("expo-secure-store", () => {
   return {
@@ -29,6 +21,12 @@ jest.mock("react-native-webview", () => {
 });
 
 describe("Calendar View", () => {
+  const originalFetch = global.fetch;
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+  });
+
   it("Should not render courses when logged out and render the webview", async () => {
     const calendarView = render(
       <AuthContext value={loggedOutContext}>
@@ -44,6 +42,9 @@ describe("Calendar View", () => {
   });
 
   it("Should render the courses when logged in and not the web view", async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      text: jest.fn().mockResolvedValue(`'${JSON.stringify(calendarFetchValue)}'`),
+    });
     const calendarView = render(
       <AuthContext value={loggedInContext}>
         <QueryClientProvider client={queryClient}>

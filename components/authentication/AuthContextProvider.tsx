@@ -15,7 +15,7 @@ const defaultContext: AuthContextData = {
 
 export const AuthContext = createContext<AuthContextData>(defaultContext);
 
-export default function AuthContextProvider({ children }: PropsWithChildren) {
+export default function AuthContextProvider({ children }: Readonly<PropsWithChildren>) {
   const [loginData, setLoginData] = useState<LoggedInData | null>(null);
 
   const loginFunction = async (data: LoggedInData) => {
@@ -34,13 +34,13 @@ export default function AuthContextProvider({ children }: PropsWithChildren) {
     login: loginFunction,
   };
 
-  const logginValue: LoggedInContext | null = !loginData
-    ? null
-    : {
+  const logginValue: LoggedInContext | null = loginData
+    ? {
         isLoggedIn: true,
         data: loginData,
         logout: logoutFunction,
-      };
+      }
+    : null;
 
   return <AuthContext value={logginValue || logoutValue}>{children}</AuthContext>;
 }
