@@ -7,7 +7,7 @@ interface AuthWebViewProps {
   onLogin: (data: LoggedInData) => void;
 }
 
-export default function AuthWebView({ onLogin }: AuthWebViewProps) {
+export default function AuthWebView({ onLogin }: Readonly<AuthWebViewProps>) {
   const visitedAuthScreen = useRef(false);
   const webviewRef = useRef<WebView>(null);
 

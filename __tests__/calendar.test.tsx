@@ -97,9 +97,3 @@ const calendarFetchValue: ClassSchedule = {
   ACAD_CAREER: "",
   INSTR_NAME: "",
 };
-
-const loggedInStoredData: LoggedInData = {
-  authToken: "fakeToken",
-  firstName: "First name",
-  lastNameInitial: "L",
-};
