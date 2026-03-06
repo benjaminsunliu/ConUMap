@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { View, TextInput, FlatList, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -8,24 +8,17 @@ import { SearchBuilding, FieldType } from "@/types/buildingTypes";
 
 const buildingAddresses = buildingAddressesRaw as SearchBuilding[];
 
-const emptyBuilding: SearchBuilding = {
-    buildingCode: "",
-    buildingName: "",
-    address: "",
-    campus: ""
-};
-
 /**
  * Separates buildings into current and other, returning current buildings first.
  * This prioritizes user's current location in search results.
  */
 function prioritizeCurrentBuildings(
-    buildings: SearchBuilding[], 
+    buildings: SearchBuilding[],
     currentCodes: Set<string>
 ): SearchBuilding[] {
     const currentBuildings: SearchBuilding[] = [];
     const otherBuildings: SearchBuilding[] = [];
-    
+
     buildings.forEach(building => {
         if (currentCodes.has(building.buildingCode)) {
             currentBuildings.push(building);
@@ -33,30 +26,46 @@ function prioritizeCurrentBuildings(
             otherBuildings.push(building);
         }
     });
-    
+
     return [...currentBuildings, ...otherBuildings];
 }
 
 interface Props {
     readonly currentBuildingCodes?: Set<string>;
-    readonly onSelect: (building: SearchBuilding, type: FieldType) => void;
+    readonly mode: "browse" | "directions";
+    readonly selectedBuilding: SearchBuilding | null;
+    readonly onSelect: (buildings: Record<FieldType, SearchBuilding | null>, type: FieldType) => void;
 }
 
-export default function BuildingSelection({ currentBuildingCodes = new Set(), onSelect }: Props) {
+export default function BuildingSelection({ currentBuildingCodes = new Set(), mode, selectedBuilding, onSelect }: Props) {
     const colorScheme = useColorScheme()
     const theme = Colors[colorScheme];
-
-    const [queries, setQueries] = useState<Record<FieldType, string>>({
-        start: "",
-        end: ""
-    });
-
-    const [, setSelectedBuildings] = useState<Record<FieldType, SearchBuilding>>({
-        start: emptyBuilding,
-        end: emptyBuilding
-    });
-
+    const [queries, setQueries] = useState<Record<FieldType, string>>({ start: "", end: "" });
     const [focusedField, setFocusedField] = useState<FieldType | null>(null);
+    const [selectedBuildings, setSelectedBuildings] = useState<Record<FieldType, SearchBuilding | null>>({
+        start: null,
+        end: null
+    });
+    const selectedBuildingRef = useRef(selectedBuilding);
+    const startInputRef = useRef<TextInput>(null);
+    const endInputRef = useRef<TextInput>(null);
+
+    useEffect(() => {
+
+        // Always have the search bar reflect the currently selected building
+        if (mode === "browse") {
+            setQueries(prev => ({ ...prev, end: selectedBuilding?.buildingName ?? "" }));
+        }
+        // Only change the text field value if the selected building changes when the field is focused
+        else if (focusedField === "end" && selectedBuilding && selectedBuilding?.buildingCode !== selectedBuildingRef.current?.buildingCode) {
+            setQueries(prev => ({ ...prev, end: selectedBuilding.buildingName }));
+            setSelectedBuildings(prev => ({ ...prev, end: selectedBuilding }));
+        } else if (focusedField === "start" && selectedBuilding && selectedBuilding?.buildingCode !== selectedBuildingRef.current?.buildingCode) {
+            setQueries(prev => ({ ...prev, start: selectedBuilding.buildingName }));
+            setSelectedBuildings(prev => ({ ...prev, start: selectedBuilding }));
+        }
+        selectedBuildingRef.current = selectedBuilding;
+    }, [focusedField, mode, selectedBuilding]);
 
     const filterBuildings = useCallback((text: string, fieldType: FieldType) => {
         const q = text.toLowerCase();
@@ -103,29 +112,41 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), on
     const handleChange = useCallback(
         (text: string, type: FieldType) => {
             setQuery(type, text);
-            setSelectedBuildings(prev => ({ ...prev, [type]: emptyBuilding }));
+            setSelectedBuildings(prev => ({ ...prev, [type]: null }));
         },
         [setQuery]
+    );
+
+    const removeInputFocus = useCallback(
+        (type: FieldType) => {
+            if (type === "start") {
+                startInputRef.current?.blur();
+            } else {
+                endInputRef.current?.blur();
+            }
+            setFocusedField(null);
+        },
+        []
     );
 
     const handleSelect = useCallback(
         (building: SearchBuilding, type: FieldType) => {
             setQuery(type, building.buildingName);
             setSelectedBuildings(prev => ({ ...prev, [type]: building }));
-            setFocusedField(null);
-            onSelect(building, type);
+            onSelect({ ...selectedBuildings, [type]: building }, type);
+            removeInputFocus(type);
         },
-        [setQuery, onSelect]
+        [setQuery, removeInputFocus, onSelect, selectedBuildings]
     );
 
     const clearField = useCallback(
         (type: FieldType) => {
             setQuery(type, "");
-            setSelectedBuildings(prev => ({ ...prev, [type]: emptyBuilding }));
-            setFocusedField(type);
-            onSelect(emptyBuilding, type);
+            setSelectedBuildings(prev => ({ ...prev, [type]: null }));
+            onSelect({ ...selectedBuildings, [type]: null }, type);
+            removeInputFocus(type);
         },
-        [setQuery, onSelect]
+        [setQuery, removeInputFocus, onSelect, selectedBuildings]
     );
 
     const swapFields = useCallback(() => {
@@ -135,11 +156,10 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), on
                     start: prevBuildings.end,
                     end: prevBuildings.start
                 };
-
-                onSelect(swappedBuildings.start, "start");
-                onSelect(swappedBuildings.end, "end");
                 return swappedBuildings;
             });
+
+            onSelect({ start: selectedBuildings.end, end: selectedBuildings.start }, "end");
 
             return {
                 start: prevQueries.end,
@@ -148,17 +168,21 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), on
         });
 
         setFocusedField(null);
-    }, [onSelect]);
+    }, [onSelect, selectedBuildings]);
 
     const renderInput = useCallback(
         (type: FieldType, placeholder: string) => {
             const value = queries[type];
 
             return (
-                <View style={styles.inputWrapper}>
+                <View style={[{ backgroundColor: theme.buildingSelection.inputBackground }, styles.inputWrapper]}>
+                    {mode === "browse" && (
+                        <Ionicons name="search" size={18} color={theme.buildingSelection.magnifierColor} style={styles.magnifierIcon} />
+                    )}
                     <TextInput
+                        ref={type === "start" ? startInputRef : endInputRef}
                         placeholder={placeholder}
-                        placeholderTextColor={theme.text}
+                        placeholderTextColor={theme.placeholder}
                         value={value}
                         onFocus={() => setFocusedField(type)}
                         onBlur={() => setFocusedField(prev => (prev === type ? null : prev))}
@@ -166,26 +190,26 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), on
                         style={[
                             styles.input,
                             {
-                                backgroundColor: theme.buildingInfoPopup.background,
-                                borderColor: theme.buildingInfoPopup.divider,
-                                color: theme.text
+                                backgroundColor: theme.buildingSelection.inputBackground,
+                                borderColor: theme.buildingSelection.borderColor,
+                                color: theme.buildingSelection.inputText
                             }
                         ]}
                     />
                     {!!value && (
                         <TouchableOpacity testID={`clear-${type}`} onPress={() => clearField(type)} style={styles.clearButton}>
-                            <Text style={{ color: theme.campusToggle.borderColor, fontSize: 18 }}>×</Text>
+                            <Text style={{ color: theme.buildingSelection.clearButton, fontSize: 18 }}>×</Text>
                         </TouchableOpacity>
                     )}
                 </View>
             );
-        }, [queries, theme.text, theme.buildingInfoPopup.background, theme.buildingInfoPopup.divider, theme.campusToggle.borderColor, handleChange, clearField]
+        }, [queries, theme.buildingSelection.inputBackground, theme.buildingSelection.magnifierColor, theme.buildingSelection.borderColor, theme.buildingSelection.inputText, theme.buildingSelection.clearButton, theme.placeholder, mode, handleChange, clearField]
     );
 
     const renderResults = useCallback(
         (type: FieldType) => {
             const data = results[type];
-            if (!data.length || focusedField !== type) return null;
+            if (!data.length || focusedField !== type || mode === "browse" && type === "start") return null;
 
             return (
                 <FlatList
@@ -195,13 +219,13 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), on
                     keyboardShouldPersistTaps="handled"
                     testID={`${type}-results`}
                     renderItem={({ item }) => {
-                        const isCurrent = type === "start" && currentBuildingCodes.has(item.buildingCode);
+                        const isCurrent = currentBuildingCodes.has(item.buildingCode);
                         return (
                             <TouchableOpacity
                                 style={[styles.resultItem, { borderBottomColor: theme.buildingInfoPopup.divider }]}
-                                onPress={() => handleSelect(item, type)} 
+                                onPress={() => handleSelect(item, type)}
                                 testID={`${type}-result-${item.buildingCode.toUpperCase()}`}>
-                                <Text style={[styles.resultTitle, { color: theme.campusToggle.selectedColor }]}>
+                                <Text style={[styles.resultTitle, { color: theme.buildingSelection.resultTitle }]}>
                                     {isCurrent && "📍 "}{item.buildingCode} – {item.buildingName}
                                     {isCurrent && <Text style={styles.currentLabel}> (Current Building)</Text>}
                                 </Text>
@@ -214,17 +238,30 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), on
                 />
             );
         },
-        [results, focusedField, theme.background, theme.buildingInfoPopup.divider, theme.campusToggle.selectedColor, theme.text, handleSelect, currentBuildingCodes]
+        [results, focusedField, mode, theme.background, theme.buildingInfoPopup.divider, theme.buildingSelection.resultTitle, theme.text, currentBuildingCodes, handleSelect]
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background, shadowColor: theme.text }]} testID="building-selection">
+        <View style={styles.buildingSelectionContainer} testID="building-selection">
             <View style={styles.inputRow}>
-                {renderInput("start", "Start")}
-                <TouchableOpacity testID="swap-fields" onPress={swapFields} style={styles.swapButton}>
-                    <Ionicons name="swap-vertical" size={24} color={theme.tint} />
-                </TouchableOpacity>
-                {renderInput("end", "Destination")}
+                {mode === "browse" ? (renderInput("end", "Search building")) : (
+                    <View style={[{ backgroundColor: theme.buildingSelection.containerBackground }, styles.directionContainer]}>
+                        <View style={styles.icons}>
+                            <Ionicons name="ellipse-outline" size={15} color={theme.buildingSelection.swapButton} />
+                            <Ionicons name="ellipsis-vertical-outline" size={20} color={theme.buildingSelection.swapButton} />
+                            <Ionicons name="ellipsis-vertical-outline" size={20} color={theme.buildingSelection.swapButton} />
+                            <Ionicons name="pin" size={24} color={theme.buildingSelection.swapButton} />
+                        </View>
+                        <View>
+                            {renderInput("start", "Your location")}
+                            {renderInput("end", "Destination")}
+                        </View>
+                        <TouchableOpacity testID="swap-fields" onPress={swapFields} style={styles.swapButton}>
+                            <Ionicons name="swap-vertical" size={24} color={theme.buildingSelection.swapButton} />
+                        </TouchableOpacity>
+
+                    </View>
+                )}
             </View>
             {renderResults("start")}
             {renderResults("end")}
@@ -233,26 +270,49 @@ export default function BuildingSelection({ currentBuildingCodes = new Set(), on
 }
 
 const styles = StyleSheet.create({
-    container: {
-        zIndex: 10,
-        padding: 8
+    icons: {
+        position: "relative",
+        paddingTop: "5%",
+        flexDirection: "column",
+        alignSelf: "center",
+        alignItems: "center"
+    },
+    directionContainer: {
+        borderRadius: 16,
+        flexDirection: "row",
+        width: "95%",
+        paddingRight: 40,
+        paddingLeft: 10,
+        paddingBottom: 10,
+        borderWidth: 1.5,
+        marginTop: 10
+    },
+    buildingSelectionContainer: {
+        position: "absolute",
+        width: "100%",
+        zIndex: 10
     },
     inputRow: {
         flexDirection: "row",
         alignItems: "center",
-        marginBottom: 6
+        justifyContent: "center",
+        maxWidth: "100%"
     },
     inputWrapper: {
         flex: 1,
-        position: "relative",
-        marginHorizontal: 4
+        marginHorizontal: 4,
+        marginTop: 10,
+        flexDirection: "row",
+        alignItems: "center",
+        borderWidth: 1,
+        borderRadius: 16,
+        maxWidth: "95%",
+        overflow: "hidden",
+        paddingRight: "8%"
     },
     input: {
-        paddingVertical: 10,
-        paddingLeft: 10,
-        paddingRight: 25,
-        borderRadius: 8,
-        borderWidth: 1
+        paddingRight: "10%",
+        width: "100%"
     },
     clearButton: {
         position: "absolute",
@@ -262,7 +322,10 @@ const styles = StyleSheet.create({
         justifyContent: "center"
     },
     swapButton: {
-        padding: 4
+        justifyContent: "center",
+        paddingRight: "5%",
+        paddingLeft: "0%",
+        marginLeft: "0%"
     },
     results: {
         maxHeight: 180,
@@ -282,5 +345,9 @@ const styles = StyleSheet.create({
     },
     currentLabel: {
         fontSize: 11,
+    },
+    magnifierIcon: {
+        marginRight: 10,
+        marginLeft: 10,
     }
 });
