@@ -37,9 +37,9 @@ interface TransitionNode {
 }
 
 interface NavEndpointMarkerProps {
-    coordinate: Coordinate;
-    label: "A" | "B";
-    color: string;
+    readonly coordinate: Coordinate;
+    readonly label: "A" | "B";
+    readonly color: string;
 }
 
 /**

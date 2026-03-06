@@ -229,18 +229,18 @@ function normalizeRoute(r: RawRoute): NormalizedRoute {
               line: {
                 name: td.transitLine?.name,
                 short_name: td.transitLine?.nameShort,
-                vehicle_type: td.transitLine?.vehicle?.type as string | undefined,
+                vehicle_type: td.transitLine?.vehicle?.type,
               },
               departure_stop: {
                 name: td.stopDetails?.departureStop?.name,
                 location: td.stopDetails?.departureStop?.location?.latLng
-                  ? { lat: td.stopDetails.departureStop.location.latLng.latitude as number, lng: td.stopDetails.departureStop.location.latLng.longitude as number }
+                  ? { lat: td.stopDetails.departureStop.location.latLng.latitude, lng: td.stopDetails.departureStop.location.latLng.longitude }
                   : undefined,
               },
               arrival_stop: {
                 name: td.stopDetails?.arrivalStop?.name,
                 location: td.stopDetails?.arrivalStop?.location?.latLng
-                  ? { lat: td.stopDetails.arrivalStop.location.latLng.latitude as number, lng: td.stopDetails.arrivalStop.location.latLng.longitude as number }
+                  ? { lat: td.stopDetails.arrivalStop.location.latLng.latitude, lng: td.stopDetails.arrivalStop.location.latLng.longitude }
                   : undefined,
               },
             }
