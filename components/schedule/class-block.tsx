@@ -13,7 +13,7 @@ export default function ClassBlock({ classInfo, colorMap, onPress }: ClassBlockP
     const topOffset = timeToPixels(`${classInfo.START_HOURS}:${classInfo.START_MINUTES}`);
     const height = timeToPixels(`${classInfo.END_HOURS}:${classInfo.END_MINUTES}`) - topOffset;
 
-    const courseKey = `${classInfo.SUBJECT}-${classInfo.CATALOG_NBR}-${classInfo.SSR_COMPONENT}`
+    const courseKey = `${classInfo.SUBJECT}-${classInfo.CATALOG_NBR}`
     const color = colorMap.get(courseKey) ?? "#707070";
 
     return (

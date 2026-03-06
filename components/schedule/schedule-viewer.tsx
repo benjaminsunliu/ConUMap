@@ -24,9 +24,9 @@ function buildColorMap(classes: ClassInfo[]): Map<string, string> {
     let colorIndex = 0;
 
     for (const cls of classes) {
-        // Uniquely identifies a class based on code and ssr component, but is shared across days of the week
-        // e.g. SOEN-345-LEC applies to the Monday and Wednesday lectures
-        const key = `${cls.SUBJECT}-${cls.CATALOG_NBR}-${cls.SSR_COMPONENT}`;
+        // Identifies class based on the code, so all lectures, tutorials, labs, and times share the same color
+        // e.g. SOEN-345 applies to the Monday and Wednesday lectures, the tutorial, and the lab
+        const key = `${cls.SUBJECT}-${cls.CATALOG_NBR}`;
         
         if (!colorMap.has(key)) {
             colorMap.set(key, PALETTE[colorIndex % PALETTE.length]);
