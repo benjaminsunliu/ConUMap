@@ -77,9 +77,9 @@ describe("BuildingSelection Browse", () => {
         const selectionView = render(<BuildingSelection selectedBuilding={null} mode={"browse"} onSelect={mockOnSelect} />)
         const container = selectionView.getByTestId('building-selection');
         expect(container).toBeVisible();
-        const startResults = await selectionView.queryByTestId('start-results');
+        const startResults = selectionView.queryByTestId('start-results');
         expect(startResults).toBeNull();
-        const endResults = await selectionView.queryByTestId('end-results');
+        const endResults = selectionView.queryByTestId('end-results');
         expect(endResults).toBeNull();
     });
 
@@ -104,7 +104,7 @@ describe("BuildingSelection Browse", () => {
         fireEvent(searchInput, 'focus');
         fireEvent.changeText(searchInput, 'Nonexistent Building');
 
-        const searchResults = await selectionView.queryByTestId('end-results');
+        const searchResults = selectionView.queryByTestId('end-results');
         expect(searchResults).toBeNull();
     });
 
@@ -152,7 +152,7 @@ describe("BuildingSelection Directions", () => {
 
         fireEvent.press(hallResult);
 
-        const startResultsAfterPress = await selectionView.queryByTestId('start-results');
+        const startResultsAfterPress = selectionView.queryByTestId('start-results');
         expect(startResultsAfterPress).toBeNull();
         expect(mockOnSelect).toHaveBeenCalledWith(
             {
@@ -195,7 +195,7 @@ describe("BuildingSelection Directions", () => {
         // Focus without text - should not show results
         fireEvent(startInput, 'focus');
 
-        let startResults = await selectionView.queryByTestId('start-results');
+        let startResults = selectionView.queryByTestId('start-results');
         expect(startResults).toBeNull();
         // Type text - should show results
         fireEvent.changeText(startInput, 'Hall');
@@ -312,7 +312,7 @@ describe("BuildingSelection Integration Tests", () => {
 
         await act(async () => { });
 
-        const startResultsAfterPress = await mapViewer.queryByTestId('start-results');
+        const startResultsAfterPress = mapViewer.queryByTestId('start-results');
         expect(startResultsAfterPress).toBeNull();
 
         await waitFor(() => {

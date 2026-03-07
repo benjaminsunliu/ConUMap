@@ -1,7 +1,7 @@
 import csvParser from "csv-parser";
 import fs from "fs";
 
-type Campus = "SGW" | "LOY";
+export type Campus = "SGW" | "LOY";
 
 type ConcordiaWebsiteResource = {
   name: string;

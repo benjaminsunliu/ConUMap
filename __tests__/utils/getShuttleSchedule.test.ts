@@ -61,8 +61,8 @@ describe('getConcordiaShuttleSchedule', () => {
 
     const data = await getConcordiaShuttleSchedule();
 
-    expect(data.schedule.loyolaDepartures).toEqual(['9:15', '10:15', '18:45']);
-    expect(data.schedule.sgwDepartures).toEqual(['9:15', '10:45', '18:45']);
+    expect(data.schedule["LOY"]).toEqual(['9:15', '10:15', '18:45']);
+    expect(data.schedule["SGW"]).toEqual(['9:15', '10:45', '18:45']);
   });
 
   it('should throw an error if the fetch fails', async () => {
