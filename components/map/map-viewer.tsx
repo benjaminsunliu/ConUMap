@@ -17,7 +17,7 @@ import BuildingSelection from "./building-selection";
 import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
-import { useLocalSearchParams } from "expo-router/build/hooks";
+import { useLocalSearchParams } from "expo-router";
 
 interface PolylineSegment {
   coordinates: Coordinate[];
