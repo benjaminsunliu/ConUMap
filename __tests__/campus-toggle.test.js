@@ -5,7 +5,7 @@ import CampusToggle from '../components/map/campus-toggle';
 
 const mapRef = { current: { animateToRegion: jest.fn() } };
 
-const viewRegionNearLOY = { latitude: 45.458, longitude: -73.640, latitudeDelta: 0.01, longitudeDelta: 0.01 };
+const viewRegionNearLOY = { latitude: 45.458, longitude: -73.64, latitudeDelta: 0.01, longitudeDelta: 0.01 };
 
 const viewRegionNearSGW = { latitude: 45.496, longitude: -73.577, latitudeDelta: 0.01, longitudeDelta: 0.01 };
 
