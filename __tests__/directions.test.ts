@@ -1,7 +1,7 @@
 
 jest.mock('expo/virtual/env', () => ({ env: process.env }));
 
-import { fetchDirections, fetchAllDirections } from "@/utils/directions";
+import { fetchDirections, fetchAllDirections, parseDuration } from "@/utils/directions";
 
 const origin = { latitude: 45.4975, longitude: -73.5794 };
 const destination = { latitude: 45.5087, longitude: -73.5538 };

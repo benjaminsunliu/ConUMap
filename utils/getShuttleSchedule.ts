@@ -1,3 +1,4 @@
+import { Campus } from "@/scripts/extract-building-info";
 import * as cheerio from "cheerio";
 import type { CheerioAPI } from "cheerio";
 
@@ -5,10 +6,7 @@ export interface ShuttleScheduleData {
   warnings: string[];
   noServiceDates: Date[];
   isAvailableToday: boolean;
-  schedule: {
-    loyolaDepartures: string[];
-    sgwDepartures: string[];
-  };
+  schedule: Record<Campus, string[]>;
 }
 
 /**
@@ -117,8 +115,8 @@ export async function getConcordiaShuttleSchedule(): Promise<ShuttleScheduleData
     noServiceDates,
     isAvailableToday: checkAvailability(noServiceDates),
     schedule: {
-      loyolaDepartures,
-      sgwDepartures,
+      LOY: loyolaDepartures,
+      SGW: sgwDepartures,
     },
   };
 }
