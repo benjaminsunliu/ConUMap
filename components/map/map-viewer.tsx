@@ -322,7 +322,8 @@ export default function MapViewer({
     if (nextBuilding) {
       focusBuilding(nextBuilding);
     }
-  }, [buildingId, focusBuilding, selectBuildingByCode]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [buildingId]);
 
   /**
    * Handles the event when a building is pressed on the map. It updates the selected building, focuses the map on that building, and resets any existing navigation state to switch back to browse mode. The function also sets a flag to suppress the next map press event, preventing unintended deselection of the building when the map is tapped immediately after selecting a building. This ensures a smooth user experience when interacting with buildings on the map.
