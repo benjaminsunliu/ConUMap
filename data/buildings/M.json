@@ -1,0 +1,40 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4974269652217,
+        "longitude": -73.5797547280965
+      },
+      {
+        "latitude": 45.4973273093448,
+        "longitude": -73.5798549641675
+      },
+      {
+        "latitude": 45.4972900797127,
+        "longitude": -73.5797806452151
+      },
+      {
+        "latitude": 45.4973895191467,
+        "longitude": -73.5796809452119
+      },
+      {
+        "latitude": 45.4974269652217,
+        "longitude": -73.5797547280965
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4973576,
+    "longitude": -73.57977439999999
+  },
+  "buildingCode": "M",
+  "buildingName": "M Annex",
+  "overview": [
+    "The M Annex is a 3-storey Victorian building located just north of the Hall Building. Built around 1884, it features a grey limestone facade, carved stone details and a distinctive two-storey curved bay window.",
+    "Originally a private residence, it later housed the Canadian Red Cross and was converted into apartments before being acquired by the university in 1967."
+  ],
+  "accessibility": [],
+  "address": "2135 Mackay St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/m.html"
+}

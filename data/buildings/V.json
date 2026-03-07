@@ -1,0 +1,45 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4970885316794,
+        "longitude": -73.5799168274547
+      },
+      {
+        "latitude": 45.4969845543358,
+        "longitude": -73.5800187922797
+      },
+      {
+        "latitude": 45.496945429574,
+        "longitude": -73.5799376205018
+      },
+      {
+        "latitude": 45.4970485308978,
+        "longitude": -73.5798337191391
+      },
+      {
+        "latitude": 45.4970885316794,
+        "longitude": -73.5799168274547
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4970181,
+    "longitude": -73.57991450000002
+  },
+  "buildingCode": "V",
+  "buildingName": "V Annex",
+  "overview": [
+    "Built in 1937, the V Annex was originally an apartment building called the “Florentia apartments.” This four-storey structure features a white-painted limestone ground floor that contrasts with brown brick above."
+  ],
+  "services": [
+    {
+      "name": "CUTV",
+      "url": "https://www.cutvmontreal.org/"
+    }
+  ],
+  "accessibility": [],
+  "address": "2110 Mackay St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/v.html"
+}

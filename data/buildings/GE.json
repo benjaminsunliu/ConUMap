@@ -1,0 +1,75 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4569453065756,
+        "longitude": -73.6407407641922
+      },
+      {
+        "latitude": 45.4569188764311,
+        "longitude": -73.6406692043837
+      },
+      {
+        "latitude": 45.4568932484358,
+        "longitude": -73.640688534775
+      },
+      {
+        "latitude": 45.4568714647194,
+        "longitude": -73.6406295416664
+      },
+      {
+        "latitude": 45.4568963330836,
+        "longitude": -73.6406110651085
+      },
+      {
+        "latitude": 45.4567987024899,
+        "longitude": -73.6403467909331
+      },
+      {
+        "latitude": 45.4570407576262,
+        "longitude": -73.6401650980098
+      },
+      {
+        "latitude": 45.4571430357757,
+        "longitude": -73.6404419407738
+      },
+      {
+        "latitude": 45.4571302758573,
+        "longitude": -73.6404514723854
+      },
+      {
+        "latitude": 45.4571739519857,
+        "longitude": -73.6405691920397
+      },
+      {
+        "latitude": 45.4569453065756,
+        "longitude": -73.6407407641922
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.456969,
+    "longitude": -73.6404347
+  },
+  "buildingCode": "GE",
+  "buildingName": "Centre for Structural and Functional Genomics",
+  "overview": [
+    "The Centre for Structural and Functional Genomics was officially inaugurated in November 2011 as part of the celebrations marking the 6th year of Montreal’s designation as a UNESCO City of Design.",
+    "Located at the corner of Sherbrooke Street West and West Broadway, the centre is among newer structures revitalizing the Loyola Campus, and invigorating the urban landscape in the surrounding Notre-Dame-de-Grâce neighbourhood.",
+    "The Centre for Structural and Functional Genomics has four floors – 5,400 square metres – dedicated to research facilities. The building is connected to the adjacent Richard J. Renaud Science Complex (SP) through passageways on the second and third floors, as well as a tunnel on the basement level.",
+    "A tunnel also urls the centre with the Communication Studies/Journalism (CJ) Building. This underground network saves students and faculty time and trouble, especially during winter months."
+  ],
+  "services": [
+    {
+      "name": "Centre for Structural and Functional Genomics",
+      "url": "https://www.concordia.ca/research/genomics.html"
+    }
+  ],
+  "accessibility": [
+    "entranceAutomatedDoor",
+    "elevator"
+  ],
+  "address": "7141 Sherbrooke St. W.",
+  "campus": "LOY",
+  "url": "https://www.concordia.ca/maps/buildings/ge.html"
+}

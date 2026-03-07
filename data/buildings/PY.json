@@ -1,0 +1,113 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4590605941301,
+        "longitude": -73.6401547927918
+      },
+      {
+        "latitude": 45.4592261553974,
+        "longitude": -73.6405753945147
+      },
+      {
+        "latitude": 45.4592043834532,
+        "longitude": -73.640592869029
+      },
+      {
+        "latitude": 45.4592046356388,
+        "longitude": -73.6406106680324
+      },
+      {
+        "latitude": 45.4591766467971,
+        "longitude": -73.6406330165294
+      },
+      {
+        "latitude": 45.4591638781537,
+        "longitude": -73.6406244022924
+      },
+      {
+        "latitude": 45.4591434090388,
+        "longitude": -73.6406407038891
+      },
+      {
+        "latitude": 45.4591266861319,
+        "longitude": -73.6405981095166
+      },
+      {
+        "latitude": 45.4591088991508,
+        "longitude": -73.6405955010691
+      },
+      {
+        "latitude": 45.4588066437309,
+        "longitude": -73.6408374201194
+      },
+      {
+        "latitude": 45.4587760677973,
+        "longitude": -73.6407597247335
+      },
+      {
+        "latitude": 45.4587601055038,
+        "longitude": -73.6407725641732
+      },
+      {
+        "latitude": 45.4586741971207,
+        "longitude": -73.6405540081979
+      },
+      {
+        "latitude": 45.4586975707439,
+        "longitude": -73.6405353893195
+      },
+      {
+        "latitude": 45.4586672682077,
+        "longitude": -73.6404585532031
+      },
+      {
+        "latitude": 45.4587011743893,
+        "longitude": -73.6404313024865
+      },
+      {
+        "latitude": 45.4586967206135,
+        "longitude": -73.6404200495755
+      },
+      {
+        "latitude": 45.4589302109954,
+        "longitude": -73.640233187068
+      },
+      {
+        "latitude": 45.4589379712364,
+        "longitude": -73.6402528997302
+      },
+      {
+        "latitude": 45.4590605941301,
+        "longitude": -73.6401547927918
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4591404,
+    "longitude": -73.6403837
+  },
+  "buildingCode": "PY",
+  "buildingName": "Psychology Building",
+  "overview": [
+    "The Psychology Building, one of Loyola Campus’s original buildings, was first known as the Junior Building and served both high school and college students. Built around 1927, it was expanded in 1969 with a modern addition and fully renovated in the early 1990s to house the Department of Psychology.",
+    "The three-storey L-shaped structure, with its historic detailing and large classrooms, once included a chapel and dormitories. Today, it features offices, labs and classrooms and remains directly connected to the Loyola Jesuit Hall and Conference Centre (RF)."
+  ],
+  "services": [
+    {
+      "name": "Centre for Clinical Research in Health (CCRH)",
+      "url": "https://www.concordia.ca/research/clinical-research-health.html"
+    },
+    {
+      "name": "Psychology",
+      "url": "https://www.concordia.ca/artsci/psychology.html"
+    }
+  ],
+  "accessibility": [
+    "entranceAutomatedDoor",
+    "elevator"
+  ],
+  "address": "7141 Sherbrooke St. W.",
+  "campus": "LOY",
+  "url": "https://www.concordia.ca/maps/buildings/py.html"
+}

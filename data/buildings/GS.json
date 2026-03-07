@@ -1,0 +1,41 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.49642458372708,
+        "longitude": -73.580865226686
+      },
+      {
+        "latitude": 45.49652939945684,
+        "longitude": -73.5807941481471
+      },
+      {
+        "latitude": 45.496751015929185,
+        "longitude": -73.58135774731636
+      },
+      {
+        "latitude": 45.49660742359537,
+        "longitude": -73.58145363628864
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.49673689999999,
+    "longitude": -73.5810941
+  },
+  "buildingCode": "GS",
+  "buildingName": "GS Building",
+  "overview": [
+    "Located on the Sir George Williams Campus, the GS Building houses the Concordia University Part-time Faculty Association (CUPFA). The building provides office and meeting spaces for CUPFA’s operations, supporting part-time faculty members in their academic and professional activities."
+  ],
+  "services": [
+    {
+      "name": "Concordia University Part-time Faculty Association (CUPFA)",
+      "url": "https://www.cupfa.org/en_CA/"
+    }
+  ],
+  "accessibility": [],
+  "address": "1538 Sherbrooke St. W.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/gs.html"
+}

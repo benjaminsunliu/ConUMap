@@ -1,0 +1,64 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4595003354675,
+        "longitude": -73.6408687943941
+      },
+      {
+        "latitude": 45.4596910748883,
+        "longitude": -73.6413464049925
+      },
+      {
+        "latitude": 45.4594416727387,
+        "longitude": -73.6415474946086
+      },
+      {
+        "latitude": 45.4594044330773,
+        "longitude": -73.6414545399991
+      },
+      {
+        "latitude": 45.4593941442679,
+        "longitude": -73.6414628242831
+      },
+      {
+        "latitude": 45.4592697997904,
+        "longitude": -73.6411511972266
+      },
+      {
+        "latitude": 45.4592800885425,
+        "longitude": -73.6411429128496
+      },
+      {
+        "latitude": 45.459250935449,
+        "longitude": -73.6410698874647
+      },
+      {
+        "latitude": 45.4595003354675,
+        "longitude": -73.6408687943941
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4593893,
+    "longitude": -73.6411729
+  },
+  "buildingCode": "HA",
+  "buildingName": "Hingston Hall, wing HA",
+  "overview": [
+    "Opened in 1964, Hingston Hall, wing HA, is one of two wings originally built as a student residence on the Loyola Campus. Today, it still serves this purpose, housing 131 students across its four floors.",
+    "The building is named after William Hales Hingston, S.J., a key figure in Loyola’s early development, and honours Loyola's tradition of residential student life."
+  ],
+  "services": [
+    {
+      "name": "Loyola Student Residence",
+      "url": "https://www.concordia.ca/students/housing/residences/loyola-residences.html"
+    }
+  ],
+  "accessibility": [
+    "entranceAutomatedDoor"
+  ],
+  "address": "7141 Sherbrooke St. W.",
+  "campus": "LOY",
+  "url": "https://www.concordia.ca/maps/buildings/ha.html"
+}

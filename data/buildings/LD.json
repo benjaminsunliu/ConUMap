@@ -1,0 +1,54 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4968178433595,
+        "longitude": -73.577086620334
+      },
+      {
+        "latitude": 45.4968595345464,
+        "longitude": -73.5771701633795
+      },
+      {
+        "latitude": 45.496844635985,
+        "longitude": -73.5771852835361
+      },
+      {
+        "latitude": 45.4966294082669,
+        "longitude": -73.5774039496547
+      },
+      {
+        "latitude": 45.4965636540331,
+        "longitude": -73.5774707182467
+      },
+      {
+        "latitude": 45.4965219356852,
+        "longitude": -73.5773869878127
+      },
+      {
+        "latitude": 45.4968178433595,
+        "longitude": -73.577086620334
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.49669069999999,
+    "longitude": -73.57727870000001
+  },
+  "buildingCode": "LD",
+  "buildingName": "LD Building",
+  "overview": [
+    "Built in 1894, this red sandstone townhouse features ornate stonework and a three-storey bay window. Over time, it housed offices, restaurants and cafés.",
+    "In 2019, Concordia converted the building into a daycare and nursery for the Concordia Student Union. While the interior has evolved, many original architectural features remain visible from the street."
+  ],
+  "services": [
+    {
+      "name": "CSU Daycare & Nursery",
+      "url": "https://csudaycarenursery.ca/"
+    }
+  ],
+  "accessibility": [],
+  "address": "1424 Bishop St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/ld.html"
+}

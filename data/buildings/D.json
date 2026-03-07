@@ -1,0 +1,56 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4978841227901,
+        "longitude": -73.5793852899212
+      },
+      {
+        "latitude": 45.4976269522658,
+        "longitude": -73.579634998021
+      },
+      {
+        "latitude": 45.49759701502,
+        "longitude": -73.5795710952769
+      },
+      {
+        "latitude": 45.4976856390671,
+        "longitude": -73.5794871715002
+      },
+      {
+        "latitude": 45.4976965292006,
+        "longitude": -73.579509979305
+      },
+      {
+        "latitude": 45.4977721255837,
+        "longitude": -73.5794388447476
+      },
+      {
+        "latitude": 45.4977542839333,
+        "longitude": -73.5794009222431
+      },
+      {
+        "latitude": 45.4978489907935,
+        "longitude": -73.5793121854624
+      },
+      {
+        "latitude": 45.4978841227901,
+        "longitude": -73.5793852899212
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4977463,
+    "longitude": -73.5794727
+  },
+  "buildingCode": "D",
+  "buildingName": "D Annex",
+  "overview": [
+    "This row house was built in 1891 as a twin to the neighbouring MI Annex, also featuring red Scottish sandstone and Romanesque-inspired detailing.",
+    "After years as a private residence, it was acquired by Concordia in 1971. Its distinct gabled roofline and original bay windows hint at its 19th-century residential roots."
+  ],
+  "accessibility": [],
+  "address": "2140 Bishop St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/d.html"
+}

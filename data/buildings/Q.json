@@ -1,0 +1,40 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4965834912667,
+        "longitude": -73.5791795495828
+      },
+      {
+        "latitude": 45.4965523676342,
+        "longitude": -73.5791196184748
+      },
+      {
+        "latitude": 45.4966450903817,
+        "longitude": -73.5790224452225
+      },
+      {
+        "latitude": 45.496675967474,
+        "longitude": -73.5790817043539
+      },
+      {
+        "latitude": 45.4965834912667,
+        "longitude": -73.5791795495828
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4966269,
+    "longitude": -73.579095
+  },
+  "buildingCode": "Q",
+  "buildingName": "Q Annex",
+  "overview": [
+    "Built in 1875 by architect Alexander Goodsir Fowler, the Q Annex is a modest two-storey Victorian stone home with simple lines and minimal ornamentation.",
+    "Once home to the Polish Consulate, it became university property in 1969 and now houses offices and student services."
+  ],
+  "accessibility": [],
+  "address": "2010 Mackay St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/q.html"
+}

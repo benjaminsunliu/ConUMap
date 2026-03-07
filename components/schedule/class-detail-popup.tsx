@@ -38,7 +38,6 @@ export default function ClassDetailPopup({classInfo, colorMap, onClose}: ClassDe
         onClose();
         navigation.navigate('map-tab', {
             buildingId: classInfo.CU_BLDG,
-            buildingName: classInfo.CU_BUILDING,
         })
     }
 

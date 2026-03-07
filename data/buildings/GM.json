@@ -1,0 +1,47 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.49594492001711,
+        "longitude": -73.57843045145273
+      },
+      {
+        "latitude": 45.495619423207835,
+        "longitude": -73.57874527573586
+      },
+      {
+        "latitude": 45.49577993919802,
+        "longitude": -73.57913788408041
+      },
+      {
+        "latitude": 45.49611836086987,
+        "longitude": -73.57880294322968
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.49594980000001,
+    "longitude": -73.57876739999999
+  },
+  "buildingCode": "GM",
+  "buildingName": "Guy-De Maisonneuve Building",
+  "overview": [
+    "Completed in 1966 above the Guy-Concordia metro station, the Guy-De Maisonneuve Building was one of Montreal’s first developments to integrate directly with the city’s expanding metro system. This modernist concrete and glass building originally featured commercial spaces at street level and offices above.",
+    "Today, the 11-storey building hosts administrative offices and academic spaces, including studios and classrooms for the Contemporary Dance, Theatre and Music departments. Major renovations in 2011 modernized the exterior with an energy-efficient glass curtain wall and restored a 1966 mural by artist Claude Théberge.",
+    "The building is connected to the Engineering, Computer Science and Visual Arts Integrated Complex (EV) and Guy-Concordia metro via underground tunnels."
+  ],
+  "services": [],
+  "departments": [
+    {
+      "name": "Theatre",
+      "url": "https://www.concordia.ca/finearts/theatre.html"
+    }
+  ],
+  "accessibility": [
+    "entranceAutomatedDoor",
+    "elevator"
+  ],
+  "address": "1550 De Maisonneuve Blvd. W.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/gm.html"
+}
