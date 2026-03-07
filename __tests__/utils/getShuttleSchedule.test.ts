@@ -25,6 +25,15 @@ describe('getConcordiaShuttleSchedule', () => {
     globalThis.fetch = jest.fn();
   });
 
+  beforeAll(() => {
+    jest.spyOn(console, "log").mockImplementation(() => {});
+    jest.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
   it('should extract warnings and parse "No service" dates correctly', async () => {
     (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
