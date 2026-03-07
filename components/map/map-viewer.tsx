@@ -158,18 +158,10 @@ export default function MapViewer({
   const mapColors = Colors[colorScheme].map;
   const mapViewRef = useRef<MapView>(null);
   const suppressNextMapPress = useRef(false);
-  const { buildingId} = useLocalSearchParams<{
+  const { buildingId } = useLocalSearchParams<{
     buildingId?: string;
     buildingName?: string;
   }>();
-
-  useEffect(() => {
-    if (!buildingId) return;
-    const nextBuilding = selectBuildingByCode(buildingId);
-    if (nextBuilding) {
-      focusBuilding(nextBuilding);
-    }
-  }, [buildingId]);
 
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
@@ -214,6 +206,33 @@ export default function MapViewer({
 
   const showStartHint =
     navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
+
+    /**
+   * Animates the map to center on the given building's location, using a tighter zoom level for better focus. The latitude and longitude deltas are adjusted to be no larger than 0.0025 to ensure a close-up view of the building, while still respecting the current zoom level if it's already close enough. This function is used when a building is selected to provide a focused view of that building on the map.
+   * @param building The BuildingInfo object representing the building to focus on, which contains its location and other details.
+   */
+  const focusBuilding = useCallback(
+    (building: BuildingInfo) => {
+      mapViewRef.current?.animateToRegion({
+        latitude: building.location.latitude,
+        longitude: building.location.longitude,
+        latitudeDelta: Math.min(currentRegion.latitudeDelta, 0.0025),
+        longitudeDelta: Math.min(currentRegion.longitudeDelta, 0.0025),
+      });
+    },
+    [currentRegion.latitudeDelta, currentRegion.longitudeDelta],
+  );
+
+  /**
+   * Selects a building based on its building code, updating the selectedBuilding state. It searches the CAMPUS_BUILDINGS array for a building with the matching code and sets it as the selected building. If no building is found with the given code, it sets selectedBuilding to null. This function is used when a building is selected from the list or when navigating to a building, ensuring that the correct building information is displayed in the UI.
+   * @param code The building code of the building to select, which is a unique identifier for each building on campus.
+   */
+  const selectBuildingByCode = useCallback((code: string) => {
+    const nextBuilding =
+      CAMPUS_BUILDINGS.find((building) => building.buildingCode === code) || null;
+    setSelectedBuilding(nextBuilding);
+    return nextBuilding;
+  }, []);
 
   useEffect(() => {
     if (!navCoords.start || !navCoords.end) {
@@ -297,32 +316,13 @@ export default function MapViewer({
     userLocation,
   ]);
 
-  /**
-   * Animates the map to center on the given building's location, using a tighter zoom level for better focus. The latitude and longitude deltas are adjusted to be no larger than 0.0025 to ensure a close-up view of the building, while still respecting the current zoom level if it's already close enough. This function is used when a building is selected to provide a focused view of that building on the map.
-   * @param building The BuildingInfo object representing the building to focus on, which contains its location and other details.
-   */
-  const focusBuilding = useCallback(
-    (building: BuildingInfo) => {
-      mapViewRef.current?.animateToRegion({
-        latitude: building.location.latitude,
-        longitude: building.location.longitude,
-        latitudeDelta: Math.min(currentRegion.latitudeDelta, 0.0025),
-        longitudeDelta: Math.min(currentRegion.longitudeDelta, 0.0025),
-      });
-    },
-    [currentRegion.latitudeDelta, currentRegion.longitudeDelta],
-  );
-
-  /**
-   * Selects a building based on its building code, updating the selectedBuilding state. It searches the CAMPUS_BUILDINGS array for a building with the matching code and sets it as the selected building. If no building is found with the given code, it sets selectedBuilding to null. This function is used when a building is selected from the list or when navigating to a building, ensuring that the correct building information is displayed in the UI.
-   * @param code The building code of the building to select, which is a unique identifier for each building on campus.
-   */
-  const selectBuildingByCode = useCallback((code: string) => {
-    const nextBuilding =
-      CAMPUS_BUILDINGS.find((building) => building.buildingCode === code) || null;
-    setSelectedBuilding(nextBuilding);
-    return nextBuilding;
-  }, []);
+  useEffect(() => {
+    if (!buildingId) return;
+    const nextBuilding = selectBuildingByCode(buildingId);
+    if (nextBuilding) {
+      focusBuilding(nextBuilding);
+    }
+  }, [buildingId, focusBuilding, selectBuildingByCode]);
 
   /**
    * Handles the event when a building is pressed on the map. It updates the selected building, focuses the map on that building, and resets any existing navigation state to switch back to browse mode. The function also sets a flag to suppress the next map press event, preventing unintended deselection of the building when the map is tapped immediately after selecting a building. This ensures a smooth user experience when interacting with buildings on the map.
