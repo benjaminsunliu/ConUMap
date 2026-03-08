@@ -93,7 +93,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect, onStepS
             );
             const defaultIcon = (
                 <Ionicons
-                    name={transportIconMap[transport as keyof typeof transportIconMap]}
+                    name={transportIconMap[transport]}
                     size={50}
                     color={index === tabIndex ? theme.routesInfoPopup.selectedIcon : theme.routesInfoPopup.icon}
                 />
@@ -139,7 +139,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect, onStepS
         return null;
     }
 
-    const currentMode = availableTransports[tabIndex] as TransportationMode;
+    const currentMode = availableTransports[tabIndex];
     const currentRoutes = routes[currentMode];
 
     const routeList = (currentRoutes?.length ?? 0) > 0 ? (
