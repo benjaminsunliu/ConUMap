@@ -1,5 +1,13 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
-import { View, TextInput, FlatList, TouchableOpacity, Text, StyleSheet, Platform } from "react-native";
+import {
+    View,
+    TextInput,
+    FlatList,
+    TouchableOpacity,
+    Text,
+    StyleSheet,
+    Platform,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
@@ -8,13 +16,22 @@ import { SearchBuilding, FieldType } from "@/types/buildingTypes";
 
 const buildingAddresses = buildingAddressesRaw as SearchBuilding[];
 
+export const CURRENT_LOCATION_CODE = "CURRENT_LOCATION";
+
+const CURRENT_LOCATION_SENTINEL: SearchBuilding = {
+    buildingCode: CURRENT_LOCATION_CODE,
+    buildingName: "Current Location",
+    address: "Your current GPS position",
+    campus: "",
+};
+
 /**
  * Separates buildings into current and other, returning current buildings first.
  * This prioritizes user's current location in search results.
  */
 function prioritizeCurrentBuildings(
     buildings: SearchBuilding[],
-    currentCodes: Set<string>
+    currentCodes: Set<string>,
 ): SearchBuilding[] {
     const currentBuildings: SearchBuilding[] = [];
     const otherBuildings: SearchBuilding[] = [];
@@ -32,9 +49,13 @@ function prioritizeCurrentBuildings(
 
 interface Props {
     readonly currentBuildingCodes?: Set<string>;
+    readonly hasUserLocation?: boolean;
     readonly mode: "browse" | "directions";
     readonly selectedBuilding: SearchBuilding | null;
-    readonly onSelect: (buildings: Record<FieldType, SearchBuilding | null>, type: FieldType) => void;
+    readonly onSelect: (
+        buildings: Record<FieldType, SearchBuilding | null>,
+        type: FieldType,
+    ) => void;
     readonly onSwap?: () => void;
     readonly startOverride?: string | null;
     readonly endOverride?: string | null;
@@ -43,6 +64,7 @@ interface Props {
 
 export default function BuildingSelection({
     currentBuildingCodes = new Set(),
+    hasUserLocation = false,
     mode,
     selectedBuilding,
     onSelect,
@@ -54,9 +76,14 @@ export default function BuildingSelection({
     const colorScheme = useColorScheme() ?? "light";
     const theme = Colors[colorScheme];
 
-    const [queries, setQueries] = useState<Record<FieldType, string>>({ start: "", end: "" });
+    const [queries, setQueries] = useState<Record<FieldType, string>>({
+        start: "",
+        end: "",
+    });
     const [focusedField, setFocusedField] = useState<FieldType | null>(null);
-    const [selectedBuildings, setSelectedBuildings] = useState<Record<FieldType, SearchBuilding | null>>({
+    const [selectedBuildings, setSelectedBuildings] = useState<
+        Record<FieldType, SearchBuilding | null>
+    >({
         start: null,
         end: null,
     });
@@ -117,7 +144,7 @@ export default function BuildingSelection({
                 (building) =>
                     building.buildingName.toLowerCase().includes(q) ||
                     building.buildingCode.toLowerCase().includes(q) ||
-                    building.address.toLowerCase().includes(q)
+                    building.address.toLowerCase().includes(q),
             );
 
             if (fieldType === "start" && currentBuildingCodes.size > 0) {
@@ -126,25 +153,47 @@ export default function BuildingSelection({
 
             return filtered;
         },
-        [currentBuildingCodes]
+        [currentBuildingCodes],
     );
 
     const results = useMemo(() => {
-        let startResults: SearchBuilding[];
+        const matchesSentinel = (q: string) =>
+            "current location".includes(q) || "my location".includes(q) || "gps".includes(q);
 
-        if (queries.start) {
-            startResults = filterBuildings(queries.start, "start");
-        } else if (currentBuildingCodes.size > 0) {
-            startResults = buildingAddresses.filter((building) => currentBuildingCodes.has(building.buildingCode));
-        } else {
-            startResults = [];
-        }
-
-        return {
-            start: startResults,
-            end: queries.end ? filterBuildings(queries.end, "end") : [],
+        const getStartResults = (): SearchBuilding[] => {
+            if (queries.start) {
+                let startResults = filterBuildings(queries.start, "start");
+                if (hasUserLocation && currentBuildingCodes.size === 0) {
+                    if (matchesSentinel(queries.start.toLowerCase())) {
+                        startResults = [CURRENT_LOCATION_SENTINEL, ...startResults];
+                    }
+                }
+                return startResults;
+            } else if (currentBuildingCodes.size > 0) {
+                return buildingAddresses.filter((building) =>
+                    currentBuildingCodes.has(building.buildingCode),
+                );
+            } else if (hasUserLocation) {
+                return [CURRENT_LOCATION_SENTINEL];
+            }
+            return [];
         };
-    }, [queries, filterBuildings, currentBuildingCodes]);
+
+        const getEndResults = (): SearchBuilding[] => {
+            if (queries.end) {
+                let endResults = filterBuildings(queries.end, "end");
+                if (hasUserLocation && matchesSentinel(queries.end.toLowerCase())) {
+                    endResults = [CURRENT_LOCATION_SENTINEL, ...endResults];
+                }
+                return endResults;
+            } else if (hasUserLocation && mode === "directions") {
+                return [CURRENT_LOCATION_SENTINEL];
+            }
+            return [];
+        };
+
+        return { start: getStartResults(), end: getEndResults() };
+    }, [queries, filterBuildings, currentBuildingCodes, hasUserLocation, mode]);
 
     const setQuery = useCallback((type: FieldType, value: string) => {
         setQueries((prev) => ({ ...prev, [type]: value }));
@@ -155,7 +204,7 @@ export default function BuildingSelection({
             setQuery(type, text);
             setSelectedBuildings((prev) => ({ ...prev, [type]: null }));
         },
-        [setQuery]
+        [setQuery],
     );
 
     const removeInputFocus = useCallback((type: FieldType) => {
@@ -175,7 +224,7 @@ export default function BuildingSelection({
             onSelect(updated, type);
             removeInputFocus(type);
         },
-        [setQuery, removeInputFocus, onSelect]
+        [setQuery, removeInputFocus, onSelect],
     );
 
     const clearField = useCallback(
@@ -186,7 +235,7 @@ export default function BuildingSelection({
             onSelect(updated, type);
             removeInputFocus(type);
         },
-        [setQuery, removeInputFocus, onSelect]
+        [setQuery, removeInputFocus, onSelect],
     );
 
     const swapFields = useCallback(() => {
@@ -214,7 +263,12 @@ export default function BuildingSelection({
             const hasMagnifier = mode === "browse";
 
             return (
-                <View style={[{ backgroundColor: theme.buildingSelection.inputBackground }, styles.inputWrapper]}>
+                <View
+                    style={[
+                        { backgroundColor: theme.buildingSelection.inputBackground },
+                        styles.inputWrapper,
+                    ]}
+                >
                     {hasMagnifier && (
                         <Ionicons
                             name="search"
@@ -243,8 +297,14 @@ export default function BuildingSelection({
                         ]}
                     />
                     {!!value && (
-                        <TouchableOpacity testID={`clear-${type}`} onPress={() => clearField(type)} style={styles.clearButton}>
-                            <Text style={{ color: theme.buildingSelection.clearButton, fontSize: 18 }}>×</Text>
+                        <TouchableOpacity
+                            testID={`clear-${type}`}
+                            onPress={() => clearField(type)}
+                            style={styles.clearButton}
+                        >
+                            <Text style={{ color: theme.buildingSelection.clearButton, fontSize: 18 }}>
+                                ×
+                            </Text>
                         </TouchableOpacity>
                     )}
                 </View>
@@ -261,13 +321,17 @@ export default function BuildingSelection({
             mode,
             handleChange,
             clearField,
-        ]
+        ],
     );
 
     const renderResults = useCallback(
         (type: FieldType) => {
             const data = results[type];
-            if (!data.length || focusedField !== type || (mode === "browse" && type === "start")) {
+            if (
+                !data.length ||
+                focusedField !== type ||
+                (mode === "browse" && type === "start")
+            ) {
                 return null;
             }
 
@@ -275,23 +339,50 @@ export default function BuildingSelection({
                 <FlatList
                     data={data}
                     keyExtractor={(item) => item.buildingCode}
-                    style={[styles.results, { backgroundColor: theme.background, borderColor: theme.buildingInfoPopup.divider }]}
+                    style={[
+                        styles.results,
+                        {
+                            backgroundColor: theme.background,
+                            borderColor: theme.buildingInfoPopup.divider,
+                        },
+                    ]}
                     keyboardShouldPersistTaps="handled"
                     testID={`${type}-results`}
                     renderItem={({ item }) => {
+                        const isSentinel = item.buildingCode === CURRENT_LOCATION_CODE;
                         const isCurrent = currentBuildingCodes.has(item.buildingCode);
                         return (
                             <TouchableOpacity
-                                style={[styles.resultItem, { borderBottomColor: theme.buildingInfoPopup.divider }]}
+                                style={[
+                                    styles.resultItem,
+                                    { borderBottomColor: theme.buildingInfoPopup.divider },
+                                ]}
                                 onPress={() => handleSelect(item, type)}
                                 testID={`${type}-result-${item.buildingCode.toUpperCase()}`}
                             >
-                                <Text style={[styles.resultTitle, { color: theme.buildingSelection.resultTitle }]}>
-                                    {isCurrent && "📍 "}
-                                    {item.buildingCode} – {item.buildingName}
-                                    {isCurrent && <Text style={styles.currentLabel}> (Current Building)</Text>}
+                                <Text
+                                    style={[
+                                        styles.resultTitle,
+                                        { color: theme.buildingSelection.resultTitle },
+                                    ]}
+                                >
+                                    {isSentinel ? (
+                                        "📍 Current Location"
+                                    ) : (
+                                        <>
+                                            {isCurrent && "📍 "}
+                                            {item.buildingCode} – {item.buildingName}
+                                            {isCurrent && (
+                                                <Text style={styles.currentLabel}> (Current Building)</Text>
+                                            )}
+                                        </>
+                                    )}
                                 </Text>
-                                <Text style={[styles.resultAddress, { color: theme.text }]}>{item.address}</Text>
+                                {!isSentinel && (
+                                    <Text style={[styles.resultAddress, { color: theme.text }]}>
+                                        {item.address}
+                                    </Text>
+                                )}
                             </TouchableOpacity>
                         );
                     }}
@@ -308,7 +399,7 @@ export default function BuildingSelection({
             theme.text,
             currentBuildingCodes,
             handleSelect,
-        ]
+        ],
     );
 
     return (
@@ -317,20 +408,55 @@ export default function BuildingSelection({
                 {mode === "browse" ? (
                     renderInput("end", "Search building")
                 ) : (
-                    <View style={[{ backgroundColor: theme.buildingSelection.containerBackground }, styles.directionContainer]}>
+                    <View
+                        style={[
+                            { backgroundColor: theme.buildingSelection.containerBackground },
+                            styles.directionContainer,
+                        ]}
+                    >
                         <View style={styles.icons}>
-                            <Ionicons name="ellipse-outline" size={15} color={theme.buildingSelection.swapButton} />
-                            <Ionicons name="ellipsis-vertical-outline" size={20} color={theme.buildingSelection.swapButton} />
-                            <Ionicons name="ellipsis-vertical-outline" size={20} color={theme.buildingSelection.swapButton} />
+                            <Ionicons
+                                name="ellipse-outline"
+                                size={15}
+                                color={theme.buildingSelection.swapButton}
+                            />
+                            <Ionicons
+                                name="ellipsis-vertical-outline"
+                                size={20}
+                                color={theme.buildingSelection.swapButton}
+                            />
+                            <Ionicons
+                                name="ellipsis-vertical-outline"
+                                size={20}
+                                color={theme.buildingSelection.swapButton}
+                            />
                             <Ionicons name="pin" size={24} color={theme.buildingSelection.swapButton} />
                         </View>
                         <View>
                             {renderInput("start", "Your location")}
-                            {!!startHint && <Text style={[styles.startHint, { color: theme.buildingSelection.resultTitle }]} testID="start-hint">{startHint}</Text>}
+                            {!!startHint && (
+                                <Text
+                                    style={[
+                                        styles.startHint,
+                                        { color: theme.buildingSelection.resultTitle },
+                                    ]}
+                                    testID="start-hint"
+                                >
+                                    {startHint}
+                                </Text>
+                            )}
                             {renderInput("end", "Destination")}
                         </View>
-                        <TouchableOpacity testID="swap-fields" onPress={swapFields} style={styles.swapButton}>
-                            <Ionicons name="swap-vertical" size={24} color={theme.buildingSelection.swapButton} />
+                        <TouchableOpacity
+                            testID="swap-fields"
+                            onPress={swapFields}
+                            style={styles.swapButton}
+                        >
+                            <Ionicons
+                                name="swap-vertical"
+                                size={24}
+                                color={theme.buildingSelection.swapButton}
+                            />
                         </TouchableOpacity>
                     </View>
                 )}
