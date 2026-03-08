@@ -18,6 +18,8 @@ import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
 import { IS_E2E } from "@/utils/e2e";
+import { useE2EHitboxOverlay } from "@/hooks/useE2EHitboxOverlay";
+import { HitboxPoint } from "@/hooks/useE2EHitboxOverlay";
 
 interface PolylineSegment {
     coordinates: Coordinate[];
@@ -205,6 +207,9 @@ export default function MapViewer({
 
     const showStartHint =
         navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
+    
+    const [mapReady, setMapReady] = useState(false);
+    const [projectedPoints, setProjectedPoints] = useState<HitboxPoint[]>([]);
 
     useEffect(() => {
         if (!navCoords.start || !navCoords.end) {
@@ -505,6 +510,14 @@ export default function MapViewer({
         setRouteNodes([]);
     }, [navCoords.start, navCoords.end, selectionOverrides.end]);
 
+    useE2EHitboxOverlay({
+        IS_E2E,
+        currentRegion,
+        mapReady,
+        mapViewRef,
+        setProjectedPoints,
+    });
+
     return (
         <View style={styles.container}>
             <BuildingSelection
@@ -570,6 +583,7 @@ export default function MapViewer({
 
             <MapViewCluster
                 ref={mapViewRef}
+                onMapReady={() => setMapReady(true)}
                 testID="map-view"
                 style={styles.map}
                 initialRegion={initialRegion}
@@ -734,6 +748,47 @@ export default function MapViewer({
                         />
                     )}
             </MapViewCluster>
+              {IS_E2E && ( 
+                <View 
+                  pointerEvents="box-none"
+                  style={StyleSheet.absoluteFillObject}
+                  > 
+                    {projectedPoints.map(({ building, x, y }) => ( 
+                      <Pressable 
+                      key={`e2e-${building.buildingCode}`} 
+                      testID={`e2e-marker-${building.buildingCode}`} 
+                      style={{ 
+                        position: "absolute", 
+                        top: y - 20, 
+                        left: x - 20, 
+                        width: 40, 
+                        height: 40, 
+                        opacity: 0.01, 
+                        zIndex: 9999, 
+                        }} 
+                        onPress={() => { 
+                          selectBuildingByCode(building.buildingCode); 
+                          focusBuilding(building); 
+                          }} 
+                          /> 
+                    ))}
+                    {/* Highlighted buildings */}
+                        {Array.from(inBuildingCodes).map((code) => (
+                          <View
+                            key={`highlight-label-${code}`}
+                            testID={`highlight-label-${code}`}
+                            style={{
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              width: 1,
+                              height: 1,
+                              opacity: 0.01,
+                            }}
+                          />
+                        ))}      
+                  </View>
+                  )}
 
             <LocationButton
                 state={locationState}
