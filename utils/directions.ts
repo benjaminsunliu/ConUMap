@@ -1,14 +1,14 @@
-import { Coordinate } from "@/types/mapTypes";
+import { Coordinate } from "@/types/mapTypes"; 
 import { TransportationMode } from "@/types/buildingTypes";
 import { getConcordiaShuttleSchedule } from "@/utils/getShuttleSchedule";
 import { Campus } from "@/scripts/extract-building-info";
-import { parse } from "dotenv";
 
 const ROUTES_BASE_URL = "https://routes.googleapis.com/directions/v2:computeRoutes";
 
 // ---------------------------------------------------------------------------
 // Raw Google Routes API v2 shapes
 // ---------------------------------------------------------------------------
+const now = new Date("2026-03-04T10:00:00"); //TESTING purposes only, change back to current date and time
 
 interface RawLatLng {
   latitude: number;
@@ -325,7 +325,7 @@ function getTotalDurationOfRouteSeconds(route: NormalizedRoute): number {
 
 function parseShuttleTimeToDate(timeStr: string): Date {
   const [hours, minutes] = timeStr.split(":").map(Number);
-  const shuttleTime = new Date();
+  const shuttleTime = new Date(now); //TESTING purposes, replace with const shuttleTime = new Date();
   shuttleTime.setHours(hours, minutes, 0, 0);
   return shuttleTime;
 }
@@ -373,8 +373,6 @@ async function handleShuttleRouting(
   const LOY_STOP_COORD: Coordinate = { latitude: 45.4971286, longitude: -73.5810949 };
   const SGW_STOP_COORD: Coordinate = { latitude: 45.4584459, longitude: -73.6389317 };
   const interCampusPolyline = "adutGxhb`MvpFnhJ";
-  const now = new Date();
-  now.setDate(4);
 
   // info from campuses
   const closestStopToOrigin =
@@ -391,15 +389,12 @@ async function handleShuttleRouting(
   const closestCampusToOrigin: Campus =
     closestStopToOrigin === LOY_STOP_COORD ? "LOY" : "SGW";
   const closestStopToDestination =
-    closestStopToOrigin === LOY_STOP_COORD ? LOY_STOP_COORD : SGW_STOP_COORD;
+    closestStopToOrigin === LOY_STOP_COORD ? SGW_STOP_COORD : LOY_STOP_COORD;
   const closestCampusToDestination: Campus =
     closestStopToDestination === LOY_STOP_COORD ? "LOY" : "SGW";
 
   // test if pre-shuttle transit/walking duration + max shuttle wait time is less than direct transit duration. If not, skip shuttle routing.
-  const preShuttlePath = await chooseShuttleSegmentPath(
-    closestStopToDestination,
-    destination,
-  );
+  const preShuttlePath = await chooseShuttleSegmentPath(origin, closestStopToOrigin);
   if (!preShuttlePath) {
     console.log("no pre shuttle path");
     return [];
@@ -417,12 +412,10 @@ async function handleShuttleRouting(
   if (directTransit !== null) {
     console.log("no direct transit route");
     if (
-      shuttleTransitTime === null ||
       preShuttlePath.totalDurationSeconds + shuttleTransitTime >=
         directTransit.totalDurationSeconds
     ) {
       console.log("direct transit route is faster than pre + shuttle");
-      return [];
     }
   }
 
@@ -431,14 +424,66 @@ async function handleShuttleRouting(
     destination,
   );
   if (!postShuttlePath) {
-    console.log("no pre shuttle path");
+    console.log("no post shuttle path");
     return [];
   }
+
+  const preShuttleDuration = preShuttlePath.totalDurationSeconds;
+  const postShuttleDuration = postShuttlePath.totalDurationSeconds;
+  const totalDuration = preShuttleDuration + shuttleTransitTime + postShuttleDuration;
+
+  const totalDistance =
+    preShuttlePath.legs.reduce((sum, l) => sum + l.distance.value, 0) +
+    6700 +
+    postShuttlePath.legs.reduce((sum, l) => sum + l.distance.value, 0);
+
+  const combinedSteps = [
+    ...preShuttlePath.legs.flatMap((l) => l.steps),
+    {
+      distance: { text: "Inter-campus", value: 6700 },
+      duration: {
+        text: formatDuration(shuttleTransitTime),
+        value: shuttleTransitTime,
+      },
+      html_instructions:
+        "Take the Concordia Shuttle from " +
+        closestCampusToOrigin +
+        " to " +
+        closestCampusToDestination,
+      maneuver: "",
+      polyline: { points: interCampusPolyline },
+      travel_mode: "SHUTTLE",
+      transit_details: {
+        line: {
+          name: "Concordia Shuttle",
+          short_name: "Shuttle",
+          vehicle_type: "BUS",
+        },
+        departure_stop: {
+          name: closestCampusToOrigin + " Campus Shuttle Stop",
+          location: coordinateToNormalizedLatLng(closestStopToOrigin),
+        },
+        arrival_stop: {
+          name: closestCampusToDestination + " Campus Shuttle Stop",
+          location: coordinateToNormalizedLatLng(closestStopToDestination),
+        },
+      },
+    },
+    ...postShuttlePath.legs.flatMap((l) => l.steps)
+  ];
+
+  const breakdownText = [
+    preShuttleDuration > 0 ? `${formatDuration(preShuttleDuration)} walk` : null,
+    shuttleTransitTime > 0 ? `${formatDuration(shuttleTransitTime)} shuttle` : null,
+    postShuttleDuration > 0 ? `${formatDuration(postShuttleDuration)} walk` : null,
+  ]
+    .filter(Boolean)
+    .join(" + ");
 
   // Build multimodal route with shuttle segment in the middle.
   return [
     {
-      summary: "Concordia Shuttle",
+      summary: `Concordia Shuttle (${breakdownText})`,
       overview_polyline: {
         points:
           preShuttlePath.overview_polyline.points +
@@ -446,52 +491,14 @@ async function handleShuttleRouting(
           postShuttlePath.overview_polyline.points,
       },
       legs: [
-        ...preShuttlePath.legs,
         {
-          distance: { text: "Inter-campus", value: 6700 },
-          duration: {
-            text: formatDuration(shuttleTransitTime),
-            value: shuttleTransitTime,
-          },
-          steps: [
-            {
-              distance: { text: "Inter-campus", value: 6700 },
-              duration: {
-                text: formatDuration(shuttleTransitTime),
-                value: shuttleTransitTime,
-              },
-              html_instructions:
-                "Take the Concordia Shuttle from " +
-                closestCampusToOrigin +
-                " to " +
-                closestCampusToDestination,
-              maneuver: "",
-              polyline: { points: interCampusPolyline },
-              travel_mode: "SHUTTLE",
-              transit_details: {
-                line: {
-                  name: "Concordia Shuttle",
-                  short_name: "Shuttle",
-                  vehicle_type: "BUS",
-                },
-                departure_stop: {
-                  name: closestCampusToOrigin + " Campus Shuttle Stop",
-                  location: coordinateToNormalizedLatLng(closestStopToOrigin),
-                },
-                arrival_stop: {
-                  name: closestCampusToDestination + " Campus Shuttle Stop",
-                  location: coordinateToNormalizedLatLng(closestStopToDestination),
-                },
-              },
-            },
-          ],
+          distance: { text: formatDistance(totalDistance), value: totalDistance },
+          duration: { text: formatDuration(totalDuration), value: totalDuration },
+          steps: combinedSteps,
         },
-        ...postShuttlePath.legs,
       ],
       totalDurationSeconds:
-        preShuttlePath.totalDurationSeconds +
-        shuttleTransitTime +
-        postShuttlePath.totalDurationSeconds,
+        totalDuration,
       mode: "shuttle",
     },
   ];
@@ -571,10 +578,7 @@ export async function fetchDirections(
     if (!data.routes || data.routes.length === 0) return [];
     return data.routes
       .map((route: RawRoute) => normalizeRoute(route, mode))
-      .sort(
-        (a: NormalizedRoute, b: NormalizedRoute) =>
-          a.totalDurationSeconds - b.totalDurationSeconds,
-      );
+      .sort((a: NormalizedRoute, b: NormalizedRoute) => a.totalDurationSeconds);
   } catch (error) {
     clearTimeout(timeoutId);
     if (error instanceof Error && error.name === "AbortError") {
