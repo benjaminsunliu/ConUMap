@@ -539,6 +539,56 @@ export default function MapViewer({
     setRouteNodes([]);
   }, [navCoords.start, navCoords.end, selectionOverrides.end]);
 
+  const clearRouteRendering = useCallback(() => {
+    setRoutePolyline(null);
+    setRouteStops([]);
+    setRouteNodes([]);
+  }, []);
+
+  const resolveSelectionCoordinate = useCallback(
+    (selectedCode?: string) => {
+      if (selectedCode === CURRENT_LOCATION_CODE) {
+        return userLocation;
+      }
+      if (!selectedCode) {
+        return null;
+      }
+
+      const building = CAMPUS_BUILDINGS.find((b) => b.buildingCode === selectedCode);
+      return building?.location ?? null;
+    },
+    [userLocation],
+  );
+
+  const handleStartSelection = useCallback((coord: Coordinate | null, label: string) => {
+    userClearedStart.current = !coord;
+    setManualStart({ coord, label });
+    if (coord) {
+      lastStartRef.current = { coord, label };
+    }
+  }, []);
+
+  const handleEndSelection = useCallback(
+    (selected: SearchBuilding | null, coord: Coordinate | null) => {
+      if (coord) {
+        lastDestinationRef.current = { coord, label: selected?.buildingName ?? "" };
+      }
+
+      if (
+        selected?.buildingCode &&
+        selected.buildingCode !== CURRENT_LOCATION_CODE
+      ) {
+        const nextBuilding = selectBuildingByCode(selected.buildingCode);
+        if (nextBuilding) {
+          focusBuilding(nextBuilding);
+        }
+      } else {
+        setSelectedBuilding(null);
+      }
+    },
+    [focusBuilding, selectBuildingByCode],
+  );
+
   return (
     <View style={styles.container}>
       <BuildingSelection
@@ -556,16 +606,7 @@ export default function MapViewer({
         ) => {
           const selected = buildings[type];
           const selectedCode = selected?.buildingCode;
-
-          let coord: Coordinate | null = null;
-          if (selectedCode === CURRENT_LOCATION_CODE) {
-            coord = userLocation;
-          } else if (selectedCode) {
-            const building = CAMPUS_BUILDINGS.find(
-              (b) => b.buildingCode === selectedCode,
-            );
-            coord = building?.location ?? null;
-          }
+          const coord = resolveSelectionCoordinate(selectedCode);
 
           setNavCoords((prev) => ({ ...prev, [type]: coord }));
           setSelectionOverrides((prev) => ({
@@ -574,34 +615,15 @@ export default function MapViewer({
           }));
 
           if (type === "start") {
-            userClearedStart.current = !coord;
-            setManualStart({ coord, label: selected?.buildingName ?? "" });
-            if (coord) {
-              lastStartRef.current = { coord, label: selected?.buildingName ?? "" };
-            }
+            handleStartSelection(coord, selected?.buildingName ?? "");
           }
 
           if (!coord) {
-            setRoutePolyline(null);
-            setRouteStops([]);
-            setRouteNodes([]);
+            clearRouteRendering();
           }
 
           if (type === "end") {
-            if (coord) {
-              lastDestinationRef.current = { coord, label: selected?.buildingName ?? "" };
-            }
-            if (
-              selected?.buildingCode &&
-              selected.buildingCode !== CURRENT_LOCATION_CODE
-            ) {
-              const nextBuilding = selectBuildingByCode(selected.buildingCode);
-              if (nextBuilding) {
-                focusBuilding(nextBuilding);
-              }
-            } else {
-              setSelectedBuilding(null);
-            }
+            handleEndSelection(selected, coord);
           }
         }}
       />
@@ -676,7 +698,7 @@ export default function MapViewer({
           const dashedWidth = Platform.OS === "android" ? 6 : 3;
           const strokeWidth = segment.isDashed ? dashedWidth : 3;
           const firstCoord = segment.coordinates[0];
-          const lastCoord = segment.coordinates[segment.coordinates.length - 1];
+          const lastCoord = segment.coordinates.at(-1);
 
           return (
             <Polyline
