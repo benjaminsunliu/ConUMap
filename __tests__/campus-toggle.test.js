@@ -53,4 +53,18 @@ describe("campus-toggle",()=>{
       expect.objectContaining({ latitude: 45.4578596, longitude: -73.6395856 })
     );
   });
+
+  it("updates switchValue when viewRegion prop changes to the other campus", () => {
+    const { getByText, rerender } = render(
+      <CampusToggle mapRef={mapRef} viewRegion={viewRegionNearSGW} />
+    );
+    // Initially SGW is selected
+    expect(getByText("SGW").props.style.some(s => s.color === "#000000")).toBeTruthy();
+
+    // Rerender with a region near LOY
+    rerender(<CampusToggle mapRef={mapRef} viewRegion={viewRegionNearLOY} />);
+
+    // Now LOY should be selected as the active tab
+    expect(getByText("LOY").props.style.some(s => s.color === "#000000")).toBeTruthy();
+  });
 })
