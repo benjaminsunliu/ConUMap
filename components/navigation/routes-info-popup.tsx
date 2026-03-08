@@ -133,7 +133,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect, onStepS
                 />
             </>
         );
-    }, [availableTransports, colorScheme, onBack, styles.headerBackButton, styles.headerTitle, tabIndex, theme]);
+    }, [availableTransports, colorScheme, onBack, selectorVersion, styles.headerBackButton, styles.headerTitle, tabIndex, theme]);
 
     if (availableTransports.length <= 0) {
         return null;

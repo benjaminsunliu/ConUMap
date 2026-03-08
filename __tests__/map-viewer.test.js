@@ -887,6 +887,7 @@ jest.mock("@/constants/map", () => {
         routesPopup.props.onResponderMove({}, { dy: -300 });
         routesPopup.props.onResponderRelease({}, { dy: -300, vy: -1 });
       });
+      await act(async () => { fireEvent.press(mapViewer.getByTestId('transit-selector')); });
       await act(async () => { fireEvent.press(mapViewer.getByTestId('transit-route-0')); });
 
       // 2 polylines (walk + bus), and on iOS a Marker node should be rendered
@@ -966,6 +967,7 @@ jest.mock("@/constants/map", () => {
         routesPopup.props.onResponderMove({}, { dy: -300 });
         routesPopup.props.onResponderRelease({}, { dy: -300, vy: -1 });
       });
+      await act(async () => { fireEvent.press(mapViewer.getByTestId('transit-selector')); });
       await act(async () => { fireEvent.press(mapViewer.getByTestId('transit-route-0')); });
 
       // 2 polylines but 0 node markers (no color change between steps)
