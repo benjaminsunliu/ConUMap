@@ -657,10 +657,12 @@ export default function MapViewer({
         {routePolyline?.map((segment, index) => {
           const dashedWidth = Platform.OS === "android" ? 6 : 3;
           const strokeWidth = segment.isDashed ? dashedWidth : 3;
+          const firstCoord = segment.coordinates[0];
+          const lastCoord = segment.coordinates[segment.coordinates.length - 1];
 
           return (
             <Polyline
-              key={`polyline-seg-${routeKey}-${index}-${segment.isDashed}`}
+              key={`polyline-seg-${routeKey}-${index}-${segment.color}-${segment.isDashed}-${firstCoord?.latitude}-${firstCoord?.longitude}-${lastCoord?.latitude}-${lastCoord?.longitude}`}
               coordinates={segment.coordinates}
               strokeColor={segment.color}
               strokeWidth={strokeWidth}
@@ -782,11 +784,7 @@ export default function MapViewer({
           isOpen={shouldDisplayRoutes}
           onBack={handleBackFromDirections}
           onRouteSelect={(route: any) => {
-            setRouteKey((k) => k + 1);
-            setRoutePolyline(null);
-            setRouteStops([]);
-            setRouteNodes([]);
-
+            // Build new route data synchronously before touching state
             const segments: PolylineSegment[] = [];
             const stops: TransitStopMarker[] = [];
             const nodes: TransitionNode[] = [];
@@ -820,9 +818,18 @@ export default function MapViewer({
               }
             }
 
-            setRoutePolyline(segments.length > 0 ? segments : null);
-            setRouteStops(stops);
-            setRouteNodes(nodes);
+            // clear all existing polylines so native views are removed
+            setRouteKey((k) => k + 1);
+            setRoutePolyline(null);
+            setRouteStops([]);
+            setRouteNodes([]);
+
+            // then set new data on the next frame to ensure a clean transition without lingering old polylines
+            requestAnimationFrame(() => {
+              setRoutePolyline(segments.length > 0 ? segments : null);
+              setRouteStops(stops);
+              setRouteNodes(nodes);
+            });
           }}
           onStepSelect={(encoded: string) => {
             const coords = decodePolyline(encoded);
