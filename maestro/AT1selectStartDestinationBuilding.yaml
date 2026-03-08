@@ -2,7 +2,7 @@ appId: host.exp.Exponent
 ---
 - openLink: exp://192.168.0.110:8081
 - tapOn:
-    point: 15%,85%
+    point: 15%,85%  # IDEALLY CHANGE TO LOCATING CAMPUS TOGGLE BUTTON USING TESTID
 - waitForAnimationToEnd:
     timeout: 2000
 - assertVisible: "Search building"
