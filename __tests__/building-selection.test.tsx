@@ -62,6 +62,12 @@ jest.mock("@/data/building-addresses.json", () => [
     address: "1455 Blvd. De Maisonneuve Ouest, Montreal, QC H3G 1M8",
     campus: "SGW",
   },
+  {
+    buildingCode: "LB",
+    buildingName: "J.W. McConnell Building",
+    address: "1400 De Maisonneuve Blvd. W., Montreal, QC",
+    campus: "SGW",
+  },
 ]);
 
 beforeEach(() => {
@@ -146,27 +152,32 @@ describe("BuildingSelection Browse", () => {
 });
 
 describe("BuildingSelection Directions", () => {
-  it("should swap the start and end fields when the swap button is pressed", async () => {
+  it("should swap selected start and destination buildings", async () => {
     const selectionView = render(
       <BuildingSelection
         selectedBuilding={null}
-        mode={"directions"}
+        mode="directions"
         onSelect={mockOnSelect}
-      />,
+      />
     );
+
     const startInput = selectionView.getByPlaceholderText("Your location");
     const endInput = selectionView.getByPlaceholderText("Destination");
 
     fireEvent(startInput, "focus");
     fireEvent.changeText(startInput, "Hall");
-    const hallResult = await selectionView.findByTestId("start-result-H");
-    fireEvent.press(hallResult);
+    fireEvent.press(await selectionView.findByTestId("start-result-H"));
+
+    fireEvent(endInput, "focus");
+    fireEvent.changeText(endInput, "McConnell");
+    fireEvent.press(await selectionView.findByTestId("end-result-LB"));
 
     const swapButton = await selectionView.findByTestId("swap-fields");
     fireEvent.press(swapButton);
 
-    expect(startInput.props.value).toBe("");
+    expect(startInput.props.value).toBe("J.W. McConnell Building");
     expect(endInput.props.value).toBe("Henry F. Hall Building");
+
     expect(mockOnSelect).toHaveBeenCalled();
   });
 
@@ -376,7 +387,7 @@ describe("BuildingSelection Integration Tests", () => {
 
     fireEvent.press(hallResult);
 
-    await act(async () => {});
+    await act(async () => { });
 
     const startResultsAfterPress = await mapViewer.queryByTestId("start-results");
     expect(startResultsAfterPress).toBeNull();
