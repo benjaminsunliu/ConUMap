@@ -561,7 +561,7 @@ describe("fetchAllDirections", () => {
     expect(result.shuttle).toEqual([]);
   });
 
-  it("makes exactly 4 fetch calls (one per non-shuttle mode)", async () => {
+  it("makes exactly 5 fetch calls (one per non-shuttle mode)", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
     global.fetch = jest.fn().mockImplementation((url: string, options?: any) => {
       if (url.includes("concordia.ca/maps/shuttle-bus.html")) {
@@ -580,7 +580,7 @@ describe("fetchAllDirections", () => {
 
     await fetchAllDirections(origin, destination);
 
-    expect(global.fetch).toHaveBeenCalledTimes(4);
+    expect(global.fetch).toHaveBeenCalledTimes(5);
   });
 
   it("handles individual mode failures gracefully, returning null for failed modes", async () => {
