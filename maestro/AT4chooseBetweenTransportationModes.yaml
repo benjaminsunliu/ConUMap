@@ -3,49 +3,45 @@ appId: host.exp.Exponent
 - openLink: exp://192.168.0.110:8081
 - assertVisible: "Search building"
 - tapOn: "Search building"
-- inputText: "Henry"
+- inputText: "Hall"
 - waitForAnimationToEnd:
     timeout: 2000
-- assertVisible: "H – Henry F. Hall Building"
 - tapOn: "H – Henry F. Hall Building"
 - assertVisible:
     id: "directions-action-button"
 - tapOn:
     id: "directions-action-button"
-- assertVisible: "Your location"
 - tapOn: "Your location"
-- inputText: "HA"
+- inputText: "Grey Nuns"
 - waitForAnimationToEnd:
     timeout: 2000
-- assertVisible: "HA – Hingston Hall, wing HA"
-- tapOn: "HA – Hingston Hall, wing HA"
+- tapOn: "GN – Grey Nuns Building"
 
 - assertVisible:
-    id: "walking-selector"
+    id: "transit-selector"
 - swipe:
     start: 45%, 74%
     end: 45%, 40%
 - tapOn:
-    id: "walking-selector"
-- assertVisible:
-    id: "walking-route-0"
+    id: "transit-selector"
 - tapOn:
-    id: "walking-route-0"
+    id: "transit-route-1"
 - swipe:
     start: 45%, 40%
     end: 45%, 74%
 
 - swipe:
+    start: 50%, 50%
+    end: 15%, 12%
+    duration: 2000
+
+- swipe:
     start: 45%, 74%
     end: 45%, 40%
-- assertVisible:
-    id: "transit-selector"
 - tapOn:
-    id: "transit-selector"
-- assertVisible:
-    id: "transit-route-1"
+    id: "walking-selector"
 - tapOn:
-    id: "transit-route-1"
+    id: "walking-route-0"
 - swipe:
     start: 45%, 40%
     end: 45%, 74%
