@@ -5,7 +5,6 @@ import SwitchSelector from "react-native-switch-selector";
 import MapView from "react-native-maps";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
-import { IS_E2E } from "@/utils/e2e";
 
 interface Props {
   mapRef: React.RefObject<MapView | null>;

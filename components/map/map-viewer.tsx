@@ -18,8 +18,7 @@ import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
 import { IS_E2E } from "@/utils/e2e";
-import { useE2EHitboxOverlay } from "@/hooks/useE2EHitboxOverlay";
-import { HitboxPoint } from "@/hooks/useE2EHitboxOverlay";
+import { useE2EHitboxOverlay, HitboxPoint } from "@/hooks/useE2EHitboxOverlay";
 
 interface PolylineSegment {
     coordinates: Coordinate[];
