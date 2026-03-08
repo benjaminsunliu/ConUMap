@@ -4,8 +4,7 @@ import { getConcordiaShuttleSchedule } from "@/utils/getShuttleSchedule";
 import { Campus } from "@/scripts/extract-building-info";
 import { parse } from "dotenv";
 
-const ROUTES_BASE_URL =
-  "https://routes.googleapis.com/directions/v2:computeRoutes";
+const ROUTES_BASE_URL = "https://routes.googleapis.com/directions/v2:computeRoutes";
 
 // ---------------------------------------------------------------------------
 // Raw Google Routes API v2 shapes
@@ -188,14 +187,12 @@ function formatDuration(seconds: number): string {
   if (mins < 60) {
     return `${mins} min${mins === 1 ? "" : "s"}`;
   }
-  
+
   const hrs = Math.floor(mins / 60);
   const rem = mins % 60;
   const hrsText = `${hrs} hr` + (hrs === 1 ? "" : "s");
   const remSuffix = rem === 1 ? "" : "s";
-  const remText = rem > 0
-    ? `${hrsText} ${rem} min${remSuffix}`
-    : hrsText;
+  const remText = rem > 0 ? `${hrsText} ${rem} min${remSuffix}` : hrsText;
   return remText;
 }
 
@@ -209,7 +206,10 @@ function formatDistance(meters: number): string {
  * Converts a single Routes API v2 route object into the Directions-API shape
  * expected by the app's popup and map components.
  */
-function normalizeRoute(r: RawRoute, mode: Exclude<TransportationMode, "shuttle">): NormalizedRoute {
+function normalizeRoute(
+  r: RawRoute,
+  mode: Exclude<TransportationMode, "shuttle">,
+): NormalizedRoute {
   const legs = (r.legs ?? []).map((leg: RawLeg): NormalizedLeg => {
     const durSecs = parseDurationSeconds(leg.duration);
 
@@ -240,13 +240,19 @@ function normalizeRoute(r: RawRoute, mode: Exclude<TransportationMode, "shuttle"
               departure_stop: {
                 name: td.stopDetails?.departureStop?.name,
                 location: td.stopDetails?.departureStop?.location?.latLng
-                  ? { lat: td.stopDetails.departureStop.location.latLng.latitude, lng: td.stopDetails.departureStop.location.latLng.longitude }
+                  ? {
+                      lat: td.stopDetails.departureStop.location.latLng.latitude,
+                      lng: td.stopDetails.departureStop.location.latLng.longitude,
+                    }
                   : undefined,
               },
               arrival_stop: {
                 name: td.stopDetails?.arrivalStop?.name,
                 location: td.stopDetails?.arrivalStop?.location?.latLng
-                  ? { lat: td.stopDetails.arrivalStop.location.latLng.latitude, lng: td.stopDetails.arrivalStop.location.latLng.longitude }
+                  ? {
+                      lat: td.stopDetails.arrivalStop.location.latLng.latitude,
+                      lng: td.stopDetails.arrivalStop.location.latLng.longitude,
+                    }
                   : undefined,
               },
             }
@@ -254,13 +260,17 @@ function normalizeRoute(r: RawRoute, mode: Exclude<TransportationMode, "shuttle"
       };
     });
 
-    const firstTransitStep = leg.steps?.find((s: RawStep) => s.transitDetails?.localizedValues);
+    const firstTransitStep = leg.steps?.find(
+      (s: RawStep) => s.transitDetails?.localizedValues,
+    );
     const lastTransitStep = [...(leg.steps ?? [])]
       .reverse()
       .find((s: RawStep) => s.transitDetails?.localizedValues);
 
-    const departureText = firstTransitStep?.transitDetails?.localizedValues?.departureTime?.time?.text;
-    const arrivalText   = lastTransitStep?.transitDetails?.localizedValues?.arrivalTime?.time?.text;
+    const departureText =
+      firstTransitStep?.transitDetails?.localizedValues?.departureTime?.time?.text;
+    const arrivalText =
+      lastTransitStep?.transitDetails?.localizedValues?.arrivalTime?.time?.text;
 
     return {
       distance: {
@@ -272,7 +282,7 @@ function normalizeRoute(r: RawRoute, mode: Exclude<TransportationMode, "shuttle"
         value: durSecs,
       },
       departure_time: departureText ? { text: departureText } : undefined,
-      arrival_time:   arrivalText   ? { text: arrivalText }   : undefined,
+      arrival_time: arrivalText ? { text: arrivalText } : undefined,
       steps,
     };
   });
@@ -289,13 +299,23 @@ function normalizeRoute(r: RawRoute, mode: Exclude<TransportationMode, "shuttle"
 export type ShuttleSegmentMode = Extract<TransportationMode, "transit" | "walking">;
 
 /* Choose between transit or walking for a segment based on duration. */
-async function chooseShuttleSegmentPath(origin: Coordinate, destination: Coordinate): Promise<NormalizedRoute | null> {
+async function chooseShuttleSegmentPath(
+  origin: Coordinate,
+  destination: Coordinate,
+): Promise<NormalizedRoute | null> {
   const transitPath = await fetchDirections(origin, destination, "transit");
   const walkingPath = await fetchDirections(origin, destination, "walking");
-  const transitDuration = transitPath && transitPath.length > 0 ? getTotalDurationOfRouteSeconds(transitPath[0]) : Infinity;
-  const walkingDuration = walkingPath && walkingPath.length > 0 ? getTotalDurationOfRouteSeconds(walkingPath[0]) : Infinity;
-  if(transitDuration != Infinity && transitDuration <= walkingDuration && transitPath) return transitPath[0];
-  if(walkingDuration != Infinity && walkingPath) return walkingPath[0];
+  const transitDuration =
+    transitPath && transitPath.length > 0
+      ? getTotalDurationOfRouteSeconds(transitPath[0])
+      : Infinity;
+  const walkingDuration =
+    walkingPath && walkingPath.length > 0
+      ? getTotalDurationOfRouteSeconds(walkingPath[0])
+      : Infinity;
+  if (transitDuration !== Infinity && transitDuration <= walkingDuration && transitPath)
+    return transitPath[0];
+  if (walkingDuration !== Infinity && walkingPath) return walkingPath[0];
   return null;
 }
 
@@ -314,7 +334,11 @@ function parseShuttleTimeToDate(timeStr: string): Date {
   Returns the time in seconds until the next shuttle departure from the specified campus, or null if no shuttle is available within the max wait time. 
   Assumes shuttle transit time between campuses is 30 minutes and takes into account waiting for the shuttle.
 */
-async function getShuttleTransitTimeSeconds(Campus: Campus, now: Date, transitDurationToStop: number): Promise<number | null> {
+async function getShuttleTransitTimeSeconds(
+  Campus: Campus,
+  now: Date,
+  transitDurationToStop: number,
+): Promise<number | null> {
   const shuttleSchedule = await getConcordiaShuttleSchedule();
   const campusSchedule = shuttleSchedule.schedule[Campus];
   const shuttleTransitTime = 30 * 60;
@@ -327,7 +351,8 @@ async function getShuttleTransitTimeSeconds(Campus: Campus, now: Date, transitDu
     return waitTime >= 0 && waitTime <= maxShuttleWaitTime;
   });
   if (!nearestTime) return null;
-  const waitTimeSeconds = (parseShuttleTimeToDate(nearestTime).getTime() - arrivalTimeAtStop.getTime()) / 1000;
+  const waitTimeSeconds =
+    (parseShuttleTimeToDate(nearestTime).getTime() - arrivalTimeAtStop.getTime()) / 1000;
   return waitTimeSeconds + shuttleTransitTime;
 }
 
@@ -335,53 +360,111 @@ function coordinateToNormalizedLatLng(coord: Coordinate): NormalizedLatLng {
   return { lat: coord.latitude, lng: coord.longitude };
 }
 
-async function handleShuttleRouting(origin: Coordinate, destination: Coordinate, directTransit: NormalizedRoute | null): Promise<NormalizedRoute[]> {
+async function handleShuttleRouting(
+  origin: Coordinate,
+  destination: Coordinate,
+  directTransit: NormalizedRoute | null,
+): Promise<NormalizedRoute[]> {
   const shuttleSchedule = await getConcordiaShuttleSchedule();
   if (!shuttleSchedule.isAvailableToday) {
+    console.log("No shuttle today", new Date());
     return [];
   }
   const LOY_STOP_COORD: Coordinate = { latitude: 45.4971286, longitude: -73.5810949 };
   const SGW_STOP_COORD: Coordinate = { latitude: 45.4584459, longitude: -73.6389317 };
   const interCampusPolyline = "adutGxhb`MvpFnhJ";
   const now = new Date();
-  
+  now.setDate(4);
+
   // info from campuses
-  const closestStopToOrigin = (Math.hypot(origin.latitude - LOY_STOP_COORD.latitude, origin.longitude - LOY_STOP_COORD.longitude) <
-    Math.hypot(origin.latitude - SGW_STOP_COORD.latitude, origin.longitude - SGW_STOP_COORD.longitude))
-    ? LOY_STOP_COORD
-    : SGW_STOP_COORD;
-  const closestCampusToOrigin: Campus = closestStopToOrigin === LOY_STOP_COORD ? "LOY" : "SGW";
-  const closestStopToDestination = closestStopToOrigin === LOY_STOP_COORD ? LOY_STOP_COORD : SGW_STOP_COORD;
-  const closestCampusToDestination: Campus = closestStopToDestination === LOY_STOP_COORD ? "LOY" : "SGW";
+  const closestStopToOrigin =
+    Math.hypot(
+      origin.latitude - LOY_STOP_COORD.latitude,
+      origin.longitude - LOY_STOP_COORD.longitude,
+    ) <
+    Math.hypot(
+      origin.latitude - SGW_STOP_COORD.latitude,
+      origin.longitude - SGW_STOP_COORD.longitude,
+    )
+      ? LOY_STOP_COORD
+      : SGW_STOP_COORD;
+  const closestCampusToOrigin: Campus =
+    closestStopToOrigin === LOY_STOP_COORD ? "LOY" : "SGW";
+  const closestStopToDestination =
+    closestStopToOrigin === LOY_STOP_COORD ? LOY_STOP_COORD : SGW_STOP_COORD;
+  const closestCampusToDestination: Campus =
+    closestStopToDestination === LOY_STOP_COORD ? "LOY" : "SGW";
 
   // test if pre-shuttle transit/walking duration + max shuttle wait time is less than direct transit duration. If not, skip shuttle routing.
-  const preShuttlePath = await chooseShuttleSegmentPath(closestStopToDestination, destination)
-  if (!preShuttlePath) return [];
-  const shuttleTransitTime = await getShuttleTransitTimeSeconds(closestCampusToOrigin, now, preShuttlePath.totalDurationSeconds);
-  if (shuttleTransitTime === null) return [];
+  const preShuttlePath = await chooseShuttleSegmentPath(
+    closestStopToDestination,
+    destination,
+  );
+  if (!preShuttlePath) {
+    console.log("no pre shuttle path");
+    return [];
+  }
+  const shuttleTransitTime = await getShuttleTransitTimeSeconds(
+    closestCampusToOrigin,
+    now,
+    preShuttlePath.totalDurationSeconds,
+  );
+  if (shuttleTransitTime === null) {
+    console.log("no shuttle transit time");
+    return [];
+  }
   // if directTransit route is available, do early check to save time
   if (directTransit !== null) {
-    if (shuttleTransitTime === null || preShuttlePath.totalDurationSeconds + shuttleTransitTime >= directTransit.totalDurationSeconds) return [];
+    console.log("no direct transit route");
+    if (
+      shuttleTransitTime === null ||
+      preShuttlePath.totalDurationSeconds + shuttleTransitTime >=
+        directTransit.totalDurationSeconds
+    ) {
+      console.log("direct transit route is faster than pre + shuttle");
+      return [];
+    }
   }
-  
-  const postShuttlePath = await chooseShuttleSegmentPath(closestStopToDestination, destination);
-  if (!postShuttlePath) return [];
+
+  const postShuttlePath = await chooseShuttleSegmentPath(
+    closestStopToDestination,
+    destination,
+  );
+  if (!postShuttlePath) {
+    console.log("no pre shuttle path");
+    return [];
+  }
 
   // Build multimodal route with shuttle segment in the middle.
   return [
     {
       summary: "Concordia Shuttle",
-      overview_polyline: { points: preShuttlePath.overview_polyline.points + interCampusPolyline + postShuttlePath.overview_polyline.points },
+      overview_polyline: {
+        points:
+          preShuttlePath.overview_polyline.points +
+          interCampusPolyline +
+          postShuttlePath.overview_polyline.points,
+      },
       legs: [
         ...preShuttlePath.legs,
         {
           distance: { text: "Inter-campus", value: 6700 },
-          duration: { text: formatDuration(shuttleTransitTime), value: shuttleTransitTime },
+          duration: {
+            text: formatDuration(shuttleTransitTime),
+            value: shuttleTransitTime,
+          },
           steps: [
             {
               distance: { text: "Inter-campus", value: 6700 },
-              duration: { text: formatDuration(shuttleTransitTime), value: shuttleTransitTime },
-              html_instructions: "Take the Concordia Shuttle from " + closestCampusToOrigin + " to " + closestCampusToDestination,
+              duration: {
+                text: formatDuration(shuttleTransitTime),
+                value: shuttleTransitTime,
+              },
+              html_instructions:
+                "Take the Concordia Shuttle from " +
+                closestCampusToOrigin +
+                " to " +
+                closestCampusToDestination,
               maneuver: "",
               polyline: { points: interCampusPolyline },
               travel_mode: "SHUTTLE",
@@ -400,24 +483,32 @@ async function handleShuttleRouting(origin: Coordinate, destination: Coordinate,
                   location: coordinateToNormalizedLatLng(closestStopToDestination),
                 },
               },
-            }
-          ]
+            },
+          ],
         },
         ...postShuttlePath.legs,
       ],
-      totalDurationSeconds: preShuttlePath.totalDurationSeconds + shuttleTransitTime + postShuttlePath.totalDurationSeconds,
+      totalDurationSeconds:
+        preShuttlePath.totalDurationSeconds +
+        shuttleTransitTime +
+        postShuttlePath.totalDurationSeconds,
       mode: "shuttle",
-    }
+    },
   ];
 }
 
-function chooseBestDirectRoute (walkingRoutes: NormalizedRoute[] | null, transitRoutes: NormalizedRoute[] | null): NormalizedRoute[] | null {
-  if(!transitRoutes && !walkingRoutes) return null;
+function chooseBestDirectRoute(
+  walkingRoutes: NormalizedRoute[] | null,
+  transitRoutes: NormalizedRoute[] | null,
+): NormalizedRoute[] | null {
+  if (!transitRoutes && !walkingRoutes) return null;
   if (!transitRoutes || transitRoutes.length === 0) return walkingRoutes;
   if (!walkingRoutes || walkingRoutes.length === 0) return transitRoutes;
   const bestTransit = transitRoutes[0];
   const bestWalking = walkingRoutes[0];
-  return bestTransit.totalDurationSeconds <= bestWalking.totalDurationSeconds ? transitRoutes : walkingRoutes;
+  return bestTransit.totalDurationSeconds <= bestWalking.totalDurationSeconds
+    ? transitRoutes
+    : walkingRoutes;
 }
 
 /**
@@ -430,12 +521,12 @@ function chooseBestDirectRoute (walkingRoutes: NormalizedRoute[] | null, transit
 export async function fetchDirections(
   origin: Coordinate,
   destination: Coordinate,
-  mode: Exclude<TransportationMode, "shuttle">
+  mode: Exclude<TransportationMode, "shuttle">,
 ): Promise<NormalizedRoute[] | null> {
   const apiKey = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
   if (!apiKey) {
     console.warn(
-      "EXPO_PUBLIC_GOOGLE_API_KEY is not set – directions will not be available."
+      "EXPO_PUBLIC_GOOGLE_API_KEY is not set – directions will not be available.",
     );
     return null;
   }
@@ -478,7 +569,12 @@ export async function fetchDirections(
     const data = await response.json();
 
     if (!data.routes || data.routes.length === 0) return [];
-    return data.routes.map((route: RawRoute) => normalizeRoute(route, mode)).sort((a: NormalizedRoute, b: NormalizedRoute) => a.totalDurationSeconds - b.totalDurationSeconds);
+    return data.routes
+      .map((route: RawRoute) => normalizeRoute(route, mode))
+      .sort(
+        (a: NormalizedRoute, b: NormalizedRoute) =>
+          a.totalDurationSeconds - b.totalDurationSeconds,
+      );
   } catch (error) {
     clearTimeout(timeoutId);
     if (error instanceof Error && error.name === "AbortError") {
@@ -490,8 +586,6 @@ export async function fetchDirections(
   }
 }
 
-
-
 /**
  * Fetches directions for all supported transport modes concurrently.
  * Shuttle is always returned as an empty array (no API route available;
@@ -499,17 +593,17 @@ export async function fetchDirections(
  */
 export async function fetchAllDirections(
   origin: Coordinate,
-  destination: Coordinate
+  destination: Coordinate,
 ): Promise<Record<TransportationMode, NormalizedRoute[] | null>> {
   const modes: Exclude<TransportationMode, "shuttle">[] = [
     "walking",
     "transit",
     "driving",
-    "bicycling"
+    "bicycling",
   ];
 
   const results = await Promise.all(
-    modes.map((mode) => fetchDirections(origin, destination, mode))
+    modes.map((mode) => fetchDirections(origin, destination, mode)),
   );
 
   const bestDirectRoutes = chooseBestDirectRoute(results[0], results[1]);
@@ -519,6 +613,10 @@ export async function fetchAllDirections(
     transit: results[1],
     driving: results[2],
     bicycling: results[3],
-    shuttle: await handleShuttleRouting(origin, destination, bestDirectRoutes && bestDirectRoutes.length > 0 ? bestDirectRoutes[0] : null)
+    shuttle: await handleShuttleRouting(
+      origin,
+      destination,
+      bestDirectRoutes && bestDirectRoutes.length > 0 ? bestDirectRoutes[0] : null,
+    ),
   };
 }
