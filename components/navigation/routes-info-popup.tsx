@@ -49,22 +49,38 @@ const transportIconMap: Record<TransportationMode, keyof typeof Ionicons.glyphMa
     shuttle: "school-outline",
 };
 
+const transportOrder: TransportationMode[] = ["walking", "transit", "driving", "bicycling", "shuttle"];
+
 export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect, onStepSelect, onBack }: Props) {
     const colorScheme = useColorScheme() ?? "light";
     const theme = Colors[colorScheme];
     const styles = makePopupStyles(theme);
     const [tabIndex, setTabIndex] = React.useState(0);
     const [selectedRoute, setSelectedRoute] = React.useState<any>(null);
+    const [selectorVersion, setSelectorVersion] = React.useState(0);
 
-    const availableTransports = useMemo(
-        () => Object.keys(routes).filter((key) => routes[key as TransportationMode] !== null),
-        [routes]
-    );
+    const availableTransports = transportOrder.filter((mode) => routes[mode] !== null);
+    const defaultTabIndex = Math.max(availableTransports.indexOf("walking"), 0);
+    const routeResetToken = transportOrder
+        .map((mode) => {
+            const modeRoutes = routes[mode];
+            if (modeRoutes === null) {
+                return `${mode}:null`;
+            }
+
+            if (modeRoutes.length === 0) {
+                return `${mode}:empty`;
+            }
+
+            return `${mode}:${modeRoutes.length}:${getRouteKey(modeRoutes[0], mode, 0)}`;
+        })
+        .join("|");
 
     useEffect(() => {
-        setTabIndex(0);
+        setTabIndex(defaultTabIndex);
         setSelectedRoute(null);
-    }, [routes]);
+        setSelectorVersion((value) => value + 1);
+    }, [defaultTabIndex, routeResetToken]);
 
     useEffect(() => {
         setSelectedRoute(null);
@@ -101,6 +117,7 @@ export default function RoutesInfoPopup({ routes, isOpen, onRouteSelect, onStepS
                 )}
                 <Text style={styles.headerTitle}>{availableTransports[tabIndex]?.replaceAll(/^./g, (c) => c.toUpperCase())}</Text>
                 <SwitchSelector
+                    key={`navigation-mode-selector-${selectorVersion}`}
                     initial={tabIndex}
                     textColor={Colors[colorScheme].buildingInfoPopup.text}
                     selectedColor={Colors[colorScheme].buildingInfoPopup.handle}

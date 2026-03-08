@@ -18,6 +18,8 @@ interface Props {
     readonly onSetAsStart?: () => void;
 }
 
+type ActionType = "directions" | "start" | "website";
+
 const WEEKDAYS = [
     "Monday",
     "Tuesday",
@@ -91,13 +93,19 @@ export default function BuildingInfoPopup({ building, onNavigate, onSetAsStart }
     );
 
     const getActionHandler = useCallback(
-        (type: string) => {
+        (type: ActionType) => {
             if (type === "directions") {
-                return onNavigate ? () => onNavigate() : () => handleAction(type);
+                return onNavigate
+                    ? () => onNavigate()
+                    : () => {
+                        void handleAction("directions");
+                    };
             } else if (type === "start") {
                 return onSetAsStart ? () => onSetAsStart() : undefined;
             } else {
-                return () => handleAction(type);
+                return () => {
+                    void handleAction("website");
+                };
             }
         },
         [handleAction, onNavigate, onSetAsStart],
