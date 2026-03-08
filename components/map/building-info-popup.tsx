@@ -90,15 +90,18 @@ export default function BuildingInfoPopup({ building, onNavigate, onSetAsStart }
         [],
     );
 
-    const getActionHandler = (type: string) => {
-        if (type === "directions") {
-            return onNavigate ? () => onNavigate() : () => handleAction(type);
-        } else if (type === "start") {
-            return onSetAsStart ? () => onSetAsStart() : undefined;
-        } else {
-            return () => handleAction(type);
-        }
-    };
+    const getActionHandler = useCallback(
+        (type: string) => {
+            if (type === "directions") {
+                return onNavigate ? () => onNavigate() : () => handleAction(type);
+            } else if (type === "start") {
+                return onSetAsStart ? () => onSetAsStart() : undefined;
+            } else {
+                return () => handleAction(type);
+            }
+        },
+        [handleAction, onNavigate, onSetAsStart],
+    );
 
     const header = useMemo(() => {
         return (
@@ -129,9 +132,7 @@ export default function BuildingInfoPopup({ building, onNavigate, onSetAsStart }
     }, [
         ACTIONS,
         building,
-        handleAction,
-        onNavigate,
-        onSetAsStart,
+        getActionHandler,
         styles.actionsRow,
         styles.line,
         styles.openStatus,
