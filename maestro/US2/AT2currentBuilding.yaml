@@ -13,7 +13,7 @@ appId: host.exp.exponent
       - tapOn: "Search building"
 
 - tapOn:
-    id: locationButton
+    id: "locationButton"
 - runFlow:
     when:
       visible:
@@ -21,13 +21,13 @@ appId: host.exp.exponent
     commands:
       - tapOn: "While using the app"
       - tapOn:
-          id: locationButton
+          id: "locationButton"
 - tapOn: "Search building"
-- inputText: Hall
-- tapOn: H – Henry F. Hall Building
-- tapOn: Directions
-- assertVisible: Current Location
-- tapOn: Current Location
+- inputText: "Hall"
+- tapOn: "H – Henry F. Hall Building"
+- tapOn: "Directions"
+- assertVisible: "Current Location"
+- tapOn: "Current Location"
 - eraseText
-- inputText: Ev
-- tapOn: EV – Engineering, Computer Science and Visual Arts Integrated Complex
+- inputText: "Ev"
+- tapOn: "EV – Engineering, Computer Science and Visual Arts Integrated Complex"
