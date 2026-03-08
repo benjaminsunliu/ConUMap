@@ -67,7 +67,7 @@ type APIResponse = {
 };
 
 async function fetchBuildingPolygon(address: string, place_id?: string) {
-  const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+  const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
   const identifier = place_id
     ? `place_id=${encodeURIComponent(place_id)}`
     : `address=${encodeURIComponent(address)}`;
