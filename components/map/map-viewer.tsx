@@ -201,6 +201,8 @@ export default function MapViewer({
     label: "",
   });
   const userClearedStart = useRef(false);
+  const lastDestinationRef = useRef<{ coord: Coordinate | null; label: string }>({ coord: null, label: "" });
+  const lastStartRef = useRef<{ coord: Coordinate | null; label: string }>({ coord: null, label: "" });
 
   const showStartHint =
     navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
@@ -459,6 +461,13 @@ export default function MapViewer({
     } else if (manualStart.coord) {
       startLabel = manualStart.label;
       startCoord = manualStart.coord;
+    } else if (lastStartRef.current.coord) {
+      startLabel = lastStartRef.current.label;
+      startCoord = lastStartRef.current.coord;
+    }
+
+    if (startCoord && startLabel) {
+      lastStartRef.current = { coord: startCoord, label: startLabel };
     }
 
     setSelectionOverrides({
@@ -466,6 +475,7 @@ export default function MapViewer({
       end: selectedBuilding.buildingName,
     });
 
+    lastDestinationRef.current = { coord: mapBuilding.location, label: selectedBuilding.buildingName };
     userClearedStart.current = false;
     setNavCoords({ start: startCoord, end: mapBuilding.location });
     setNavigationMode("directions");
@@ -484,11 +494,13 @@ export default function MapViewer({
       return;
     }
 
+    const lastDest = lastDestinationRef.current;
+    lastStartRef.current = { coord: mapBuilding.location, label: selectedBuilding.buildingName };
     userClearedStart.current = false;
     setNavigationMode("directions");
-    setShouldDisplayRoutes(false);
-    setSelectionOverrides({ start: selectedBuilding.buildingName, end: "" });
-    setNavCoords({ start: mapBuilding.location, end: null });
+    setShouldDisplayRoutes(lastDest.coord != null);
+    setSelectionOverrides({ start: selectedBuilding.buildingName, end: lastDest.label });
+    setNavCoords({ start: mapBuilding.location, end: lastDest.coord });
     setManualStart({ coord: mapBuilding.location, label: selectedBuilding.buildingName });
     setRoutePolyline(null);
     setRouteStops([]);
@@ -564,6 +576,9 @@ export default function MapViewer({
           if (type === "start") {
             userClearedStart.current = !coord;
             setManualStart({ coord, label: selected?.buildingName ?? "" });
+            if (coord) {
+              lastStartRef.current = { coord, label: selected?.buildingName ?? "" };
+            }
           }
 
           if (!coord) {
@@ -573,6 +588,9 @@ export default function MapViewer({
           }
 
           if (type === "end") {
+            if (coord) {
+              lastDestinationRef.current = { coord, label: selected?.buildingName ?? "" };
+            }
             if (
               selected?.buildingCode &&
               selected.buildingCode !== CURRENT_LOCATION_CODE

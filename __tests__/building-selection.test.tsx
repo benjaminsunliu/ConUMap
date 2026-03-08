@@ -387,7 +387,7 @@ describe("BuildingSelection Integration Tests", () => {
 
     fireEvent.press(hallResult);
 
-    await act(async () => {});
+    await act(async () => { });
 
     const startResultsAfterPress = await mapViewer.queryByTestId("start-results");
     expect(startResultsAfterPress).toBeNull();
@@ -415,7 +415,9 @@ describe("BuildingSelection Integration Tests", () => {
     fireEvent.press(clResult);
 
     const setStartButton = await mapViewer.findByTestId("start-action-button");
-    fireEvent.press(setStartButton);
+    await act(async () => {
+      fireEvent.press(setStartButton);
+    });
 
     await waitFor(() => {
       expect(mapViewer.getByPlaceholderText("Your location").props.value).toBe(
@@ -423,6 +425,6 @@ describe("BuildingSelection Integration Tests", () => {
       );
     });
 
-    expect(mapViewer.getByPlaceholderText("Destination").props.value).toBe("");
+    expect(mapViewer.getByPlaceholderText("Destination").props.value).toBe("CL Annex");
   });
 });
