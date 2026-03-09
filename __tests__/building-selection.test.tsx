@@ -387,7 +387,7 @@ describe("BuildingSelection Integration Tests", () => {
 
     fireEvent.press(hallResult);
 
-    await act(async () => { });
+    await act(async () => {});
 
     const startResultsAfterPress = await mapViewer.queryByTestId("start-results");
     expect(startResultsAfterPress).toBeNull();
