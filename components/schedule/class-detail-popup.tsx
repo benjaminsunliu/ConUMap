@@ -23,7 +23,7 @@ export default function ClassDetailPopup({
       duration: 200,
       useNativeDriver: true,
     }).start();
-  });
+  }, []);
 
   const navigation = useNavigation<any>();
 
