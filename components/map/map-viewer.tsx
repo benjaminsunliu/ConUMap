@@ -193,16 +193,10 @@ export default function MapViewer({
     start: null,
     end: null,
   });
-  const [manualStart, setManualStart] = useState<{
-    coord: Coordinate | null;
-    label: string;
-  }>({
-    coord: null,
-    label: "",
-  });
   const userClearedStart = useRef(false);
   const lastDestinationRef = useRef<{ coord: Coordinate | null; label: string }>({ coord: null, label: "" });
   const lastStartRef = useRef<{ coord: Coordinate | null; label: string }>({ coord: null, label: "" });
+  const lastManualStartRef = useRef<{ coord: Coordinate | null; label: string }>({ coord: null, label: "" });
 
   const showStartHint =
     navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
@@ -264,14 +258,22 @@ export default function MapViewer({
       let startCoord: Coordinate | null = null;
       let startLabel: string | null = null;
 
-      if (inBuildingCodes.size > 0) {
+      // Priority 1: Check if there's a saved manual start location
+      if (lastManualStartRef.current.coord && lastManualStartRef.current.label) {
+        startCoord = lastManualStartRef.current.coord;
+        startLabel = lastManualStartRef.current.label;
+      }
+      // Priority 2: User is inside a building
+      else if (inBuildingCodes.size > 0) {
         const firstCode = [...inBuildingCodes][0];
         const startBuilding = CAMPUS_BUILDINGS.find(
           (building) => building.buildingCode === firstCode,
         );
         startLabel = startBuilding?.buildingName ?? firstCode;
         startCoord = startBuilding?.location ?? null;
-      } else if (userLocation) {
+      }
+      // Priority 3: Use current location
+      else if (userLocation) {
         startLabel = "Current Location";
         startCoord = userLocation;
       }
@@ -279,7 +281,6 @@ export default function MapViewer({
       if (startCoord && startLabel) {
         setNavCoords((prev) => ({ ...prev, start: startCoord }));
         setSelectionOverrides((prev) => ({ ...prev, start: startLabel }));
-        setManualStart({ coord: startCoord, label: startLabel });
       }
     }
   }, [
@@ -333,7 +334,6 @@ export default function MapViewer({
       setRouteNodes([]);
       setNavCoords({ start: null, end: null });
       setSelectionOverrides({ start: null, end: null });
-      setManualStart({ coord: null, label: "" });
 
       requestAnimationFrame(() => {
         suppressNextMapPress.current = false;
@@ -448,20 +448,27 @@ export default function MapViewer({
     let startCoord: Coordinate | null = null;
     let startLabel: string | null = null;
 
-    if (inBuildingCodes.size > 0) {
+    // Priority 1: Check if there's a saved manual start location
+    if (lastManualStartRef.current.coord && lastManualStartRef.current.label) {
+      startCoord = lastManualStartRef.current.coord;
+      startLabel = lastManualStartRef.current.label;
+    }
+    // Priority 2: User is inside a building
+    else if (inBuildingCodes.size > 0) {
       const firstCode = [...inBuildingCodes][0];
       const startBuilding = CAMPUS_BUILDINGS.find(
         (building) => building.buildingCode === firstCode,
       );
       startLabel = startBuilding?.buildingName ?? firstCode;
       startCoord = startBuilding?.location ?? userLocation ?? null;
-    } else if (userLocation) {
+    }
+    // Priority 3: Use current location
+    else if (userLocation) {
       startLabel = "Current Location";
       startCoord = userLocation;
-    } else if (manualStart.coord) {
-      startLabel = manualStart.label;
-      startCoord = manualStart.coord;
-    } else if (lastStartRef.current.coord) {
+    }
+    // Priority 4: Use last start ref if it exists
+    else if (lastStartRef.current.coord && lastStartRef.current.label) {
       startLabel = lastStartRef.current.label;
       startCoord = lastStartRef.current.coord;
     }
@@ -480,7 +487,7 @@ export default function MapViewer({
     setNavCoords({ start: startCoord, end: mapBuilding.location });
     setNavigationMode("directions");
     setShouldDisplayRoutes(true);
-  }, [selectedBuilding, inBuildingCodes, userLocation, manualStart]);
+  }, [selectedBuilding, inBuildingCodes, userLocation]);
 
   const setBuildingAsStart = useCallback(() => {
     if (!selectedBuilding) {
@@ -496,12 +503,12 @@ export default function MapViewer({
 
     const lastDest = lastDestinationRef.current;
     lastStartRef.current = { coord: mapBuilding.location, label: selectedBuilding.buildingName };
+    lastManualStartRef.current = { coord: mapBuilding.location, label: selectedBuilding.buildingName };
     userClearedStart.current = false;
     setNavigationMode("directions");
     setShouldDisplayRoutes(lastDest.coord != null);
     setSelectionOverrides({ start: selectedBuilding.buildingName, end: lastDest.label });
     setNavCoords({ start: mapBuilding.location, end: lastDest.coord });
-    setManualStart({ coord: mapBuilding.location, label: selectedBuilding.buildingName });
     setRoutePolyline(null);
     setRouteStops([]);
     setRouteNodes([]);
@@ -528,16 +535,14 @@ export default function MapViewer({
     // Capture current values before swapping
     const currentStart = navCoords.start;
     const currentEnd = navCoords.end;
-    const currentEndLabel = selectionOverrides.end ?? "";
 
     // Swap the coordinates
     setNavCoords({ start: currentEnd, end: currentStart });
     setSelectionOverrides((prev) => ({ start: prev.end, end: prev.start }));
-    setManualStart({ coord: currentEnd, label: currentEndLabel });
     setRoutePolyline(null);
     setRouteStops([]);
     setRouteNodes([]);
-  }, [navCoords.start, navCoords.end, selectionOverrides.end]);
+  }, [navCoords.start, navCoords.end]);
 
   const clearRouteRendering = useCallback(() => {
     setRoutePolyline(null);
@@ -562,9 +567,9 @@ export default function MapViewer({
 
   const handleStartSelection = useCallback((coord: Coordinate | null, label: string) => {
     userClearedStart.current = !coord;
-    setManualStart({ coord, label });
     if (coord) {
       lastStartRef.current = { coord, label };
+      lastManualStartRef.current = { coord, label };
     }
   }, []);
 
@@ -686,7 +691,6 @@ export default function MapViewer({
             setRouteNodes([]);
             setNavCoords({ start: null, end: null });
             setSelectionOverrides({ start: null, end: null });
-            setManualStart({ coord: null, label: "" });
           }
         }}
         renderCluster={renderCluster}

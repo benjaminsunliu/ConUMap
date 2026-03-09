@@ -77,26 +77,31 @@ jest.mock("@/constants/map", () => {
     CAMPUS_BUILDINGS: [
       {
         buildingCode: "LB",
+        buildingName: "LB",
         location: { latitude: 45.495, longitude: -73.579 },
         polygons: getBuildingPolygons("LB"),
       },
       {
         buildingCode: "VE",
+        buildingName: "VE",
         location: { latitude: 45.496, longitude: -73.58 },
         polygons: getBuildingPolygons("VE"),
       },
       {
         buildingCode: "RA",
+        buildingName: "RA",
         location: { latitude: 45.496, longitude: -73.58 },
         polygons: getBuildingPolygons("RA"),
       },
       {
         buildingCode: "PC",
+        buildingName: "PC",
         location: { latitude: 45.496, longitude: -73.58 },
         polygons: getBuildingPolygons("PC"),
       },
       {
         buildingCode: "AB",
+        buildingName: "AB",
         location: { latitude: 45.496, longitude: -73.58 },
         polygons: getBuildingPolygons("AB"),
       },
@@ -1542,6 +1547,276 @@ jest.mock("@/constants/map", () => {
 
         // On Android, transition nodes are rendered as Circle overlays
         expect(mapViewer.getAllByTestId('circle').length).toBeGreaterThan(0);
+      });
+    });
+
+    describe('Start Location Priority Logic', () => {
+      beforeEach(() => {
+        const { fetchAllDirections } = require('@/utils/directions');
+        fetchAllDirections.mockClear();
+      });
+
+      it('should prioritize manually set start location over current building', async () => {
+        LocationPermissions.hasServicesEnabledAsync.mockResolvedValue(true);
+        LocationPermissions.requestForegroundPermissionsAsync.mockResolvedValue({ status: 'granted' });
+        LocationPermissions.getCurrentPositionAsync.mockResolvedValue({
+          coords: { latitude: 45.49674, longitude: -73.57856 }, // Inside LB building
+        });
+
+        const { fetchAllDirections } = require('@/utils/directions');
+        const mapViewer = render(<MapViewer />);
+
+        // Enable location (user lands inside LB)
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('locationButton'));
+        });
+
+        // Select VE building and Set it as Start
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('marker-VE'));
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('start-action-button'));
+        });
+
+        // Now navigate to RA building
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('marker-RA'));
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('directions-action-button'));
+        });
+
+        // Even though user is inside LB, should use VE (manual start) as start point
+        expect(fetchAllDirections).toHaveBeenCalledWith(
+          expect.objectContaining({ latitude: 45.496, longitude: -73.58 }), // VE location
+          expect.objectContaining({ latitude: expect.any(Number), longitude: expect.any(Number) })
+        );
+      });
+
+      it('should prioritize manually set start location over current GPS location', async () => {
+        const { fetchAllDirections } = require('@/utils/directions');
+        const mapViewer = render(<MapViewer />);
+        const mapView = mapViewer.getByTestId('map-view');
+
+        // Set user location (not inside any building)
+        fireEvent(mapView, 'onUserLocationChange', {
+          nativeEvent: { coordinate: { latitude: 45.500, longitude: -73.600 } },
+        });
+
+        // Select VE building and Set it as Start
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('marker-VE'));
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('start-action-button'));
+        });
+
+        // Now navigate to RA building
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('marker-RA'));
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('directions-action-button'));
+        });
+
+        // Should use VE (manual start) as start point, not current GPS location
+        expect(fetchAllDirections).toHaveBeenCalledWith(
+          expect.objectContaining({ latitude: 45.496, longitude: -73.58 }), // VE location
+          expect.objectContaining({ latitude: expect.any(Number), longitude: expect.any(Number) })
+        );
+      });
+
+      it('should use current building when no manual start is set', async () => {
+        LocationPermissions.hasServicesEnabledAsync.mockResolvedValue(true);
+        LocationPermissions.requestForegroundPermissionsAsync.mockResolvedValue({ status: 'granted' });
+        LocationPermissions.getCurrentPositionAsync.mockResolvedValue({
+          coords: { latitude: 45.49674, longitude: -73.57856 }, // Inside LB building
+        });
+
+        const { fetchAllDirections } = require('@/utils/directions');
+        const mapViewer = render(<MapViewer />);
+
+        // Enable location (user lands inside LB)
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('locationButton'));
+        });
+
+        // Navigate to VE building
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('marker-VE'));
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('directions-action-button'));
+        });
+
+        // Should use LB (current building) as start point
+        expect(fetchAllDirections).toHaveBeenCalledWith(
+          expect.objectContaining({ latitude: 45.495, longitude: -73.579 }), // LB location
+          expect.objectContaining({ latitude: expect.any(Number), longitude: expect.any(Number) })
+        );
+      });
+
+      it('should use current GPS location when no manual start and not in building', async () => {
+        const { fetchAllDirections } = require('@/utils/directions');
+        const mapViewer = render(<MapViewer />);
+        const mapView = mapViewer.getByTestId('map-view');
+
+        // Set user location (not inside any building)
+        fireEvent(mapView, 'onUserLocationChange', {
+          nativeEvent: { coordinate: { latitude: 45.500, longitude: -73.600 } },
+        });
+
+        // Navigate to VE building
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('marker-VE'));
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('directions-action-button'));
+        });
+
+        // Should use current GPS location as start point
+        expect(fetchAllDirections).toHaveBeenCalledWith(
+          expect.objectContaining({ latitude: 45.500, longitude: -73.600 }),
+          expect.objectContaining({ latitude: expect.any(Number), longitude: expect.any(Number) })
+        );
+      });
+
+      it('should persist manual start location across multiple navigations', async () => {
+        const { fetchAllDirections } = require('@/utils/directions');
+        const mapViewer = render(<MapViewer />);
+
+        // Select VE building and Set it as Start
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('marker-VE'));
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('start-action-button'));
+        });
+
+        // Navigate to RA building
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('marker-RA'));
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('directions-action-button'));
+        });
+
+        expect(fetchAllDirections).toHaveBeenCalledWith(
+          expect.objectContaining({ latitude: 45.496, longitude: -73.58 }), // VE location
+          expect.anything()
+        );
+
+        fetchAllDirections.mockClear();
+
+        // Close the directions and navigate to another building
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('marker-PC'));
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('directions-action-button'));
+        });
+
+        // Should still use VE as start point
+        expect(fetchAllDirections).toHaveBeenCalledWith(
+          expect.objectContaining({ latitude: 45.496, longitude: -73.58 }), // VE location still
+          expect.anything()
+        );
+      });
+
+      it('should clear manual start when user manually clears the start field', async () => {
+        const { fetchAllDirections } = require('@/utils/directions');
+        const mapViewer = render(<MapViewer />);
+        const mapView = mapViewer.getByTestId('map-view');
+
+        // Set user location
+        fireEvent(mapView, 'onUserLocationChange', {
+          nativeEvent: { coordinate: { latitude: 45.500, longitude: -73.600 } },
+        });
+
+        // Select VE building and navigate to RA first to set VE as start
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('marker-VE'));
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('start-action-button'));
+        });
+
+        // Select a destination (set destination to RA via BuildingSelection)
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('marker-RA'));
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('directions-action-button'));
+        });
+
+        // Verify VE was used as start
+        expect(fetchAllDirections).toHaveBeenCalledWith(
+          expect.objectContaining({ latitude: 45.496, longitude: -73.58 }), // VE
+          expect.anything()
+        );
+
+        fetchAllDirections.mockClear();
+
+        // Clear the start field
+        const clearStartButton = mapViewer.getByTestId('clear-start');
+        await act(async () => {
+          fireEvent.press(clearStartButton);
+        });
+
+        // Now manually select a new start (current location) via the start input
+        const startInput = mapViewer.getByPlaceholderText('Your location');
+        await act(async () => {
+          fireEvent(startInput, 'onFocus');
+          fireEvent.changeText(startInput, 'Current');
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('start-result-CURRENT_LOCATION'));
+        });
+
+        // Routes should be re-fetched with new start (current GPS)
+        await act(async () => {});
+
+        // Should now use current GPS location as start point (manual start was cleared)
+        expect(fetchAllDirections).toHaveBeenCalledWith(
+          expect.objectContaining({ latitude: 45.500, longitude: -73.600 }),
+          expect.anything()
+        );
+      });
+
+      it('should auto-fill start with manual start when entering directions mode', async () => {
+        const mapViewer = render(<MapViewer />);
+
+        // Select VE building and Set it as Start (with no destination yet)
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('marker-VE'));
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('start-action-button'));
+        });
+
+        // At this point we're in directions mode with start=VE but no destination
+        // The start input should have "VE" as the value
+        const startInput = mapViewer.getByPlaceholderText('Your location');
+        expect(startInput.props.value).toBe('VE');
+
+        // Now press map to go back to browse mode
+        const mapView = mapViewer.getByTestId('map-view');
+        await act(async () => {
+          fireEvent(mapView, 'press', { nativeEvent: { action: 'press' } });
+        });
+
+        // Select RA building and navigate
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('marker-RA'));
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId('directions-action-button'));
+        });
+
+        // Start field should still be auto-filled with VE
+        const startInputAgain = mapViewer.getByPlaceholderText('Your location');
+        expect(startInputAgain.props.value).toBe('VE');
       });
     });
 })
