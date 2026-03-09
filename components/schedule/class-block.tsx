@@ -41,14 +41,6 @@ export default function ClassBlock({ classInfo, colorMap, onPress }: ClassBlockP
     );
 }
 
-function darkenColor(hex: string, amount: number): string {
-    const num = parseInt(hex.replace('#', ''), 16);
-    const r = Math.max(0, (num >> 16) - amount);
-    const g = Math.max(0, ((num >> 8) & 0xFF) - amount);
-    const b = Math.max(0, (num & 0xFF) - amount);
-    return `rgb(${r}, ${g}, ${b})`;
-}
-
 const styles = StyleSheet.create({
     block: {
         position: 'absolute',
