@@ -1,4 +1,11 @@
-import { fetchDirections, fetchAllDirections } from "@/utils/directions";
+import {
+  fetchDirections,
+  fetchAllDirections,
+  LOY_STOP_COORD,
+  SGW_STOP_COORD,
+  interCampusPolyline,
+  NormalizedRoute,
+} from "@/utils/directions";
 import { mockRouteApi, mockShuttlePage } from "../data/mock-data/mockRequests";
 
 jest.mock("expo/virtual/env", () => ({ env: process.env }));
@@ -541,6 +548,108 @@ describe("fetchDirections", () => {
 });
 
 describe("fetchAllDirections", () => {
+  it("returns routes sorted by duration", async () => {
+    process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
+    const routeShort = {
+      ...mockRouteApi,
+      description: "Short Route",
+      legs: [{ ...mockRouteApi.legs[0], duration: "300s", steps: [] }],
+    };
+    const routeLong = {
+      ...mockRouteApi,
+      description: "Long Route",
+      legs: [{ ...mockRouteApi.legs[0], duration: "900s", steps: [] }],
+    };
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => ({ routes: [routeLong, routeShort] }),
+    });
+
+    const result = await fetchDirections(origin, destination, "walking");
+    expect(result).toHaveLength(2);
+    expect(result[0].summary).toBe("Short Route");
+    expect(result[1].summary).toBe("Long Route");
+  });
+
+  describe("handleShuttleRouting", () => {
+    const origin = { latitude: 45.45, longitude: -73.64 };
+    const destination = { latitude: 45.5, longitude: -73.58 };
+
+    beforeAll(() => {
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date("2024-03-010T12:00:00Z"));
+      process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
+    });
+
+    afterAll(() => {
+      jest.useRealTimers();
+    });
+
+    it("returns polyline with only shuttle if from bus stop to bus stop", async () => {
+      process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
+
+      const result = await fetchAllDirections(LOY_STOP_COORD, SGW_STOP_COORD);
+      expect(result.shuttle).toHaveLength(1);
+      expect(result.shuttle[0].legs).toHaveLength(1);
+      expect(result.shuttle[0].legs[0].steps).toHaveLength(1);
+      // normalized step.polyline is an object with a `points` key
+      expect(result.shuttle[0].legs[0].steps[0].polyline.points).toBe(
+        interCampusPolyline,
+      );
+    });
+
+    it("returns empty array when preShuttlePath is null", async () => {
+      jest.mock("@/utils/getShuttleSchedule", () => ({
+        getConcordiaShuttleSchedule: jest.fn().mockResolvedValue({
+          isAvailableToday: true,
+          schedule: {
+            LOY: ["08:00", "09:00"],
+            SGW: ["08:30", "09:30"],
+          },
+        }),
+      }));
+
+      jest.mock("../utils/directions", () => ({
+        fetchDirections: jest.fn().mockResolvedValue(null),
+      }));
+
+      const result = await fetchAllDirections(origin, destination);
+
+      expect(result.shuttle).toEqual([]);
+    });
+
+    it("returns null when shuttle is not available today", async () => {
+      // Mock getConcordiaShuttleSchedule to return shuttle not available
+      jest.mock("@/utils/getShuttleSchedule", () => ({
+        getConcordiaShuttleSchedule: jest.fn().mockResolvedValue({
+          isAvailableToday: false,
+          schedule: {
+            LOY: ["08:00", "09:00"],
+            SGW: ["08:30", "09:30"],
+          },
+        }),
+      }));
+
+      const result = await fetchAllDirections(origin, destination);
+
+      expect(result.shuttle).toEqual([]);
+    });
+
+    it("returns null when campusSchedule is null", async () => {
+      // Mock getConcordiaShuttleSchedule to return available shuttle but no schedule for the campus
+      jest.mock("@/utils/getShuttleSchedule", () => ({
+        getConcordiaShuttleSchedule: jest.fn().mockResolvedValue({
+          isAvailableToday: true,
+          schedule: {},
+        }),
+      }));
+
+      const result = await fetchAllDirections(origin, destination);
+
+      expect(result.shuttle).toEqual([]);
+    });
+  });
+
   it("returns an object with all five transport mode keys", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
 

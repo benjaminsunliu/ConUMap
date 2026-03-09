@@ -12,8 +12,7 @@ export interface ShuttleScheduleData {
 /**
  * Checks if the shuttle is running based on current date and parsed exceptions.
  */
-function checkAvailability(noServiceDates: Date[]): boolean {
-  const now = new Date("2026-03-04T10:00:00"); //TESTING purposes only, replace with current date and time
+function checkAvailability(noServiceDates: Date[], now: Date): boolean {
   const dayOfWeek = now.getDay();
   if (dayOfWeek === 0 || dayOfWeek === 6) {
     return false;
@@ -161,14 +160,14 @@ export async function getConcordiaShuttleSchedule(): Promise<ShuttleScheduleData
   if (!response.ok) throw new Error(`Failed to fetch page: ${response.statusText}`);
   const html = await response.text();
   const $ = cheerio.load(html);
-  const now = new Date("2026-03-04T10:00:00"); //TESTING purposes only, replace with current date and time
+  const now = new Date();
   const dayOfWeek = now.getDay();
   const { warnings, noServiceDates } = parseWarnings($, dateRegex);
   const { loyolaDepartures, sgwDepartures } = parseSchedule($, dayOfWeek);
   return {
     warnings,
     noServiceDates,
-    isAvailableToday: checkAvailability(noServiceDates),
+    isAvailableToday: checkAvailability(noServiceDates, now),
     schedule: {
       LOY: loyolaDepartures,
       SGW: sgwDepartures,
