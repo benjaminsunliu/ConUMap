@@ -440,8 +440,7 @@ export async function fetchAllDirections(
 
   const results = await Promise.all(
     modes.map(async (mode) => {
-      const strategy = RouteStrategyFactory.getStrategy(mode);
-      const routes = await strategy.fetch(origin, destination);
+      const routes = await fetchDirections(origin, destination, mode);
       return [mode, routes] as const;
     }),
   );
