@@ -55,7 +55,7 @@ function parseWarnings($: CheerioAPI, dateRegex: RegExp) {
       return;
     }
 
-    warnings.push(text.replace(/\s+/g, " ").trim());
+    warnings.push(text.replaceAll(/\s+/g, " ").trim());
     if (lowerText.includes("no service")) {
       const match = dateRegex.exec(text);
       if (match) {
