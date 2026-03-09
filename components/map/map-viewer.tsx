@@ -194,9 +194,18 @@ export default function MapViewer({
     end: null,
   });
   const userClearedStart = useRef(false);
-  const lastDestinationRef = useRef<{ coord: Coordinate | null; label: string }>({ coord: null, label: "" });
-  const lastStartRef = useRef<{ coord: Coordinate | null; label: string }>({ coord: null, label: "" });
-  const lastManualStartRef = useRef<{ coord: Coordinate | null; label: string }>({ coord: null, label: "" });
+  const lastDestinationRef = useRef<{ coord: Coordinate | null; label: string }>({
+    coord: null,
+    label: "",
+  });
+  const lastStartRef = useRef<{ coord: Coordinate | null; label: string }>({
+    coord: null,
+    label: "",
+  });
+  const lastManualStartRef = useRef<{ coord: Coordinate | null; label: string }>({
+    coord: null,
+    label: "",
+  });
 
   const showStartHint =
     navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
@@ -482,7 +491,10 @@ export default function MapViewer({
       end: selectedBuilding.buildingName,
     });
 
-    lastDestinationRef.current = { coord: mapBuilding.location, label: selectedBuilding.buildingName };
+    lastDestinationRef.current = {
+      coord: mapBuilding.location,
+      label: selectedBuilding.buildingName,
+    };
     userClearedStart.current = false;
     setNavCoords({ start: startCoord, end: mapBuilding.location });
     setNavigationMode("directions");
@@ -502,8 +514,14 @@ export default function MapViewer({
     }
 
     const lastDest = lastDestinationRef.current;
-    lastStartRef.current = { coord: mapBuilding.location, label: selectedBuilding.buildingName };
-    lastManualStartRef.current = { coord: mapBuilding.location, label: selectedBuilding.buildingName };
+    lastStartRef.current = {
+      coord: mapBuilding.location,
+      label: selectedBuilding.buildingName,
+    };
+    lastManualStartRef.current = {
+      coord: mapBuilding.location,
+      label: selectedBuilding.buildingName,
+    };
     userClearedStart.current = false;
     setNavigationMode("directions");
     setShouldDisplayRoutes(lastDest.coord != null);
@@ -579,10 +597,7 @@ export default function MapViewer({
         lastDestinationRef.current = { coord, label: selected?.buildingName ?? "" };
       }
 
-      if (
-        selected?.buildingCode &&
-        selected.buildingCode !== CURRENT_LOCATION_CODE
-      ) {
+      if (selected?.buildingCode && selected.buildingCode !== CURRENT_LOCATION_CODE) {
         const nextBuilding = selectBuildingByCode(selected.buildingCode);
         if (nextBuilding) {
           focusBuilding(nextBuilding);
@@ -753,36 +768,36 @@ export default function MapViewer({
 
         {Platform.OS === "android"
           ? routeNodes.map((node, index) => (
-            <Circle
-              key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
-              center={node.coordinate}
-              radius={7}
-              fillColor={node.toColor}
-              strokeColor="#fff"
-              strokeWidth={3}
-              zIndex={12}
-            />
-          ))
-          : routeNodes.map((node, index) => (
-            <Marker
-              key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
-              coordinate={node.coordinate}
-              anchor={{ x: 0.5, y: 0.5 }}
-              zIndex={12}
-            >
-              <View
-                collapsable={false}
-                style={{
-                  width: 18,
-                  height: 18,
-                  borderRadius: 9,
-                  backgroundColor: node.toColor,
-                  borderWidth: 3,
-                  borderColor: "#fff",
-                }}
+              <Circle
+                key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
+                center={node.coordinate}
+                radius={7}
+                fillColor={node.toColor}
+                strokeColor="#fff"
+                strokeWidth={3}
+                zIndex={12}
               />
-            </Marker>
-          ))}
+            ))
+          : routeNodes.map((node, index) => (
+              <Marker
+                key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
+                coordinate={node.coordinate}
+                anchor={{ x: 0.5, y: 0.5 }}
+                zIndex={12}
+              >
+                <View
+                  collapsable={false}
+                  style={{
+                    width: 18,
+                    height: 18,
+                    borderRadius: 9,
+                    backgroundColor: node.toColor,
+                    borderWidth: 3,
+                    borderColor: "#fff",
+                  }}
+                />
+              </Marker>
+            ))}
         {navigationMode === "directions" && navCoords.start && (
           <NavEndpointMarker
             key={`nav-start-${navCoords.start.latitude}-${navCoords.start.longitude}`}
