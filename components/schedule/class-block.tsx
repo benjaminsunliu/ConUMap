@@ -29,7 +29,6 @@ export default function ClassBlock({ classInfo, colorMap, onPress }: ClassBlockP
                 },
             ]}
         >
-            <View style={[styles.accentBar, {backgroundColor: darkenColor(color, 30) }]}/>
             <View style={styles.content}>
                 <Text style={styles.courseName} numberOfLines={1}>
                     {classInfo.SUBJECT}
@@ -63,9 +62,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.15,
         shadowRadius: 3,
         elevation: 2,
-    },
-    accentBar: {
-        width: 0,
     },
     content: {
         flex: 1,
