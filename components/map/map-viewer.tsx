@@ -13,7 +13,7 @@ import MapViewCluster from "react-native-map-clustering";
 import MapView, { Circle, Marker, Polygon, Polyline, Region } from "react-native-maps";
 import RoutesInfoPopup from "../navigation/routes-info-popup";
 import BuildingInfoPopup from "./building-info-popup";
-import BuildingSelection from "./building-selection";
+import BuildingSelection, { CURRENT_LOCATION_CODE } from "./building-selection";
 import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
@@ -42,13 +42,15 @@ interface NavEndpointMarkerProps {
     readonly color: string;
 }
 
-/**
- * A simple pin marker indicating the start (A) or end (B) of a navigation route.
- */
 function NavEndpointMarker({ coordinate, label, color }: NavEndpointMarkerProps) {
     return (
-        <Marker coordinate={coordinate} anchor={{ x: 0.5, y: 1 }} zIndex={20}>
-            <View style={[styles.navPinWrapper]}>
+        <Marker
+            coordinate={coordinate}
+            anchor={{ x: 0.5, y: 1 }}
+            zIndex={20}
+            {...({ cluster: false } as any)}
+        >
+            <View style={styles.navPinWrapper}>
                 <View style={[styles.navPinBubble, { backgroundColor: color }]}>
                     <Text style={styles.navPinLabel}>{label}</Text>
                 </View>
@@ -70,10 +72,18 @@ function collectStopsFromStep(step: any, color: string): TransitStopMarker[] {
     const stops: TransitStopMarker[] = [];
 
     if (dep?.location) {
-        stops.push({ coordinate: { latitude: dep.location.lat, longitude: dep.location.lng }, name: dep.name ?? "", color });
+        stops.push({
+            coordinate: { latitude: dep.location.lat, longitude: dep.location.lng },
+            name: dep.name ?? "",
+            color,
+        });
     }
     if (arr?.location) {
-        stops.push({ coordinate: { latitude: arr.location.lat, longitude: arr.location.lng }, name: arr.name ?? "", color });
+        stops.push({
+            coordinate: { latitude: arr.location.lat, longitude: arr.location.lng },
+            name: arr.name ?? "",
+            color,
+        });
     }
     return stops;
 }
@@ -85,7 +95,11 @@ function collectStopsFromStep(step: any, color: string): TransitStopMarker[] {
  * @param nextStep The next step in the directions route, used to determine the travel mode and transit line color for the next segment of the route.
  * @returns A TransitionNode object if a transition is needed, or null if the next step has the same mode and line color as the current step.
  */
-function getTransitionNode(coords: Coordinate[], color: string, nextStep: any): TransitionNode | null {
+function getTransitionNode(
+    coords: Coordinate[],
+    color: string,
+    nextStep: any,
+): TransitionNode | null {
     const nextMode = nextStep.travel_mode ?? "WALK";
     const nextVehicleType = nextStep.transit_details?.line?.vehicle_type;
     const nextColor = polylineColor(nextMode, nextVehicleType);
@@ -165,20 +179,31 @@ export default function MapViewer({
     const [routeStops, setRouteStops] = useState<TransitStopMarker[]>([]);
     const [routeNodes, setRouteNodes] = useState<TransitionNode[]>([]);
     const [routeKey, setRouteKey] = useState(0);
-    const [navCoords, setNavCoords] = useState<{ start: Coordinate | null; end: Coordinate | null }>({
+    const [navCoords, setNavCoords] = useState<{
+        start: Coordinate | null;
+        end: Coordinate | null;
+    }>({
         start: null,
         end: null,
     });
-    const [selectionOverrides, setSelectionOverrides] = useState<{ start: string | null; end: string | null }>({
+    const [selectionOverrides, setSelectionOverrides] = useState<{
+        start: string | null;
+        end: string | null;
+    }>({
         start: null,
         end: null,
     });
-    const [manualStart, setManualStart] = useState<{ coord: Coordinate | null; label: string }>({
+    const [manualStart, setManualStart] = useState<{
+        coord: Coordinate | null;
+        label: string;
+    }>({
         coord: null,
         label: "",
     });
+    const userClearedStart = useRef(false);
 
-    const showStartHint = navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
+    const showStartHint =
+        navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
 
     useEffect(() => {
         if (!navCoords.start || !navCoords.end) {
@@ -228,13 +253,20 @@ export default function MapViewer({
     }, [userLocation]);
 
     useEffect(() => {
-        if (navigationMode === "directions" && navCoords.start === null && selectionOverrides.start === null) {
+        if (
+            navigationMode === "directions" &&
+            navCoords.start === null &&
+            selectionOverrides.start === null &&
+            !userClearedStart.current
+        ) {
             let startCoord: Coordinate | null = null;
             let startLabel: string | null = null;
 
             if (inBuildingCodes.size > 0) {
                 const firstCode = [...inBuildingCodes][0];
-                const startBuilding = CAMPUS_BUILDINGS.find((building) => building.buildingCode === firstCode);
+                const startBuilding = CAMPUS_BUILDINGS.find(
+                    (building) => building.buildingCode === firstCode,
+                );
                 startLabel = startBuilding?.buildingName ?? firstCode;
                 startCoord = startBuilding?.location ?? null;
             } else if (userLocation) {
@@ -248,11 +280,17 @@ export default function MapViewer({
                 setManualStart({ coord: startCoord, label: startLabel });
             }
         }
-    }, [navigationMode, navCoords.start, selectionOverrides.start, inBuildingCodes, userLocation]);
+    }, [
+        navigationMode,
+        navCoords.start,
+        selectionOverrides.start,
+        inBuildingCodes,
+        userLocation,
+    ]);
 
     /**
      * Animates the map to center on the given building's location, using a tighter zoom level for better focus. The latitude and longitude deltas are adjusted to be no larger than 0.0025 to ensure a close-up view of the building, while still respecting the current zoom level if it's already close enough. This function is used when a building is selected to provide a focused view of that building on the map.
-      * @param building The BuildingInfo object representing the building to focus on, which contains its location and other details.
+     * @param building The BuildingInfo object representing the building to focus on, which contains its location and other details.
      */
     const focusBuilding = useCallback(
         (building: BuildingInfo) => {
@@ -263,7 +301,7 @@ export default function MapViewer({
                 longitudeDelta: Math.min(currentRegion.longitudeDelta, 0.0025),
             });
         },
-        [currentRegion.latitudeDelta, currentRegion.longitudeDelta]
+        [currentRegion.latitudeDelta, currentRegion.longitudeDelta],
     );
 
     /**
@@ -271,7 +309,8 @@ export default function MapViewer({
      * @param code The building code of the building to select, which is a unique identifier for each building on campus.
      */
     const selectBuildingByCode = useCallback((code: string) => {
-        const nextBuilding = CAMPUS_BUILDINGS.find((building) => building.buildingCode === code) || null;
+        const nextBuilding =
+            CAMPUS_BUILDINGS.find((building) => building.buildingCode === code) || null;
         setSelectedBuilding(nextBuilding);
         return nextBuilding;
     }, []);
@@ -298,7 +337,7 @@ export default function MapViewer({
                 suppressNextMapPress.current = false;
             });
         },
-        [selectBuildingByCode, focusBuilding]
+        [selectBuildingByCode, focusBuilding],
     );
 
     /**
@@ -346,9 +385,9 @@ export default function MapViewer({
                 selectedBuilding?.buildingCode,
                 inBuildingCodes,
                 colorScheme,
-                handleBuildingPress
+                handleBuildingPress,
             ),
-        [selectedBuilding?.buildingCode, inBuildingCodes, colorScheme, handleBuildingPress]
+        [selectedBuilding?.buildingCode, inBuildingCodes, colorScheme, handleBuildingPress],
     );
 
     /**
@@ -379,12 +418,14 @@ export default function MapViewer({
                             },
                         ]}
                     >
-                        <Text style={[styles.clusterText, { color: mapColors.clusterText }]}>{count > 9 ? "9+" : count}</Text>
+                        <Text style={[styles.clusterText, { color: mapColors.clusterText }]}>
+                            {count > 9 ? "9+" : count}
+                        </Text>
                     </View>
                 </Marker>
             );
         },
-        [mapColors]
+        [mapColors],
     );
 
     /**
@@ -395,7 +436,9 @@ export default function MapViewer({
             return;
         }
 
-        const mapBuilding = CAMPUS_BUILDINGS.find((building) => building.buildingCode === selectedBuilding.buildingCode);
+        const mapBuilding = CAMPUS_BUILDINGS.find(
+            (building) => building.buildingCode === selectedBuilding.buildingCode,
+        );
         if (!mapBuilding) {
             return;
         }
@@ -405,7 +448,9 @@ export default function MapViewer({
 
         if (inBuildingCodes.size > 0) {
             const firstCode = [...inBuildingCodes][0];
-            const startBuilding = CAMPUS_BUILDINGS.find((building) => building.buildingCode === firstCode);
+            const startBuilding = CAMPUS_BUILDINGS.find(
+                (building) => building.buildingCode === firstCode,
+            );
             startLabel = startBuilding?.buildingName ?? firstCode;
             startCoord = startBuilding?.location ?? userLocation ?? null;
         } else if (userLocation) {
@@ -421,6 +466,7 @@ export default function MapViewer({
             end: selectedBuilding.buildingName,
         });
 
+        userClearedStart.current = false;
         setNavCoords({ start: startCoord, end: mapBuilding.location });
         setNavigationMode("directions");
         setShouldDisplayRoutes(true);
@@ -430,6 +476,7 @@ export default function MapViewer({
      * Handles the action of going back from the directions view to the browse mode. It resets all navigation-related state, including the navigation mode, route display, navigation coordinates, selection overrides, and any displayed routes or stops. This function is called when the user presses the back button in the RoutesInfoPopup, allowing them to exit the directions view and return to browsing the map without any active navigation routes displayed.
      */
     const handleBackFromDirections = useCallback(() => {
+        userClearedStart.current = false;
         setNavigationMode("browse");
         setShouldDisplayRoutes(false);
         setNavCoords({ start: null, end: null });
@@ -443,18 +490,19 @@ export default function MapViewer({
      * Handles the action of swapping the start and end fields in the navigation directions. It updates the navigation coordinates, selection overrides, and manual start point to reflect the swap. This allows users to quickly reverse their route without having to manually re-enter the start and end locations. The function also resets any displayed routes or stops, prompting a new route calculation based on the updated coordinates. This is typically called when the user presses a swap button in the BuildingSelection component while in directions mode.
      */
     const handleSwapFields = useCallback(() => {
-        setNavCoords((prev) => ({ start: prev.end, end: prev.start }));
+        // Capture current values before swapping
+        const currentStart = navCoords.start;
+        const currentEnd = navCoords.end;
+        const currentEndLabel = selectionOverrides.end ?? "";
+
+        // Swap the coordinates
+        setNavCoords({ start: currentEnd, end: currentStart });
         setSelectionOverrides((prev) => ({ start: prev.end, end: prev.start }));
-        setManualStart((prev) => {
-            // The old end becomes new start
-            const endCoord = navCoords.end;
-            const endLabel = selectionOverrides.end ?? "";
-            return { coord: endCoord, label: endLabel };
-        });
+        setManualStart({ coord: currentEnd, label: currentEndLabel });
         setRoutePolyline(null);
         setRouteStops([]);
         setRouteNodes([]);
-    }, [navCoords.end, selectionOverrides.end]);
+    }, [navCoords.start, navCoords.end, selectionOverrides.end]);
 
     return (
         <View style={styles.container}>
@@ -462,19 +510,36 @@ export default function MapViewer({
                 mode={navigationMode}
                 selectedBuilding={selectedBuilding}
                 currentBuildingCodes={inBuildingCodes}
+                hasUserLocation={!!userLocation && inBuildingCodes.size === 0}
                 startOverride={selectionOverrides.start}
                 endOverride={selectionOverrides.end}
                 startHint={showStartHint ? "Please select a start location" : null}
                 onSwap={handleSwapFields}
-                onSelect={(buildings: Record<FieldType, SearchBuilding | null>, type: FieldType) => {
+                onSelect={(
+                    buildings: Record<FieldType, SearchBuilding | null>,
+                    type: FieldType,
+                ) => {
                     const selected = buildings[type];
-                    const coord = selected?.buildingCode
-                        ? CAMPUS_BUILDINGS.find((building) => building.buildingCode === selected.buildingCode)?.location ?? null
-                        : null;
+                    const selectedCode = selected?.buildingCode;
+
+                    let coord: Coordinate | null = null;
+                    if (selectedCode === CURRENT_LOCATION_CODE) {
+                        coord = userLocation;
+                    } else if (selectedCode) {
+                        const building = CAMPUS_BUILDINGS.find(
+                            (b) => b.buildingCode === selectedCode,
+                        );
+                        coord = building?.location ?? null;
+                    }
 
                     setNavCoords((prev) => ({ ...prev, [type]: coord }));
+                    setSelectionOverrides((prev) => ({
+                        ...prev,
+                        [type]: selected?.buildingName ?? null,
+                    }));
 
                     if (type === "start") {
+                        userClearedStart.current = !coord;
                         setManualStart({ coord, label: selected?.buildingName ?? "" });
                     }
 
@@ -485,7 +550,10 @@ export default function MapViewer({
                     }
 
                     if (type === "end") {
-                        if (selected?.buildingCode) {
+                        if (
+                            selected?.buildingCode &&
+                            selected.buildingCode !== CURRENT_LOCATION_CODE
+                        ) {
                             const nextBuilding = selectBuildingByCode(selected.buildingCode);
                             if (nextBuilding) {
                                 focusBuilding(nextBuilding);
@@ -573,7 +641,9 @@ export default function MapViewer({
                             coordinates={segment.coordinates}
                             strokeColor={segment.color}
                             strokeWidth={strokeWidth}
-                            {...(segment.isDashed ? { lineDashPattern: Platform.OS === "android" ? [8, 16] : [1, 8] } : {})}
+                            {...(segment.isDashed
+                                ? { lineDashPattern: Platform.OS === "android" ? [8, 16] : [1, 8] }
+                                : {})}
                             zIndex={10}
                         />
                     );
@@ -609,7 +679,7 @@ export default function MapViewer({
                                 }}
                             />
                         </Marker>
-                    )
+                    ),
                 )}
 
                 {Platform.OS === "android"
@@ -644,22 +714,24 @@ export default function MapViewer({
                             />
                         </Marker>
                     ))}
-                {navigationMode === "directions" && navCoords.start && (
-                    <NavEndpointMarker
-                        key={`nav-start-${routeKey}-${navCoords.start.latitude}-${navCoords.start.longitude}`}
-                        coordinate={navCoords.start}
-                        label="A"
-                        color="#049ede"
-                    />
-                )}
-                {navigationMode === "directions" && navCoords.end && (
-                    <NavEndpointMarker
-                        key={`nav-end-${routeKey}-${navCoords.end.latitude}-${navCoords.end.longitude}`}
-                        coordinate={navCoords.end}
-                        label="B"
-                        color="#049ede"
-                    />
-                )}
+                {navigationMode === "directions" &&
+                    navCoords.start && (
+                        <NavEndpointMarker
+                            key={`nav-start-${navCoords.start.latitude}-${navCoords.start.longitude}`}
+                            coordinate={navCoords.start}
+                            label="A"
+                            color="#049ede"
+                        />
+                    )}
+                {navigationMode === "directions" &&
+                    navCoords.end && (
+                        <NavEndpointMarker
+                            key={`nav-end-${navCoords.end.latitude}-${navCoords.end.longitude}`}
+                            coordinate={navCoords.end}
+                            label="B"
+                            color="#049ede"
+                        />
+                    )}
             </MapViewCluster>
 
             <LocationButton
@@ -710,7 +782,8 @@ export default function MapViewer({
                             const mode = step.travel_mode ?? "WALK";
                             const vehicleType = step.transit_details?.line?.vehicle_type;
                             const color = polylineColor(mode, vehicleType);
-                            const isWalking = mode.toUpperCase() === "WALK" || mode.toUpperCase() === "WALKING";
+                            const isWalking =
+                                mode.toUpperCase() === "WALK" || mode.toUpperCase() === "WALKING";
 
                             segments.push({ coordinates: coords, color, isDashed: isWalking });
                             stops.push(...collectStopsFromStep(step, color));
@@ -750,13 +823,13 @@ export default function MapViewer({
  * @param inBuildingCodes A set of building codes that the user is currently inside, used to determine if a building should be rendered with the "in building" color.
  * @param colorScheme The current color scheme (light or dark) used to apply the appropriate colors for polygons and markers based on the theme.
  * @param onPress A callback function that is called when a building polygon or marker is pressed, receiving the BuildingInfo object of the pressed building as an argument. This allows the parent component to handle building selection and other interactions when a building is tapped on the map.
- * @returns 
+ * @returns
  */
 function renderBuildings(
     selectedBuildingCode: string | undefined,
     inBuildingCodes: Set<string>,
     colorScheme: ColorSchemeName,
-    onPress: (building: BuildingInfo) => void
+    onPress: (building: BuildingInfo) => void,
 ): [React.JSX.Element[], React.JSX.Element[]] {
     const mapColors = Colors[colorScheme].map;
 
@@ -781,7 +854,7 @@ function renderBuildings(
                     strokeColor={mapColors.polygonStroke}
                     strokeWidth={2}
                     onPress={() => onPress(building)}
-                />
+                />,
             );
         });
 
@@ -797,15 +870,22 @@ function renderBuildings(
                         styles.marker,
                         {
                             backgroundColor: isSelected ? mapColors.markerSelected : mapColors.marker,
-                            borderColor: isSelected ? mapColors.markerBorderSelected : mapColors.markerBorder,
+                            borderColor: isSelected
+                                ? mapColors.markerBorderSelected
+                                : mapColors.markerBorder,
                         },
                     ]}
                 >
-                    <Text style={[styles.markerText, { color: isSelected ? mapColors.markerTextSelected : mapColors.markerText }]}>
+                    <Text
+                        style={[
+                            styles.markerText,
+                            { color: isSelected ? mapColors.markerTextSelected : mapColors.markerText },
+                        ]}
+                    >
                         {building.buildingCode}
                     </Text>
                 </View>
-            </Marker>
+            </Marker>,
         );
     });
 
@@ -822,7 +902,11 @@ function getPolygonZIndex(isSelected: boolean, isInBuilding: boolean) {
     return 0;
 }
 
-function getPolygonColor(isSelected: boolean, isInBuilding: boolean, colorScheme: ColorSchemeName) {
+function getPolygonColor(
+    isSelected: boolean,
+    isInBuilding: boolean,
+    colorScheme: ColorSchemeName,
+) {
     const mapColors = Colors[colorScheme].map;
 
     if (isSelected && isInBuilding) {
