@@ -121,7 +121,6 @@ describe("fetchDirections", () => {
     const result = await fetchDirections(origin, destination, "walking");
     const leg = result![0].legs[0];
 
-    // 2692 m -> "2.7 km", 2233 s -> "37 mins"
     expect(leg.distance.value).toBe(2692);
     expect(leg.distance.text).toBe("2.7 km");
     expect(leg.duration.value).toBe(2233);
@@ -134,9 +133,7 @@ describe("fetchDirections", () => {
     const result = await fetchDirections(origin, destination, "walking");
     const steps = result![0].legs[0].steps;
 
-    // 227 m -> "227 m"
     expect(steps[0].distance.text).toBe("227 m");
-    // 350 m -> "350 m"
     expect(steps[1].distance.text).toBe("350 m");
   });
 
@@ -146,7 +143,6 @@ describe("fetchDirections", () => {
     const result = await fetchDirections(origin, destination, "walking");
     const steps = result![0].legs[0].steps;
 
-    // 171 s -> "3 mins", 292 s -> "5 mins"
     expect(steps[0].duration.text).toBe("3 mins");
     expect(steps[1].duration.text).toBe("5 mins");
   });
@@ -164,7 +160,6 @@ describe("fetchDirections", () => {
 
     const result = await fetchDirections(origin, destination, "transit");
 
-    // 3900 s = 65 mins -> "1 hr 5 mins"
     expect(result![0].legs[0].duration.text).toBe("1 hr 5 mins");
   });
 
@@ -181,7 +176,6 @@ describe("fetchDirections", () => {
 
     const result = await fetchDirections(origin, destination, "driving");
 
-    // 3600 s = 60 mins -> "1 hr"
     expect(result![0].legs[0].duration.text).toBe("1 hr");
   });
 
@@ -356,7 +350,6 @@ describe("fetchDirections", () => {
     });
 
     const result = await fetchDirections(origin, destination, "walking");
-    // 3660s = 61 mins -> "1 hr 1 min"
     expect(result![0].legs[0].duration.text).toBe("1 hr 1 min");
   });
 
@@ -372,7 +365,6 @@ describe("fetchDirections", () => {
     });
 
     const result = await fetchDirections(origin, destination, "walking");
-    // 7200s = 120 mins -> "2 hrs"
     expect(result![0].legs[0].duration.text).toBe("2 hrs");
   });
 
@@ -387,7 +379,6 @@ describe("fetchDirections", () => {
           steps: [
             {
               distanceMeters: 100,
-              // no staticDuration, no duration
               polyline: { encodedPolyline: "abc" },
               navigationInstruction: { instructions: "Walk", maneuver: "" },
               travelMode: "WALKING",
@@ -402,7 +393,6 @@ describe("fetchDirections", () => {
     });
 
     const result = await fetchDirections(origin, destination, "walking");
-    // parseDurationSeconds(undefined) -> 0 -> "0 mins"
     expect(result![0].legs[0].steps[0].duration.value).toBe(0);
   });
 
@@ -548,8 +538,17 @@ describe("fetchDirections", () => {
 });
 
 describe("fetchAllDirections", () => {
-  it("returns routes sorted by duration", async () => {
+  beforeAll(() => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date("2024-03-04T12:00:00Z"));
+  });
+
+  beforeEach(() => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
+    jest.clearAllMocks();
+  });
+
+  it("returns routes sorted by duration", async () => {
     const routeShort = {
       ...mockRouteApi,
       description: "Short Route",
@@ -578,7 +577,11 @@ describe("fetchAllDirections", () => {
     beforeAll(() => {
       jest.useFakeTimers();
       jest.setSystemTime(new Date("2024-03-010T12:00:00Z"));
+    });
+
+    beforeEach(() => {
       process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
+      jest.clearAllMocks();
     });
 
     afterAll(() => {
@@ -586,13 +589,10 @@ describe("fetchAllDirections", () => {
     });
 
     it("returns polyline with only shuttle if from bus stop to bus stop", async () => {
-      process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-
       const result = await fetchAllDirections(LOY_STOP_COORD, SGW_STOP_COORD);
       expect(result.shuttle).toHaveLength(1);
       expect(result.shuttle[0].legs).toHaveLength(1);
       expect(result.shuttle[0].legs[0].steps).toHaveLength(1);
-      // normalized step.polyline is an object with a `points` key
       expect(result.shuttle[0].legs[0].steps[0].polyline.points).toBe(
         interCampusPolyline,
       );
@@ -619,7 +619,6 @@ describe("fetchAllDirections", () => {
     });
 
     it("returns null when shuttle is not available today", async () => {
-      // Mock getConcordiaShuttleSchedule to return shuttle not available
       jest.mock("@/utils/getShuttleSchedule", () => ({
         getConcordiaShuttleSchedule: jest.fn().mockResolvedValue({
           isAvailableToday: false,
@@ -636,7 +635,6 @@ describe("fetchAllDirections", () => {
     });
 
     it("returns null when campusSchedule is null", async () => {
-      // Mock getConcordiaShuttleSchedule to return available shuttle but no schedule for the campus
       jest.mock("@/utils/getShuttleSchedule", () => ({
         getConcordiaShuttleSchedule: jest.fn().mockResolvedValue({
           isAvailableToday: true,
@@ -651,8 +649,6 @@ describe("fetchAllDirections", () => {
   });
 
   it("returns an object with all five transport mode keys", async () => {
-    process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-
     const result = await fetchAllDirections(origin, destination);
 
     expect(result).toHaveProperty("walking");
@@ -663,15 +659,22 @@ describe("fetchAllDirections", () => {
   });
 
   it("always returns shuttle as an empty array regardless of API result", async () => {
-    process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-
     const result = await fetchAllDirections(origin, destination);
 
     expect(result.shuttle).toEqual([]);
   });
 
-  it("makes exactly 5 fetch calls (one per non-shuttle mode)", async () => {
-    process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
+  it("makes exactly 7 fetch calls ( 1 per non-shuttle mode + 1 for shuttle schedule + 2 for walking/transit pre shuttle)", async () => {
+    jest.mock("@/utils/getShuttleSchedule", () => ({
+      getConcordiaShuttleSchedule: jest.fn().mockResolvedValue({
+        isAvailableToday: true,
+        schedule: {
+          LOY: ["12:00", "13:00"],
+          SGW: ["12:30", "13:30"],
+        },
+      }),
+    }));
+    
     global.fetch = jest.fn().mockImplementation((url: string, options?: any) => {
       if (url.includes("concordia.ca/maps/shuttle-bus.html")) {
         return Promise.resolve({
@@ -689,11 +692,10 @@ describe("fetchAllDirections", () => {
 
     await fetchAllDirections(origin, destination);
 
-    expect(global.fetch).toHaveBeenCalledTimes(5);
+    expect(global.fetch).toHaveBeenCalledTimes(7);
   });
 
   it("handles individual mode failures gracefully, returning null for failed modes", async () => {
-    process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
     jest.spyOn(console, "warn").mockImplementation(() => {});
     // walking ok, transit http error, driving empty, bicycling ok
     (global.fetch as jest.Mock)
@@ -728,8 +730,6 @@ describe("fetchAllDirections", () => {
   });
 
   it("returns normalized route arrays for all successful modes", async () => {
-    process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-
     const result = await fetchAllDirections(origin, destination);
 
     (["walking", "transit", "driving", "bicycling"] as const).forEach((mode) => {
