@@ -391,7 +391,10 @@ class BicyclingRouteStrategy extends GoogleRoutesStrategy {
 }
 
 class ShuttleRouteStrategy implements RouteStrategy {
-  async fetch(): Promise<NormalizedRoute[] | null> {
+  async fetch(
+    _origin: Coordinate,
+    _destination: Coordinate,
+  ): Promise<NormalizedRoute[] | null> {
     // Shuttle handled separately via Concordia shuttle schedule.
     return [];
   }
