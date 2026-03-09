@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     marginBottom: 26,
   },
   detailRowTitle: {
-    fontWeight: 700,
+    fontWeight: "700",
     fontSize: 20,
     color: "#fdfcea",
     marginBottom: 10,
