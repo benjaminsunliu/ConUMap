@@ -108,6 +108,6 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     position: "relative",
     height: 0,
-    zIndex: 5
+    zIndex: 5,
   },
 });

@@ -1,8 +1,7 @@
 import { Coordinate } from "@/types/mapTypes";
 import { TransportationMode } from "@/types/buildingTypes";
 
-const ROUTES_BASE_URL =
-  "https://routes.googleapis.com/directions/v2:computeRoutes";
+const ROUTES_BASE_URL = "https://routes.googleapis.com/directions/v2:computeRoutes";
 
 // ---------------------------------------------------------------------------
 // Raw Google Routes API v2 shapes
@@ -182,14 +181,12 @@ function formatDuration(seconds: number): string {
   if (mins < 60) {
     return `${mins} min${mins === 1 ? "" : "s"}`;
   }
-  
+
   const hrs = Math.floor(mins / 60);
   const rem = mins % 60;
   const hrsText = `${hrs} hr` + (hrs === 1 ? "" : "s");
   const remSuffix = rem === 1 ? "" : "s";
-  const remText = rem > 0
-    ? `${hrsText} ${rem} min${remSuffix}`
-    : hrsText;
+  const remText = rem > 0 ? `${hrsText} ${rem} min${remSuffix}` : hrsText;
   return remText;
 }
 
@@ -234,13 +231,19 @@ function normalizeRoute(r: RawRoute): NormalizedRoute {
               departure_stop: {
                 name: td.stopDetails?.departureStop?.name,
                 location: td.stopDetails?.departureStop?.location?.latLng
-                  ? { lat: td.stopDetails.departureStop.location.latLng.latitude, lng: td.stopDetails.departureStop.location.latLng.longitude }
+                  ? {
+                      lat: td.stopDetails.departureStop.location.latLng.latitude,
+                      lng: td.stopDetails.departureStop.location.latLng.longitude,
+                    }
                   : undefined,
               },
               arrival_stop: {
                 name: td.stopDetails?.arrivalStop?.name,
                 location: td.stopDetails?.arrivalStop?.location?.latLng
-                  ? { lat: td.stopDetails.arrivalStop.location.latLng.latitude, lng: td.stopDetails.arrivalStop.location.latLng.longitude }
+                  ? {
+                      lat: td.stopDetails.arrivalStop.location.latLng.latitude,
+                      lng: td.stopDetails.arrivalStop.location.latLng.longitude,
+                    }
                   : undefined,
               },
             }
@@ -248,13 +251,17 @@ function normalizeRoute(r: RawRoute): NormalizedRoute {
       };
     });
 
-    const firstTransitStep = leg.steps?.find((s: RawStep) => s.transitDetails?.localizedValues);
+    const firstTransitStep = leg.steps?.find(
+      (s: RawStep) => s.transitDetails?.localizedValues,
+    );
     const lastTransitStep = [...(leg.steps ?? [])]
       .reverse()
       .find((s: RawStep) => s.transitDetails?.localizedValues);
 
-    const departureText = firstTransitStep?.transitDetails?.localizedValues?.departureTime?.time?.text;
-    const arrivalText   = lastTransitStep?.transitDetails?.localizedValues?.arrivalTime?.time?.text;
+    const departureText =
+      firstTransitStep?.transitDetails?.localizedValues?.departureTime?.time?.text;
+    const arrivalText =
+      lastTransitStep?.transitDetails?.localizedValues?.arrivalTime?.time?.text;
 
     return {
       distance: {
@@ -266,7 +273,7 @@ function normalizeRoute(r: RawRoute): NormalizedRoute {
         value: durSecs,
       },
       departure_time: departureText ? { text: departureText } : undefined,
-      arrival_time:   arrivalText   ? { text: arrivalText }   : undefined,
+      arrival_time: arrivalText ? { text: arrivalText } : undefined,
       steps,
     };
   });
@@ -288,12 +295,12 @@ function normalizeRoute(r: RawRoute): NormalizedRoute {
 export async function fetchDirections(
   origin: Coordinate,
   destination: Coordinate,
-  mode: Exclude<TransportationMode, "shuttle">
+  mode: Exclude<TransportationMode, "shuttle">,
 ): Promise<NormalizedRoute[] | null> {
   const apiKey = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
   if (!apiKey) {
     console.warn(
-      "EXPO_PUBLIC_GOOGLE_API_KEY is not set – directions will not be available."
+      "EXPO_PUBLIC_GOOGLE_API_KEY is not set – directions will not be available.",
     );
     return null;
   }
@@ -355,7 +362,7 @@ export async function fetchDirections(
  */
 export async function fetchAllDirections(
   origin: Coordinate,
-  destination: Coordinate
+  destination: Coordinate,
 ): Promise<Record<TransportationMode, NormalizedRoute[] | null>> {
   const modes: Exclude<TransportationMode, "shuttle">[] = [
     "walking",
@@ -365,7 +372,7 @@ export async function fetchAllDirections(
   ];
 
   const results = await Promise.all(
-    modes.map((mode) => fetchDirections(origin, destination, mode))
+    modes.map((mode) => fetchDirections(origin, destination, mode)),
   );
 
   return {
