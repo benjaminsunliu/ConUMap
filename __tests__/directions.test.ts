@@ -1,6 +1,6 @@
-jest.mock("expo/virtual/env", () => ({ env: process.env }));
-
 import { fetchDirections, fetchAllDirections } from "@/utils/directions";
+
+jest.mock("expo/virtual/env", () => ({ env: process.env }));
 
 const origin = { latitude: 45.4975, longitude: -73.5794 };
 const destination = { latitude: 45.5087, longitude: -73.5538 };
@@ -296,15 +296,15 @@ describe("fetchDirections", () => {
     const step = result![0].legs[0].steps[0];
 
     expect(step.transit_details).toBeDefined();
-    expect(step.transit_details.line.name).toBe("Green Line");
-    expect(step.transit_details.line.short_name).toBe("Green");
-    expect(step.transit_details.line.vehicle_type).toBe("SUBWAY");
-    expect(step.transit_details.departure_stop.name).toBe("Guy-Concordia");
-    expect(step.transit_details.departure_stop.location).toEqual({
+    expect(step.transit_details?.line.name).toBe("Green Line");
+    expect(step.transit_details?.line.short_name).toBe("Green");
+    expect(step.transit_details?.line.vehicle_type).toBe("SUBWAY");
+    expect(step.transit_details?.departure_stop.name).toBe("Guy-Concordia");
+    expect(step.transit_details?.departure_stop.location).toEqual({
       lat: 45.4905,
       lng: -73.5786,
     });
-    expect(step.transit_details.arrival_stop.name).toBe("McGill");
+    expect(step.transit_details?.arrival_stop.name).toBe("McGill");
   });
 
   it("includes departure_time and arrival_time on legs with transit steps", async () => {
@@ -486,8 +486,8 @@ describe("fetchDirections", () => {
     const result = await fetchDirections(origin, destination, "transit");
     const step = result![0].legs[0].steps[0];
 
-    expect(step.transit_details.departure_stop.location).toBeUndefined();
-    expect(step.transit_details.arrival_stop.location).toBeUndefined();
+    expect(step.transit_details?.departure_stop.location).toBeUndefined();
+    expect(step.transit_details?.arrival_stop.location).toBeUndefined();
   });
 
   it("sets route summary to empty string when description is missing", async () => {
@@ -524,7 +524,7 @@ describe("fetchDirections", () => {
       json: async () => ({ routes: [] }),
     });
 
-    const cases: Array<[Parameters<typeof fetchDirections>[2], string]> = [
+    const cases: [Parameters<typeof fetchDirections>[2], string][] = [
       ["walking", "WALK"],
       ["transit", "TRANSIT"],
       ["driving", "DRIVE"],
