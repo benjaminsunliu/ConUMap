@@ -25,7 +25,7 @@ jobs:
         run: npm ci
 
       - name: Run prettier formatter to check formatting
-        run: npx prettier . --check --config prettier.config.mjs --log-level debug
+        run: npx prettier . --check --config prettier.config.mjs 
 
       - name: Run ESLint for static analysis
         run: npm run lint -- --max-warnings=0
