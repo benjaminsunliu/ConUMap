@@ -1,0 +1,12 @@
+.expo/**
+.github/**
+.vscode/**
+node_modules/**
+**/*.json
+**/*.csv
+.env.example
+.gitignore
+**/*.md
+**/*.setup*
+**/*.config*
+expo-env.d.ts

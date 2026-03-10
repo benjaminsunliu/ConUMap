@@ -1,9 +1,9 @@
-import { SymbolView } from 'expo-symbols';
-import { StyleProp, ViewStyle } from 'react-native';
-import { Props as OriginalProps } from './icon-symbol';
+import { SymbolView } from "expo-symbols";
+import { StyleProp, ViewStyle } from "react-native";
+import { Props as OriginalProps } from "./icon-symbol";
 
-interface Props extends Omit<OriginalProps, 'style'> {
-  style: StyleProp<ViewStyle>
+interface Props extends Omit<OriginalProps, "style"> {
+  style: StyleProp<ViewStyle>;
 }
 
 export function IconSymbol({
@@ -11,7 +11,7 @@ export function IconSymbol({
   size = 24,
   color,
   style,
-  weight = 'regular',
+  weight = "regular",
 }: Readonly<Props>) {
   return (
     <SymbolView

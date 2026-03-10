@@ -1,6 +1,6 @@
-import { getConcordiaShuttleSchedule } from "@/utils/getShuttleSchedule"
+import { getConcordiaShuttleSchedule } from "@/utils/getShuttleSchedule";
 
-describe('getConcordiaShuttleSchedule', () => {
+describe("getConcordiaShuttleSchedule", () => {
   const mockHtml = `
     <html>
       <body>
@@ -41,19 +41,19 @@ describe('getConcordiaShuttleSchedule', () => {
     });
     const data = await getConcordiaShuttleSchedule();
     // Verify warnings
-    expect(data.warnings).toContain('No service on Friday, March 6, 2026');
+    expect(data.warnings).toContain("No service on Friday, March 6, 2026");
 
     // Verify Date parsing
     expect(data.noServiceDates).toHaveLength(1);
     expect(data.noServiceDates[0]).toBeInstanceOf(Date);
-    
+
     // Check specific date values
     expect(data.noServiceDates[0].getFullYear()).toBe(2026);
-    expect(data.noServiceDates[0].getMonth()).toBe(2); 
+    expect(data.noServiceDates[0].getMonth()).toBe(2);
     expect(data.noServiceDates[0].getDate()).toBe(6);
   });
 
-  it('should extract schedule times into Loyola and SGW arrays', async () => {
+  it("should extract schedule times into Loyola and SGW arrays", async () => {
     (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       text: () => Promise.resolve(mockHtml),
@@ -61,19 +61,21 @@ describe('getConcordiaShuttleSchedule', () => {
 
     const data = await getConcordiaShuttleSchedule();
 
-    expect(data.schedule.loyolaDepartures).toEqual(['9:15', '10:15', '18:45']);
-    expect(data.schedule.sgwDepartures).toEqual(['9:15', '10:45', '18:45']);
+    expect(data.schedule.loyolaDepartures).toEqual(["9:15", "10:15", "18:45"]);
+    expect(data.schedule.sgwDepartures).toEqual(["9:15", "10:45", "18:45"]);
   });
 
-  it('should throw an error if the fetch fails', async () => {
+  it("should throw an error if the fetch fails", async () => {
     (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: false,
-      statusText: 'Not Found',
+      statusText: "Not Found",
     });
-    await expect(getConcordiaShuttleSchedule()).rejects.toThrow('Failed to fetch page: Not Found');
+    await expect(getConcordiaShuttleSchedule()).rejects.toThrow(
+      "Failed to fetch page: Not Found",
+    );
   });
-  
-  it('should not add duplicate dates to the noServiceDates array', async () => {
+
+  it("should not add duplicate dates to the noServiceDates array", async () => {
     const duplicateHtml = `
         <html>
         <body>
@@ -83,17 +85,17 @@ describe('getConcordiaShuttleSchedule', () => {
         </html>
     `;
     (globalThis.fetch as jest.Mock).mockResolvedValue({
-          ok: true,
-        text: () => Promise.resolve(duplicateHtml),
+      ok: true,
+      text: () => Promise.resolve(duplicateHtml),
     });
     const data = await getConcordiaShuttleSchedule();
     expect(data.noServiceDates).toHaveLength(1);
     expect(data.noServiceDates[0].getFullYear()).toBe(2026);
     expect(data.noServiceDates[0].getMonth()).toBe(2);
     expect(data.noServiceDates[0].getDate()).toBe(6);
-    });
-    
-  describe('Availability Logic', () => {
+  });
+
+  describe("Availability Logic", () => {
     beforeEach(() => {
       jest.useFakeTimers();
     });
@@ -102,7 +104,7 @@ describe('getConcordiaShuttleSchedule', () => {
     });
 
     it('should return isAvailableToday: false when today is a "No Service" date', async () => {
-      jest.setSystemTime(new Date('2026-03-06T12:00:00'));
+      jest.setSystemTime(new Date("2026-03-06T12:00:00"));
       (globalThis.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         text: () => Promise.resolve(mockHtml),
@@ -111,8 +113,8 @@ describe('getConcordiaShuttleSchedule', () => {
       expect(data.isAvailableToday).toBe(false);
     });
 
-    it('should return isAvailableToday: false on weekends', async () => {
-      jest.setSystemTime(new Date('2026-03-07T12:00:00'));
+    it("should return isAvailableToday: false on weekends", async () => {
+      jest.setSystemTime(new Date("2026-03-07T12:00:00"));
       (globalThis.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         text: () => Promise.resolve(mockHtml),
@@ -121,8 +123,8 @@ describe('getConcordiaShuttleSchedule', () => {
       expect(data.isAvailableToday).toBe(false);
     });
 
-    it('should return isAvailableToday: true on a standard weekday', async () => {
-      jest.setSystemTime(new Date('2026-03-09T12:00:00'));
+    it("should return isAvailableToday: true on a standard weekday", async () => {
+      jest.setSystemTime(new Date("2026-03-09T12:00:00"));
       (globalThis.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         text: () => Promise.resolve(mockHtml),
