@@ -1,6 +1,5 @@
-import { type Config } from "prettier";
 
-const config: Config = {
+const config = {
   trailingComma: "all",
   printWidth: 90,
   endOfLine: "crlf",
