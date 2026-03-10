@@ -25,7 +25,7 @@ jobs:
         run: npm ci
 
       - name: Testing
-        run: npx prettir --version
+        run: npx prettier --version
         
       
       - name: Run prettier formatter to check formatting
