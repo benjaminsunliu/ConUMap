@@ -24,12 +24,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Testing
-        run: npx prettier --version
-        
       
       - name: Run prettier formatter to check formatting
-        run: npx prettier . --check --config prettier.config.mjs
+        run: |
+          npx prettier . --write --config prettier.config.mjs
+          git diff --exit-code 
       
 
       - name: Run ESLint for static analysis
