@@ -4,17 +4,13 @@ appId: host.exp.Exponent
 - assertVisible: "Loyola"
 - assertVisible: "SGW"
 - tapOn:
-     id: "locationButton"
+    id: "locationButton"
 - waitForAnimationToEnd:
-           timeout: 2000
+    timeout: 2000
 - tapOn: "Only this time"
 - setLocation:
-         latitude: 45.4957849
-         longitude: -73.577225
-
+    latitude: 45.4957849
+    longitude: -73.577225
 
 - waitForAnimationToEnd:
-         timeout: 2000
-
-
-         
+    timeout: 2000

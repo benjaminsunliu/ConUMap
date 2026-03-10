@@ -95,10 +95,10 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
     justifyContent: "center",
     alignItems: "center",
-    borderBottomWidth: StyleSheet.hairlineWidth
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   logo: {
     width: 120,
     height: 40,
-  }
+  },
 });
