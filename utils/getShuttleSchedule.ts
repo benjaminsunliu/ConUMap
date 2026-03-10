@@ -15,7 +15,7 @@ export interface ShuttleScheduleData {
  * Checks if the shuttle is running based on current date and parsed exceptions.
  */
 function checkAvailability(noServiceDates: Date[]): boolean {
-  const now = new Date();
+    const now = new Date();
   const dayOfWeek = now.getDay();
   if (dayOfWeek === 0 || dayOfWeek === 6) {
     return false;
