@@ -25,10 +25,11 @@ jobs:
         run: npm ci
 
       - name: Testing
-        run: npx prettier . --check --config prettier.config.mjs
+        run: npx prettir --version
+        
       
       - name: Run prettier formatter to check formatting
-        run: npx prettir --version
+        run: npx prettier . --check --config prettier.config.mjs
       
 
       - name: Run ESLint for static analysis
