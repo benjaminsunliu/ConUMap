@@ -9,7 +9,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "format-check": "prettier --config prettier.config.mjs --ignore-path ./.prettierignore --check ."
   },
   "jest": {
     "preset": "react-native",

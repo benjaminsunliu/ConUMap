@@ -2,7 +2,7 @@
 const config = {
   trailingComma: "all",
   printWidth: 90,
-  endOfLine: "crlf",
+  endOfLine: "auto",
   arrowParens: "always",
   bracketSameLine: false,
   bracketSpacing: true,
