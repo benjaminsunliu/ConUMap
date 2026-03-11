@@ -368,7 +368,7 @@ function coordinateToNormalizedLatLng(coord: Coordinate): NormalizedLatLng {
   return { lat: coord.latitude, lng: coord.longitude };
 }
 
-/* quick shortcut: origin/destination exactly at the two shuttle stops -> single shuttle leg */
+/* shortcut: origin/destination exactly at the two shuttle stops -> return single shuttle leg */
 function handleStopLocationsOnly(
   origin: Coordinate,
   destination: Coordinate,
@@ -428,6 +428,7 @@ function handleStopLocationsOnly(
       },
     ];
   }
+  return null;
 }
 
 async function handleShuttleRouting(

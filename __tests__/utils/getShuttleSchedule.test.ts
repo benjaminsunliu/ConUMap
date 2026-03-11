@@ -151,14 +151,16 @@ describe("getConcordiaShuttleSchedule", () => {
     ]);
   });
 
-  it("should throw an error if the fetch fails", async () => {
+  it("should log error if the fetch fails and return object with empty fields", async () => {
     (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: false,
+      status: 404,
       statusText: "Not Found",
     });
-    await expect(getConcordiaShuttleSchedule()).rejects.toThrow(
-      "Failed to fetch page: Not Found",
-    );
+
+    
+    await expect(getConcordiaShuttleSchedule()).resolves.toEqual({ "isAvailableToday": false, "noServiceDates": [], "schedule": { "LOY": [], "SGW": [] }, "warnings": [] });
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Failed to fetch shuttle schedule: 404 Not Found"));
   });
 
   it("should not add duplicate dates to the noServiceDates array", async () => {

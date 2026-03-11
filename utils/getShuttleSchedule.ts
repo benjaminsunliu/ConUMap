@@ -157,7 +157,15 @@ function parseSchedule($: CheerioAPI, dayOfWeek: number) {
 export async function getConcordiaShuttleSchedule(): Promise<ShuttleScheduleData> {
   const url = "https://www.concordia.ca/maps/shuttle-bus.html";
   const response = await fetch(url);
-  if (!response.ok) throw new Error(`Failed to fetch page: ${response.statusText}`);
+  if (!response.ok) {
+    console.error(`Failed to fetch shuttle schedule: ${response.status} ${response.statusText}`);
+    return {
+      warnings: [],
+      noServiceDates: [],
+      isAvailableToday: false,
+      schedule: { LOY: [], SGW: [] },
+    };
+  }
   const html = await response.text();
   const $ = cheerio.load(html);
   const now = new Date();
