@@ -369,7 +369,10 @@ function coordinateToNormalizedLatLng(coord: Coordinate): NormalizedLatLng {
 }
 
 /* quick shortcut: origin/destination exactly at the two shuttle stops -> single shuttle leg */
-function handleStopLocationsOnly(origin: Coordinate, destination: Coordinate): NormalizedRoute[] | null {
+function handleStopLocationsOnly(
+  origin: Coordinate,
+  destination: Coordinate,
+): NormalizedRoute[] | null {
   const isOriginLOY =
     origin.latitude === LOY_STOP_COORD.latitude &&
     origin.longitude === LOY_STOP_COORD.longitude;
@@ -647,7 +650,10 @@ export async function fetchDirections(
     if (!data.routes || data.routes.length === 0) return [];
     return data.routes
       .map((route: RawRoute) => normalizeRoute(route, mode))
-      .sort((a: NormalizedRoute, b: NormalizedRoute) => a.totalDurationSeconds - b.totalDurationSeconds);
+      .sort(
+        (a: NormalizedRoute, b: NormalizedRoute) =>
+          a.totalDurationSeconds - b.totalDurationSeconds,
+      );
   } catch (error) {
     clearTimeout(timeoutId);
     if (error instanceof Error && error.name === "AbortError") {

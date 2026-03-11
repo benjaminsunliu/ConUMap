@@ -668,7 +668,7 @@ describe("fetchAllDirections", () => {
         },
       }),
     }));
-    
+
     global.fetch = jest.fn().mockImplementation((url: string, options?: any) => {
       if (url.includes("concordia.ca/maps/shuttle-bus.html")) {
         return Promise.resolve({
@@ -690,8 +690,8 @@ describe("fetchAllDirections", () => {
   });
 
   it("handles individual mode failures gracefully, returning null for failed modes", async () => {
-    jest.spyOn(console, "warn").mockImplementation(() => { });
-    
+    jest.spyOn(console, "warn").mockImplementation(() => {});
+
     // walking ok, transit http error, driving empty, bicycling ok
     (global.fetch as jest.Mock)
       .mockResolvedValueOnce({ ok: true, json: async () => ({ routes: [mockRouteApi] }) })
@@ -704,7 +704,7 @@ describe("fetchAllDirections", () => {
       .mockResolvedValue({
         ok: true,
         text: async () => "",
-        json: async () => ({ routes: [] })
+        json: async () => ({ routes: [] }),
       });
 
     const result = await fetchAllDirections(origin, destination);
