@@ -12,7 +12,7 @@ export default function AuthWebView({ onLogin }: Readonly<AuthWebViewProps>) {
 
   const handleMessage = (event: WebViewMessageEvent) => {
     const cookieString = event.nativeEvent.data;
-    if(!cookieString) {
+    if (!cookieString) {
       // on ios we may have to try to the cookies twice
       // because the implementation doesn't load it the first time
       return;
@@ -37,7 +37,7 @@ export default function AuthWebView({ onLogin }: Readonly<AuthWebViewProps>) {
 
   const handleShouldStartLoad = (event: WebViewNavigation) => {
     const url = event.url;
-    return url.startsWith("https://") || url.startsWith("http://")
+    return url.startsWith("https://") || url.startsWith("http://");
   };
 
   return (
