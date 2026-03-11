@@ -57,7 +57,8 @@ describe("decodePolyline", () => {
   });
 
   it("decodes another Montreal-area segment correctly", () => {
-    const encoded = "mswtGb}~_Mz@aCl@eBHQPe@Xy@FMVu@He@RW`@gA?Cx@_Cb@oAFQhA{C?A^cALa@@EJWBIDMFODMBIFOFUFOFORk@Vy@LWFUTs@BMN_@@EFMH[`@sAPk@";
+    const encoded =
+      "mswtGb}~_Mz@aCl@eBHQPe@Xy@FMVu@He@RW`@gA?Cx@_Cb@oAFQhA{C?A^cALa@@EJWBIDMFODMBIFOFUFOFORk@Vy@LWFUTs@BMN_@@EFMH[`@sAPk@";
     const result = decodePolyline(encoded);
     expect(result.length).toBeGreaterThan(5);
     result.forEach((coord) => {

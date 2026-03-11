@@ -23,7 +23,7 @@ export default function CalendarScreen() {
     .onStart(() => {
       setDate((currentDate) => new Date(currentDate.getTime() + ONE_WEEK_MS));
     })
-    .runOnJS(true); // SUPER duper important
+    .runOnJS(true); // must run on js when you are trying to set a state in js
 
   const swipeRightGesture = Gesture.Fling()
     .direction(Directions.RIGHT)
