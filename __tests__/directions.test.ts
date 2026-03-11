@@ -658,12 +658,6 @@ describe("fetchAllDirections", () => {
     expect(result).toHaveProperty("shuttle");
   });
 
-  it("always returns shuttle as an empty array regardless of API result", async () => {
-    const result = await fetchAllDirections(origin, destination);
-
-    expect(result.shuttle).toEqual([]);
-  });
-
   it("makes exactly 7 fetch calls ( 1 per non-shuttle mode + 1 for shuttle schedule + 2 for walking/transit pre shuttle)", async () => {
     jest.mock("@/utils/getShuttleSchedule", () => ({
       getConcordiaShuttleSchedule: jest.fn().mockResolvedValue({
@@ -696,7 +690,8 @@ describe("fetchAllDirections", () => {
   });
 
   it("handles individual mode failures gracefully, returning null for failed modes", async () => {
-    jest.spyOn(console, "warn").mockImplementation(() => {});
+    jest.spyOn(console, "warn").mockImplementation(() => { });
+    
     // walking ok, transit http error, driving empty, bicycling ok
     (global.fetch as jest.Mock)
       .mockResolvedValueOnce({ ok: true, json: async () => ({ routes: [mockRouteApi] }) })
@@ -705,6 +700,11 @@ describe("fetchAllDirections", () => {
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({ routes: [mockRouteApi] }),
+      })
+      .mockResolvedValue({
+        ok: true,
+        text: async () => "",
+        json: async () => ({ routes: [] })
       });
 
     const result = await fetchAllDirections(origin, destination);
