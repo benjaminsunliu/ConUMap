@@ -61,7 +61,7 @@ function parseCookies(cookieString: string) {
     const cookieValue = values.at(-1);
     const cookieName = values.at(0);
     if (!cookieName || !cookieValue) {
-      console.warn(`Couldn't parse a cookie: ${cookieName}, ${cookieValue}`);
+      console.warn("Couldn't parse a cookie");
       return;
     }
     cookies[cookieName] = cookieValue;
@@ -72,9 +72,9 @@ function parseCookies(cookieString: string) {
   const token = cookies["SSO-Token"];
   if (!givenName || !surname || !token) {
     console.error({
-      givenName,
-      surname,
-      token,
+      givenName: !!givenName,
+      surname: !!surname,
+      token: !!token,
     });
     throw new Error("Couldn't parse the cookies. Something went wrong");
   }
