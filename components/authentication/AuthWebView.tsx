@@ -47,7 +47,7 @@ export default function AuthWebView({ onLogin }: Readonly<AuthWebViewProps>) {
       onMessage={handleMessage}
       onNavigationStateChange={handleNavigationChange}
       incognito={true} // allows us to be able to clear the cookies when the component umounts
-      originWhitelist={["https://*", "http://*", "tp-set-custom-vars://*"]}
+      originWhitelist={["https://*", "tp-set-custom-vars://*"]}
       onShouldStartLoadWithRequest={handleShouldStartLoad}
     />
   );
