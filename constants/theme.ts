@@ -1,7 +1,7 @@
 import { Platform } from "react-native";
 
 const white = "#ffffff";
-const black = "#000000"
+const black = "#000000";
 const tintColorLight = "#5e0e16";
 const tintColorDark = white;
 
@@ -48,7 +48,7 @@ export const Colors = {
 
     routesInfoPopup: {
       icon: black,
-      selectedIcon: black
+      selectedIcon: black,
     },
 
     campusToggle: {
@@ -56,7 +56,7 @@ export const Colors = {
       selectedColor: black,
       buttonColor: white,
       borderColor: black,
-      backgroundColor: black
+      backgroundColor: black,
     },
 
     buildingSelection: {
@@ -67,8 +67,8 @@ export const Colors = {
       clearButton: black,
       containerBackground: "#fbf6ec",
       swapButton: black,
-      resultTitle: "#2e0306"
-    }
+      resultTitle: "#2e0306",
+    },
   },
 
   dark: {
@@ -113,7 +113,7 @@ export const Colors = {
 
     routesInfoPopup: {
       icon: white,
-      selectedIcon: white
+      selectedIcon: white,
     },
 
     campusToggle: {
@@ -121,7 +121,7 @@ export const Colors = {
       selectedColor: black,
       buttonColor: white,
       borderColor: black,
-      backgroundColor: black
+      backgroundColor: black,
     },
     buildingSelection: {
       inputBackground: white,
@@ -131,32 +131,33 @@ export const Colors = {
       clearButton: "#420A0F",
       containerBackground: "#420A0F",
       swapButton: white,
-      resultTitle: white
-    }
-  }
+      resultTitle: white,
+    },
+  },
 };
 
 export const Fonts = Platform.select({
   ios: {
     /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
+    sans: "system-ui",
     /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
+    serif: "ui-serif",
     /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
+    rounded: "ui-rounded",
     /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
+    mono: "ui-monospace",
   },
   default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
+    sans: "normal",
+    serif: "serif",
+    rounded: "normal",
+    mono: "monospace",
   },
   web: {
     sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
     serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
+    rounded:
+      "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
   },
 });

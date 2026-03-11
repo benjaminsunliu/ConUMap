@@ -1,9 +1,6 @@
 import { Coordinate, Polygon } from "@/types/mapTypes";
 
-export function isPointInPolygon(
-  point: Coordinate,
-  polygon: Polygon
-): boolean {
+export function isPointInPolygon(point: Coordinate, polygon: Polygon): boolean {
   if (polygon.length < 3) return false;
 
   let inside = false;
@@ -16,9 +13,7 @@ export function isPointInPolygon(
     const xj = polygon[j].longitude;
     const yj = polygon[j].latitude;
 
-    const intersect =
-      yi > y !== yj > y &&
-      x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+    const intersect = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
 
     if (intersect) {
       inside = !inside;

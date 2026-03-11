@@ -2,6 +2,25 @@ import { mockRouteApi, mockShuttlePage } from "@/data/mock-data/mockRequests";
 import { getConcordiaShuttleSchedule } from "@/utils/getShuttleSchedule";
 
 describe("getConcordiaShuttleSchedule", () => {
+  const mockHtml = `
+    <html>
+      <body>
+        <h3>Reading Week schedule</h3>
+        <p>No service on Friday, March 6, 2026</p>
+        <table>
+          <thead>
+            <tr><th>LOY departures</th><th>S.G.W departures</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>9:15</td><td>9:15</td></tr>
+            <tr><td>10:15</td><td>10:45</td></tr>
+            <tr><td>18:45*</td><td>18:45*</td></tr>
+          </tbody>
+        </table>
+      </body>
+    </html>
+  `;
+
   beforeEach(() => {
     global.fetch = jest.fn().mockImplementation((url: string, options?: any) => {
       if (url.includes("concordia.ca/maps/shuttle-bus.html")) {
@@ -44,7 +63,7 @@ describe("getConcordiaShuttleSchedule", () => {
     });
     const data = await getConcordiaShuttleSchedule();
     // Verify warnings
-    expect(data.warnings).toContain('No service on Friday, March 6, 2026');
+    expect(data.warnings).toContain("No service on Friday, March 6, 2026");
 
     // Verify Date parsing
     expect(data.noServiceDates).toHaveLength(1);
@@ -189,15 +208,21 @@ describe("getConcordiaShuttleSchedule", () => {
     });
 
     it("should return isAvailableToday: false on weekends", async () => {
-      jest.setSystemTime(new Date("2026-03-08T12:00:00"));
-
+      jest.setSystemTime(new Date("2026-03-07T12:00:00"));
+      (globalThis.fetch as jest.Mock).mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(mockHtml),
+      });
       const data = await getConcordiaShuttleSchedule();
       expect(data.isAvailableToday).toBe(false);
     });
 
     it("should return isAvailableToday: true on a standard weekday", async () => {
       jest.setSystemTime(new Date("2026-03-09T12:00:00"));
-
+      (globalThis.fetch as jest.Mock).mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(mockHtml),
+      });
       const data = await getConcordiaShuttleSchedule();
       expect(data.isAvailableToday).toBe(true);
     });

@@ -12,9 +12,11 @@ describe("isPointInPolygon (Is the point (the user in the app context) in the po
 
   beforeAll(() => {
     // Get the B Annex building polygon from the actual data source
-    const bAnnexBuilding = CAMPUS_BUILDINGS.find(building => building.buildingCode === "B");
+    const bAnnexBuilding = CAMPUS_BUILDINGS.find(
+      (building) => building.buildingCode === "B",
+    );
     expect(bAnnexBuilding).toBeDefined();
-    
+
     if (bAnnexBuilding) {
       expect(bAnnexBuilding.polygons).toBeDefined();
       expect(bAnnexBuilding.polygons.length).toBeGreaterThan(0);
@@ -25,8 +27,8 @@ describe("isPointInPolygon (Is the point (the user in the app context) in the po
   it("should return true when a coordinate is inside the B Annex building polygon", () => {
     // This coordinate is confirmed to be within the B Annex building boundaries
     const insideLocation: Coordinate = {
-      latitude: 45.497854, 
-      longitude: -73.579582, 
+      latitude: 45.497854,
+      longitude: -73.579582,
     };
 
     const result = isPointInPolygon(insideLocation, bAnnexPolygon);
@@ -50,8 +52,8 @@ describe("isPointInPolygon (Is the point (the user in the app context) in the po
     // Edge case: Points exactly on the boundary are considered outside
     // This is the first vertex of the B Annex polygon
     const vertexLocation: Coordinate = {
-      latitude: 45.4979631908601, 
-      longitude: -73.5795371416831, 
+      latitude: 45.4979631908601,
+      longitude: -73.5795371416831,
     };
 
     const result = isPointInPolygon(vertexLocation, bAnnexPolygon);

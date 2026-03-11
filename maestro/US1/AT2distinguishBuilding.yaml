@@ -4,7 +4,7 @@ appId: host.exp.Exponent
 - assertVisible: "Loyola"
 - assertVisible: "SGW"
 - assertVisible:
-           id: "campus-toggle-selector"
+    id: "campus-toggle-selector"
 - tapOn: "SGW"
 - waitForAnimationToEnd:
-           timeout: 2000
+    timeout: 2000
