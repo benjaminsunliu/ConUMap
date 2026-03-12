@@ -18,10 +18,10 @@ const viewRegionNearSGW = {
   longitudeDelta: 0.01,
 };
 
-jest.mock('@/utils/e2e', () => ({ IS_E2E: true }));
-jest.mock('react-native-maps', () => {
-  const React = require('react');
-  const { View } = require('react-native');
+jest.mock("@/utils/e2e", () => ({ IS_E2E: true }));
+jest.mock("react-native-maps", () => {
+  const React = require("react");
+  const { View } = require("react-native");
   const MockMapView = (props) => <View {...props} />;
   const MockMarker = (props) => <View {...props} />;
   return {
@@ -31,9 +31,7 @@ jest.mock('react-native-maps', () => {
   };
 });
 
-describe("campus-toggle",()=>{
-   
-    
+describe("campus-toggle", () => {
   it("initial switchValue is SGW if viewRegion is closer to SGW", () => {
     const { getByText } = render(
       <CampusToggle mapRef={mapRef} viewRegion={viewRegionNearSGW} />,

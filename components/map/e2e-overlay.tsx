@@ -20,14 +20,12 @@ export function E2EOverlay({
   currentRegion,
   mapViewRef,
 }: Readonly<E2EOverlayProps>): JSX.Element {
-    
-    
-    const [projectedPoints, setProjectedPoints] = useState<HitboxPoint[]>([]);
-    useE2EHitboxOverlay({
-        currentRegion,
-        mapViewRef,
-        setProjectedPoints,
-    });
+  const [projectedPoints, setProjectedPoints] = useState<HitboxPoint[]>([]);
+  useE2EHitboxOverlay({
+    currentRegion,
+    mapViewRef,
+    setProjectedPoints,
+  });
   return (
     <View pointerEvents="box-none" style={StyleSheet.absoluteFillObject}>
       {projectedPoints.map(({ building, x, y }) => (

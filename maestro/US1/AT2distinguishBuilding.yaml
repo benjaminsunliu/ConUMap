@@ -4,6 +4,6 @@ appId: host.exp.Exponent
 - openLink: ${EXPO_APP_URL}
 - tapOn: "SGW"
 - assertVisible:
-   label: "Concordia building FB"
+    label: "Concordia building FB"
 - assertVisible:
-   id: "e2e-marker-FB"
+    id: "e2e-marker-FB"

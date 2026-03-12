@@ -5,31 +5,31 @@ appId: host.exp.Exponent
 - assertVisible: "LOY"
 - assertVisible: "SGW"
 - assertVisible:
-      id: "campus-toggle-selector"
+    id: "campus-toggle-selector"
 - tapOn: "SGW"
 - assertVisible:
-      text: "SGW"
-      enabled: true
+    text: "SGW"
+    enabled: true
 - assertVisible:
-      text: "LOY"
-      selected: false
+    text: "LOY"
+    selected: false
 - assertVisible:
-      id: "e2e-marker-FB"
+    id: "e2e-marker-FB"
 - tapOn: "LOY"
 - assertVisible:
-      text: "LOY"
-      enabled: true
+    text: "LOY"
+    enabled: true
 - assertVisible:
-      text: "SGW"
-      selected: false
+    text: "SGW"
+    selected: false
 - assertVisible:
-      id: "e2e-marker-GE"
+    id: "e2e-marker-GE"
 - tapOn: "SGW"
 - assertVisible:
-      text: "SGW"
-      enabled: true
+    text: "SGW"
+    enabled: true
 - assertVisible:
-      text: "LOY"
-      selected: false 
+    text: "LOY"
+    selected: false
 - assertVisible:
-      id: "e2e-marker-FB"
+    id: "e2e-marker-FB"

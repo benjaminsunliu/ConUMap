@@ -4,10 +4,10 @@ appId: host.exp.Exponent
 - openLink: ${EXPO_APP_URL}
 - tapOn: "SGW"
 - tapOn:
-   id: "e2e-marker-FB"
+    id: "e2e-marker-FB"
 - assertVisible:
-          text: "FB – Faubourg Building"
+    text: "FB – Faubourg Building"
 - tapOn:
     point: "95%, 50%"
-- assertNotVisible: 
-            text: "FB – Faubourg Building"
+- assertNotVisible:
+    text: "FB – Faubourg Building"

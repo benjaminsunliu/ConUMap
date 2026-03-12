@@ -3,12 +3,12 @@ appId: host.exp.Exponent
 # Requires EXPO_APP_URL to be set (e.g. in Maestro .env) before running this flow.
 - openLink: ${EXPO_APP_URL}
 - setPermissions:
-     permissions:
-          location: allow
+    permissions:
+      location: allow
 - setLocation:
-         latitude:  45.4947027
-         longitude: -73.57779649999999
+    latitude: 45.4947027
+    longitude: -73.57779649999999
 - tapOn:
-     id: "locationButton"
+    id: "locationButton"
 - assertVisible:
-      id: "highlight-label-FB"
+    id: "highlight-label-FB"

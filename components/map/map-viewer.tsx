@@ -137,9 +137,9 @@ function polylineColor(travelMode: string, vehicleType?: string): string {
 }
 
 interface Props {
-    readonly userLocationDelta?: CoordinateDelta;
-    readonly initialRegion?: Region;
-    readonly isE2E?: boolean;
+  readonly userLocationDelta?: CoordinateDelta;
+  readonly initialRegion?: Region;
+  readonly isE2E?: boolean;
 }
 
 interface Cluster {
@@ -154,9 +154,9 @@ interface Cluster {
 }
 
 export default function MapViewer({
-    userLocationDelta = defaultFocusDelta,
-    initialRegion = defaultInitialRegion,
-    isE2E = false,
+  userLocationDelta = defaultFocusDelta,
+  initialRegion = defaultInitialRegion,
+  isE2E = false,
 }: Props) {
   const colorScheme = useColorScheme();
   const mapColors = Colors[colorScheme].map;
@@ -210,7 +210,8 @@ export default function MapViewer({
     label: "",
   });
 
-  const showStartHint = navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
+  const showStartHint =
+    navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
 
   useEffect(() => {
     if (!navCoords.start || !navCoords.end) {
@@ -818,13 +819,15 @@ export default function MapViewer({
         )}
       </MapViewCluster>
 
-      {isE2E && <E2EOverlay 
-      inBuildingCodes={inBuildingCodes}
-      selectBuildingByCode={selectBuildingByCode}
-      focusBuilding={focusBuilding}
-      currentRegion={currentRegion}
-      mapViewRef={mapViewRef}
-      />}
+      {isE2E && (
+        <E2EOverlay
+          inBuildingCodes={inBuildingCodes}
+          selectBuildingByCode={selectBuildingByCode}
+          focusBuilding={focusBuilding}
+          currentRegion={currentRegion}
+          mapViewRef={mapViewRef}
+        />
+      )}
       <LocationButton
         state={locationState}
         onPress={() => {
