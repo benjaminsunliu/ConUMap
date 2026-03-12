@@ -234,7 +234,12 @@ describe("map tab", () => {
   it("does not center or follow user when coordinate is null", () => {
     const mapViewer = render(<MapViewer />);
     const mapView = mapViewer.getByTestId("map-view");
-    const invalidCoords = [null, undefined, NaN, { latitude: "x", longitude: "y" }];
+    const invalidCoords = [
+      null,
+      undefined,
+      Number.NaN,
+      { latitude: "x", longitude: "y" },
+    ];
     invalidCoords.forEach((coord) => {
       act(() =>
         fireEvent(mapView, "onUserLocationChange", {
@@ -281,7 +286,7 @@ describe("map tab", () => {
     });
     const locationButton = mapViewer.getByTestId("locationButton");
     await act(async () => {
-      await fireEvent.press(locationButton);
+      fireEvent.press(locationButton);
     });
     expect(mockAnimateToRegion).toHaveBeenCalled();
   });
@@ -291,7 +296,7 @@ describe("map tab", () => {
     const mapViewer = render(<MapViewer />);
     const locationButton = mapViewer.getByTestId("locationButton");
     await act(async () => {
-      await fireEvent.press(locationButton);
+      fireEvent.press(locationButton);
     });
     expect(LocationPermissions.hasServicesEnabledAsync).toHaveBeenCalled();
     const modal = await mapViewer.findByTestId("location-modal");
@@ -303,7 +308,7 @@ describe("map tab", () => {
     const locationButton = mapViewer.getByTestId("locationButton");
 
     await act(async () => {
-      await fireEvent.press(locationButton);
+      fireEvent.press(locationButton);
     });
     const modal = await mapViewer.findByTestId("location-modal");
     expect(modal).toBeVisible();
@@ -340,11 +345,11 @@ describe("map tab", () => {
     });
     const locationButton = mapViewer.getByTestId("locationButton");
     await act(async () => {
-      await fireEvent.press(locationButton);
+      fireEvent.press(locationButton);
     });
     expect(mapViewer.getByTestId("map-view").props.followsUserLocation).toBe(true);
     await act(async () => {
-      await fireEvent(mapView, "panDrag");
+      fireEvent(mapView, "panDrag");
     });
     //no longer following user because dragged
     expect(mapViewer.getByTestId("map-view").props.followsUserLocation).toBe(false);
@@ -364,7 +369,7 @@ describe("map tab", () => {
     const mapViewer = render(<MapViewer />);
     const polygons = mapViewer.getAllByTestId("polygon");
     await act(async () => {
-      await fireEvent.press(polygons[0]);
+      fireEvent.press(polygons[0]);
     });
     const map = mapViewer.getByTestId("map-view");
     fireEvent(map, "press");
@@ -427,7 +432,6 @@ describe("map tab", () => {
   });
 
   it("closes modal when close button is pressed", async () => {
-    const onRequestClose = jest.fn();
     const mapViewer = render(<MapViewer />);
     const locationButton = mapViewer.getByTestId("locationButton");
 

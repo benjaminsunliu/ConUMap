@@ -1,7 +1,7 @@
 import { HitboxPoint, useE2EHitboxOverlay } from "@/hooks/useE2EHitboxOverlay";
 import { BuildingInfo } from "@/types/mapTypes";
 import { JSX, useState } from "react";
-import { Pressable, View , StyleSheet } from "react-native";
+import { Pressable, View, StyleSheet } from "react-native";
 import MapView, { Region } from "react-native-maps";
 
 interface E2EOverlayProps {
