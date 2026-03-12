@@ -68,7 +68,18 @@ export const Colors = {
       containerBackground: "#fbf6ec",
       swapButton: black,
       resultTitle: "#2e0306"
-    }
+    },
+
+    weeklyCalendarBody: {
+      todayColor: "rgba(148, 142, 25, 0.1)",
+      backgroundColor: "#fdfcea",
+      borderColor: "#E0E0E0",
+      dayAndTimeLabel: "#7d7d7d",
+      dateNumber: "#333",
+      dateNumberToday: white,
+      hourLineColor: "#d4d4d4",
+      timeDotColor: "#E53935"
+    },
   },
 
   dark: {
@@ -132,7 +143,18 @@ export const Colors = {
       containerBackground: "#420A0F",
       swapButton: white,
       resultTitle: white
-    }
+    },
+
+    weeklyCalendarBody: {
+      todayColor: "rgba(214, 214, 214, 0.1)",
+      backgroundColor: "#241c1a",
+      borderColor: "#3c4043",
+      dayAndTimeLabel: "#9b9b9b",
+      dateNumber: "#fdfcea",
+      dateNumberToday: black,
+      hourLineColor: "#3c4043",
+      timeDotColor: "#d83532"
+    },
   }
 };
 

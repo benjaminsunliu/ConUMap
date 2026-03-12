@@ -4,6 +4,9 @@ import DayColumn from './day-column';
 import { ClassInfo } from '@/types/calendarTypes';
 import { CALENDAR_END_HOUR, CALENDAR_START_HOUR, COLUMN_TOTAL_HEIGHT, HOUR_HEIGHT, PIXELS_PER_MINUTE, TIME_GUTTER_WIDTH } from '@/constants/scheduleConstant';
 
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
+
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const HOURS = Array.from(
     { length: CALENDAR_END_HOUR - CALENDAR_START_HOUR },
@@ -18,8 +21,6 @@ interface WeeklyCalendarBodyProps {
     onWeekChange: (newWeekStart: Date) => void;
 }
 
-const todayColor = "rgba(148, 142, 25, 0.1)"
-
 function getCurrentTimeY(): number {
     const now = new Date();
     const minutesFromMidnight = now.getHours() * 60 + now.getMinutes();
@@ -27,6 +28,9 @@ function getCurrentTimeY(): number {
 }
 
 export default function WeeklyCalendarBody({ weekStartDate, classes, colorMap, onClassPress, onWeekChange }: WeeklyCalendarBodyProps) {
+    const colorScheme = useColorScheme() ?? "light";
+    const theme = Colors[colorScheme];
+    
     // Time state for horizontal time bar
     const [currentTimeY, setCurrentTimeY] = useState(() => getCurrentTimeY());
     useEffect(() => {
@@ -87,17 +91,17 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, colorMap, o
     ).current;
 
     return (
-        <View style={styles.container} {...panResponder.panHandlers}>
-            <View style={styles.headerRow}>
+        <View style={[styles.container, {backgroundColor: theme.weeklyCalendarBody.backgroundColor}]} {...panResponder.panHandlers}>
+            <View style={[styles.headerRow, {backgroundColor: theme.weeklyCalendarBody.backgroundColor, borderBottomColor: theme.weeklyCalendarBody.borderColor}]}>
                 <View style={styles.timeGutterSpacer} />
 
                 {weekDates.map((date, i) => (
-                    <View key={i} style={[styles.dayHeader, isToday(date) && {backgroundColor: todayColor}]}>
-                        <Text style={[styles.dayLabel, isToday(date) && styles.dayLabelToday]}>
+                    <View key={i} style={[styles.dayHeader, {borderLeftColor: theme.weeklyCalendarBody.borderColor,}, isToday(date) && {backgroundColor: theme.weeklyCalendarBody.todayColor}]}>
+                        <Text style={[styles.dayLabel, {color: theme.weeklyCalendarBody.dayAndTimeLabel}, isToday(date) && {color: theme.tint}]}>
                             {date.toLocaleDateString("en-US", { weekday: 'short' })}
                         </Text>
-                        <View style={[styles.dateCircle, isToday(date) && styles.dateCircleToday]}>
-                            <Text style={[styles.dateNumber, isToday(date) && styles.dateNumberToday]}>
+                        <View style={[styles.dateCircle, isToday(date) && {backgroundColor: theme.tint}]}>
+                            <Text style={[styles.dateNumber, {color: theme.weeklyCalendarBody.dateNumber}, isToday(date) && {color: theme.weeklyCalendarBody.dateNumberToday}]}>
                                 {date.getDate()}
                             </Text>
                         </View>
@@ -111,10 +115,10 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, colorMap, o
                 showsVerticalScrollIndicator={false}
             >
                 <View style={styles.bodyRow}>
-                    <View style={[styles.timeGutter, { height: COLUMN_TOTAL_HEIGHT }]}>
+                    <View style={[styles.timeGutter, {backgroundColor: theme.weeklyCalendarBody.backgroundColor}, { height: COLUMN_TOTAL_HEIGHT }]}>
                         {HOURS.map((hour) => (
                             <View key={hour} style={[styles.timeLabelRow, {top: hour * HOUR_HEIGHT - 8}]}>
-                                <Text style={styles.timeLabelText}>
+                                <Text style={[styles.timeLabelText, {color: theme.weeklyCalendarBody.dayAndTimeLabel}]}>
                                     {String(hour).padStart(2, '0')}:00
                                 </Text>
                             </View>
@@ -127,7 +131,7 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, colorMap, o
                             pointerEvents='none'
                         >
                             {HOURS.map((hour) => (
-                                <View key={hour} style={[styles.hourLine, {top: hour * HOUR_HEIGHT}]} />
+                                <View key={hour} style={[styles.hourLine, {backgroundColor: theme.weeklyCalendarBody.hourLineColor}, {top: hour * HOUR_HEIGHT}]} />
                             ))}
                         </View>
 
@@ -135,8 +139,8 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, colorMap, o
                             pointerEvents='none'
                         >
                             <View style={[styles.currentTimeLine, {top: currentTimeY}]} pointerEvents='none'>
-                                <View style={styles.currentTimeDot}/>
-                                <View style={styles.currentTimeBar}/>
+                                <View style={[styles.currentTimeDot, {backgroundColor: theme.weeklyCalendarBody.timeDotColor}]}/>
+                                <View style={[styles.currentTimeBar, {backgroundColor: theme.weeklyCalendarBody.timeDotColor}]}/>
                             </View>
                         </View>
 
@@ -161,13 +165,10 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, colorMap, o
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fdfcea',
   },
   headerRow: {
     flexDirection: 'row',
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#E0E0E0',
-    backgroundColor: '#fdfcea',
   },
   timeGutterSpacer: {
     width: TIME_GUTTER_WIDTH,
@@ -177,17 +178,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 8,
     borderLeftWidth: StyleSheet.hairlineWidth,
-    borderLeftColor: '#E0E0E0',
   },
   dayLabel: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#888',
     textTransform: 'uppercase',
     letterSpacing: 0.4,
-  },
-  dayLabelToday: {
-    color: '#5e0e16',
   },
   dateCircle: {
     width: 24,
@@ -197,16 +193,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 3,
   },
-  dateCircleToday: {
-    backgroundColor: '#5e0e16',
-  },
   dateNumber: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#333',
-  },
-  dateNumberToday: {
-    color: '#fff',
   },
   verticalScroll: {
     flex: 1,
@@ -218,7 +207,6 @@ const styles = StyleSheet.create({
   timeGutter: {
     width: TIME_GUTTER_WIDTH,
     position: 'relative',
-    backgroundColor: '#fdfcea',
   },
   timeLabelRow: {
     position: 'absolute',
@@ -227,7 +215,6 @@ const styles = StyleSheet.create({
   },
   timeLabelText: {
     fontSize: 9,
-    color: '#7d7d7d',
     fontVariant: ['tabular-nums'],
   },
   columnsContainer: {
@@ -240,7 +227,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#d4d4d4',
   },
   currentTimeLine: {
     position: 'absolute',
@@ -254,12 +240,10 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#E53935',
-    marginLeft: -4, // pulls the dot to overlap the left edge
+    marginLeft: -4,
   },
   currentTimeBar: {
     flex: 1,
     height: 1.5,
-    backgroundColor: '#E53935',
   },
 }); 
