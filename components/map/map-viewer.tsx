@@ -8,7 +8,7 @@ import { decodePolyline } from "@/utils/decodePolyline";
 import { fetchAllDirections } from "@/utils/directions";
 import * as LocationPermissions from "expo-location";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Platform, StyleSheet, Text, View, Pressable } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
 import MapView, { Circle, Marker, Polygon, Polyline, Region } from "react-native-maps";
 import RoutesInfoPopup from "../navigation/routes-info-popup";
