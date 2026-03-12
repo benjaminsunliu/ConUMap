@@ -630,10 +630,78 @@ describe("fetchAllDirections", () => {
     expect(result.walking![0].totalDurationSeconds).toBe(300);
   });
 
+  it("validates logs for shuttle decisions", async () => {
+    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+    // near campus coords to ensure shuttle routes are valid and we hit the relevant code paths in fetchAllDirections
+    const nearOrigin = { latitude: 45.458, longitude: -73.638 };
+    const nearDest = { latitude: 45.497, longitude: -73.58 };
+    const every10Mins = Array.from(
+      { length: 144 },
+      (_, i) =>
+        `${Math.floor(i / 6)
+          .toString()
+          .padStart(2, "0")}:${((i % 6) * 10).toString().padStart(2, "0")}`,
+    );
+    (getConcordiaShuttleSchedule as jest.Mock).mockResolvedValue({
+      isAvailableToday: true,
+      schedule: { LOY: every10Mins, SGW: every10Mins },
+    });
+
+    const createMockRoute = (durationSeconds: number) => ({
+      ok: true,
+      json: async () => ({
+        routes: [
+          {
+            description: "Mock",
+            legs: [{ distanceMeters: 100, duration: `${durationSeconds}s`, steps: [] }],
+          },
+        ],
+      }),
+    });
+    const emptyRoute = { ok: true, json: async () => ({ routes: [] }) };
+
+    // We make direct transit super fast (100s) and pre-shuttle paths valid (50s)
+    globalThis.fetch = jest
+      .fn()
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(500))) // 1. Direct Walk
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(100))) // 2. Direct Transit (Best)
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(500))) // 3. Direct Drive
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(500))) // 4. Direct Bike
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 5. Pre-shuttle Transit
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 6. Pre-shuttle Walk
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 7. Post-shuttle Transit
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))); // 8. Post-shuttle Walk
+
+    await fetchAllDirections(nearOrigin, nearDest);
+
+    expect(logSpy).toHaveBeenCalledWith("no direct transit route");
+    expect(logSpy).toHaveBeenCalledWith(
+      "direct transit route is faster than pre + shuttle",
+    );
+    logSpy.mockClear();
+
+    // We force the POST-shuttle path to return empty, hitting the fallback.
+    globalThis.fetch = jest
+      .fn()
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 1. Direct Walk
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 2. Direct Transit
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 3. Direct Drive
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 4. Direct Bike
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 5. Pre-shuttle Transit (Valid)
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 6. Pre-shuttle Walk (Valid)
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 7. Post-shuttle Transit (Fails)
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)); // 8. Post-shuttle Walk (Fails)
+
+    const result = await fetchAllDirections(nearOrigin, nearDest);
+
+    expect(logSpy).toHaveBeenCalledWith("no post shuttle path");
+    expect(result.shuttle).toEqual([]);
+
+    logSpy.mockRestore();
+  });
+
   it("handles null values in chooseBestDirectRoute gracefully", async () => {
-    // suppress warning logs for this test only since we're intentionally triggering them
-    const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
-    // Branch: walking is null, transit is valid
+    const _ = jest.spyOn(console, "warn").mockImplementation(() => {});
     globalThis.fetch = jest
       .fn()
       .mockResolvedValueOnce({ ok: false, status: 500 }) // walking fails (null)
@@ -646,7 +714,6 @@ describe("fetchAllDirections", () => {
     });
 
     const result = await fetchAllDirections(origin, destination);
-    // This forces the code to evaluate (null, transit) logic in lines 490-500
     expect(result.transit).toHaveLength(1);
   });
 
