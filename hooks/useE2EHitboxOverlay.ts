@@ -11,14 +11,12 @@ export interface HitboxPoint {
 
 interface E2EHitboxOverlayProps {
   currentRegion: Region | null;
-  mapReady: boolean;
   mapViewRef: React.RefObject<MapView | null>;
  setProjectedPoints: (pts: HitboxPoint[]) => void;
 }
 
 export function useE2EHitboxOverlay({
   currentRegion,
-  mapReady,
   mapViewRef,
   setProjectedPoints,
 }: E2EHitboxOverlayProps) {
@@ -29,7 +27,7 @@ export function useE2EHitboxOverlay({
 
     async function updateHitboxPositions() {
       if (!currentRegion) return;
-      if (!mapReady || !mapViewRef.current || isCancelled) {
+      if (!mapViewRef.current || isCancelled) {
         setProjectedPoints([]);
         return;
       }
@@ -80,5 +78,5 @@ export function useE2EHitboxOverlay({
     return () => {
       isCancelled = true;
     };
-  }, [currentRegion, mapReady, mapViewRef]);
+  }, [currentRegion, mapViewRef]);
 }

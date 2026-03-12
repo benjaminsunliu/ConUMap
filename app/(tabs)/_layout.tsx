@@ -1,14 +1,14 @@
-import { Tabs } from "expo-router";
-import React from "react";
-import { View, Image, StyleSheet } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import darkIcon from "@/assets/logo/logo-dark.png";
+import lightIcon from "@/assets/logo/logo-light.png";
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import Feather from "@expo/vector-icons/Feather";
-import lightIcon from "@/assets/logo/logo-light.png";
-import darkIcon from "@/assets/logo/logo-dark.png";
+import { Tabs } from "expo-router";
+import React from "react";
+import { Image, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface TabHeaderProps {
   readonly backgroundColor: string;
@@ -95,10 +95,10 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
     justifyContent: "center",
     alignItems: "center",
-    borderBottomWidth: StyleSheet.hairlineWidth
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   logo: {
     width: 120,
     height: 40,
-  }
+  },
 });

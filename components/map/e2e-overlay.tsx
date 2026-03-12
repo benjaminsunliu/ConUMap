@@ -10,7 +10,6 @@ interface E2EOverlayProps {
   selectBuildingByCode: (code: string) => BuildingInfo | null;
   focusBuilding: (building: BuildingInfo) => void;
   currentRegion: Region;
-  mapReady: boolean;
   mapViewRef: React.RefObject<MapView | null>;
 }
 
@@ -19,15 +18,13 @@ export function E2EOverlay({
   selectBuildingByCode,
   focusBuilding,
   currentRegion,
-  mapReady,
   mapViewRef,
-}: E2EOverlayProps): JSX.Element {
+}: Readonly<E2EOverlayProps>): JSX.Element {
     
     
     const [projectedPoints, setProjectedPoints] = useState<HitboxPoint[]>([]);
     useE2EHitboxOverlay({
         currentRegion,
-        mapReady,
         mapViewRef,
         setProjectedPoints,
     });
