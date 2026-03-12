@@ -158,9 +158,15 @@ describe("getConcordiaShuttleSchedule", () => {
       statusText: "Not Found",
     });
 
-    
-    await expect(getConcordiaShuttleSchedule()).resolves.toEqual({ "isAvailableToday": false, "noServiceDates": [], "schedule": { "LOY": [], "SGW": [] }, "warnings": [] });
-    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Failed to fetch shuttle schedule: 404 Not Found"));
+    await expect(getConcordiaShuttleSchedule()).resolves.toEqual({
+      isAvailableToday: false,
+      noServiceDates: [],
+      schedule: { LOY: [], SGW: [] },
+      warnings: [],
+    });
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining("Failed to fetch shuttle schedule: 404 Not Found"),
+    );
   });
 
   it("should not add duplicate dates to the noServiceDates array", async () => {

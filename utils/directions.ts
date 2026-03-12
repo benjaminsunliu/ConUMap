@@ -649,6 +649,9 @@ export async function fetchDirections(
     const data = await response.json();
 
     if (!data.routes || data.routes.length === 0) return [];
+    data.routes = data.routes.filter(
+      (route: RawRoute) => route.legs && route.legs.length > 0,
+    );
     return data.routes
       .map((route: RawRoute) => normalizeRoute(route, mode))
       .sort(

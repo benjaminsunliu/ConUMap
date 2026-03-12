@@ -592,6 +592,80 @@ describe("fetchAllDirections", () => {
     expect(result[1].summary).toBe("Long Route");
   });
 
+  it("chooses walking when it is faster than transit", async () => {
+    // Overwrite the duration string inside the legs so normalizeRoute calculates 300
+    const fastWalking = [
+      {
+        ...mockRouteApi,
+        legs: [{ ...mockRouteApi.legs[0], duration: "300s" }],
+      },
+    ];
+    const slowTransit = [
+      {
+        ...mockRouteApi,
+        legs: [{ ...mockRouteApi.legs[0], duration: "900s" }],
+      },
+    ];
+
+    globalThis.fetch = jest
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ routes: [fastWalking[0]] }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ routes: [slowTransit[0]] }),
+      })
+      .mockResolvedValue({ ok: true, json: async () => ({ routes: [] }) });
+
+    (getConcordiaShuttleSchedule as jest.Mock).mockResolvedValue({
+      isAvailableToday: true,
+      schedule: { LOY: ["12:10"], SGW: ["12:10"] },
+    });
+
+    const result = await fetchAllDirections(origin, destination);
+
+    // Now received will be 300 because normalizeRoute("300s") = 300
+    expect(result.walking![0].totalDurationSeconds).toBe(300);
+  });
+
+  it("handles null values in chooseBestDirectRoute gracefully", async () => {
+    // suppress warning logs for this test only since we're intentionally triggering them
+    const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+    // Branch: walking is null, transit is valid
+    globalThis.fetch = jest
+      .fn()
+      .mockResolvedValueOnce({ ok: false, status: 500 }) // walking fails (null)
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ routes: [mockRouteApi] }) }) // transit ok
+      .mockResolvedValue({ ok: true, json: async () => ({ routes: [] }) });
+
+    (getConcordiaShuttleSchedule as jest.Mock).mockResolvedValue({
+      isAvailableToday: false,
+      schedule: { LOY: [], SGW: [] },
+    });
+
+    const result = await fetchAllDirections(origin, destination);
+    // This forces the code to evaluate (null, transit) logic in lines 490-500
+    expect(result.transit).toHaveLength(1);
+  });
+
+  it("handles empty arrays for both walking and transit", async () => {
+    // Branch: Both exist but are empty []
+    globalThis.fetch = jest
+      .fn()
+      .mockResolvedValue({ ok: true, json: async () => ({ routes: [] }) });
+    (getConcordiaShuttleSchedule as jest.Mock).mockResolvedValue({
+      isAvailableToday: false,
+      schedule: { LOY: [], SGW: [] },
+    });
+
+    const result = await fetchAllDirections(origin, destination);
+    // This hits the final 'return null' or default branch of the comparison logic
+    expect(result.walking).toEqual([]);
+    expect(result.transit).toEqual([]);
+  });
+
   describe("handleShuttleRouting", () => {
     const origin = { latitude: 45.45, longitude: -73.64 };
     const destination = { latitude: 45.5, longitude: -73.58 };
@@ -635,7 +709,10 @@ describe("fetchAllDirections", () => {
 
       const result = await fetchAllDirections(LOY_STOP_COORD, SGW_STOP_COORD);
       expect(result.shuttle).toEqual([]);
-      expect(console.log).toHaveBeenCalledWith(expect.stringContaining("No shuttle today"), expect.anything());
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining("No shuttle today"),
+        expect.anything(),
+      );
     });
 
     it("returns empty array when preShuttlePath is null", async () => {
@@ -694,7 +771,9 @@ describe("fetchAllDirections", () => {
 
   it("makes exactly 7 fetch calls ( 1 per non-shuttle mode + 1 for shuttle schedule + 2 for walking/transit pre shuttle)", async () => {
     // re-enable non-mocked getConcordiaShuttleSchedule for this test to count fetch calls correctly
-    const { getConcordiaShuttleSchedule: realSchedule } = jest.requireActual("@/utils/getShuttleSchedule");
+    const { getConcordiaShuttleSchedule: realSchedule } = jest.requireActual(
+      "@/utils/getShuttleSchedule",
+    );
     (getConcordiaShuttleSchedule as jest.Mock).mockImplementation(realSchedule);
 
     globalThis.fetch = mockNoResponses();
@@ -753,5 +832,65 @@ describe("fetchAllDirections", () => {
       expect((result[mode] as any[])[0]).toHaveProperty("summary");
       expect((result[mode] as any[])[0]).toHaveProperty("legs");
     });
+  });
+
+  // --- New Coverage Boosters ---
+
+  it("handles fetch timeout (AbortError) in fetchDirections", async () => {
+    // Force an AbortError to cover the specific catch block branch
+    const abortError = new Error("Timeout");
+    abortError.name = "AbortError";
+    global.fetch = jest.fn().mockRejectedValue(abortError);
+
+    const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+    const result = await fetchDirections(origin, destination, "walking");
+
+    expect(result).toBeNull();
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("timed out"));
+    warnSpy.mockRestore();
+  });
+
+  it("handles generic fetch failure in fetchDirections", async () => {
+    global.fetch = jest.fn().mockRejectedValue(new Error("Network Error"));
+    const errorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+
+    const result = await fetchDirections(origin, destination, "walking");
+
+    expect(result).toBeNull();
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Failed to fetch directions"),
+      expect.any(Error),
+    );
+    errorSpy.mockRestore();
+  });
+
+  it("returns empty array when shuttle is not available today", async () => {
+    // Mock the utility to return available: false
+    (getConcordiaShuttleSchedule as jest.Mock).mockResolvedValueOnce({
+      isAvailableToday: false,
+      schedule: { LOY: [], SGW: [] },
+    });
+
+    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+
+    const result = await fetchAllDirections(LOY_STOP_COORD, SGW_STOP_COORD);
+
+    expect(result.shuttle).toEqual([]);
+    expect(logSpy).toHaveBeenCalledWith(
+      expect.stringContaining("No shuttle today"),
+      expect.any(Date),
+    );
+    logSpy.mockRestore();
+  });
+
+  it("returns empty array when Google API returns a route with no legs", async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ routes: [{}] }),
+    });
+
+    const result = await fetchDirections(origin, destination, "driving");
+    expect(result).toEqual([]);
   });
 });

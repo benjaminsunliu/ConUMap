@@ -158,7 +158,9 @@ export async function getConcordiaShuttleSchedule(): Promise<ShuttleScheduleData
   const url = "https://www.concordia.ca/maps/shuttle-bus.html";
   const response = await fetch(url);
   if (!response.ok) {
-    console.error(`Failed to fetch shuttle schedule: ${response.status} ${response.statusText}`);
+    console.error(
+      `Failed to fetch shuttle schedule: ${response.status} ${response.statusText}`,
+    );
     return {
       warnings: [],
       noServiceDates: [],
