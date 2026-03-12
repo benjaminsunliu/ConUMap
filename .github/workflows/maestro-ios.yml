@@ -58,7 +58,7 @@ jobs:
           xcodebuild \
             -workspace "ios/${{ steps.xcode.outputs.workspace }}" \
             -scheme "${{ steps.xcode.outputs.scheme }}" \
-            -configuration Debug \
+            -configuration Release \
             -sdk iphonesimulator \
             -derivedDataPath "$GITHUB_WORKSPACE/build/ios/DerivedData" \
             -destination 'generic/platform=iOS Simulator' \
@@ -92,7 +92,7 @@ jobs:
             export PATH="$HOME/.maestro/bin:$PATH"
             export MAESTRO_DRIVER_STARTUP_TIMEOUT=600000
             mkdir -p .maestro/output
-            maestro --device "$DEVICE_UDID" test .maestro/test.yaml \
+            maestro --device "$DEVICE_UDID" test .maestro/automated/launchTest.yaml \
             --format junit \
             --output .maestro/output/results.xml
 
