@@ -72,7 +72,11 @@ jobs:
 
       - name: Boot simulator
         run: |
-          xcrun simctl boot "$DEVICE_UDID" 2>/dev/null || true
+          if [ -z "$DEVICE_UDID" ]; then
+            echo "ERROR: DEVICE_UDID is not set or empty. Cannot boot simulator." >&2
+            exit 1
+          fi
+          xcrun simctl boot "$DEVICE_UDID" 2>/dev/null
           open -a Simulator
           sleep 20
 
