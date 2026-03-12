@@ -17,8 +17,7 @@ import BuildingSelection, { CURRENT_LOCATION_CODE } from "./building-selection";
 import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
-import { IS_E2E } from "@/utils/e2e";
-import { useE2EHitboxOverlay, HitboxPoint } from "@/hooks/useE2EHitboxOverlay";
+import { E2EOverlay } from "./e2e-overlay";
 
 interface PolylineSegment {
     coordinates: Coordinate[];
@@ -140,6 +139,7 @@ function polylineColor(travelMode: string, vehicleType?: string): string {
 interface Props {
     readonly userLocationDelta?: CoordinateDelta;
     readonly initialRegion?: Region;
+    readonly isE2E?: boolean;
 }
 
 interface Cluster {
@@ -156,6 +156,7 @@ interface Cluster {
 export default function MapViewer({
     userLocationDelta = defaultFocusDelta,
     initialRegion = defaultInitialRegion,
+    isE2E = false,
 }: Props) {
     const colorScheme = useColorScheme();
     const mapColors = Colors[colorScheme].map;
@@ -208,7 +209,6 @@ export default function MapViewer({
         navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
     
     const [mapReady, setMapReady] = useState(false);
-    const [projectedPoints, setProjectedPoints] = useState<HitboxPoint[]>([]);
 
     useEffect(() => {
         if (!navCoords.start || !navCoords.end) {
@@ -509,14 +509,6 @@ export default function MapViewer({
         setRouteNodes([]);
     }, [navCoords.start, navCoords.end, selectionOverrides.end]);
 
-    useE2EHitboxOverlay({
-        IS_E2E,
-        currentRegion,
-        mapReady,
-        mapViewRef,
-        setProjectedPoints,
-    });
-
     return (
         <View style={styles.container}>
             <BuildingSelection
@@ -747,47 +739,15 @@ export default function MapViewer({
                         />
                     )}
             </MapViewCluster>
-              {IS_E2E && ( 
-                <View 
-                  pointerEvents="box-none"
-                  style={StyleSheet.absoluteFillObject}
-                  > 
-                    {projectedPoints.map(({ building, x, y }) => ( 
-                      <Pressable 
-                      key={`e2e-${building.buildingCode}`} 
-                      testID={`e2e-marker-${building.buildingCode}`} 
-                      style={{ 
-                        position: "absolute", 
-                        top: y - 20, 
-                        left: x - 20, 
-                        width: 40, 
-                        height: 40, 
-                        opacity: 0.01, 
-                        zIndex: 9999, 
-                        }} 
-                        onPress={() => { 
-                          selectBuildingByCode(building.buildingCode); 
-                          focusBuilding(building); 
-                          }} 
-                          /> 
-                    ))}
-                    {/* Highlighted buildings */}
-                        {Array.from(inBuildingCodes).map((code) => (
-                          <View
-                            key={`highlight-label-${code}`}
-                            testID={`highlight-label-${code}`}
-                            style={{
-                              position: "absolute",
-                              top: 0,
-                              left: 0,
-                              width: 1,
-                              height: 1,
-                              opacity: 0.01,
-                            }}
-                          />
-                        ))}      
-                  </View>
-                  )}
+            
+            {isE2E && <E2EOverlay 
+              inBuildingCodes={inBuildingCodes}
+              selectBuildingByCode={selectBuildingByCode}
+              focusBuilding={focusBuilding}
+              currentRegion={currentRegion}
+              mapReady={mapReady}
+              mapViewRef={mapViewRef}
+               />}
 
             <LocationButton
                 state={locationState}

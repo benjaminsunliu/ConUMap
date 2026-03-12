@@ -10,7 +10,6 @@ export interface HitboxPoint {
 }
 
 interface E2EHitboxOverlayProps {
-  IS_E2E: boolean;
   currentRegion: Region | null;
   mapReady: boolean;
   mapViewRef: React.RefObject<MapView | null>;
@@ -18,14 +17,13 @@ interface E2EHitboxOverlayProps {
 }
 
 export function useE2EHitboxOverlay({
-  IS_E2E,
   currentRegion,
   mapReady,
   mapViewRef,
   setProjectedPoints,
 }: E2EHitboxOverlayProps) {
   useEffect(() => {
-    if (!IS_E2E || !currentRegion) return;
+    if ( !currentRegion) return;
 
     let isCancelled = false;
 
@@ -82,5 +80,5 @@ export function useE2EHitboxOverlay({
     return () => {
       isCancelled = true;
     };
-  }, [IS_E2E, currentRegion, mapReady, mapViewRef]);
+  }, [currentRegion, mapReady, mapViewRef]);
 }
