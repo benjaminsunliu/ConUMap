@@ -963,12 +963,18 @@ function renderBuildings(
 
     renderedMarkers.push(
       <Marker
-        testID={`marker-${building.buildingCode}`}
         key={building.buildingCode}
         coordinate={building.location}
         onPress={() => onPress(building)}
       >
         <View
+          testID={`marker-${building.buildingCode}`}
+          nativeID={`marker-${building.buildingCode}`}
+          accessible
+          accessibilityRole="button"
+          accessibilityLabel={`${building.buildingCode} ${building.buildingName}`}
+          accessibilityHint={`Shows details for ${building.buildingName}`}
+          collapsable={false}
           style={[
             styles.marker,
             {
