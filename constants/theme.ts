@@ -90,7 +90,11 @@ export const Colors = {
       monthPickerBackground: "#fbf6ec",
       monthMenuItemActive: "#fdebeb",
       monthMenuTextActive: "#e81a1a",
-    }
+    },
+
+    dayColumn: {
+      borderColor: "#d4d4d4"
+    },
   },
 
   dark: {
@@ -176,7 +180,11 @@ export const Colors = {
       monthPickerBackground: "#5e0e16",
       monthMenuItemActive: "#47080d",
       monthMenuTextActive: "#e41313",
-    }
+    },
+
+    dayColumn: {
+      borderColor: "#3c4043"
+    },
   }
 };
 

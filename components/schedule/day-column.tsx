@@ -4,6 +4,9 @@ import ClassBlock from "./class-block";
 import { COLUMN_TOTAL_HEIGHT } from "@/constants/scheduleConstant";
 import { ClassInfo } from "@/types/calendarTypes";
 
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
+
 interface DayColumnProps {
   dayIndex: number;
   isToday: boolean;
@@ -21,8 +24,11 @@ export default function DayColumn({
   colorMap,
   onClassPress,
 }: DayColumnProps) {
+  const colorScheme = useColorScheme() ?? "light";
+  const theme = Colors[colorScheme];
+  
   return (
-    <View style={[styles.column, isToday && { backgroundColor: todayColor }]}>
+    <View style={[styles.column, {borderLeftColor: theme.dayColumn.borderColor}, isToday && { backgroundColor: todayColor }]}>
       <View style={[styles.eventsArea, { height: COLUMN_TOTAL_HEIGHT }]}>
         {classes.map((cls) => (
           <ClassBlock
@@ -41,7 +47,6 @@ const styles = StyleSheet.create({
   column: {
     flex: 1,
     borderLeftWidth: StyleSheet.hairlineWidth,
-    borderLeftColor: "#E0E0E0",
   },
   eventsArea: {
     position: "relative",
