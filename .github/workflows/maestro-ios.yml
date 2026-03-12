@@ -1,0 +1,111 @@
+name: Maestro E2E iOS
+
+on:
+    push:
+      branches:
+        - master
+    pull_request:
+        types: [opened, reopened]
+    workflow_dispatch:
+
+jobs:
+  e2e-ios:
+    runs-on: macos-latest
+    timeout-minutes: 75
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.19.4"
+          cache: "npm"
+
+      - name: Install JS dependencies
+        run: npm ci --ignore-scripts --prefer-offline --no-audit
+
+      - name: Ensure iOS native project
+        run: |
+          if [ ! -d ios ]; then
+            npx expo prebuild -p ios --clean --no-install --non-interactive
+          fi
+
+      - name: Install CocoaPods
+        run: |
+          cd ios
+          pod install
+          cd ..
+
+      - name: Select simulator
+        run: |
+          LINE=$(xcrun simctl list devices available | grep "iPhone" | head -1)
+          DEVICE=$(echo "$LINE" | sed -nE 's/.*\(([0-9A-F-]{36})\).*/\1/p')
+          echo "DEVICE_UDID=$DEVICE" >> $GITHUB_ENV
+
+      - name: Resolve workspace and scheme
+        id: xcode
+        run: |
+          cd ios
+          WORKSPACE=$(find . -maxdepth 1 -name '*.xcworkspace' | head -1)
+          SCHEME=$(xcodebuild -list 2>/dev/null | sed -n '1,/Schemes:/d;/^$/q;p' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | grep -v -E 'Tests|UITests' | head -1)
+          echo "workspace=$(basename "$WORKSPACE")" >> $GITHUB_OUTPUT
+          echo "scheme=$SCHEME" >> $GITHUB_OUTPUT
+          cd ..
+
+      - name: Build iOS app for Simulator
+        run: |
+          xcodebuild \
+            -workspace "ios/${{ steps.xcode.outputs.workspace }}" \
+            -scheme "${{ steps.xcode.outputs.scheme }}" \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -derivedDataPath "$GITHUB_WORKSPACE/build/ios/DerivedData" \
+            -destination 'generic/platform=iOS Simulator' \
+            build
+
+      - name: Locate built app
+        id: app
+        run: |
+          APP=$(find "$GITHUB_WORKSPACE/build/ios/DerivedData" -type d -name "*.app" | head -1)
+          echo "path=$APP" >> $GITHUB_OUTPUT
+
+      - name: Boot simulator
+        run: |
+          if [ -z "$DEVICE_UDID" ]; then
+            echo "ERROR: DEVICE_UDID is not set or empty. Cannot boot simulator." >&2
+            exit 1
+          fi
+          xcrun simctl boot "$DEVICE_UDID" 2>/dev/null
+          open -a Simulator
+          sleep 20
+
+      - name: Install Maestro CLI
+        run: |
+          curl --proto '=https' --tlsv1.2 -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.maestro/bin:$PATH"
+          maestro --version
+
+      - name: Install app on simulator
+        run: |
+          xcrun simctl install "$DEVICE_UDID" "${{ steps.app.outputs.path }}"
+
+      - name: Run Maestro flow
+        run: |
+            export PATH="$HOME/.maestro/bin:$PATH"
+            export MAESTRO_DRIVER_STARTUP_TIMEOUT=600000
+            mkdir -p .maestro/output
+            maestro --device "$DEVICE_UDID" test .maestro/automated/launchTest.yaml \
+            --format junit \
+            --output .maestro/output/results.xml
+
+      - name: Upload Maestro artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-ios-artifacts
+          path: .maestro/output/results.xml
+          if-no-files-found: ignore
+          include-hidden-files: true
