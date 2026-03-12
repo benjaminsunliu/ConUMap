@@ -70,6 +70,10 @@ export const Colors = {
       resultTitle: "#2e0306"
     },
 
+    scheduleViewer: {
+      containerBackground: white,
+    },
+
     weeklyCalendarBody: {
       todayColor: "rgba(148, 142, 25, 0.1)",
       backgroundColor: "#fdfcea",
@@ -158,6 +162,10 @@ export const Colors = {
       containerBackground: "#420A0F",
       swapButton: white,
       resultTitle: white
+    },
+
+    scheduleViewer: {
+      containerBackground: black,
     },
 
     weeklyCalendarBody: {

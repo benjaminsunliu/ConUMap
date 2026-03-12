@@ -6,6 +6,9 @@ import WeeklyCalendarBody from "./weekly-calendar-body";
 import { MOCK_CLASSES } from './MOCK-DATA';
 import { ClassInfo } from "@/types/calendarTypes";
 
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
+
 function getWeekStart(date: Date): Date {
     const d = new Date(date);
     
@@ -38,6 +41,9 @@ function buildColorMap(classes: ClassInfo[]): Map<string, string> {
 }
 
 export default function ScheduleViewer() {
+    const colorScheme = useColorScheme() ?? "light";
+    const theme = Colors[colorScheme];
+
     const classes = MOCK_CLASSES;   // WILL NEED TO BE REPLACED WITH API
     const colorMap = useMemo(() => buildColorMap(classes), [classes]);
 
@@ -53,7 +59,7 @@ export default function ScheduleViewer() {
     }
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, {backgroundColor: theme.scheduleViewer.containerBackground}]}>
             <ScheduleHeader
                 currentWeekStart={currentWeekStart}
                 onWeekChange={setCurrentWeekStart}
@@ -83,6 +89,5 @@ export default function ScheduleViewer() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#ffffff"
     }
 })
