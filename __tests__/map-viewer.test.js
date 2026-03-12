@@ -4,7 +4,7 @@ import * as LocationPermissions from "expo-location";
 import MapViewer from "../components/map/map-viewer";
 import { Colors } from "@/constants/theme";
 import { CAMPUS_BUILDINGS } from "../constants/map";
-
+import E2EOverlay from "@/components/map/e2e-overlay";
 const mockAnimateToRegion = jest.fn();
 jest.mock("@/utils/e2e", () => ({ IS_E2E: true }));
 jest.mock("react-native-map-clustering", () => {
@@ -107,6 +107,11 @@ jest.mock("@/constants/map", () => {
     ],
   };
 });
+
+jest.mock("@/components/map/e2e-overlay", () => ({
+  __esModule: true,
+  default: jest.fn(() => null),
+}));
 
 beforeEach(() => {
   mockAnimateToRegion.mockClear();
@@ -2222,6 +2227,12 @@ describe("map tab", () => {
       // Start field should still be auto-filled with VE
       const startInputAgain = mapViewer.getByPlaceholderText("Your location");
       expect(startInputAgain.props.value).toBe("VE");
+    });
+  });
+  describe("E2EOverlay rendering", () => {
+    it("does not render E2EOverlay when isE2E is false", () => {
+      render(<MapViewer isE2E={false} />);
+      expect(E2EOverlay).not.toHaveBeenCalled();
     });
   });
 });
