@@ -5,7 +5,8 @@ on:
       branches:
         - master
     pull_request:
-        types: [opened, synchronize, reopened]
+        types: [opened, reopened]
+    workflow_dispatch:
 
 jobs:
   e2e-ios:
@@ -58,7 +59,7 @@ jobs:
           xcodebuild \
             -workspace "ios/${{ steps.xcode.outputs.workspace }}" \
             -scheme "${{ steps.xcode.outputs.scheme }}" \
-            -configuration Release \
+            -configuration Debug \
             -sdk iphonesimulator \
             -derivedDataPath "$GITHUB_WORKSPACE/build/ios/DerivedData" \
             -destination 'generic/platform=iOS Simulator' \
