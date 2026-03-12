@@ -101,10 +101,10 @@ jobs:
             --output .maestro/output/results.xml
 
       - name: Upload Maestro artifacts
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: maestro-ios-artifacts
-          path: .maestro/
+          path: .maestro/output/results.xml
           if-no-files-found: ignore
           include-hidden-files: true
