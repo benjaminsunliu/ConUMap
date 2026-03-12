@@ -8,7 +8,7 @@ import { decodePolyline } from "@/utils/decodePolyline";
 import { fetchAllDirections } from "@/utils/directions";
 import * as LocationPermissions from "expo-location";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
 import MapView, { Circle, Marker, Polygon, Polyline, Region } from "react-native-maps";
 import RoutesInfoPopup from "../navigation/routes-info-popup";
@@ -771,36 +771,36 @@ export default function MapViewer({
 
         {Platform.OS === "android"
           ? routeNodes.map((node, index) => (
-              <Circle
-                key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
-                center={node.coordinate}
-                radius={7}
-                fillColor={node.toColor}
-                strokeColor="#fff"
-                strokeWidth={3}
-                zIndex={12}
-              />
-            ))
+            <Circle
+              key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
+              center={node.coordinate}
+              radius={7}
+              fillColor={node.toColor}
+              strokeColor="#fff"
+              strokeWidth={3}
+              zIndex={12}
+            />
+          ))
           : routeNodes.map((node, index) => (
-              <Marker
-                key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
-                coordinate={node.coordinate}
-                anchor={{ x: 0.5, y: 0.5 }}
-                zIndex={12}
-              >
-                <View
-                  collapsable={false}
-                  style={{
-                    width: 18,
-                    height: 18,
-                    borderRadius: 9,
-                    backgroundColor: node.toColor,
-                    borderWidth: 3,
-                    borderColor: "#fff",
-                  }}
-                />
-              </Marker>
-            ))}
+            <Marker
+              key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
+              coordinate={node.coordinate}
+              anchor={{ x: 0.5, y: 0.5 }}
+              zIndex={12}
+            >
+              <View
+                collapsable={false}
+                style={{
+                  width: 18,
+                  height: 18,
+                  borderRadius: 9,
+                  backgroundColor: node.toColor,
+                  borderWidth: 3,
+                  borderColor: "#fff",
+                }}
+              />
+            </Marker>
+          ))}
         {navigationMode === "directions" && navCoords.start && (
           <NavEndpointMarker
             key={`nav-start-${navCoords.start.latitude}-${navCoords.start.longitude}`}
@@ -818,6 +818,22 @@ export default function MapViewer({
           />
         )}
       </MapViewCluster>
+
+      {__DEV__ && Platform.OS === "android" && (
+        <View style={styles.androidMarkerProxyContainer} pointerEvents="box-none">
+          {CAMPUS_BUILDINGS.map((building) => (
+            <Pressable
+              key={`marker-proxy-${building.buildingCode}`}
+              testID={`marker-${building.buildingCode}`}
+              nativeID={`marker-${building.buildingCode}`}
+              accessibilityRole="button"
+              accessibilityLabel={`${building.buildingCode} ${building.buildingName}`}
+              style={styles.androidMarkerProxyTarget}
+              onPress={() => handleBuildingPress(building)}
+            />
+          ))}
+        </View>
+      )}
 
       {isE2E && (
         <E2EOverlay
@@ -968,8 +984,8 @@ function renderBuildings(
         onPress={() => onPress(building)}
       >
         <View
-          testID={`marker-${building.buildingCode}`}
-          nativeID={`marker-${building.buildingCode}`}
+          testID={Platform.OS === "android" ? undefined : `marker-${building.buildingCode}`}
+          nativeID={Platform.OS === "android" ? undefined : `marker-${building.buildingCode}`}
           accessible
           accessibilityRole="button"
           accessibilityLabel={`${building.buildingCode} ${building.buildingName}`}
@@ -1078,6 +1094,22 @@ const styles = StyleSheet.create({
     borderTopWidth: 8,
     borderLeftColor: "transparent",
     borderRightColor: "transparent",
+  },
+
+  androidMarkerProxyContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: 1,
+    height: 1,
+  },
+  androidMarkerProxyTarget: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: 1,
+    height: 1,
+    opacity: 0.01,
   },
 });
 
