@@ -80,6 +80,17 @@ export const Colors = {
       hourLineColor: "#d4d4d4",
       timeDotColor: "#E53935"
     },
+
+    scheduleHeader: {
+      backgroundColor: "#fdfcea",
+      shadowColor: black,
+      buttonText: "#333",
+      todayButtonText: "#fdfcea",
+      monthPickerBackdrop: "rgba(0,0,0,0.3)",
+      monthPickerBackground: "#fbf6ec",
+      monthMenuItemActive: "#fdebeb",
+      monthMenuTextActive: "#e81a1a",
+    }
   },
 
   dark: {
@@ -155,6 +166,17 @@ export const Colors = {
       hourLineColor: "#3c4043",
       timeDotColor: "#d83532"
     },
+
+    scheduleHeader: {
+      backgroundColor: "#fdfcea",
+      shadowColor: black,
+      buttonText: "#fdfcea",
+      todayButtonText: black,
+      monthPickerBackdrop: "rgba(0,0,0,0.3)",
+      monthPickerBackground: "#5e0e16",
+      monthMenuItemActive: "#47080d",
+      monthMenuTextActive: "#e41313",
+    }
   }
 };
 

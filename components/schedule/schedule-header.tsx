@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
+
 interface ScheduleHeaderProps {
     currentWeekStart: Date;
     onWeekChange: (newWeekStart: Date) => void;
@@ -20,6 +23,9 @@ export default function ScheduleHeader({
     onTodayPress,
     onSettingsPress
 }: ScheduleHeaderProps) {
+    const colorScheme = useColorScheme() ?? "light";
+    const theme = Colors[colorScheme];
+
     const [monthPickerVisible, setMonthPickerVisible] = useState(false);
 
     const month = currentWeekStart.getMonth();
@@ -33,29 +39,29 @@ export default function ScheduleHeader({
     }
 
     return(
-        <View style={styles.container}>
+        <View style={[styles.container, {backgroundColor: theme.background, shadowColor: theme.scheduleHeader.shadowColor}]}>
             <View style={styles.titleRow}>
                 <Pressable onPress={onSettingsPress} style={styles.settingsButton} accessibilityLabel='Settings'>
-                    <MaterialIcons name="density-medium" size={24} color="#fdfcea" />
+                    <MaterialIcons name="density-medium" size={24} color={theme.icon} />
                 </Pressable>
-                <Text style={styles.title}>Class Schedule</Text>
+                <Text style={[styles.title, {color: theme.tint}]}>Class Schedule</Text>
             </View>
 
             <View style={styles.controlsRow}>
                 <View style={styles.monthButtonContainer}>
                     <Pressable
                         onPress={() => setMonthPickerVisible(true)}
-                        style={styles.monthButton}
+                        style={[styles.monthButton]}
                         accessibilityLabel='Change month'
                     >
-                        <Text style={styles.monthButtonText}>{MONTHS[month]} {year}</Text>
-                        <MaterialIcons name="arrow-drop-down" size={20} color="#fdfcea" />
+                        <Text style={[styles.monthButtonText, {color: theme.scheduleHeader.buttonText}]}>{MONTHS[month]} {year}</Text>
+                        <MaterialIcons name="arrow-drop-down" size={20} color={theme.scheduleHeader.buttonText} />
                     </Pressable>
                 </View>
 
                 <View style={styles.todayButtonContainer}>
-                    <Pressable onPress={onTodayPress} style={styles.todayButton} accessibilityLabel='Jump to today'>
-                        <Text style={styles.todayButtonText}>Today</Text>
+                    <Pressable onPress={onTodayPress} style={[styles.todayButton, {backgroundColor: theme.icon, borderColor: theme.icon}]} accessibilityLabel='Jump to today'>
+                        <Text style={[styles.todayButtonText, {color: theme.scheduleHeader.todayButtonText}]}>Today</Text>
                     </Pressable>
                 </View>
             </View>
@@ -66,16 +72,16 @@ export default function ScheduleHeader({
                 animationType='fade'
                 onRequestClose={() => setMonthPickerVisible(false)}
             >
-                <View style={styles.backdrop}>
+                <View style={[styles.backdrop, {backgroundColor: theme.scheduleHeader.monthPickerBackdrop}]}>
                     <Pressable style={StyleSheet.absoluteFill} onPress={() => setMonthPickerVisible(false)} />
-                    <View style={styles.monthMenu}>
+                    <View style={[styles.monthMenu, {backgroundColor: theme.scheduleHeader.monthPickerBackground, shadowColor: theme.scheduleHeader.shadowColor}]}>
                         {MONTHS.map((name, index) => (
                             <Pressable
                                 key={name}
                                 onPress={() => handleMonthSelect(index)}
-                                style={[styles.monthMenuItem, index === month && styles.monthMenuItemActive]}
+                                style={[styles.monthMenuItem, index === month && {backgroundColor: theme.scheduleHeader.monthMenuItemActive}]}
                             >
-                                <Text style={[styles.monthMenuItemText, index === month && styles.monthMenuItemTextActive]}>
+                                <Text style={[styles.monthMenuItemText, {color: theme.scheduleHeader.buttonText}, index === month && styles.monthMenuItemTextActive && {color: theme.scheduleHeader.monthMenuTextActive}]}>
                                     {name}
                                 </Text>
                                 
@@ -90,11 +96,9 @@ export default function ScheduleHeader({
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#5e0e16',
         paddingTop: 12,
         paddingBottom: 10,
         paddingHorizontal: 16,
-        shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.06,
         shadowRadius: 4,
@@ -114,7 +118,6 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 24,
         fontWeight: '700',
-        color: '#fdfcea',
         letterSpacing: -0.3,
     },
 
@@ -140,7 +143,6 @@ const styles = StyleSheet.create({
     monthButtonText: {
         fontSize: 15,
         fontWeight: '600',
-        color: '#fdfcea',
     },
     todayButtonContainer: {
         flex: 2,
@@ -148,32 +150,26 @@ const styles = StyleSheet.create({
         paddingLeft: 20,
     },
     todayButton: {
-        backgroundColor: '#fdfcea',
         paddingHorizontal: 14,
         paddingVertical: 7,
         borderRadius: 20,
         borderWidth: 1.5,
-        borderColor: '#fdfcea',
     },
     todayButtonText: {
         fontSize: 15,
         fontWeight: '600',
-        color: '#000000',
     },
 
     // Month picker
     backdrop: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.3)',
         justifyContent: 'flex-start',
         paddingTop: 100,
         paddingHorizontal: 16,
     },
     monthMenu: {
-        backgroundColor: '#fff',
         borderRadius: 12,
         paddingVertical: 8,
-        shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.15,
         shadowRadius: 12,
@@ -183,15 +179,10 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 20,
     },
-    monthMenuItemActive: {
-        backgroundColor: '#EBF2FD',
-    },
     monthMenuItemText: {
         fontSize: 16,
-        color: '#333',
     },
     monthMenuItemTextActive: {
-        color: '#1A73E8',
         fontWeight: '600',
     }
 });
