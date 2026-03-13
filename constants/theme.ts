@@ -99,6 +99,15 @@ export const Colors = {
     dayColumn: {
       borderColor: "#d4d4d4"
     },
+
+    classDetailPopup: {
+      courseNotInColorMap: "#707070",
+      buttonColor: "#fdfcea",
+      backdropColor: "rgba(0,0,0,0.4)",
+      cardShadowColor: black,
+      text: "#fdfcea",
+      mapButtonText: black,
+    },
   },
 
   dark: {
@@ -192,6 +201,15 @@ export const Colors = {
 
     dayColumn: {
       borderColor: "#3c4043"
+    },
+
+    classDetailPopup: {
+      courseNotInColorMap: "#707070",
+      buttonColor: "#fdfcea",
+      backdropColor: "rgba(0,0,0,0.4)",
+      cardShadowColor: black,
+      text: "#fdfcea",
+      mapButtonText: black,
     },
   }
 };
