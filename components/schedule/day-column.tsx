@@ -30,7 +30,7 @@ export default function DayColumn({
       <View style={[styles.eventsArea, { height: COLUMN_TOTAL_HEIGHT }]}>
         {classes.map((cls) => (
           <ClassBlock
-            key={`${dayIndex}-${cls.SUBJECT}-${cls.CATALOG_NBR}`}
+            key={`${dayIndex}-${cls.SUBJECT}${cls.CATALOG_NBR}-${cls.START_HOURS}${cls.START_MINUTES}`}
             colorMap={colorMap}
             classInfo={cls}
             onPress={onClassPress}
