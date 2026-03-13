@@ -92,12 +92,12 @@ export default function ClassDetailPopup({
                 <Text style={[styles.detailRowText, {color: theme.classDetailPopup.text}]}>
                   Room {classInfo.CU_BLDG + "-" + classInfo.ROOM}
                 </Text>
-                <Text style={styles.detailRowText}>{classInfo.CU_BUILDING}</Text>
+                <Text style={[styles.detailRowText, {color: theme.classDetailPopup.text}]}>{classInfo.CU_BUILDING}</Text>
               </View>
             </View>
             <Pressable
               onPress={handleLocateOnMap}
-              style={({ pressed }) => [styles.mapButton, {backgroundColo: theme.classDetailPopup.buttonColor, opacity: pressed ? 0.85 : 1 }]}
+              style={({ pressed }) => [styles.mapButton, {backgroundColor: theme.classDetailPopup.buttonColor, opacity: pressed ? 0.85 : 1 }]}
               accessibilityLabel={`Find ${classInfo.CU_BLDG}${classInfo.ROOM} on map`}
             >
               <Text style={[styles.mapButtonText, {color: theme.classDetailPopup.mapButtonText}]}>Open Directions in Map</Text>
