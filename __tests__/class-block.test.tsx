@@ -39,13 +39,12 @@ describe('ClassBlock', () => {
             />
         );
         
-        // The title is rendered in two separate text elements
         expect(getByText('SOEN')).toBeTruthy();
         expect(getByText('345')).toBeTruthy();
     });
 
     it('calls onPress with the correct classInfo when tapped', () => {
-        const mockOnPress = jest.fn(); // jest.fn() creates a fake function that records calls
+        const mockOnPress = jest.fn();
         const { getByText } = render(
             <ClassBlock
                 classInfo={MOCK_CLASS}
@@ -56,7 +55,6 @@ describe('ClassBlock', () => {
 
         fireEvent.press(getByText('SOEN'));
 
-        // Check the mock was called exactly once, with the right argument
         expect(mockOnPress).toHaveBeenCalledTimes(1);
         expect(mockOnPress).toHaveBeenCalledWith(MOCK_CLASS);
     });
