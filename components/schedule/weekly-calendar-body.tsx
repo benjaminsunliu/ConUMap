@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, View, PanResponder } from 'react-native';
 import DayColumn from './day-column';
-import { ClassInfo } from '@/types/calendarTypes';
+import { ClassInfo, Weekdays } from '@/types/calendarTypes';
 import { CALENDAR_END_HOUR, CALENDAR_START_HOUR, COLUMN_TOTAL_HEIGHT, HOUR_HEIGHT, PIXELS_PER_MINUTE, TIME_GUTTER_WIDTH } from '@/constants/scheduleConstant';
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -138,10 +138,11 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, colorMap, o
                         <View style={[StyleSheet.absoluteFillObject, {height: COLUMN_TOTAL_HEIGHT}]}
                             pointerEvents='none'
                         >
-                            <View style={[styles.currentTimeLine, {top: currentTimeY}]} pointerEvents='none'>
+                            {weekDates.some((date) => isToday(date)) &&(
+                                <View style={[styles.currentTimeLine, {top: currentTimeY}]} pointerEvents='none'>
                                 <View style={[styles.currentTimeDot, {backgroundColor: theme.weeklyCalendarBody.timeDotColor}]}/>
                                 <View style={[styles.currentTimeBar, {backgroundColor: theme.weeklyCalendarBody.timeDotColor}]}/>
-                            </View>
+                            </View>)}
                         </View>
 
                         {weekDates.map((date, i) => (
