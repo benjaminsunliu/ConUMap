@@ -51,8 +51,8 @@ export default function ScheduleHeader({
                         style={[styles.monthButton]}
                         accessibilityLabel='Change month'
                     >
-                        <Text style={[styles.monthButtonText, {color: theme.scheduleHeader.buttonText}]}>{MONTHS[month]} {year}</Text>
-                        <MaterialIcons name="arrow-drop-down" size={20} color={theme.scheduleHeader.buttonText} />
+                        <Text style={[styles.monthButtonText, {color: theme.scheduleHeader.monthButtonText}]}>{MONTHS[month]} {year}</Text>
+                        <MaterialIcons name="arrow-drop-down" size={20} color={theme.scheduleHeader.monthButtonText} />
                     </Pressable>
                 </View>
 
@@ -78,7 +78,7 @@ export default function ScheduleHeader({
                                 onPress={() => handleMonthSelect(index)}
                                 style={[styles.monthMenuItem, index === month && {backgroundColor: theme.scheduleHeader.monthMenuItemActive}]}
                             >
-                                <Text style={[styles.monthMenuItemText, {color: theme.scheduleHeader.buttonText}, index === month && styles.monthMenuItemTextActive && {color: theme.scheduleHeader.monthMenuTextActive}]}>
+                                <Text style={[styles.monthMenuItemText, {color: theme.scheduleHeader.monthMenuText}, index === month && styles.monthMenuItemTextActive && {color: theme.scheduleHeader.monthMenuTextActive}]}>
                                     {name}
                                 </Text>
                                 

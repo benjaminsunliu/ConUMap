@@ -88,11 +88,12 @@ export const Colors = {
     scheduleHeader: {
       backgroundColor: "#fdfcea",
       shadowColor: black,
-      buttonText: "#333",
+      monthButtonText: "#5e0e16",
       todayButtonText: "#fdfcea",
       monthPickerBackdrop: "rgba(0,0,0,0.3)",
       monthPickerBackground: "#fbf6ec",
       monthMenuItemActive: "#fdebeb",
+      monthMenuText: "#333",
       monthMenuTextActive: "#e81a1a",
     },
 
@@ -198,11 +199,12 @@ export const Colors = {
     scheduleHeader: {
       backgroundColor: "#fdfcea",
       shadowColor: black,
-      buttonText: "#fdfcea",
+      monthButtonText: "#fdfcea",
       todayButtonText: black,
       monthPickerBackdrop: "rgba(0,0,0,0.3)",
       monthPickerBackground: "#5e0e16",
       monthMenuItemActive: "#47080d",
+      monthMenuText: "#fdfcea",
       monthMenuTextActive: "#e41313",
     },
 
