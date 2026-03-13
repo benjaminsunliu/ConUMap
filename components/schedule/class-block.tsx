@@ -3,6 +3,9 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { timeToPixels } from '@/constants/scheduleConstant';
 import { ClassInfo } from '@/types/calendarTypes';
 
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
+
 interface ClassBlockProps {
     classInfo: ClassInfo;
     colorMap: Map<string, string>
@@ -10,17 +13,21 @@ interface ClassBlockProps {
 }
 
 export default function ClassBlock({ classInfo, colorMap, onPress }: ClassBlockProps) {
+    const colorScheme = useColorScheme() ?? "light";
+    const theme = Colors[colorScheme];
+
     const topOffset = timeToPixels(`${classInfo.START_HOURS}:${classInfo.START_MINUTES}`);
     const height = timeToPixels(`${classInfo.END_HOURS}:${classInfo.END_MINUTES}`) - topOffset;
 
     const courseKey = `${classInfo.SUBJECT}-${classInfo.CATALOG_NBR}`
-    const color = colorMap.get(courseKey) ?? "#707070";
+    const color = colorMap.get(courseKey) ?? theme.classBlock.courseNotInColorMap;
 
     return (
         <Pressable
             onPress={() => onPress(classInfo)}
             style={({ pressed }) => [
                 styles.block,
+                {shadowColor: theme.classBlock.shadowColor},
                 {
                     top: topOffset,
                     height,
@@ -30,10 +37,10 @@ export default function ClassBlock({ classInfo, colorMap, onPress }: ClassBlockP
             ]}
         >
             <View style={styles.content}>
-                <Text style={styles.courseName} numberOfLines={1}>
+                <Text style={[styles.courseName, {color: theme.classBlock.text}]} numberOfLines={1}>
                     {classInfo.SUBJECT}
                 </Text>
-                <Text style={styles.courseName} numberOfLines={1}>
+                <Text style={[styles.courseName, {color: theme.classBlock.text}]} numberOfLines={1}>
                     {classInfo.CATALOG_NBR}
                 </Text>
             </View>
@@ -49,7 +56,6 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         flexDirection: 'row',
         overflow: 'hidden',
-        shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.15,
         shadowRadius: 3,
@@ -62,15 +68,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     courseName: {
-        color: '#fdfcea',
         fontSize: 11,
         fontWeight: '700',
         letterSpacing: 0.2,
         textAlign: 'center'
     },
-    time: {
-        color: 'rgba(255,255,255,0.85)',
-        fontSize: 9,
-        marginTop: 1,
-    }
 })

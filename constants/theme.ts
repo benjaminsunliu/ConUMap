@@ -108,6 +108,12 @@ export const Colors = {
       text: "#fdfcea",
       mapButtonText: black,
     },
+
+    classBlock: {
+      courseNotInColorMap: "#707070",
+      shadowColor: black,
+      text: "#fdfcea",
+    }
   },
 
   dark: {
@@ -210,6 +216,12 @@ export const Colors = {
       cardShadowColor: black,
       text: "#fdfcea",
       mapButtonText: black,
+    },
+
+    classBlock: {
+      courseNotInColorMap: "#707070",
+      shadowColor: black,
+      text: "#fdfcea",
     },
   }
 };
