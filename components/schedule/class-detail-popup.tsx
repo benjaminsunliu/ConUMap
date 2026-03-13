@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Animated, Modal, Pressable, StyleSheet, Text, View } from "react-native";
-import { useNavigation } from "expo-router";
+import { router } from "expo-router";
 import { getWeekdayKey, ClassInfo } from "@/types/calendarTypes";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
@@ -31,8 +31,6 @@ export default function ClassDetailPopup({
     }).start();
   }, []);
 
-  const navigation = useNavigation<any>();
-
   const courseKey = `${classInfo.SUBJECT}-${classInfo.CATALOG_NBR}`;
   const color = colorMap.get(courseKey) ?? theme.classDetailPopup.courseNotInColorMap;
 
@@ -46,8 +44,9 @@ export default function ClassDetailPopup({
 
   function handleLocateOnMap() {
     onClose();
-    navigation.navigate("map-tab", {
-      buildingId: classInfo.CU_BLDG,
+    router.navigate({
+      pathname: "/map-tab",
+      params: {buildingId: classInfo.CU_BLDG}
     });
   }
 
