@@ -93,7 +93,6 @@ export default function ClassDetailPopup({
                   Room {classInfo.CU_BLDG + "-" + classInfo.ROOM}
                 </Text>
                 <Text style={styles.detailRowText}>{classInfo.CU_BUILDING}</Text>
-                {/* <Text style={styles.detailRowText}>SGW Campus</Text> */}
               </View>
             </View>
             <Pressable
