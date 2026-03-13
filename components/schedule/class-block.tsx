@@ -9,15 +9,14 @@ import { Colors } from "@/constants/theme";
 interface ClassBlockProps {
     classInfo: ClassInfo;
     colorMap: Map<string, string>
+    topOffset: number
+    height: number
     onPress: (ClassInfo: ClassInfo) => void;
 }
 
-export default function ClassBlock({ classInfo, colorMap, onPress }: ClassBlockProps) {
+export default function ClassBlock({ classInfo, colorMap, topOffset, height, onPress }: ClassBlockProps) {
     const colorScheme = useColorScheme() ?? "light";
     const theme = Colors[colorScheme];
-
-    const topOffset = timeToPixels(`${classInfo.START_HOURS}:${classInfo.START_MINUTES}`, "start");
-    const height = timeToPixels(`${classInfo.END_HOURS}:${classInfo.END_MINUTES}`, "end") - topOffset;
 
     const courseKey = `${classInfo.SUBJECT}-${classInfo.CATALOG_NBR}`
     const color = colorMap.get(courseKey) ?? theme.classBlock.courseNotInColorMap;

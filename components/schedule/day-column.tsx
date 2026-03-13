@@ -3,6 +3,7 @@ import { StyleSheet, View } from "react-native";
 import ClassBlock from "./class-block";
 import { COLUMN_TOTAL_HEIGHT } from "@/constants/scheduleConstant";
 import { ClassInfo } from "@/types/calendarTypes";
+import { timeToPixels } from "@/constants/scheduleConstant";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
@@ -28,14 +29,21 @@ export default function DayColumn({
   return (
     <View style={[styles.column, {borderLeftColor: theme.dayColumn.borderColor}, isToday && { backgroundColor: theme.dayColumn.todayColor }]}>
       <View style={[styles.eventsArea, { height: COLUMN_TOTAL_HEIGHT }]}>
-        {classes.map((cls) => (
-          <ClassBlock
+        {classes.map((cls) => {
+          
+          let topOffset = timeToPixels(`${cls.START_HOURS}:${cls.START_MINUTES}`, "start");
+          let height = timeToPixels(`${cls.END_HOURS}:${cls.END_MINUTES}`, "end") - topOffset;
+
+          return (<ClassBlock
             key={`${dayIndex}-${cls.SUBJECT}${cls.CATALOG_NBR}-${cls.START_HOURS}${cls.START_MINUTES}`}
-            colorMap={colorMap}
             classInfo={cls}
+            colorMap={colorMap}
+            topOffset={topOffset}
+            height={height}
             onPress={onClassPress}
-          />
-        ))}
+          />)
+    
+        })}
       </View>
     </View>
   );
