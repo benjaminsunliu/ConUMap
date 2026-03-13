@@ -41,9 +41,6 @@ export default function ScheduleHeader({
     return(
         <View style={[styles.container, {backgroundColor: theme.background, shadowColor: theme.scheduleHeader.shadowColor}]}>
             <View style={styles.titleRow}>
-                <Pressable onPress={onSettingsPress} style={styles.settingsButton} accessibilityLabel='Settings'>
-                    <MaterialIcons name="density-medium" size={24} color={theme.icon} />
-                </Pressable>
                 <Text style={[styles.title, {color: theme.tint}]}>Class Schedule</Text>
             </View>
 
@@ -109,11 +106,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',  // centers the title horizontally
         marginBottom: 15,
-    },
-    settingsButton: {
-        position: 'absolute', // taken out of flex flow so title stays centered
-        left: 0,
-        padding: 4,
     },
     title: {
         fontSize: 24,
