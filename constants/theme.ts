@@ -97,7 +97,8 @@ export const Colors = {
     },
 
     dayColumn: {
-      borderColor: "#d4d4d4"
+      borderColor: "#d4d4d4",
+      todayColor: "rgba(148, 142, 25, 0.1)",
     },
 
     classDetailPopup: {
@@ -184,7 +185,7 @@ export const Colors = {
     },
 
     weeklyCalendarBody: {
-      todayColor: "rgba(214, 214, 214, 0.1)",
+      todayColor: "rgba(110, 93, 88, 0.1)", 
       backgroundColor: "#241c1a",
       borderColor: "#3c4043",
       dayAndTimeLabel: "#9b9b9b",
@@ -206,7 +207,8 @@ export const Colors = {
     },
 
     dayColumn: {
-      borderColor: "#3c4043"
+      borderColor: "#3c4043",
+      todayColor: "rgba(110, 93, 88, 0.1)", 
     },
 
     classDetailPopup: {

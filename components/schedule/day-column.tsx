@@ -15,8 +15,6 @@ interface DayColumnProps {
   onClassPress: (classInfo: ClassInfo) => void;
 }
 
-const todayColor = "rgba(148, 142, 25, 0.1)";
-
 export default function DayColumn({
   dayIndex,
   isToday,
@@ -28,7 +26,7 @@ export default function DayColumn({
   const theme = Colors[colorScheme];
   
   return (
-    <View style={[styles.column, {borderLeftColor: theme.dayColumn.borderColor}, isToday && { backgroundColor: todayColor }]}>
+    <View style={[styles.column, {borderLeftColor: theme.dayColumn.borderColor}, isToday && { backgroundColor: theme.dayColumn.todayColor }]}>
       <View style={[styles.eventsArea, { height: COLUMN_TOTAL_HEIGHT }]}>
         {classes.map((cls) => (
           <ClassBlock
