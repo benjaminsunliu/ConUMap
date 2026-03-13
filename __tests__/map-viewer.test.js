@@ -6,7 +6,6 @@ import { Colors } from "@/constants/theme";
 import { CAMPUS_BUILDINGS } from "../constants/map";
 import E2EOverlay from "@/components/map/e2e-overlay";
 const mockAnimateToRegion = jest.fn();
-jest.mock("@/utils/e2e", () => ({ IS_E2E: true }));
 jest.mock("react-native-map-clustering", () => {
   const React = require("react");
   const { forwardRef, useImperativeHandle } = React;
@@ -108,10 +107,13 @@ jest.mock("@/constants/map", () => {
   };
 });
 
-jest.mock("@/components/map/e2e-overlay", () => ({
-  __esModule: true,
-  default: jest.fn(() => null),
-}));
+jest.mock("@/components/map/e2e-overlay", () => {
+  const { View } = require("react-native");
+  return {
+    __esModule: true,
+    E2EOverlay: jest.fn(() => <View testID="e2e-overlay" />),
+  };
+});
 
 beforeEach(() => {
   mockAnimateToRegion.mockClear();
@@ -1942,6 +1944,20 @@ describe("map tab", () => {
       // On Android, transition nodes are rendered as Circle overlays
       expect(mapViewer.getAllByTestId("circle").length).toBeGreaterThan(0);
     });
+    it("focuses on building when android marker is pressed", () => {
+      const building = CAMPUS_BUILDINGS[0];
+      const mapViewer = render(<MapViewer />);
+
+      const marker = mapViewer.getByTestId(`marker-${building.buildingCode}`);
+      act(() => fireEvent.press(marker));
+
+      expect(mockAnimateToRegion).toHaveBeenCalledWith(
+        expect.objectContaining({
+          latitude: building.location.latitude,
+          longitude: building.location.longitude,
+        }),
+      );
+    });
   });
 
   describe("Start Location Priority Logic", () => {
@@ -2230,9 +2246,14 @@ describe("map tab", () => {
     });
   });
   describe("E2EOverlay rendering", () => {
+    it("renders E2EOverlay when isE2E is true", () => {
+      const mapViewer = render(<MapViewer isE2E />);
+      expect(mapViewer.queryByTestId("e2e-overlay")).toBeTruthy();
+    });
+
     it("does not render E2EOverlay when isE2E is false", () => {
-      render(<MapViewer isE2E={false} />);
-      expect(E2EOverlay).not.toHaveBeenCalled();
+      const mapViewer = render(<MapViewer />);
+      expect(mapViewer.queryByTestId("e2e-overlay")).toBeNull();
     });
   });
 });
