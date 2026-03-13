@@ -100,7 +100,7 @@ export default function ClassDetailPopup({
               style={({ pressed }) => [styles.mapButton, {backgroundColor: theme.classDetailPopup.buttonColor, opacity: pressed ? 0.85 : 1 }]}
               accessibilityLabel={`Find ${classInfo.CU_BLDG}${classInfo.ROOM} on map`}
             >
-              <Text style={[styles.mapButtonText, {color: theme.classDetailPopup.mapButtonText}]}>Open Directions in Map</Text>
+              <Text style={[styles.mapButtonText, {color: theme.classDetailPopup.mapButtonText}]}>View in Map</Text>
             </Pressable>
           </View>
         </Pressable>
