@@ -18,18 +18,6 @@ const viewRegionNearSGW = {
   longitudeDelta: 0.01,
 };
 
-jest.mock("react-native-maps", () => {
-  const React = require("react");
-  const { View } = require("react-native");
-  const MockMapView = (props) => <View {...props} />;
-  const MockMarker = (props) => <View {...props} />;
-  return {
-    __esModule: true,
-    default: MockMapView,
-    Marker: MockMarker,
-  };
-});
-
 describe("campus-toggle", () => {
   it("initial switchValue is SGW if viewRegion is closer to SGW", () => {
     const { getByText } = render(

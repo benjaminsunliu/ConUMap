@@ -48,9 +48,7 @@
     "coveragePathIgnorePatterns": [
       "/node_modules/",
       "/constants/",
-      "/assets/",
-      "e2e-overlay\\.tsx$",
-      "useE2EHitboxOverlay\\.ts$"
+      "/assets/"
     ]
   },
   "dependencies": {
