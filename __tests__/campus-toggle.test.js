@@ -18,7 +18,6 @@ const viewRegionNearSGW = {
   longitudeDelta: 0.01,
 };
 
-jest.mock("@/utils/e2e", () => ({ IS_E2E: true }));
 jest.mock("react-native-maps", () => {
   const React = require("react");
   const { View } = require("react-native");
