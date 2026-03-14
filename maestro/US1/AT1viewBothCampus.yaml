@@ -14,7 +14,7 @@ appId: host.exp.Exponent
     text: "LOY"
     selected: false
 - assertVisible:
-    id: "e2e-marker-FB"
+    id: "marker-FB"
 - tapOn: "LOY"
 - assertVisible:
     text: "LOY"
@@ -23,7 +23,7 @@ appId: host.exp.Exponent
     text: "SGW"
     selected: false
 - assertVisible:
-    id: "e2e-marker-GE"
+    id: "marker-GE"
 - tapOn: "SGW"
 - assertVisible:
     text: "SGW"
@@ -32,4 +32,4 @@ appId: host.exp.Exponent
     text: "LOY"
     selected: false
 - assertVisible:
-    id: "e2e-marker-FB"
+    id: "marker-FB"

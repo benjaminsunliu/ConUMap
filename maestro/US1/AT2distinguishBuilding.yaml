@@ -6,4 +6,4 @@ appId: host.exp.Exponent
 - assertVisible:
     label: "Concordia building FB"
 - assertVisible:
-    id: "e2e-marker-FB"
+    id: "marker-FB"

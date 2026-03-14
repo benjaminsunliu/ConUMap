@@ -17,7 +17,6 @@ import BuildingSelection, { CURRENT_LOCATION_CODE } from "./building-selection";
 import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
-import { E2EOverlay } from "./e2e-overlay";
 
 interface PolylineSegment {
   coordinates: Coordinate[];
@@ -139,7 +138,6 @@ function polylineColor(travelMode: string, vehicleType?: string): string {
 interface Props {
   readonly userLocationDelta?: CoordinateDelta;
   readonly initialRegion?: Region;
-  readonly isE2E?: boolean;
 }
 
 interface Cluster {
@@ -156,7 +154,6 @@ interface Cluster {
 export default function MapViewer({
   userLocationDelta = defaultFocusDelta,
   initialRegion = defaultInitialRegion,
-  isE2E = false,
 }: Props) {
   const colorScheme = useColorScheme();
   const mapColors = Colors[colorScheme].map;
@@ -832,17 +829,14 @@ export default function MapViewer({
               onPress={() => handleBuildingPress(building)}
             />
           ))}
+          {Array.from(inBuildingCodes).map((code) => (
+            <View
+              key={`highlight-label-${code}`}
+              testID={`highlight-label-${code}`}
+              style={styles.androidMarkerProxyTarget}
+            />
+          ))}
         </View>
-      )}
-
-      {isE2E && (
-        <E2EOverlay
-          inBuildingCodes={inBuildingCodes}
-          selectBuildingByCode={selectBuildingByCode}
-          focusBuilding={focusBuilding}
-          currentRegion={currentRegion}
-          mapViewRef={mapViewRef}
-        />
       )}
       <LocationButton
         state={locationState}
@@ -1114,6 +1108,7 @@ const styles = StyleSheet.create({
     width: 1,
     height: 1,
     opacity: 0.01,
+    zIndex: 10,
   },
 });
 

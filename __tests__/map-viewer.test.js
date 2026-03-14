@@ -4,7 +4,6 @@ import * as LocationPermissions from "expo-location";
 import MapViewer from "../components/map/map-viewer";
 import { Colors } from "@/constants/theme";
 import { CAMPUS_BUILDINGS } from "../constants/map";
-import E2EOverlay from "@/components/map/e2e-overlay";
 const mockAnimateToRegion = jest.fn();
 jest.mock("react-native-map-clustering", () => {
   const React = require("react");
@@ -104,14 +103,6 @@ jest.mock("@/constants/map", () => {
         polygons: getBuildingPolygons("AB"),
       },
     ],
-  };
-});
-
-jest.mock("@/components/map/e2e-overlay", () => {
-  const { View } = require("react-native");
-  return {
-    __esModule: true,
-    E2EOverlay: jest.fn(() => <View testID="e2e-overlay" />),
   };
 });
 
@@ -2243,17 +2234,6 @@ describe("map tab", () => {
       // Start field should still be auto-filled with VE
       const startInputAgain = mapViewer.getByPlaceholderText("Your location");
       expect(startInputAgain.props.value).toBe("VE");
-    });
-  });
-  describe("E2EOverlay rendering", () => {
-    it("renders E2EOverlay when isE2E is true", () => {
-      const mapViewer = render(<MapViewer isE2E />);
-      expect(mapViewer.queryByTestId("e2e-overlay")).toBeTruthy();
-    });
-
-    it("does not render E2EOverlay when isE2E is false", () => {
-      const mapViewer = render(<MapViewer />);
-      expect(mapViewer.queryByTestId("e2e-overlay")).toBeNull();
     });
   });
 });
