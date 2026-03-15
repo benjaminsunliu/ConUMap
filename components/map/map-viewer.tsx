@@ -8,7 +8,7 @@ import { decodePolyline } from "@/utils/decodePolyline";
 import { fetchAllDirections } from "@/utils/directions";
 import * as LocationPermissions from "expo-location";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
 import MapView, { Circle, Marker, Polygon, Polyline, Region } from "react-native-maps";
 import RoutesInfoPopup from "../navigation/routes-info-popup";
@@ -816,6 +816,28 @@ export default function MapViewer({
         )}
       </MapViewCluster>
 
+      {__DEV__ && Platform.OS === "android" && (
+        <View style={styles.androidMarkerProxyContainer} pointerEvents="box-none">
+          {CAMPUS_BUILDINGS.map((building) => (
+            <Pressable
+              key={`marker-proxy-${building.buildingCode}`}
+              testID={`marker-${building.buildingCode}`}
+              nativeID={`marker-${building.buildingCode}`}
+              accessibilityRole="button"
+              accessibilityLabel={`${building.buildingCode} ${building.buildingName}`}
+              style={styles.androidMarkerProxyTarget}
+              onPress={() => handleBuildingPress(building)}
+            />
+          ))}
+          {Array.from(inBuildingCodes).map((code) => (
+            <View
+              key={`highlight-label-${code}`}
+              testID={`highlight-label-${code}`}
+              style={styles.androidMarkerProxyTarget}
+            />
+          ))}
+        </View>
+      )}
       <LocationButton
         state={locationState}
         onPress={() => {
@@ -951,12 +973,22 @@ function renderBuildings(
 
     renderedMarkers.push(
       <Marker
-        testID={`marker-${building.buildingCode}`}
         key={building.buildingCode}
         coordinate={building.location}
         onPress={() => onPress(building)}
       >
         <View
+          testID={
+            Platform.OS === "android" ? undefined : `marker-${building.buildingCode}`
+          }
+          nativeID={
+            Platform.OS === "android" ? undefined : `marker-${building.buildingCode}`
+          }
+          accessible
+          accessibilityRole="button"
+          accessibilityLabel={`${building.buildingCode} ${building.buildingName}`}
+          accessibilityHint={`Shows details for ${building.buildingName}`}
+          collapsable={false}
           style={[
             styles.marker,
             {
@@ -1060,6 +1092,23 @@ const styles = StyleSheet.create({
     borderTopWidth: 8,
     borderLeftColor: "transparent",
     borderRightColor: "transparent",
+  },
+
+  androidMarkerProxyContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: 1,
+    height: 1,
+  },
+  androidMarkerProxyTarget: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: 1,
+    height: 1,
+    opacity: 0.01,
+    zIndex: 10,
   },
 });
 

@@ -10,3 +10,5 @@ node_modules/**
 **/*.setup*
 **/*.config*
 expo-env.d.ts
+assets/**
+coverage/**
