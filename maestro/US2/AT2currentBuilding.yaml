@@ -1,6 +1,6 @@
 appId: host.exp.exponent
 ---
-- openLink: exp://10.0.0.28:8081
+- openLink: ${EXPO_APP_URL}
 - setLocation:
     latitude: 45.4957849
     longitude: -73.577225
