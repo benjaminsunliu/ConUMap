@@ -1,17 +1,12 @@
 appId: host.exp.Exponent
 ---
-- openLink: exp://192.168.0.110:8081
-- assertVisible: "Loyola"
-- assertVisible: "SGW"
-- assertVisible:
-    id: "campus-toggle-selector"
+- openLink: exp://localhost:8081
+- tapOn: "SGW"
 - tapOn:
-    id: "campus-toggle-selector"
-- waitForAnimationToEnd:
-    timeout: 2000
-
-- assertVisible: "FB"
-- tapOn: "FB"
-
+    id: "marker-FB"
 - assertVisible:
-    id: "info-popup"
+    text: "FB – Faubourg Building"
+- tapOn:
+    point: "95%, 50%"
+- assertNotVisible:
+    text: "FB – Faubourg Building"
