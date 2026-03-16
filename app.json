@@ -27,16 +27,7 @@
   },
   "web": {
     "output": "static",
-    "favicon": "./assets/images/favicon.png",
-    "head": [
-      {
-        "tag": "script",
-        "attributes": {
-          "type": "text/javascript"
-        },
-        "innerHTML": "(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src='https://www.clarity.ms/tag/vwe3l09u1e';y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window, document, 'clarity', 'script', 'vwe3l09u1e');"
-      }
-    ]
+    "favicon": "./assets/images/favicon.png"
   },
   "plugins": [
     "expo-router",
