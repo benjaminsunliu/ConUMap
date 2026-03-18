@@ -15,7 +15,8 @@ export default function MapViewer(props: Props) {
   useEffect(() => {
     let mounted = true;
 
-    import("./map-viewer.web.client")
+    Promise.resolve()
+      .then(() => require("./map-viewer.web.client"))
       .then((module) => {
         if (!mounted) {
           return;
