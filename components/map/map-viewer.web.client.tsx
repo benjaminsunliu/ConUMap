@@ -162,7 +162,10 @@ function mapToRegion(map: LeafletMap): Region {
   };
 }
 
-function WebMapEvents({ onRegionChangeComplete, onMapPress }: Readonly<MapEventsBinderProps>) {
+function WebMapEvents({
+  onRegionChangeComplete,
+  onMapPress,
+}: Readonly<MapEventsBinderProps>) {
   useMapEvents({
     click: () => {
       onMapPress();
@@ -348,14 +351,17 @@ export default function MapViewer({
     userLocation,
   ]);
 
-  const focusBuilding = useCallback((building: BuildingInfo) => {
-    mapViewRef.current?.animateToRegion({
-      latitude: building.location.latitude,
-      longitude: building.location.longitude,
-      latitudeDelta: Math.min(currentRegion.latitudeDelta, 0.0025),
-      longitudeDelta: Math.min(currentRegion.longitudeDelta, 0.0025),
-    });
-  }, [currentRegion.latitudeDelta, currentRegion.longitudeDelta]);
+  const focusBuilding = useCallback(
+    (building: BuildingInfo) => {
+      mapViewRef.current?.animateToRegion({
+        latitude: building.location.latitude,
+        longitude: building.location.longitude,
+        latitudeDelta: Math.min(currentRegion.latitudeDelta, 0.0025),
+        longitudeDelta: Math.min(currentRegion.longitudeDelta, 0.0025),
+      });
+    },
+    [currentRegion.latitudeDelta, currentRegion.longitudeDelta],
+  );
 
   const selectBuildingByCode = useCallback((code: string) => {
     const nextBuilding =
@@ -364,22 +370,25 @@ export default function MapViewer({
     return nextBuilding;
   }, []);
 
-  const handleBuildingPress = useCallback((building: BuildingInfo) => {
-    suppressNextMapPress.current = true;
-    selectBuildingByCode(building.buildingCode);
-    focusBuilding(building);
-    setNavigationMode("browse");
-    setShouldDisplayRoutes(false);
-    setRoutePolyline(null);
-    setRouteStops([]);
-    setRouteNodes([]);
-    setNavCoords({ start: null, end: null });
-    setSelectionOverrides({ start: null, end: null });
+  const handleBuildingPress = useCallback(
+    (building: BuildingInfo) => {
+      suppressNextMapPress.current = true;
+      selectBuildingByCode(building.buildingCode);
+      focusBuilding(building);
+      setNavigationMode("browse");
+      setShouldDisplayRoutes(false);
+      setRoutePolyline(null);
+      setRouteStops([]);
+      setRouteNodes([]);
+      setNavCoords({ start: null, end: null });
+      setSelectionOverrides({ start: null, end: null });
 
-    requestAnimationFrame(() => {
-      suppressNextMapPress.current = false;
-    });
-  }, [selectBuildingByCode, focusBuilding]);
+      requestAnimationFrame(() => {
+        suppressNextMapPress.current = false;
+      });
+    },
+    [selectBuildingByCode, focusBuilding],
+  );
 
   const requestLocation = useCallback(async () => {
     if (userLocation) {
@@ -525,17 +534,20 @@ export default function MapViewer({
     setRouteNodes([]);
   }, []);
 
-  const resolveSelectionCoordinate = useCallback((selectedCode?: string) => {
-    if (selectedCode === CURRENT_LOCATION_CODE) {
-      return userLocation;
-    }
-    if (!selectedCode) {
-      return null;
-    }
+  const resolveSelectionCoordinate = useCallback(
+    (selectedCode?: string) => {
+      if (selectedCode === CURRENT_LOCATION_CODE) {
+        return userLocation;
+      }
+      if (!selectedCode) {
+        return null;
+      }
 
-    const building = CAMPUS_BUILDINGS.find((b) => b.buildingCode === selectedCode);
-    return building?.location ?? null;
-  }, [userLocation]);
+      const building = CAMPUS_BUILDINGS.find((b) => b.buildingCode === selectedCode);
+      return building?.location ?? null;
+    },
+    [userLocation],
+  );
 
   const handleStartSelection = useCallback((coord: Coordinate | null, label: string) => {
     userClearedStart.current = !coord;
@@ -545,33 +557,39 @@ export default function MapViewer({
     }
   }, []);
 
-  const handleEndSelection = useCallback((selected: SearchBuilding | null, coord: Coordinate | null) => {
-    if (coord) {
-      lastDestinationRef.current = { coord, label: selected?.buildingName ?? "" };
-    }
-
-    if (selected?.buildingCode && selected.buildingCode !== CURRENT_LOCATION_CODE) {
-      const nextBuilding = selectBuildingByCode(selected.buildingCode);
-      if (nextBuilding) {
-        focusBuilding(nextBuilding);
+  const handleEndSelection = useCallback(
+    (selected: SearchBuilding | null, coord: Coordinate | null) => {
+      if (coord) {
+        lastDestinationRef.current = { coord, label: selected?.buildingName ?? "" };
       }
-    } else {
-      setSelectedBuilding(null);
-    }
-  }, [focusBuilding, selectBuildingByCode]);
 
-  const onMapRegionChangeComplete = useCallback((region: Region) => {
-    setCurrentRegion(region);
+      if (selected?.buildingCode && selected.buildingCode !== CURRENT_LOCATION_CODE) {
+        const nextBuilding = selectBuildingByCode(selected.buildingCode);
+        if (nextBuilding) {
+          focusBuilding(nextBuilding);
+        }
+      } else {
+        setSelectedBuilding(null);
+      }
+    },
+    [focusBuilding, selectBuildingByCode],
+  );
 
-    const latDiff = Math.abs(region.latitude - (userLocation?.latitude ?? 0));
-    const lonDiff = Math.abs(region.longitude - (userLocation?.longitude ?? 0));
+  const onMapRegionChangeComplete = useCallback(
+    (region: Region) => {
+      setCurrentRegion(region);
 
-    if (userLocation && latDiff < 0.0001 && lonDiff < 0.0001) {
-      setLocationState("centered");
-    } else if (userLocation) {
-      setLocationState("on");
-    }
-  }, [userLocation]);
+      const latDiff = Math.abs(region.latitude - (userLocation?.latitude ?? 0));
+      const lonDiff = Math.abs(region.longitude - (userLocation?.longitude ?? 0));
+
+      if (userLocation && latDiff < 0.0001 && lonDiff < 0.0001) {
+        setLocationState("centered");
+      } else if (userLocation) {
+        setLocationState("on");
+      }
+    },
+    [userLocation],
+  );
 
   const onMapPress = useCallback(() => {
     if (suppressNextMapPress.current) {
@@ -610,7 +628,10 @@ export default function MapViewer({
         endOverride={selectionOverrides.end}
         startHint={showStartHint ? "Please select a start location" : null}
         onSwap={handleSwapFields}
-        onSelect={(buildings: Record<FieldType, SearchBuilding | null>, type: FieldType) => {
+        onSelect={(
+          buildings: Record<FieldType, SearchBuilding | null>,
+          type: FieldType,
+        ) => {
           const selected = buildings[type];
           const selectedCode = selected?.buildingCode;
           const coord = resolveSelectionCoordinate(selectedCode);
@@ -645,7 +666,10 @@ export default function MapViewer({
           zoomControl={false}
         >
           <MapRefBridge onMapReady={handleMapReady} />
-          <WebMapEvents onRegionChangeComplete={onMapRegionChangeComplete} onMapPress={onMapPress} />
+          <WebMapEvents
+            onRegionChangeComplete={onMapRegionChangeComplete}
+            onMapPress={onMapPress}
+          />
           <WebTileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -660,8 +684,16 @@ export default function MapViewer({
               ...building.polygons.map((polygonData, polygonIndex) => (
                 <WebLeafletPolygon
                   key={`poly-${buildingIndex}-${polygonIndex}-${isInBuilding}`}
-                  positions={polygonData.map((point) => [point.latitude, point.longitude])}
-                  pathOptions={{ color: mapColors.polygonStroke, fillColor: polygonColor, fillOpacity: 0.7, weight: 2 }}
+                  positions={polygonData.map((point) => [
+                    point.latitude,
+                    point.longitude,
+                  ])}
+                  pathOptions={{
+                    color: mapColors.polygonStroke,
+                    fillColor: polygonColor,
+                    fillOpacity: 0.7,
+                    weight: 2,
+                  }}
                   eventHandlers={{ click: () => handleBuildingPress(building) }}
                 />
               )),
@@ -670,7 +702,9 @@ export default function MapViewer({
                 center={[building.location.latitude, building.location.longitude]}
                 radius={8}
                 pathOptions={{
-                  color: isSelected ? mapColors.markerBorderSelected : mapColors.markerBorder,
+                  color: isSelected
+                    ? mapColors.markerBorderSelected
+                    : mapColors.markerBorder,
                   fillColor: isSelected ? mapColors.markerSelected : mapColors.marker,
                   fillOpacity: 1,
                   weight: 2,
@@ -687,7 +721,10 @@ export default function MapViewer({
           {routePolyline?.map((segment, index) => (
             <WebLeafletPolyline
               key={`route-seg-${index}-${segment.color}`}
-              positions={segment.coordinates.map((point) => [point.latitude, point.longitude])}
+              positions={segment.coordinates.map((point) => [
+                point.latitude,
+                point.longitude,
+              ])}
               pathOptions={{
                 color: segment.color,
                 weight: segment.isDashed ? 4 : 5,
@@ -701,7 +738,12 @@ export default function MapViewer({
               key={`stop-${index}-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
               center={[stop.coordinate.latitude, stop.coordinate.longitude]}
               radius={5}
-              pathOptions={{ color: stop.color, fillColor: "#fff", fillOpacity: 1, weight: 2 }}
+              pathOptions={{
+                color: stop.color,
+                fillColor: "#fff",
+                fillOpacity: 1,
+                weight: 2,
+              }}
             />
           ))}
 
@@ -710,7 +752,12 @@ export default function MapViewer({
               key={`node-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
               center={[node.coordinate.latitude, node.coordinate.longitude]}
               radius={7}
-              pathOptions={{ color: "#fff", fillColor: node.toColor, fillOpacity: 1, weight: 3 }}
+              pathOptions={{
+                color: "#fff",
+                fillColor: node.toColor,
+                fillOpacity: 1,
+                weight: 3,
+              }}
             />
           ))}
 
@@ -718,7 +765,12 @@ export default function MapViewer({
             <WebCircleMarker
               center={[navCoords.start.latitude, navCoords.start.longitude]}
               radius={10}
-              pathOptions={{ color: "#049ede", fillColor: "#049ede", fillOpacity: 1, weight: 2 }}
+              pathOptions={{
+                color: "#049ede",
+                fillColor: "#049ede",
+                fillOpacity: 1,
+                weight: 2,
+              }}
             >
               <WebTooltip direction="top" offset={[0, -8]} opacity={1} permanent>
                 A
@@ -729,7 +781,12 @@ export default function MapViewer({
             <WebCircleMarker
               center={[navCoords.end.latitude, navCoords.end.longitude]}
               radius={10}
-              pathOptions={{ color: "#049ede", fillColor: "#049ede", fillOpacity: 1, weight: 2 }}
+              pathOptions={{
+                color: "#049ede",
+                fillColor: "#049ede",
+                fillOpacity: 1,
+                weight: 2,
+              }}
             >
               <WebTooltip direction="top" offset={[0, -8]} opacity={1} permanent>
                 B
@@ -741,7 +798,12 @@ export default function MapViewer({
             <WebCircleMarker
               center={[userLocation.latitude, userLocation.longitude]}
               radius={7}
-              pathOptions={{ color: "#1a73e8", fillColor: "#1a73e8", fillOpacity: 0.95, weight: 2 }}
+              pathOptions={{
+                color: "#1a73e8",
+                fillColor: "#1a73e8",
+                fillOpacity: 0.95,
+                weight: 2,
+              }}
             />
           )}
         </WebMapContainer>
