@@ -93,12 +93,26 @@ export default function BuildingSelection({
     start: null,
     end: null,
   });
+  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startInputRef = useRef<TextInput>(null);
   const endInputRef = useRef<TextInput>(null);
+
+  const clearPendingBlur = useCallback(() => {
+    if (blurTimeoutRef.current) {
+      clearTimeout(blurTimeoutRef.current);
+      blurTimeoutRef.current = null;
+    }
+  }, []);
 
   useEffect(() => {
     selectedBuildingsRef.current = selectedBuildings;
   }, [selectedBuildings]);
+
+  useEffect(() => {
+    return () => {
+      clearPendingBlur();
+    };
+  }, [clearPendingBlur]);
 
   useEffect(() => {
     if (mode === "browse") {
@@ -121,7 +135,7 @@ export default function BuildingSelection({
     }
 
     selectedBuildingRef.current = selectedBuilding;
-  }, [focusedField, mode, selectedBuilding]);
+  }, [focusedField, mode, selectedBuilding, clearPendingBlur]);
 
   useEffect(() => {
     if (startOverride != null) {
@@ -216,29 +230,42 @@ export default function BuildingSelection({
     setFocusedField(null);
   }, []);
 
+  const clearFocusedFieldIfMatching = useCallback((type: FieldType) => {
+    setFocusedField((prev) => {
+      if (prev === type) {
+        return null;
+      }
+
+      return prev;
+    });
+  }, []);
+
   const handleSelect = useCallback(
     (building: SearchBuilding, type: FieldType) => {
+      clearPendingBlur();
       setQuery(type, building.buildingName);
       const updated = { ...selectedBuildingsRef.current, [type]: building };
       setSelectedBuildings(updated);
       onSelect(updated, type);
       removeInputFocus(type);
     },
-    [setQuery, removeInputFocus, onSelect],
+    [clearPendingBlur, setQuery, removeInputFocus, onSelect],
   );
 
   const clearField = useCallback(
     (type: FieldType) => {
+      clearPendingBlur();
       setQuery(type, "");
       const updated = { ...selectedBuildingsRef.current, [type]: null };
       setSelectedBuildings(updated);
       onSelect(updated, type);
       removeInputFocus(type);
     },
-    [setQuery, removeInputFocus, onSelect],
+    [clearPendingBlur, setQuery, removeInputFocus, onSelect],
   );
 
   const swapFields = useCallback(() => {
+    clearPendingBlur();
     setQueries((prevQueries) => ({
       start: prevQueries.end,
       end: prevQueries.start,
@@ -255,7 +282,7 @@ export default function BuildingSelection({
     }
 
     setFocusedField(null);
-  }, [onSwap]);
+  }, [clearPendingBlur, onSwap]);
 
   const renderInput = useCallback(
     (type: FieldType, placeholder: string) => {
@@ -282,8 +309,23 @@ export default function BuildingSelection({
             placeholder={placeholder}
             placeholderTextColor={theme.placeholder}
             value={value}
-            onFocus={() => setFocusedField(type)}
-            onBlur={() => setFocusedField((prev) => (prev === type ? null : prev))}
+            onFocus={() => {
+              clearPendingBlur();
+              setFocusedField(type);
+            }}
+            onBlur={() => {
+              if (Platform.OS === "web") {
+                clearPendingBlur();
+                // On web, defer blur handling so result-item clicks can fire before list hides.
+                blurTimeoutRef.current = setTimeout(() => {
+                  clearFocusedFieldIfMatching(type);
+                  blurTimeoutRef.current = null;
+                }, 120);
+                return;
+              }
+
+              clearFocusedFieldIfMatching(type);
+            }}
             onChangeText={(text) => handleChange(text, type)}
             textAlign="left"
             style={[
@@ -321,6 +363,8 @@ export default function BuildingSelection({
       mode,
       handleChange,
       clearField,
+      clearPendingBlur,
+      clearFocusedFieldIfMatching,
     ],
   );
 

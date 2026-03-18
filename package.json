@@ -37,7 +37,6 @@
     "setupFiles": [
       "./node_modules/react-native-gesture-handler/jestSetup.js"
     ],
-    
     "collectCoverage": true,
     "coverageDirectory": "./coverage",
     "coverageReporters": [
@@ -71,9 +70,12 @@
     "expo-status-bar": "~3.0.9",
     "expo-symbols": "~1.0.8",
     "expo-system-ui": "~6.0.9",
+    "expo-updates": "~29.0.16",
     "expo-web-browser": "~15.0.10",
+    "leaflet": "^1.9.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-leaflet": "^5.0.0",
     "react-native": "0.81.5",
     "react-native-gesture-handler": "~2.28.0",
     "react-native-map-clustering": "^4.0.0",
@@ -92,6 +94,7 @@
     "@babel/preset-typescript": "^7.28.5",
     "@testing-library/react-native": "^13.3.3",
     "@types/jest": "^29.5.14",
+    "@types/leaflet": "^1.9.21",
     "@types/react": "~19.1.0",
     "@types/react-test-renderer": "^19.1.0",
     "babel-jest": "^29.7.0",
