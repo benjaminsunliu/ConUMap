@@ -200,7 +200,12 @@ export default function RoutesInfoPopup({
     );
 
   return (
-    <InfoPopup shouldDisplay={isOpen} header={header} testID="routes-info-popup">
+    <InfoPopup
+      shouldDisplay={isOpen}
+      header={header}
+      testID="routes-info-popup"
+      renderChildrenWhenCollapsed={true}
+    >
       {selectedRoute ? (
         <>
           <TouchableOpacity
