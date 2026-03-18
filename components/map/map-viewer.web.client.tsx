@@ -656,7 +656,7 @@ export default function MapViewer({
         }}
       />
 
-      <CampusToggle mapRef={mapViewRef as any} viewRegion={currentRegion} />
+      <CampusToggle mapRef={mapViewRef} viewRegion={currentRegion} />
 
       <View style={styles.map}>
         <WebMapContainer
