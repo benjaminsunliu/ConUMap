@@ -230,6 +230,16 @@ export default function BuildingSelection({
     setFocusedField(null);
   }, []);
 
+  const clearFocusedFieldIfMatching = useCallback((type: FieldType) => {
+    setFocusedField((prev) => {
+      if (prev === type) {
+        return null;
+      }
+
+      return prev;
+    });
+  }, []);
+
   const handleSelect = useCallback(
     (building: SearchBuilding, type: FieldType) => {
       clearPendingBlur();
@@ -308,13 +318,13 @@ export default function BuildingSelection({
                 clearPendingBlur();
                 // On web, defer blur handling so result-item clicks can fire before list hides.
                 blurTimeoutRef.current = setTimeout(() => {
-                  setFocusedField((prev) => (prev === type ? null : prev));
+                  clearFocusedFieldIfMatching(type);
                   blurTimeoutRef.current = null;
                 }, 120);
                 return;
               }
 
-              setFocusedField((prev) => (prev === type ? null : prev));
+              clearFocusedFieldIfMatching(type);
             }}
             onChangeText={(text) => handleChange(text, type)}
             textAlign="left"
@@ -354,6 +364,7 @@ export default function BuildingSelection({
       handleChange,
       clearField,
       clearPendingBlur,
+      clearFocusedFieldIfMatching,
     ],
   );
 
