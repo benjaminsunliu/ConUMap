@@ -3,44 +3,45 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
 interface Props {
-  readonly userLocationDelta?: CoordinateDelta;
-  readonly initialRegion?: Region;
+    readonly userLocationDelta?: CoordinateDelta;
+    readonly initialRegion?: Region;
 }
 
 type ClientMapComponent = React.ComponentType<Props>;
 
 export default function MapViewer(props: Props) {
-  const [ClientMap, setClientMap] = useState<ClientMapComponent | null>(null);
+    const [ClientMap, setClientMap] = useState<ClientMapComponent | null>(null);
 
-  useEffect(() => {
-    let mounted = true;
+    useEffect(() => {
+        let mounted = true;
 
-    Promise.resolve()
-      .then(() => require("./map-viewer.web.client"))
-      .then((module) => {
-        if (!mounted) {
-          return;
-        }
-        setClientMap(() => module.default);
-      })
-      .catch((error) => {
-        console.error("Failed to load web map module:", error);
-      });
+        Promise.resolve()
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            .then(() => require("./map-viewer.web.client"))
+            .then((module) => {
+                if (!mounted) {
+                    return;
+                }
+                setClientMap(() => module.default);
+            })
+            .catch((error) => {
+                console.error("Failed to load web map module:", error);
+            });
 
-    return () => {
-      mounted = false;
-    };
-  }, []);
+        return () => {
+            mounted = false;
+        };
+    }, []);
 
-  if (!ClientMap) {
-    return <View style={styles.placeholder} />;
-  }
+    if (!ClientMap) {
+        return <View style={styles.placeholder} />;
+    }
 
-  return <ClientMap {...props} />;
+    return <ClientMap {...props} />;
 }
 
 const styles = StyleSheet.create({
-  placeholder: {
-    flex: 1,
-  },
+    placeholder: {
+        flex: 1,
+    },
 });
