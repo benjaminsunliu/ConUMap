@@ -49,5 +49,22 @@
   "experiments": {
     "typedRoutes": true,
     "reactCompiler": true
+  },
+  "expo": {
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ffa75dfc-bcd1-47cb-9690-f655bfdb5f9d"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/ffa75dfc-bcd1-47cb-9690-f655bfdb5f9d"
+    },
+    "android": {},
+    "ios": {},
+    "owner": "bensliu"
   }
 }
