@@ -23,7 +23,10 @@ export default function Root({ children }: { children: React.ReactNode }) {
         */}
         <ScrollViewStyleReset />
 
-        <script src="https://t.contentsquare.net/uxa/9b6a7dccd541b.js"></script>
+        <script
+          async
+          src="https://t.contentsquare.net/uxa/9b6a7dccd541b.js"
+        ></script>
       </head>
       <body>{children}</body>
     </html>
