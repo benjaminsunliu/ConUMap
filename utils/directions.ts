@@ -183,8 +183,9 @@ function formatDuration(seconds: number): string {
   const hrs = Math.floor(mins / 60);
   const rem = mins % 60;
   const hrsText = `${hrs} hr${hrs === 1 ? "" : "s"}`;
+  const minsText = `${rem} min${rem === 1 ? "" : "s"}`;
 
-  return rem > 0 ? `${hrsText} ${rem} min${rem === 1 ? "" : "s"}` : hrsText;
+  return rem > 0 ? `${hrsText} ${minsText}` : hrsText;
 }
 
 function formatDistance(meters: number): string {
