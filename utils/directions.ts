@@ -252,14 +252,12 @@ function normalizeRoute(route: RawRoute): NormalizedRoute {
     const firstTransitStep = leg.steps?.find(
       (step) => step.transitDetails?.localizedValues,
     );
-
     const lastTransitStep = [...(leg.steps ?? [])]
       .reverse()
       .find((step) => step.transitDetails?.localizedValues);
 
     const departureText =
       firstTransitStep?.transitDetails?.localizedValues?.departureTime?.time?.text;
-
     const arrivalText =
       lastTransitStep?.transitDetails?.localizedValues?.arrivalTime?.time?.text;
 

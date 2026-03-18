@@ -1,34 +1,34 @@
 appId: host.exp.Exponent
 ---
-- openLink: exp://192.168.0.110:8081
-- assertVisible: "Loyola"
+- openLink: exp://localhost:8081
+- assertVisible: "LOY"
 - assertVisible: "SGW"
 - assertVisible:
-           id: "campus-toggle-selector"
+    id: "campus-toggle-selector"
 - tapOn: "SGW"
-- waitForAnimationToEnd:
-           timeout: 2000
 - assertVisible:
-       text: "SGW"
-       enabled: true
+    text: "SGW"
+    enabled: true
 - assertVisible:
-       text: "Loyola"
-       selected: false
-- tapOn: "Loyola"
-- waitForAnimationToEnd:
-       timeout: 2000
+    text: "LOY"
+    selected: false
 - assertVisible:
-       text: "Loyola"
-       enabled: true
+    id: "marker-FB"
+- tapOn: "LOY"
 - assertVisible:
-       text: "SGW"
-       selected: false
+    text: "LOY"
+    enabled: true
+- assertVisible:
+    text: "SGW"
+    selected: false
+- assertVisible:
+    id: "marker-GE"
 - tapOn: "SGW"
-- waitForAnimationToEnd:
-       timeout: 2000
 - assertVisible:
-       text: "SGW"
-       enabled: true
+    text: "SGW"
+    enabled: true
 - assertVisible:
-       text: "Loyola"
-       selected: false  
+    text: "LOY"
+    selected: false
+- assertVisible:
+    id: "marker-FB"

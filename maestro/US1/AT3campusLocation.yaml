@@ -1,20 +1,13 @@
 appId: host.exp.Exponent
 ---
-- openLink: exp://192.168.0.110:8081
-- assertVisible: "Loyola"
-- assertVisible: "SGW"
-- tapOn:
-     id: "locationButton"
-- waitForAnimationToEnd:
-           timeout: 2000
-- tapOn: "Only this time"
+- openLink: exp://localhost:8081
+- setPermissions:
+    permissions:
+      location: allow
 - setLocation:
-         latitude: 45.4957849
-         longitude: -73.577225
-
-
-- waitForAnimationToEnd:
-         timeout: 2000
-
-
-         
+    latitude: 45.4947027
+    longitude: -73.57779649999999
+- tapOn:
+    id: "locationButton"
+- assertVisible:
+    id: "highlight-label-FB"

@@ -1,10 +1,8 @@
 appId: host.exp.Exponent
 ---
-- openLink: exp://192.168.0.110:8081
-- assertVisible: "Loyola"
-- assertVisible: "SGW"
-- assertVisible:
-           id: "campus-toggle-selector"
+- openLink: exp://localhost:8081
 - tapOn: "SGW"
-- waitForAnimationToEnd:
-           timeout: 2000
+- assertVisible:
+    label: "Concordia building FB"
+- assertVisible:
+    id: "marker-FB"
