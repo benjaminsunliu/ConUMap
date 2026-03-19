@@ -1,4 +1,5 @@
-import { Campus } from "@/scripts/extract-building-info";
+import { DayOfWeek } from "@/types/dayOfWeek";
+import { Campus } from "@/types/mapTypes";
 import * as cheerio from "cheerio";
 import type { CheerioAPI } from "cheerio";
 
@@ -75,21 +76,25 @@ function parseWarnings($: CheerioAPI, dateRegex: RegExp) {
   return { warnings, noServiceDates };
 }
 
+/**
+ * Parses shuttle schedule information from an HTML document for a specific day of the week.
+ * 
+ * Attempts to find a table matching the specified day, with a fallback to Monday's schedule
+ * if the target day is not found. Extracts departure times for LOY and SGW campuses.
+ * 
+ * @param $ - Cheerio API instance for DOM traversal and manipulation
+ * @param dayOfWeek - Numeric representation of the day of the week (0-6, where 0 is Sunday)
+ * 
+ * @returns An object containing arrays of unique departure times
+ * @returns {string[]} loyolaDepartures - Array of departure times from LOY campus, formatted as HH:MM
+ * @returns {string[]} sgwDepartures - Array of departure times from SGW campus, formatted as HH:MM
+ */
 function parseSchedule($: CheerioAPI, dayOfWeek: number) {
   const loyolaDepartures: string[] = [];
   const sgwDepartures: string[] = [];
   const timeRegex = /^(\d{1,2}:\d{2})/;
 
-  const dayNames = [
-    "sunday",
-    "monday",
-    "tuesday",
-    "wednesday",
-    "thursday",
-    "friday",
-    "saturday",
-  ];
-  const todayName = dayNames[dayOfWeek];
+  const todayName = DayOfWeek.toString(dayOfWeek as DayOfWeek)
 
   let targetTable: any = null;
 

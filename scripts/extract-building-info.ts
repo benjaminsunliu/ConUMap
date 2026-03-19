@@ -59,7 +59,7 @@ function getResources(
   data: string,
   resources: ConcordiaWebsiteResource[],
 ): ConcordiaWebsiteResource[] | null {
-  if (data.length == 0) return null;
+  if (data.length === 0) return null;
   return data.split("\n").flatMap((name) => {
     name = name.replaceAll("\n", "");
     const found = resources.find((r) => r.name === name);
