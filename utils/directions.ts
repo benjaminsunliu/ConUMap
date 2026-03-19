@@ -517,10 +517,9 @@ async function handleShuttleRouting(
       console.log("direct transit route is faster than pre + shuttle");
       return [];
     }
-  } else { 
+  } else {
     console.log("no direct transit route");
   }
-
 
   const postShuttlePath = await chooseShuttleSegmentPath(
     closestStopToDestination,
