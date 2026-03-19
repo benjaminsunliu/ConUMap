@@ -1,10 +1,10 @@
-import { Coordinate } from "@/types/mapTypes";
+import { Campus, Coordinate } from "@/types/mapTypes";
 import { TransportationMode } from "@/types/buildingTypes";
 import { getConcordiaShuttleSchedule } from "@/utils/getShuttleSchedule";
-import { Campus } from "@/scripts/extract-building-info";
+import isEqual from "lodash.isequal";
 
 const ROUTES_BASE_URL = "https://routes.googleapis.com/directions/v2:computeRoutes";
-export const interCampusPolyline = "adutGxhb`MvpFnhJ";
+export const interCampusPolyline = "adutGxhb`MvpFnhJ"; // Formatted Map Polyline for the shuttle route between the two campuses
 export const LOY_STOP_COORD: Coordinate = {
   latitude: 45.4584539,
   longitude: -73.6389287,
@@ -13,6 +13,8 @@ export const SGW_STOP_COORD: Coordinate = {
   latitude: 45.4971279,
   longitude: -73.5805579,
 };
+const DISTANCE_BETWEEN_CAMPUSES = 6700;
+const shuttleTransitTime = 30 * 60;
 
 // ---------------------------------------------------------------------------
 // Raw Google Routes API v2 shapes
@@ -306,7 +308,19 @@ function normalizeRoute(
 
 export type ShuttleSegmentMode = Extract<TransportationMode, "transit" | "walking">;
 
-/* Choose between transit or walking for a segment based on duration. */
+/**
+ * Selects the optimal shuttle segment path between two coordinates based on total duration of transportation.
+ * Returns null if no valid shuttle path exists.
+ * Origin or destination may be at/near either campus, but not necessarily both.
+ *
+ * Compares both transit and walking routes and returns the faster option.
+ * Prioritizes transit if it's faster or equal to walking duration.
+ * Falls back to walking if transit is unavailable.
+ *
+ * @param origin - The starting coordinate
+ * @param destination - The ending coordinate
+ * @returns A promise that resolves to the optimal normalized route, or null if no valid path exists
+ */
 async function chooseShuttleSegmentPath(
   origin: Coordinate,
   destination: Coordinate,
@@ -349,7 +363,6 @@ async function getShuttleTransitTimeSeconds(
 ): Promise<number | null> {
   const shuttleSchedule = await getConcordiaShuttleSchedule();
   const campusSchedule = shuttleSchedule.schedule[Campus];
-  const shuttleTransitTime = 30 * 60;
   const maxShuttleWaitTime = 15 * 60;
   if (!shuttleSchedule.isAvailableToday || !campusSchedule) return null;
   const arrivalTimeAtStop = new Date(now.getTime() + transitDurationToStop * 1000);
@@ -368,33 +381,29 @@ function coordinateToNormalizedLatLng(coord: Coordinate): NormalizedLatLng {
   return { lat: coord.latitude, lng: coord.longitude };
 }
 
+function isDirectPathBetweenCampuses(
+  origin: Coordinate,
+  destination: Coordinate,
+  isOriginLOY: boolean,
+): boolean {
+  const isOriginSGW = isEqual(origin, SGW_STOP_COORD);
+  const isDestinationLOY = isEqual(destination, LOY_STOP_COORD);
+  const isDestinationSGW = isEqual(destination, SGW_STOP_COORD);
+  return (isOriginLOY && isDestinationSGW) || (isOriginSGW && isDestinationLOY);
+}
+
 /* shortcut: origin/destination exactly at the two shuttle stops -> return single shuttle leg */
 function handleStopLocationsOnly(
   origin: Coordinate,
   destination: Coordinate,
 ): NormalizedRoute[] | null {
-  const isOriginLOY =
-    origin.latitude === LOY_STOP_COORD.latitude &&
-    origin.longitude === LOY_STOP_COORD.longitude;
-  const isOriginSGW =
-    origin.latitude === SGW_STOP_COORD.latitude &&
-    origin.longitude === SGW_STOP_COORD.longitude;
-  const isDestinationLOY =
-    destination.latitude === LOY_STOP_COORD.latitude &&
-    destination.longitude === LOY_STOP_COORD.longitude;
-  const isDestinationSGW =
-    destination.latitude === SGW_STOP_COORD.latitude &&
-    destination.longitude === SGW_STOP_COORD.longitude;
-
-  if ((isOriginLOY && isDestinationSGW) || (isOriginSGW && isDestinationLOY)) {
+  const isOriginLOY = isEqual(origin, LOY_STOP_COORD);
+  if (isDirectPathBetweenCampuses(origin, destination, isOriginLOY)) {
     const departureCampus = isOriginLOY ? "LOY" : "SGW";
-    const arrivalCampus = isDestinationSGW ? "SGW" : "LOY";
-    const departureCoord = isOriginLOY ? LOY_STOP_COORD : SGW_STOP_COORD;
-    const arrivalCoord = isDestinationSGW ? SGW_STOP_COORD : LOY_STOP_COORD;
-
+    const arrivalCampus = departureCampus === "LOY" ? "SGW" : "LOY";
     const step = {
-      distance: { text: "Inter-campus", value: 6700 },
-      duration: { text: formatDuration(30 * 60), value: 30 * 60 },
+      distance: { text: "Inter-campus", value: DISTANCE_BETWEEN_CAMPUSES },
+      duration: { text: formatDuration(shuttleTransitTime), value: shuttleTransitTime },
       html_instructions: `Take the Concordia Shuttle from ${departureCampus} to ${arrivalCampus}`,
       maneuver: "",
       polyline: { points: interCampusPolyline },
@@ -403,14 +412,14 @@ function handleStopLocationsOnly(
         line: { name: "Concordia Shuttle", short_name: "Shuttle", vehicle_type: "BUS" },
         departure_stop: {
           name: departureCampus + " Campus Shuttle Stop",
-          location: coordinateToNormalizedLatLng(departureCoord),
+          location: coordinateToNormalizedLatLng(origin),
         },
         arrival_stop: {
           name: arrivalCampus + " Campus Shuttle Stop",
-          location: coordinateToNormalizedLatLng(arrivalCoord),
+          location: coordinateToNormalizedLatLng(destination),
         },
       },
-    } as any;
+    };
 
     return [
       {
@@ -423,7 +432,7 @@ function handleStopLocationsOnly(
             steps: [step],
           },
         ],
-        totalDurationSeconds: 30 * 60,
+        totalDurationSeconds: shuttleTransitTime,
         mode: "shuttle",
       },
     ];
@@ -431,6 +440,29 @@ function handleStopLocationsOnly(
   return null;
 }
 
+/**
+ * Handles shuttle routing between two coordinates by combining walking/transit segments with the Concordia shuttle service.
+ * 
+ * @param origin - The starting coordinate for the route
+ * @param destination - The ending coordinate for the route
+ * @param directTransit - An optional direct transit route to compare against shuttle routing efficiency
+ * 
+ * @returns A promise that resolves to an array of normalized routes using the shuttle service.
+ *          Returns an empty array if:
+ *          - The shuttle is not available today
+ *          - Direct routing between stops is available
+ *          - Pre or post-shuttle path cannot be determined
+ *          - Shuttle transit time cannot be calculated
+ *          - Direct transit is faster than shuttle routing
+ * 
+ * @remarks
+ * This function:
+ * - Checks shuttle availability for the current day
+ * - Determines the closest shuttle stops to both origin and destination
+ * - Calculates pre-shuttle (origin to stop) and post-shuttle (stop to destination) paths
+ * - Combines these segments with the inter-campus shuttle transit time
+ * - Compares against direct transit if available to optimize route selection
+ */
 async function handleShuttleRouting(
   origin: Coordinate,
   destination: Coordinate,
@@ -508,13 +540,13 @@ async function handleShuttleRouting(
 
   const totalDistance =
     preShuttlePath.legs.reduce((sum, l) => sum + l.distance.value, 0) +
-    6700 +
+    DISTANCE_BETWEEN_CAMPUSES +
     postShuttlePath.legs.reduce((sum, l) => sum + l.distance.value, 0);
 
   const combinedSteps = [
     ...preShuttlePath.legs.flatMap((l) => l.steps),
     {
-      distance: { text: "Inter-campus", value: 6700 },
+      distance: { text: "Inter-campus", value: DISTANCE_BETWEEN_CAMPUSES },
       duration: {
         text: formatDuration(shuttleTransitTime),
         value: shuttleTransitTime,
@@ -577,7 +609,7 @@ async function handleShuttleRouting(
   ];
 }
 
-function chooseBestDirectRoute(
+function chooseShortestDirectRoute(
   walkingRoutes: NormalizedRoute[] | null,
   transitRoutes: NormalizedRoute[] | null,
 ): NormalizedRoute[] | null {
@@ -689,7 +721,7 @@ export async function fetchAllDirections(
     modes.map((mode) => fetchDirections(origin, destination, mode)),
   );
 
-  const bestDirectRoutes = chooseBestDirectRoute(results[0], results[1]);
+  const bestDirectRoutes = chooseShortestDirectRoute(results[0], results[1]);
 
   return {
     walking: results[0],

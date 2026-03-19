@@ -1,7 +1,6 @@
 import csvParser from "csv-parser";
 import fs from "fs";
-
-export type Campus = "SGW" | "LOY";
+import { Campus } from "@/types/mapTypes";
 
 type ConcordiaWebsiteResource = {
   name: string;
