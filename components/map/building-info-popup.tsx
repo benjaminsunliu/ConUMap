@@ -2,23 +2,16 @@ import { Colors } from "@/constants/theme";
 import { BuildingInfo } from "@/types/mapTypes";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback, useMemo } from "react";
-import {
-  Linking,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  useColorScheme,
-  View,
-} from "react-native";
+import { Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import InfoPopup from "../ui/popup";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 
 interface Props {
-  readonly building: BuildingInfo | null;
-  readonly onNavigate?: () => void;
-  readonly onSetAsStart?: () => void;
+  building: BuildingInfo | null;
+  onNavigate?: () => void;
+  onSetAsStart?: () => void;
+  onExploreRooms?: () => void;
 }
-
-type ActionType = "directions" | "start" | "website";
 
 const WEEKDAYS = [
   "Monday",
@@ -40,29 +33,17 @@ const DEFAULT_OPENING_HOURS = [
   "7:00 AM – 9:00 PM",
 ];
 
-export default function BuildingInfoPopup({ building, onNavigate, onSetAsStart }: Props) {
-  const colorScheme = useColorScheme() ?? "light";
+export default function BuildingInfoPopup({
+  building,
+  onNavigate,
+  onSetAsStart,
+  onExploreRooms,
+}: Readonly<Props>) {
+  const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
   const styles = makeStyles(theme);
 
   const todayIdx = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
-
-  const ACTIONS = useMemo(
-    () => [
-      { label: "Directions", icon: "navigate-outline", type: "directions" as const },
-      { label: "Set Start", icon: "flag-outline", type: "start" as const },
-      { label: "Website", icon: "globe-outline", type: "website" as const },
-    ],
-    [],
-  );
-
-  const openDirectionsURL = useCallback(async () => {
-    if (!building?.address) {
-      return;
-    }
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(building?.address || "")}`;
-    await openURL(url);
-  }, [building?.address]);
 
   const openWebsiteURL = useCallback(async () => {
     if (!building?.url) {
@@ -71,17 +52,34 @@ export default function BuildingInfoPopup({ building, onNavigate, onSetAsStart }
     await openURL(building.url);
   }, [building?.url]);
 
-  const getActionHandler = useCallback(
-    (type: ActionType) => {
-      if (type === "directions") {
-        return onNavigate ? () => onNavigate() : openDirectionsURL;
-      } else if (type === "start") {
-        return onSetAsStart ? () => onSetAsStart() : undefined;
-      } else {
-        return openWebsiteURL;
-      }
-    },
-    [onNavigate, onSetAsStart, openDirectionsURL],
+  const ACTIONS = useMemo(
+    () => [
+      {
+        label: "Directions",
+        icon: "navigate-outline",
+        type: "directions",
+        handler: onNavigate,
+      },
+      {
+        label: "Set Start",
+        icon: "flag-outline",
+        type: "start",
+        handler: onSetAsStart,
+      },
+      {
+        label: "Website",
+        icon: "globe-outline",
+        type: "website",
+        handler: openWebsiteURL,
+      },
+      {
+        label: "Explore Rooms",
+        icon: "globe-outline",
+        type: "rooms",
+        handler: onExploreRooms,
+      },
+    ],
+    [onNavigate, onSetAsStart, openWebsiteURL, onExploreRooms],
   );
 
   const header = useMemo(() => {
@@ -103,7 +101,7 @@ export default function BuildingInfoPopup({ building, onNavigate, onSetAsStart }
               key={a.type}
               {...a}
               testID={`${a.type}-action-button`}
-              onPress={getActionHandler(a.type)}
+              onPress={a.handler}
               theme={theme}
             />
           ))}
@@ -113,7 +111,6 @@ export default function BuildingInfoPopup({ building, onNavigate, onSetAsStart }
   }, [
     ACTIONS,
     building,
-    getActionHandler,
     styles.actionsRow,
     styles.line,
     styles.openStatus,
