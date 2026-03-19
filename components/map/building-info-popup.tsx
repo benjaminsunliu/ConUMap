@@ -56,32 +56,20 @@ export default function BuildingInfoPopup({ building, onNavigate, onSetAsStart }
     [],
   );
 
-  const handleAction = useCallback(
-    async (type: "directions" | "website") => {
-      const urls: Record<typeof type, string> = {
-        directions: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(building?.address || "")}`,
-        website: building?.url || "",
-      };
+  const openDirectionsURL = useCallback(async () => {
+    if (!building?.address) {
+      return;
+    }
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(building?.address || "")}`;
+    await openURL(url);
+  }, [building?.address]);
 
-      const url = urls[type];
-      if (!url) {
-        console.warn(`No URL available for action: ${type}`);
-        return;
-      }
-
-      try {
-        const canOpen = await Linking.canOpenURL(url);
-        if (!canOpen) {
-          console.warn(`Cannot open URL: ${url}`);
-          return;
-        }
-        await Linking.openURL(url);
-      } catch (error) {
-        console.error(`Failed to open URL (${type}):`, error);
-      }
-    },
-    [building?.address, building?.url],
-  );
+  const openWebsiteURL = useCallback(async () => {
+    if (!building?.url) {
+      return;
+    }
+    await openURL(building.url);
+  }, [building?.url]);
 
   const formatCamelCase = useCallback(
     (text: string) =>
@@ -95,20 +83,14 @@ export default function BuildingInfoPopup({ building, onNavigate, onSetAsStart }
   const getActionHandler = useCallback(
     (type: ActionType) => {
       if (type === "directions") {
-        return onNavigate
-          ? () => onNavigate()
-          : () => {
-              void handleAction("directions");
-            };
+        return onNavigate ? () => onNavigate() : openDirectionsURL;
       } else if (type === "start") {
         return onSetAsStart ? () => onSetAsStart() : undefined;
       } else {
-        return () => {
-          void handleAction("website");
-        };
+        return openWebsiteURL;
       }
     },
-    [handleAction, onNavigate, onSetAsStart],
+    [onNavigate, onSetAsStart, openDirectionsURL],
   );
 
   const header = useMemo(() => {
@@ -172,6 +154,19 @@ export default function BuildingInfoPopup({ building, onNavigate, onSetAsStart }
       ))}
     </InfoPopup>
   );
+}
+
+async function openURL(url: string) {
+  try {
+    const canOpen = await Linking.canOpenURL(url);
+    if (!canOpen) {
+      console.warn(`Cannot open URL: ${url}`);
+      return;
+    }
+    await Linking.openURL(url);
+  } catch (error) {
+    console.error(`Failed to open URL ${url}:`, error);
+  }
 }
 
 /* ---------- Subcomponents ---------- */
