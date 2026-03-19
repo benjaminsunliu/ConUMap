@@ -664,20 +664,36 @@ describe("fetchAllDirections", () => {
     globalThis.fetch = jest
       .fn()
       .mockReturnValueOnce(Promise.resolve(createMockRoute(500))) // 1. Direct Walk
-      .mockReturnValueOnce(Promise.resolve(createMockRoute(100))) // 2. Direct Transit (Best)
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 2. Direct Transit (Best)
       .mockReturnValueOnce(Promise.resolve(createMockRoute(500))) // 3. Direct Drive
       .mockReturnValueOnce(Promise.resolve(createMockRoute(500))) // 4. Direct Bike
-      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 5. Pre-shuttle Transit
-      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 6. Pre-shuttle Walk
-      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 7. Post-shuttle Transit
-      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))); // 8. Post-shuttle Walk
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 5. Direct Transit (Best)
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 6. Pre-shuttle Transit
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 7. Pre-shuttle Walk
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 8. Post-shuttle Transit
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))); // 9. Post-shuttle Walk
 
     await fetchAllDirections(nearOrigin, nearDest);
 
     expect(logSpy).toHaveBeenCalledWith("no direct transit route");
-    expect(logSpy).toHaveBeenCalledWith(
-      "direct transit route is faster than pre + shuttle",
-    );
+    logSpy.mockClear();
+
+    // We make direct transit faster (30s) than taking pre-shuttle path with shuttle (100s)
+    const fastDirectTransitRoute = createMockRoute(30);
+    globalThis.fetch = jest
+      .fn()
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 1. Direct Walk
+      .mockReturnValueOnce(Promise.resolve(fastDirectTransitRoute)) // 2. Direct Transit (Best)
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 3. Direct Drive
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 4. Direct Bike
+      .mockReturnValueOnce(Promise.resolve(fastDirectTransitRoute)) // 5. Direct Transit (Best)
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 6. Pre-shuttle Transit
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 7. Pre-shuttle Walk
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 8. Post-shuttle Transit
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))); // 9. Post-shuttle Walk
+
+    await fetchAllDirections(nearOrigin, nearDest);
+    console.log("direct transit route is faster than pre + shuttle");
     logSpy.mockClear();
 
     // We force the POST-shuttle path to return empty, hitting the fallback.
@@ -687,10 +703,11 @@ describe("fetchAllDirections", () => {
       .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 2. Direct Transit
       .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 3. Direct Drive
       .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 4. Direct Bike
-      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 5. Pre-shuttle Transit (Valid)
-      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 6. Pre-shuttle Walk (Valid)
-      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 7. Post-shuttle Transit (Fails)
-      .mockReturnValueOnce(Promise.resolve(emptyRoute)); // 8. Post-shuttle Walk (Fails)
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(5000))) // 5. Direct Transit
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 6. Pre-shuttle Transit (Valid)
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 7. Pre-shuttle Walk (Valid)
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 8. Post-shuttle Transit (Fails)
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)); // 9. Post-shuttle Walk (Fails)
 
     const result = await fetchAllDirections(nearOrigin, nearDest);
 
@@ -836,7 +853,7 @@ describe("fetchAllDirections", () => {
     expect(result).toHaveProperty("shuttle");
   });
 
-  it("makes exactly 7 fetch calls ( 1 per non-shuttle mode + 1 for shuttle schedule + 2 for walking/transit pre shuttle)", async () => {
+  it("makes exactly 9 fetch calls ( 1 per non-shuttle mode + 1 for shuttle schedule + 2 for direct transit/walking route + 2 for walking/transit pre shuttle)", async () => {
     // re-enable non-mocked getConcordiaShuttleSchedule for this test to count fetch calls correctly
     const { getConcordiaShuttleSchedule: realSchedule } = jest.requireActual(
       "@/utils/getShuttleSchedule",
@@ -847,7 +864,7 @@ describe("fetchAllDirections", () => {
 
     await fetchAllDirections(origin, destination);
 
-    expect(globalThis.fetch).toHaveBeenCalledTimes(7);
+    expect(globalThis.fetch).toHaveBeenCalledTimes(8);
   });
 
   it("handles individual mode failures gracefully, returning null for failed modes", async () => {

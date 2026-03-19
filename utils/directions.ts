@@ -295,7 +295,7 @@ function normalizeRoute(route: RawRoute): NormalizedRoute {
     summary: route.description ?? "",
     overview_polyline: { points: route.polyline?.encodedPolyline ?? "" },
     legs,
-    totalDurationSeconds: legs.reduce((total, leg) => total + leg.duration.value, 0)
+    totalDurationSeconds: legs.reduce((total, leg) => total + leg.duration.value, 0),
   };
 }
 
@@ -425,7 +425,7 @@ function handleStopLocationsOnly(
             steps: [step],
           },
         ],
-        totalDurationSeconds: shuttleTransitTime
+        totalDurationSeconds: shuttleTransitTime,
       },
     ];
   }
@@ -434,11 +434,10 @@ function handleStopLocationsOnly(
 
 /**
  * Handles shuttle routing between two coordinates by combining walking/transit segments with the Concordia shuttle service.
- * 
+ *
  * @param origin - The starting coordinate for the route
  * @param destination - The ending coordinate for the route
- * @param directTransit - An optional direct transit route to compare against shuttle routing efficiency
- * 
+ *
  * @returns A promise that resolves to an array of normalized routes using the shuttle service.
  *          Returns an empty array if:
  *          - The shuttle is not available today
@@ -446,7 +445,7 @@ function handleStopLocationsOnly(
  *          - Pre or post-shuttle path cannot be determined
  *          - Shuttle transit time cannot be calculated
  *          - Direct transit is faster than shuttle routing
- * 
+ *
  * @remarks
  * This function:
  * - Checks shuttle availability for the current day
@@ -458,8 +457,10 @@ function handleStopLocationsOnly(
 async function handleShuttleRouting(
   origin: Coordinate,
   destination: Coordinate,
-  directTransit: NormalizedRoute | null,
 ): Promise<NormalizedRoute[]> {
+  const transitStrategy = RouteStrategyFactory.getStrategy("transit");
+  const transitRoutes = await transitStrategy.fetch(origin, destination);
+  const directTransit = transitRoutes?.[0] ?? null;
   const shuttleSchedule = await getConcordiaShuttleSchedule();
   const now = new Date();
   if (!shuttleSchedule.isAvailableToday) {
@@ -507,15 +508,19 @@ async function handleShuttleRouting(
     return [];
   }
   // if directTransit route is available, do early check to save time
+
   if (directTransit !== null) {
-    console.log("no direct transit route");
     if (
       preShuttlePath.totalDurationSeconds + shuttleTransitTime >=
       directTransit.totalDurationSeconds
     ) {
       console.log("direct transit route is faster than pre + shuttle");
+      return [];
     }
+  } else { 
+    console.log("no direct transit route");
   }
+
 
   const postShuttlePath = await chooseShuttleSegmentPath(
     closestStopToDestination,
@@ -595,23 +600,9 @@ async function handleShuttleRouting(
           steps: combinedSteps,
         },
       ],
-      totalDurationSeconds: totalDuration
+      totalDurationSeconds: totalDuration,
     },
   ];
-}
-
-function chooseShortestDirectRoute(
-  walkingRoutes: NormalizedRoute[] | null,
-  transitRoutes: NormalizedRoute[] | null,
-): NormalizedRoute[] | null {
-  if (!transitRoutes && !walkingRoutes) return null;
-  if (!transitRoutes || transitRoutes.length === 0) return walkingRoutes;
-  if (!walkingRoutes || walkingRoutes.length === 0) return transitRoutes;
-  const bestTransit = transitRoutes[0];
-  const bestWalking = walkingRoutes[0];
-  return bestTransit.totalDurationSeconds <= bestWalking.totalDurationSeconds
-    ? transitRoutes
-    : walkingRoutes;
 }
 
 // Strategy Pattern
@@ -688,12 +679,16 @@ abstract class GoogleRoutesStrategy implements RouteStrategy {
         return [];
       }
 
-      data.routes = data.routes.filter((route: RawRoute) => route.legs && route.legs.length > 0);
-
-      return data.routes.map(normalizeRoute).sort(
-        (a: NormalizedRoute, b: NormalizedRoute) =>
-          a.totalDurationSeconds - b.totalDurationSeconds,
+      data.routes = data.routes.filter(
+        (route: RawRoute) => route.legs && route.legs.length > 0,
       );
+
+      return data.routes
+        .map(normalizeRoute)
+        .sort(
+          (a: NormalizedRoute, b: NormalizedRoute) =>
+            a.totalDurationSeconds - b.totalDurationSeconds,
+        );
     } catch (error) {
       clearTimeout(timeoutId);
       if (error instanceof Error && error.name === "AbortError") {
@@ -729,7 +724,7 @@ class ShuttleRouteStrategy implements RouteStrategy {
     _destination: Coordinate,
   ): Promise<NormalizedRoute[] | null> {
     // Shuttle handled separately via Concordia shuttle schedule.
-    return await handleShuttleRouting(_origin, _destination, null);
+    return await handleShuttleRouting(_origin, _destination);
   }
 }
 
