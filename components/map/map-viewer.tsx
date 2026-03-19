@@ -17,6 +17,7 @@ import BuildingSelection, { CURRENT_LOCATION_CODE } from "./building-selection";
 import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
+import { router } from "expo-router";
 
 interface PolylineSegment {
   coordinates: Coordinate[];
@@ -609,6 +610,13 @@ export default function MapViewer({
     [focusBuilding, selectBuildingByCode],
   );
 
+  const openIndoorNavigation = () => {
+    if (!selectedBuilding?.buildingCode) {
+      return;
+    }
+    router.push(`/map/${encodeURIComponent(selectedBuilding.buildingCode)}`);
+  };
+
   return (
     <View style={styles.container}>
       <BuildingSelection
@@ -856,6 +864,7 @@ export default function MapViewer({
           building={selectedBuilding}
           onNavigate={navigateToBuilding}
           onSetAsStart={setBuildingAsStart}
+          onExploreRooms={openIndoorNavigation}
         />
       )}
 

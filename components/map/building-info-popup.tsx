@@ -5,6 +5,7 @@ import React, { useCallback, useMemo } from "react";
 import { Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import InfoPopup from "../ui/popup";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { ScrollView } from "react-native-gesture-handler";
 
 interface Props {
   building: BuildingInfo | null;
@@ -33,6 +34,15 @@ const DEFAULT_OPENING_HOURS = [
   "7:00 AM – 9:00 PM",
 ];
 
+type IconName = keyof typeof Ionicons.glyphMap;
+
+interface Action {
+  type: string;
+  label: string;
+  icon?: IconName;
+  handler?: () => void;
+}
+
 export default function BuildingInfoPopup({
   building,
   onNavigate,
@@ -52,7 +62,7 @@ export default function BuildingInfoPopup({
     await openURL(building.url);
   }, [building?.url]);
 
-  const ACTIONS = useMemo(
+  const ACTIONS: Action[] = useMemo(
     () => [
       {
         label: "Directions",
@@ -85,17 +95,23 @@ export default function BuildingInfoPopup({
   const header = useMemo(() => {
     return (
       <>
-        <Text style={styles.title} numberOfLines={1}>
-          {building?.buildingCode} – {building?.buildingName}
-        </Text>
+        <View style={styles.headerText}>
+          <Text style={styles.title} numberOfLines={1}>
+            {building?.buildingCode} – {building?.buildingName}
+          </Text>
 
-        <Text style={styles.line}>
-          {building?.campus} Campus | {building?.address}
-        </Text>
+          <Text style={styles.line}>
+            {building?.campus} Campus | {building?.address}
+          </Text>
 
-        <Text style={styles.openStatus}>Today: {DEFAULT_OPENING_HOURS[todayIdx]}</Text>
+          <Text style={styles.openStatus}>Today: {DEFAULT_OPENING_HOURS[todayIdx]}</Text>
+        </View>
 
-        <View style={styles.actionsRow}>
+        <ScrollView
+          contentContainerStyle={styles.actionsRow}
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+        >
           {ACTIONS.map((a) => (
             <ActionButton
               key={a.type}
@@ -105,7 +121,7 @@ export default function BuildingInfoPopup({
               theme={theme}
             />
           ))}
-        </View>
+        </ScrollView>
       </>
     );
   }, [
@@ -192,7 +208,7 @@ const ActionButton = ({
   theme,
 }: {
   readonly label: string;
-  readonly icon: string;
+  readonly icon?: IconName;
   readonly onPress?: () => void;
   readonly testID: string;
   readonly theme: typeof Colors.light;
@@ -202,9 +218,9 @@ const ActionButton = ({
       {
         flexDirection: "row",
         alignItems: "center",
-        paddingVertical: 8,
-        paddingHorizontal: 14,
+        paddingHorizontal: 10,
         borderRadius: 20,
+        height: 40,
         backgroundColor: theme.buildingInfoPopup.actionButtonBackground,
       },
     ]}
@@ -212,7 +228,7 @@ const ActionButton = ({
     testID={testID}
   >
     <Ionicons
-      name={icon as any}
+      name={icon}
       size={18}
       color={theme.buildingInfoPopup.actionButtonIcon}
       style={{ marginRight: 6 }}
@@ -228,8 +244,11 @@ const ActionButton = ({
   </TouchableOpacity>
 );
 
-const makeStyles = (theme: typeof Colors.light) =>
+const makeStyles = (theme: (typeof Colors)["light" | "dark"]) =>
   StyleSheet.create({
+    headerText: {
+      paddingHorizontal: 20,
+    },
     title: {
       fontSize: 22,
       fontWeight: "600",
@@ -249,6 +268,7 @@ const makeStyles = (theme: typeof Colors.light) =>
       flexDirection: "row",
       marginTop: 12,
       gap: 10,
+      paddingHorizontal: 20,
     },
     sectionTitle: {
       marginTop: 14,
