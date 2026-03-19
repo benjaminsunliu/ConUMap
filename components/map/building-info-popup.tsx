@@ -71,15 +71,6 @@ export default function BuildingInfoPopup({ building, onNavigate, onSetAsStart }
     await openURL(building.url);
   }, [building?.url]);
 
-  const formatCamelCase = useCallback(
-    (text: string) =>
-      text
-        .replaceAll(/(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])/g, " ")
-        .trim()
-        .replace(/^./, (match) => match.toUpperCase()),
-    [],
-  );
-
   const getActionHandler = useCallback(
     (type: ActionType) => {
       if (type === "directions") {
@@ -167,6 +158,13 @@ async function openURL(url: string) {
   } catch (error) {
     console.error(`Failed to open URL ${url}:`, error);
   }
+}
+
+function formatCamelCase(text: string) {
+  return text
+    .replaceAll(/(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])/g, " ")
+    .trim()
+    .replace(/^./, (match) => match.toUpperCase());
 }
 
 /* ---------- Subcomponents ---------- */
