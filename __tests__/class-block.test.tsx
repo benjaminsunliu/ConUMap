@@ -2,6 +2,7 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import ClassBlock from '../components/schedule/class-block';
 import { ClassInfo } from '../types/calendarTypes';
+import { timeToPixels } from "@/constants/scheduleConstant";
 
 const MOCK_CLASS: ClassInfo = {
     STRM: "2254",
@@ -29,12 +30,17 @@ const MOCK_CLASS: ClassInfo = {
 const MOCK_COLORMAP = new Map<string, string>();
 MOCK_COLORMAP.set(`${MOCK_CLASS.SUBJECT}-${MOCK_CLASS.CATALOG_NBR}`, "#5e0e16");
 
+const TOP_OFFSET = 619.5;
+const HEIGHT = 52.5;
+
 describe('ClassBlock', () => {
     it('renders the course name', () => {
         const { getByText } = render(   
             <ClassBlock
                 classInfo={MOCK_CLASS}
                 colorMap={MOCK_COLORMAP}
+                topOffset={TOP_OFFSET}
+                height={HEIGHT}
                 onPress={() => {}}
             />
         );
@@ -49,6 +55,8 @@ describe('ClassBlock', () => {
             <ClassBlock
                 classInfo={MOCK_CLASS}
                 colorMap={MOCK_COLORMAP}
+                topOffset={TOP_OFFSET}
+                height={HEIGHT}
                 onPress={mockOnPress}
             />
         );
