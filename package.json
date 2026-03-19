@@ -37,12 +37,18 @@
     "setupFiles": [
       "./node_modules/react-native-gesture-handler/jestSetup.js"
     ],
+    
     "collectCoverage": true,
     "coverageDirectory": "./coverage",
     "coverageReporters": [
       "lcov",
       "text",
       "json"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/constants/",
+      "/assets/"
     ]
   },
   "dependencies": {
