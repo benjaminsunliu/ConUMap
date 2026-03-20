@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Dimensions, ScrollView, StyleSheet, Text, View, PanResponder } from 'react-native';
+import { Dimensions, ScrollView, StyleSheet, Text, View, PanResponder, Pressable } from 'react-native';
 import DayColumn from './day-column';
-import { ClassInfo, Weekdays } from '@/types/calendarTypes';
+import { ClassInfo, Weekdays, getWeekdayKey } from '@/types/calendarTypes';
 import { CALENDAR_END_HOUR, CALENDAR_START_HOUR, COLUMN_TOTAL_HEIGHT, HOUR_HEIGHT, PIXELS_PER_MINUTE, TIME_GUTTER_WIDTH } from '@/constants/scheduleConstant';
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
@@ -23,8 +24,45 @@ interface WeeklyCalendarBodyProps {
 
 function getCurrentTimeY(): number {
     const now = new Date();
-    const minutesFromMidnight = now.getHours() * 60 + now.getMinutes();
-    return minutesFromMidnight * PIXELS_PER_MINUTE;
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    return currentMinutes * PIXELS_PER_MINUTE;
+}
+
+export function getNextClass(classes: ClassInfo[]): ClassInfo {
+    const now = new Date();
+    const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const todayWeekday = weekdays[now.getDay()];
+
+    const classesToday = classes.filter((cls) => {getWeekdayKey(cls.DAY_OF_WEEK) === todayWeekday});
+    
+    const currentMinutes = (now.getHours() * 60) + now.getMinutes();
+    
+    let nextClassIndex = -1;
+
+    for (let i = 0; i < classesToday.length; i++) {
+        let cls = classesToday[i];
+
+        let startTimeInMinutes = Number(`${cls.START_HOURS}`) * 60 + Number(`${cls.START_MINUTES}`);
+        let endTimeInMinutes = Number(`${cls.END_HOURS}`) * 60 + Number(`${cls.END_MINUTES}`);
+
+        if (endTimeInMinutes - currentMinutes <= 0) continue;   // Class has finished
+        if (currentMinutes - startTimeInMinutes > 30) continue; // More than 30 minutes since class has started
+
+        if (nextClassIndex == -1) {
+            nextClassIndex = i;
+            continue;
+        }
+
+        let thisDelta = endTimeInMinutes - currentMinutes;
+        let currentNextClass = classesToday[nextClassIndex];
+        let smallestDeltaSoFar = Number(currentNextClass.END_HOURS) * 60 + Number(currentNextClass.END_MINUTES);
+
+        if (thisDelta < smallestDeltaSoFar) {
+            nextClassIndex = i;
+        }
+    }
+
+    return classesToday[nextClassIndex];
 }
 
 export default function WeeklyCalendarBody({ weekStartDate, classes, colorMap, onClassPress, onWeekChange }: WeeklyCalendarBodyProps) {
@@ -33,6 +71,8 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, colorMap, o
     
     // Time state for horizontal time bar
     const [currentTimeY, setCurrentTimeY] = useState(() => getCurrentTimeY());
+    const [nextClass, setNextClass] = useState(() => getNextClass(classes));
+
     useEffect(() => {
         const interval = setInterval(() => {
             setCurrentTimeY(getCurrentTimeY());
@@ -158,6 +198,20 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, colorMap, o
                     </View>
                 </View>
             </ScrollView>
+            
+            <View style={[styles.nextClassButtonContainer]}>
+                <Pressable
+                    onPress={() => {}}
+                    style={[styles.nextClassButton, {backgroundColor: theme.weeklyCalendarBody.nextClassButtonColor}]}
+                    accessibilityLabel='Jump to next class'
+                >
+                    <View>
+                        <Text style={[styles.nextClassButtonTitle, {color: theme.weeklyCalendarBody.nextClassButtonText}]}>Next Class: </Text>
+                        <Text style={[styles.nextClassButtonText, {color: theme.weeklyCalendarBody.nextClassButtonText}]}>SOEN 345 Lec</Text>
+                    </View>
+                    <MaterialIcons name="location-pin" size={40} color={theme.weeklyCalendarBody.nextClassButtonText}/>
+                </Pressable>
+            </View>
         </View>
     )
     
@@ -247,4 +301,25 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 1.5,
   },
+  nextClassButtonContainer: {
+    alignItems: 'center',
+  },
+  nextClassButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 10,
+    padding: 10,
+  },
+  nextClassButtonTitle: {
+    fontWeight: "700",
+    fontSize: 15,
+    lineHeight: 20,
+    marginLeft: 4,
+  },
+  nextClassButtonText: {
+    fontWeight: "400",
+    fontSize: 15,
+    lineHeight: 20,
+    marginLeft: 4,
+  }
 }); 
