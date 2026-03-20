@@ -82,7 +82,9 @@ export const Colors = {
       dateNumber: "#333",
       dateNumberToday: white,
       hourLineColor: "#d4d4d4",
-      timeDotColor: "#E53935"
+      timeDotColor: "#E53935",
+      nextClassButtonColor: "#5e0e16",
+      nextClassButtonText: "#fdfcea",
     },
 
     scheduleHeader: {
@@ -193,7 +195,9 @@ export const Colors = {
       dateNumber: "#fdfcea",
       dateNumberToday: black,
       hourLineColor: "#3c4043",
-      timeDotColor: "#d83532"
+      timeDotColor: "#d83532",
+      nextClassButtonColor: "#5e0e16",
+      nextClassButtonText: "#fdfcea",
     },
 
     scheduleHeader: {
