@@ -1,0 +1,7 @@
+appId: com.anonymous.client
+---
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "map-view"
+    timeout: 15000

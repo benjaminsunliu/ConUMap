@@ -1,6 +1,10 @@
 appId: host.exp.exponent
 ---
-- openLink: exp://localhost:8081
+- runFlow:
+        when:
+            notVisible:
+                id: "map-view"
+        file: ../openLink.yaml
 - setLocation:
     latitude: 45.4957849
     longitude: -73.577225
