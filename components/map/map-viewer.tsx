@@ -768,36 +768,36 @@ export default function MapViewer({
 
         {Platform.OS === "android"
           ? routeNodes.map((node, index) => (
-            <Circle
-              key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
-              center={node.coordinate}
-              radius={7}
-              fillColor={node.toColor}
-              strokeColor="#fff"
-              strokeWidth={3}
-              zIndex={12}
-            />
-          ))
-          : routeNodes.map((node, index) => (
-            <Marker
-              key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
-              coordinate={node.coordinate}
-              anchor={{ x: 0.5, y: 0.5 }}
-              zIndex={12}
-            >
-              <View
-                collapsable={false}
-                style={{
-                  width: 18,
-                  height: 18,
-                  borderRadius: 9,
-                  backgroundColor: node.toColor,
-                  borderWidth: 3,
-                  borderColor: "#fff",
-                }}
+              <Circle
+                key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
+                center={node.coordinate}
+                radius={7}
+                fillColor={node.toColor}
+                strokeColor="#fff"
+                strokeWidth={3}
+                zIndex={12}
               />
-            </Marker>
-          ))}
+            ))
+          : routeNodes.map((node, index) => (
+              <Marker
+                key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
+                coordinate={node.coordinate}
+                anchor={{ x: 0.5, y: 0.5 }}
+                zIndex={12}
+              >
+                <View
+                  collapsable={false}
+                  style={{
+                    width: 18,
+                    height: 18,
+                    borderRadius: 9,
+                    backgroundColor: node.toColor,
+                    borderWidth: 3,
+                    borderColor: "#fff",
+                  }}
+                />
+              </Marker>
+            ))}
         {navigationMode === "directions" && navCoords.start && (
           <NavEndpointMarker
             key={`nav-start-${navCoords.start.latitude}-${navCoords.start.longitude}`}
