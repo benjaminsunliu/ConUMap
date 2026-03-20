@@ -18,3 +18,4 @@ jest.mock("expo-router", () => ({
   })),
   usePathname: jest.fn(() => "/"),
 }));
+process.env.EXPO_PUBLIC_GOOGLE_API_KEY = 'test-key';

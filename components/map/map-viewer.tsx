@@ -1,8 +1,3 @@
-import React, { useRef, useState, useCallback, useMemo, useEffect } from "react";
-import { StyleSheet, View, Text, Platform } from "react-native";
-import MapViewCluster from "react-native-map-clustering";
-import MapView, { Circle, Marker, Polygon, Polyline, Region } from "react-native-maps";
-import * as LocationPermissions from "expo-location";
 import { CAMPUS_BUILDINGS } from "@/constants/map";
 import { Colors } from "@/constants/theme";
 import { ColorSchemeName, useColorScheme } from "@/hooks/use-color-scheme";
@@ -11,13 +6,17 @@ import { BuildingInfo, Coordinate, CoordinateDelta } from "@/types/mapTypes";
 import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
 import { decodePolyline } from "@/utils/decodePolyline";
 import { fetchAllDirections } from "@/utils/directions";
+import * as LocationPermissions from "expo-location";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import MapViewCluster from "react-native-map-clustering";
+import MapView, { Circle, Marker, Polygon, Polyline, Region } from "react-native-maps";
 import RoutesInfoPopup from "../navigation/routes-info-popup";
 import BuildingInfoPopup from "./building-info-popup";
-import BuildingSelection from "./building-selection";
+import BuildingSelection, { CURRENT_LOCATION_CODE } from "./building-selection";
 import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
-import { useLocalSearchParams } from "expo-router";
 
 interface PolylineSegment {
   coordinates: Coordinate[];
@@ -43,13 +42,15 @@ interface NavEndpointMarkerProps {
   readonly color: string;
 }
 
-/**
- * A simple pin marker indicating the start (A) or end (B) of a navigation route.
- */
 function NavEndpointMarker({ coordinate, label, color }: NavEndpointMarkerProps) {
   return (
-    <Marker coordinate={coordinate} anchor={{ x: 0.5, y: 1 }} zIndex={20}>
-      <View style={[styles.navPinWrapper]}>
+    <Marker
+      coordinate={coordinate}
+      anchor={{ x: 0.5, y: 1 }}
+      zIndex={20}
+      {...({ cluster: false } as any)}
+    >
+      <View style={styles.navPinWrapper}>
         <View style={[styles.navPinBubble, { backgroundColor: color }]}>
           <Text style={styles.navPinLabel}>{label}</Text>
         </View>
@@ -154,14 +155,10 @@ export default function MapViewer({
   userLocationDelta = defaultFocusDelta,
   initialRegion = defaultInitialRegion,
 }: Props) {
-  const colorScheme = useColorScheme() ?? "light";
+  const colorScheme = useColorScheme();
   const mapColors = Colors[colorScheme].map;
   const mapViewRef = useRef<MapView>(null);
   const suppressNextMapPress = useRef(false);
-  const { buildingId } = useLocalSearchParams<{
-    buildingId?: string;
-    buildingName?: string;
-  }>();
 
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
@@ -196,43 +193,22 @@ export default function MapViewer({
     start: null,
     end: null,
   });
-  const [manualStart, setManualStart] = useState<{
-    coord: Coordinate | null;
-    label: string;
-  }>({
+  const userClearedStart = useRef(false);
+  const lastDestinationRef = useRef<{ coord: Coordinate | null; label: string }>({
+    coord: null,
+    label: "",
+  });
+  const lastStartRef = useRef<{ coord: Coordinate | null; label: string }>({
+    coord: null,
+    label: "",
+  });
+  const lastManualStartRef = useRef<{ coord: Coordinate | null; label: string }>({
     coord: null,
     label: "",
   });
 
   const showStartHint =
     navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
-
-    /**
-   * Animates the map to center on the given building's location, using a tighter zoom level for better focus. The latitude and longitude deltas are adjusted to be no larger than 0.0025 to ensure a close-up view of the building, while still respecting the current zoom level if it's already close enough. This function is used when a building is selected to provide a focused view of that building on the map.
-   * @param building The BuildingInfo object representing the building to focus on, which contains its location and other details.
-   */
-  const focusBuilding = useCallback(
-    (building: BuildingInfo) => {
-      mapViewRef.current?.animateToRegion({
-        latitude: building.location.latitude,
-        longitude: building.location.longitude,
-        latitudeDelta: Math.min(currentRegion.latitudeDelta, 0.0025),
-        longitudeDelta: Math.min(currentRegion.longitudeDelta, 0.0025),
-      });
-    },
-    [currentRegion.latitudeDelta, currentRegion.longitudeDelta],
-  );
-
-  /**
-   * Selects a building based on its building code, updating the selectedBuilding state. It searches the CAMPUS_BUILDINGS array for a building with the matching code and sets it as the selected building. If no building is found with the given code, it sets selectedBuilding to null. This function is used when a building is selected from the list or when navigating to a building, ensuring that the correct building information is displayed in the UI.
-   * @param code The building code of the building to select, which is a unique identifier for each building on campus.
-   */
-  const selectBuildingByCode = useCallback((code: string) => {
-    const nextBuilding =
-      CAMPUS_BUILDINGS.find((building) => building.buildingCode === code) || null;
-    setSelectedBuilding(nextBuilding);
-    return nextBuilding;
-  }, []);
 
   useEffect(() => {
     if (!navCoords.start || !navCoords.end) {
@@ -285,19 +261,28 @@ export default function MapViewer({
     if (
       navigationMode === "directions" &&
       navCoords.start === null &&
-      selectionOverrides.start === null
+      selectionOverrides.start === null &&
+      !userClearedStart.current
     ) {
       let startCoord: Coordinate | null = null;
       let startLabel: string | null = null;
 
-      if (inBuildingCodes.size > 0) {
+      // Priority 1: Check if there's a saved manual start location
+      if (lastManualStartRef.current.coord && lastManualStartRef.current.label) {
+        startCoord = lastManualStartRef.current.coord;
+        startLabel = lastManualStartRef.current.label;
+      }
+      // Priority 2: User is inside a building
+      else if (inBuildingCodes.size > 0) {
         const firstCode = [...inBuildingCodes][0];
         const startBuilding = CAMPUS_BUILDINGS.find(
           (building) => building.buildingCode === firstCode,
         );
         startLabel = startBuilding?.buildingName ?? firstCode;
         startCoord = startBuilding?.location ?? null;
-      } else if (userLocation) {
+      }
+      // Priority 3: Use current location
+      else if (userLocation) {
         startLabel = "Current Location";
         startCoord = userLocation;
       }
@@ -305,7 +290,6 @@ export default function MapViewer({
       if (startCoord && startLabel) {
         setNavCoords((prev) => ({ ...prev, start: startCoord }));
         setSelectionOverrides((prev) => ({ ...prev, start: startLabel }));
-        setManualStart({ coord: startCoord, label: startLabel });
       }
     }
   }, [
@@ -316,14 +300,32 @@ export default function MapViewer({
     userLocation,
   ]);
 
-  useEffect(() => {
-    if (!buildingId) return;
-    const nextBuilding = selectBuildingByCode(buildingId);
-    if (nextBuilding) {
-      focusBuilding(nextBuilding);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [buildingId]);
+  /**
+   * Animates the map to center on the given building's location, using a tighter zoom level for better focus. The latitude and longitude deltas are adjusted to be no larger than 0.0025 to ensure a close-up view of the building, while still respecting the current zoom level if it's already close enough. This function is used when a building is selected to provide a focused view of that building on the map.
+   * @param building The BuildingInfo object representing the building to focus on, which contains its location and other details.
+   */
+  const focusBuilding = useCallback(
+    (building: BuildingInfo) => {
+      mapViewRef.current?.animateToRegion({
+        latitude: building.location.latitude,
+        longitude: building.location.longitude,
+        latitudeDelta: Math.min(currentRegion.latitudeDelta, 0.0025),
+        longitudeDelta: Math.min(currentRegion.longitudeDelta, 0.0025),
+      });
+    },
+    [currentRegion.latitudeDelta, currentRegion.longitudeDelta],
+  );
+
+  /**
+   * Selects a building based on its building code, updating the selectedBuilding state. It searches the CAMPUS_BUILDINGS array for a building with the matching code and sets it as the selected building. If no building is found with the given code, it sets selectedBuilding to null. This function is used when a building is selected from the list or when navigating to a building, ensuring that the correct building information is displayed in the UI.
+   * @param code The building code of the building to select, which is a unique identifier for each building on campus.
+   */
+  const selectBuildingByCode = useCallback((code: string) => {
+    const nextBuilding =
+      CAMPUS_BUILDINGS.find((building) => building.buildingCode === code) || null;
+    setSelectedBuilding(nextBuilding);
+    return nextBuilding;
+  }, []);
 
   /**
    * Handles the event when a building is pressed on the map. It updates the selected building, focuses the map on that building, and resets any existing navigation state to switch back to browse mode. The function also sets a flag to suppress the next map press event, preventing unintended deselection of the building when the map is tapped immediately after selecting a building. This ensures a smooth user experience when interacting with buildings on the map.
@@ -341,7 +343,6 @@ export default function MapViewer({
       setRouteNodes([]);
       setNavCoords({ start: null, end: null });
       setSelectionOverrides({ start: null, end: null });
-      setManualStart({ coord: null, label: "" });
 
       requestAnimationFrame(() => {
         suppressNextMapPress.current = false;
@@ -456,35 +457,86 @@ export default function MapViewer({
     let startCoord: Coordinate | null = null;
     let startLabel: string | null = null;
 
-    if (inBuildingCodes.size > 0) {
+    // Priority 1: Check if there's a saved manual start location
+    if (lastManualStartRef.current.coord && lastManualStartRef.current.label) {
+      startCoord = lastManualStartRef.current.coord;
+      startLabel = lastManualStartRef.current.label;
+    }
+    // Priority 2: User is inside a building
+    else if (inBuildingCodes.size > 0) {
       const firstCode = [...inBuildingCodes][0];
       const startBuilding = CAMPUS_BUILDINGS.find(
         (building) => building.buildingCode === firstCode,
       );
       startLabel = startBuilding?.buildingName ?? firstCode;
       startCoord = startBuilding?.location ?? userLocation ?? null;
-    } else if (userLocation) {
+    }
+    // Priority 3: Use current location
+    else if (userLocation) {
       startLabel = "Current Location";
       startCoord = userLocation;
-    } else if (manualStart.coord) {
-      startLabel = manualStart.label;
-      startCoord = manualStart.coord;
+    }
+    // Priority 4: Use last start ref if it exists
+    else if (lastStartRef.current.coord && lastStartRef.current.label) {
+      startLabel = lastStartRef.current.label;
+      startCoord = lastStartRef.current.coord;
+    }
+
+    if (startCoord && startLabel) {
+      lastStartRef.current = { coord: startCoord, label: startLabel };
     }
 
     setSelectionOverrides({
-      start: startLabel ?? "",
+      start: startLabel,
       end: selectedBuilding.buildingName,
     });
 
+    lastDestinationRef.current = {
+      coord: mapBuilding.location,
+      label: selectedBuilding.buildingName,
+    };
+    userClearedStart.current = false;
     setNavCoords({ start: startCoord, end: mapBuilding.location });
     setNavigationMode("directions");
     setShouldDisplayRoutes(true);
-  }, [selectedBuilding, inBuildingCodes, userLocation, manualStart]);
+  }, [selectedBuilding, inBuildingCodes, userLocation]);
+
+  const setBuildingAsStart = useCallback(() => {
+    if (!selectedBuilding) {
+      return;
+    }
+
+    const mapBuilding = CAMPUS_BUILDINGS.find(
+      (building) => building.buildingCode === selectedBuilding.buildingCode,
+    );
+    if (!mapBuilding) {
+      return;
+    }
+
+    const lastDest = lastDestinationRef.current;
+    lastStartRef.current = {
+      coord: mapBuilding.location,
+      label: selectedBuilding.buildingName,
+    };
+    lastManualStartRef.current = {
+      coord: mapBuilding.location,
+      label: selectedBuilding.buildingName,
+    };
+    userClearedStart.current = false;
+    setNavigationMode("directions");
+    setShouldDisplayRoutes(lastDest.coord != null);
+    setSelectionOverrides({ start: selectedBuilding.buildingName, end: lastDest.label });
+    setNavCoords({ start: mapBuilding.location, end: lastDest.coord });
+    setRoutePolyline(null);
+    setRouteStops([]);
+    setRouteNodes([]);
+  }, [selectedBuilding]);
 
   /**
    * Handles the action of going back from the directions view to the browse mode. It resets all navigation-related state, including the navigation mode, route display, navigation coordinates, selection overrides, and any displayed routes or stops. This function is called when the user presses the back button in the RoutesInfoPopup, allowing them to exit the directions view and return to browsing the map without any active navigation routes displayed.
    */
   const handleBackFromDirections = useCallback(() => {
+    userClearedStart.current = false;
     setNavigationMode("browse");
     setShouldDisplayRoutes(false);
     setNavCoords({ start: null, end: null });
@@ -498,18 +550,64 @@ export default function MapViewer({
    * Handles the action of swapping the start and end fields in the navigation directions. It updates the navigation coordinates, selection overrides, and manual start point to reflect the swap. This allows users to quickly reverse their route without having to manually re-enter the start and end locations. The function also resets any displayed routes or stops, prompting a new route calculation based on the updated coordinates. This is typically called when the user presses a swap button in the BuildingSelection component while in directions mode.
    */
   const handleSwapFields = useCallback(() => {
-    setNavCoords((prev) => ({ start: prev.end, end: prev.start }));
+    // Capture current values before swapping
+    const currentStart = navCoords.start;
+    const currentEnd = navCoords.end;
+
+    // Swap the coordinates
+    setNavCoords({ start: currentEnd, end: currentStart });
     setSelectionOverrides((prev) => ({ start: prev.end, end: prev.start }));
-    setManualStart((prev) => {
-      // The old end becomes new start
-      const endCoord = navCoords.end;
-      const endLabel = selectionOverrides.end ?? "";
-      return { coord: endCoord, label: endLabel };
-    });
     setRoutePolyline(null);
     setRouteStops([]);
     setRouteNodes([]);
-  }, [navCoords.end, selectionOverrides.end]);
+  }, [navCoords.start, navCoords.end]);
+
+  const clearRouteRendering = useCallback(() => {
+    setRoutePolyline(null);
+    setRouteStops([]);
+    setRouteNodes([]);
+  }, []);
+
+  const resolveSelectionCoordinate = useCallback(
+    (selectedCode?: string) => {
+      if (selectedCode === CURRENT_LOCATION_CODE) {
+        return userLocation;
+      }
+      if (!selectedCode) {
+        return null;
+      }
+
+      const building = CAMPUS_BUILDINGS.find((b) => b.buildingCode === selectedCode);
+      return building?.location ?? null;
+    },
+    [userLocation],
+  );
+
+  const handleStartSelection = useCallback((coord: Coordinate | null, label: string) => {
+    userClearedStart.current = !coord;
+    if (coord) {
+      lastStartRef.current = { coord, label };
+      lastManualStartRef.current = { coord, label };
+    }
+  }, []);
+
+  const handleEndSelection = useCallback(
+    (selected: SearchBuilding | null, coord: Coordinate | null) => {
+      if (coord) {
+        lastDestinationRef.current = { coord, label: selected?.buildingName ?? "" };
+      }
+
+      if (selected?.buildingCode && selected.buildingCode !== CURRENT_LOCATION_CODE) {
+        const nextBuilding = selectBuildingByCode(selected.buildingCode);
+        if (nextBuilding) {
+          focusBuilding(nextBuilding);
+        }
+      } else {
+        setSelectedBuilding(null);
+      }
+    },
+    [focusBuilding, selectBuildingByCode],
+  );
 
   return (
     <View style={styles.container}>
@@ -517,6 +615,7 @@ export default function MapViewer({
         mode={navigationMode}
         selectedBuilding={selectedBuilding}
         currentBuildingCodes={inBuildingCodes}
+        hasUserLocation={!!userLocation && inBuildingCodes.size === 0}
         startOverride={selectionOverrides.start}
         endOverride={selectionOverrides.end}
         startHint={showStartHint ? "Please select a start location" : null}
@@ -526,33 +625,25 @@ export default function MapViewer({
           type: FieldType,
         ) => {
           const selected = buildings[type];
-          const coord = selected?.buildingCode
-            ? (CAMPUS_BUILDINGS.find(
-                (building) => building.buildingCode === selected.buildingCode,
-              )?.location ?? null)
-            : null;
+          const selectedCode = selected?.buildingCode;
+          const coord = resolveSelectionCoordinate(selectedCode);
 
           setNavCoords((prev) => ({ ...prev, [type]: coord }));
+          setSelectionOverrides((prev) => ({
+            ...prev,
+            [type]: selected?.buildingName ?? null,
+          }));
 
           if (type === "start") {
-            setManualStart({ coord, label: selected?.buildingName ?? "" });
+            handleStartSelection(coord, selected?.buildingName ?? "");
           }
 
           if (!coord) {
-            setRoutePolyline(null);
-            setRouteStops([]);
-            setRouteNodes([]);
+            clearRouteRendering();
           }
 
           if (type === "end") {
-            if (selected?.buildingCode) {
-              const nextBuilding = selectBuildingByCode(selected.buildingCode);
-              if (nextBuilding) {
-                focusBuilding(nextBuilding);
-              }
-            } else {
-              setSelectedBuilding(null);
-            }
+            handleEndSelection(selected, coord);
           }
         }}
       />
@@ -615,7 +706,6 @@ export default function MapViewer({
             setRouteNodes([]);
             setNavCoords({ start: null, end: null });
             setSelectionOverrides({ start: null, end: null });
-            setManualStart({ coord: null, label: "" });
           }
         }}
         renderCluster={renderCluster}
@@ -626,10 +716,12 @@ export default function MapViewer({
         {routePolyline?.map((segment, index) => {
           const dashedWidth = Platform.OS === "android" ? 6 : 3;
           const strokeWidth = segment.isDashed ? dashedWidth : 3;
+          const firstCoord = segment.coordinates[0];
+          const lastCoord = segment.coordinates.at(-1);
 
           return (
             <Polyline
-              key={`polyline-seg-${routeKey}-${index}-${segment.isDashed}`}
+              key={`polyline-seg-${routeKey}-${index}-${segment.color}-${segment.isDashed}-${firstCoord?.latitude}-${firstCoord?.longitude}-${lastCoord?.latitude}-${lastCoord?.longitude}`}
               coordinates={segment.coordinates}
               strokeColor={segment.color}
               strokeWidth={strokeWidth}
@@ -708,7 +800,7 @@ export default function MapViewer({
             ))}
         {navigationMode === "directions" && navCoords.start && (
           <NavEndpointMarker
-            key={`nav-start-${routeKey}-${navCoords.start.latitude}-${navCoords.start.longitude}`}
+            key={`nav-start-${navCoords.start.latitude}-${navCoords.start.longitude}`}
             coordinate={navCoords.start}
             label="A"
             color="#049ede"
@@ -716,7 +808,7 @@ export default function MapViewer({
         )}
         {navigationMode === "directions" && navCoords.end && (
           <NavEndpointMarker
-            key={`nav-end-${routeKey}-${navCoords.end.latitude}-${navCoords.end.longitude}`}
+            key={`nav-end-${navCoords.end.latitude}-${navCoords.end.longitude}`}
             coordinate={navCoords.end}
             label="B"
             color="#049ede"
@@ -724,6 +816,28 @@ export default function MapViewer({
         )}
       </MapViewCluster>
 
+      {__DEV__ && Platform.OS === "android" && (
+        <View style={styles.androidMarkerProxyContainer} pointerEvents="box-none">
+          {CAMPUS_BUILDINGS.map((building) => (
+            <Pressable
+              key={`marker-proxy-${building.buildingCode}`}
+              testID={`marker-${building.buildingCode}`}
+              nativeID={`marker-${building.buildingCode}`}
+              accessibilityRole="button"
+              accessibilityLabel={`${building.buildingCode} ${building.buildingName}`}
+              style={styles.androidMarkerProxyTarget}
+              onPress={() => handleBuildingPress(building)}
+            />
+          ))}
+          {Array.from(inBuildingCodes).map((code) => (
+            <View
+              key={`highlight-label-${code}`}
+              testID={`highlight-label-${code}`}
+              style={styles.androidMarkerProxyTarget}
+            />
+          ))}
+        </View>
+      )}
       <LocationButton
         state={locationState}
         onPress={() => {
@@ -738,7 +852,11 @@ export default function MapViewer({
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
 
       {navigationMode === "browse" && selectedBuilding && (
-        <BuildingInfoPopup building={selectedBuilding} onNavigate={navigateToBuilding} />
+        <BuildingInfoPopup
+          building={selectedBuilding}
+          onNavigate={navigateToBuilding}
+          onSetAsStart={setBuildingAsStart}
+        />
       )}
 
       {navigationMode === "directions" && (
@@ -747,11 +865,7 @@ export default function MapViewer({
           isOpen={shouldDisplayRoutes}
           onBack={handleBackFromDirections}
           onRouteSelect={(route: any) => {
-            setRouteKey((k) => k + 1);
-            setRoutePolyline(null);
-            setRouteStops([]);
-            setRouteNodes([]);
-
+            // Build new route data synchronously before touching state
             const segments: PolylineSegment[] = [];
             const stops: TransitStopMarker[] = [];
             const nodes: TransitionNode[] = [];
@@ -785,9 +899,18 @@ export default function MapViewer({
               }
             }
 
-            setRoutePolyline(segments.length > 0 ? segments : null);
-            setRouteStops(stops);
-            setRouteNodes(nodes);
+            // clear all existing polylines so native views are removed
+            setRouteKey((k) => k + 1);
+            setRoutePolyline(null);
+            setRouteStops([]);
+            setRouteNodes([]);
+
+            // then set new data on the next frame to ensure a clean transition without lingering old polylines
+            requestAnimationFrame(() => {
+              setRoutePolyline(segments.length > 0 ? segments : null);
+              setRouteStops(stops);
+              setRouteNodes(nodes);
+            });
           }}
           onStepSelect={(encoded: string) => {
             const coords = decodePolyline(encoded);
@@ -850,12 +973,22 @@ function renderBuildings(
 
     renderedMarkers.push(
       <Marker
-        testID={`marker-${building.buildingCode}`}
         key={building.buildingCode}
         coordinate={building.location}
         onPress={() => onPress(building)}
       >
         <View
+          testID={
+            Platform.OS === "android" ? undefined : `marker-${building.buildingCode}`
+          }
+          nativeID={
+            Platform.OS === "android" ? undefined : `marker-${building.buildingCode}`
+          }
+          accessible
+          accessibilityRole="button"
+          accessibilityLabel={`${building.buildingCode} ${building.buildingName}`}
+          accessibilityHint={`Shows details for ${building.buildingName}`}
+          collapsable={false}
           style={[
             styles.marker,
             {
@@ -959,6 +1092,23 @@ const styles = StyleSheet.create({
     borderTopWidth: 8,
     borderLeftColor: "transparent",
     borderRightColor: "transparent",
+  },
+
+  androidMarkerProxyContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: 1,
+    height: 1,
+  },
+  androidMarkerProxyTarget: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: 1,
+    height: 1,
+    opacity: 0.01,
+    zIndex: 10,
   },
 });
 

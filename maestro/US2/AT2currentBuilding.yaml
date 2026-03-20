@@ -1,0 +1,33 @@
+appId: host.exp.exponent
+---
+- openLink: exp://localhost:8081
+- setLocation:
+    latitude: 45.4957849
+    longitude: -73.577225
+
+- runFlow:
+    when:
+      visible:
+        text: "Continue"
+    commands:
+      - tapOn: "Search building"
+
+- tapOn:
+    id: "locationButton"
+- runFlow:
+    when:
+      visible:
+        text: "While using the app"
+    commands:
+      - tapOn: "While using the app"
+      - tapOn:
+          id: "locationButton"
+- tapOn: "Search building"
+- inputText: "Hall"
+- tapOn: "H – Henry F. Hall Building"
+- tapOn: "Directions"
+- assertVisible: "Current Location"
+- tapOn: "Current Location"
+- eraseText
+- inputText: "Ev"
+- tapOn: "EV – Engineering, Computer Science and Visual Arts Integrated Complex"
