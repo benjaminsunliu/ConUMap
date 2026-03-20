@@ -1,11 +1,24 @@
+import BuildingFloor from "@/components/map/building-floor";
 import { useLocalSearchParams } from "expo-router";
-import { Text, View } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
+import hallImage from "@/data/buildings/floors/hall/Images/Hall9 (Custom).png";
 
 export default function IndoorMap() {
   const { buildingCode } = useLocalSearchParams();
   return (
-    <View>
-      <Text>I am indoors in the {buildingCode} building</Text>
+    <View style={styles.container}>
+      <BuildingFloor
+        info={{
+          graphData: { adjacencySet: {}, checkpoints: {} },
+          imageURI: hallImage,
+        }}
+      />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
