@@ -106,8 +106,7 @@ const styles = StyleSheet.create({
     top: "90%",
     left: "2%",
     backgroundColor: "transparent",
-    position: "relative",
-    height: 0,
+    position: "absolute",
     zIndex: 5,
   },
 });

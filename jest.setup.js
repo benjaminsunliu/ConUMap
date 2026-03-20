@@ -1,4 +1,3 @@
-
 // Mock @expo/vector-icons/MaterialIcons to avoid font loading
 jest.mock('@expo/vector-icons/MaterialIcons', () => {
     return function MaterialIcons() {
@@ -10,3 +9,5 @@ jest.mock('@expo/vector-icons/MaterialIcons', () => {
       Ionicons: (props) => null,//
     };
   });
+
+process.env.EXPO_PUBLIC_GOOGLE_API_KEY = 'test-key';
