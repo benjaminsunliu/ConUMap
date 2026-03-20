@@ -6,9 +6,6 @@ appId: host.exp.exponent
     longitude: -73.577225
 
 - runFlow:
-    when:
-      visible:
-        text: "Continue"
     commands:
       - tapOn: "Search building"
 
@@ -24,10 +21,18 @@ appId: host.exp.exponent
           id: "locationButton"
 - tapOn: "Search building"
 - inputText: "Hall"
-- tapOn: "H – Henry F. Hall Building"
-- tapOn: "Directions"
+- tapOn:
+    id: "end-result-H"
+- assertVisible:
+    id: "building-info-popup"
+- assertVisible:
+    id: "directions-action-button"
+- tapOn:
+    id: "directions-action-button"
 - assertVisible: "Current Location"
 - tapOn: "Current Location"
+- tapOn: "Destination"
 - eraseText
 - inputText: "Ev"
-- tapOn: "EV – Engineering, Computer Science and Visual Arts Integrated Complex"
+- tapOn:
+    id: "end-result-EV"
