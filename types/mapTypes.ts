@@ -1,3 +1,5 @@
+export type Campus = "SGW" | "LOY";
+
 export type Coordinate = {
   latitude: number;
   longitude: number;
