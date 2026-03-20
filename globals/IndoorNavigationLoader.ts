@@ -3,7 +3,7 @@ import { BuildingCode, FloorCheckpointsGraph, RawFloorGraph } from "@/types/mapT
 import * as SecureStore from "expo-secure-store";
 
 // REVIEW: please tell me a better name for this
-class BuildingNavigationLoader {
+class IndoorNavigationLoader {
   public async clearAllData() {
     const promises = CAMPUS_BUILDINGS.map((building) => {
       return SecureStore.deleteItemAsync(this.getBuildingKey(building.buildingCode));
@@ -49,4 +49,4 @@ class BuildingNavigationLoader {
   }
 }
 
-export const BuildingNavigation = new BuildingNavigationLoader();
+export const NavigationLoader = new IndoorNavigationLoader();
