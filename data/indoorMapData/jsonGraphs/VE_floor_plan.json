@@ -1,6 +1,6 @@
 {
   "meta": {
-    "buildingId": "LB"
+    "buildingId": "VE"
   },
   "nodes": [
     {
@@ -51,16 +51,6 @@
       "x": 547,
       "y": 1395,
       "label": "",
-      "accessible": true
-    },
-    {
-      "id": "VE_F1_room_272",
-      "type": "room",
-      "buildingId": "VE",
-      "floor": 2,
-      "x": 1653,
-      "y": 272,
-      "label": "VE-215",
       "accessible": true
     },
     {
@@ -170,7 +160,7 @@
       "floor": 2,
       "x": 1654,
       "y": 303,
-      "label": "",
+      "label": "VE-215",
       "accessible": true
     },
     {
@@ -510,7 +500,7 @@
       "floor": 2,
       "x": 166,
       "y": 314,
-      "label": "",
+      "label": "Men's Bathroom",
       "accessible": true,
       "metadata": {
         "POI": "Men's Bathroom"
@@ -523,7 +513,7 @@
       "floor": 2,
       "x": 389,
       "y": 311,
-      "label": "",
+      "label": "Women's Bathroom",
       "accessible": true,
       "metadata": {
         "POI": "Women's Bathroom"
@@ -609,7 +599,7 @@
     {
       "source": "VE_F1_doorway_278",
       "target": "VE_F1_building_entry_exit_6",
-      "type": "room_to_door",
+      "type": "door_to_hallway",
       "weight": 229,
       "accessible": true
     },
@@ -653,13 +643,6 @@
       "target": "VE_F1_doorway_317",
       "type": "hallway",
       "weight": 77,
-      "accessible": true
-    },
-    {
-      "source": "VE_F1_doorway_292",
-      "target": "VE_F1_room_272",
-      "type": "room_to_door",
-      "weight": 31,
       "accessible": true
     },
     {
