@@ -76,6 +76,9 @@ describe("getConcordiaShuttleSchedule", () => {
   });
 
   it("should extract schedule times into Loyola and SGW arrays", async () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date("2026-03-09T12:00:00"));
+
     const data = await getConcordiaShuttleSchedule();
 
     expect(data.schedule["LOY"]).toEqual([
