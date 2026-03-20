@@ -33,12 +33,6 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        header: () => (
-          <TabHeader
-            backgroundColor={Colors[colorScheme].background}
-            logoSource={logoSource}
-          />
-        ),
         tabBarButton: HapticTab,
         tabBarActiveTintColor: Colors[colorScheme].tint,
         tabBarInactiveTintColor: Colors[colorScheme].text,
@@ -54,6 +48,7 @@ export default function TabLayout() {
         options={{
           title: "Map",
           tabBarIcon: MapTabIcon,
+          headerShown: false,
         }}
       />
       <Tabs.Screen
@@ -61,6 +56,12 @@ export default function TabLayout() {
         options={{
           title: "Calendar",
           tabBarIcon: CalendarTabIcon,
+          header: () => (
+            <TabHeader
+              backgroundColor={Colors[colorScheme].background}
+              logoSource={logoSource}
+            />
+          ),
         }}
       />
     </Tabs>
