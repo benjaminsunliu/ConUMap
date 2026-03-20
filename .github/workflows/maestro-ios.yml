@@ -97,7 +97,7 @@ jobs:
             export PATH="$HOME/.maestro/bin:$PATH"
             export MAESTRO_DRIVER_STARTUP_TIMEOUT=600000
             mkdir -p .maestro/output
-            maestro --device "$DEVICE_UDID" test .maestro/automated/launchTest.yaml \
+            maestro --device "$DEVICE_UDID" test .maestro/automated/suite.yaml \
             --format junit \
             --output .maestro/output/results.xml
 

@@ -195,7 +195,7 @@ jobs:
         timeout-minutes: 20
         run: |
           mkdir -p .maestro/output
-          maestro test .maestro/automated/launchTest.yaml \
+          maestro test .maestro/automated/suite.yaml \
             --format junit \
             --output .maestro/output/results.xml
 
