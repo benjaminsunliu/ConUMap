@@ -303,13 +303,18 @@ const styles = StyleSheet.create({
     height: 1.5,
   },
   nextClassButtonContainer: {
-    alignItems: 'center',
+    position: 'absolute',
+    right: 16,
+    bottom: 16,
+    zIndex: 20,
+    elevation: 8,
   },
   nextClassButton: {
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 10,
     padding: 10,
+    opacity: 0.8,
   },
   nextClassButtonTitle: {
     fontWeight: "700",
