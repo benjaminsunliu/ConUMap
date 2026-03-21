@@ -8,7 +8,7 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 import { ClassSchedule } from "@/hooks/use-calendar";
 type ScheduleViewerProps = {
-  data: readonly ClassSchedule[] | null| undefined;
+  data: readonly ClassSchedule[] | null | undefined;
 };
 
 function getWeekStart(date: Date): Date {
@@ -66,10 +66,6 @@ export default function ScheduleViewer({ data }: Readonly<ScheduleViewerProps>) 
     setCurrentWeekStart(getWeekStart(new Date()));
   }
 
-  function handleSettingsPress() {
-    // Open settings modal
-  }
-
   return (
     <View
       style={[
@@ -81,7 +77,6 @@ export default function ScheduleViewer({ data }: Readonly<ScheduleViewerProps>) 
         currentWeekStart={currentWeekStart}
         onWeekChange={setCurrentWeekStart}
         onTodayPress={handleTodayPress}
-        onSettingsPress={handleSettingsPress}
       />
 
       <WeeklyCalendarBody

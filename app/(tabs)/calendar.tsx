@@ -18,7 +18,7 @@ export default function CalendarScreen() {
     refetch: fetchCalendar,
   } = useCalendar(date);
 
-  // TODO: whoever is on UI should change this gesture because its a bit finnicky
+  // whoever is on UI should change this gesture because its a bit finnicky
   const swipeLeftGesture = Gesture.Fling()
     .direction(Directions.LEFT)
     .onStart(() => {

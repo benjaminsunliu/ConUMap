@@ -67,7 +67,7 @@ export const Colors = {
       clearButton: black,
       containerBackground: "#fbf6ec",
       swapButton: black,
-      resultTitle: "#2e0306"
+      resultTitle: "#2e0306",
     },
 
     scheduleViewer: {
@@ -117,7 +117,7 @@ export const Colors = {
       courseNotInColorMap: "#707070",
       shadowColor: black,
       text: "#fdfcea",
-    }
+    },
   },
 
   dark: {
@@ -180,7 +180,7 @@ export const Colors = {
       clearButton: "#420A0F",
       containerBackground: "#420A0F",
       swapButton: white,
-      resultTitle: white
+      resultTitle: white,
     },
 
     scheduleViewer: {
@@ -188,7 +188,7 @@ export const Colors = {
     },
 
     weeklyCalendarBody: {
-      todayColor: "rgba(110, 93, 88, 0.1)", 
+      todayColor: "rgba(110, 93, 88, 0.1)",
       backgroundColor: "#241c1a",
       borderColor: "#3c4043",
       dayAndTimeLabel: "#9b9b9b",
@@ -214,7 +214,7 @@ export const Colors = {
 
     dayColumn: {
       borderColor: "#3c4043",
-      todayColor: "rgba(110, 93, 88, 0.1)", 
+      todayColor: "rgba(110, 93, 88, 0.1)",
     },
 
     classDetailPopup: {
@@ -231,7 +231,7 @@ export const Colors = {
       shadowColor: black,
       text: "#fdfcea",
     },
-  }
+  },
 };
 
 export const Fonts = Platform.select({

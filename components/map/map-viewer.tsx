@@ -334,10 +334,9 @@ export default function MapViewer({
     return nextBuilding;
   }, []);
 
-
   /**
    * Handles "View in Map" button from class-block.tsx and class-detail-popup.tsx. When a buildingId is present in the search parameters, it attempts to find the corresponding building and focus the map on it. After handling the building selection and map focus, it replaces the current route with "/map-tab" to clear the buildingId from the URL, preventing repeated navigation to the same building.
-   * 
+   *
    */
   useEffect(() => {
     if (!buildingId) return;
@@ -346,7 +345,7 @@ export default function MapViewer({
     if (nextBuilding) {
       focusBuilding(nextBuilding);
     }
-    // Ensures that buildingId is undefined after 
+    // Ensures that buildingId is undefined after
     router.replace("/map-tab");
   }, [buildingId, selectBuildingByCode, focusBuilding]);
 

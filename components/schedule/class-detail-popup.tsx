@@ -1,14 +1,15 @@
 import React, { useEffect, useRef } from "react";
 import { Animated, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
-import { getWeekdayKey, ClassInfo } from "@/types/calendarTypes";
+import { getWeekdayKey } from "@/types/calendarTypes";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
+import { ClassSchedule } from "@/hooks/use-calendar";
 
 interface ClassDetailPopupProps {
-  classInfo: ClassInfo;
+  classInfo: ClassSchedule;
   colorMap: Map<string, string>;
   onClose: () => void;
 }
@@ -46,60 +47,119 @@ export default function ClassDetailPopup({
     onClose();
     router.navigate({
       pathname: "/map-tab",
-      params: {buildingId: classInfo.CU_BLDG}
+      params: { buildingId: classInfo.CU_BLDG },
     });
   }
 
   return (
     <Modal visible transparent animationType="none" onRequestClose={handleClose}>
-      <Animated.View style={[styles.backdrop, {backgroundColor: theme.classDetailPopup.backdropColor, opacity: backdropOpacity }]}>
+      <Animated.View
+        style={[
+          styles.backdrop,
+          {
+            backgroundColor: theme.classDetailPopup.backdropColor,
+            opacity: backdropOpacity,
+          },
+        ]}
+      >
         <Pressable style={StyleSheet.absoluteFill} onPress={handleClose} />
-        <Pressable style={[styles.card, { backgroundColor: color, shadowColor: theme.classDetailPopup.cardShadowColor }]}>
+        <Pressable
+          style={[
+            styles.card,
+            {
+              backgroundColor: color,
+              shadowColor: theme.classDetailPopup.cardShadowColor,
+            },
+          ]}
+        >
           <View style={styles.body}>
             <View style={styles.headerRow}>
               <View style={styles.headerText}>
-                <Text style={[styles.courseCode, {color: theme.classDetailPopup.text}]}>
+                <Text style={[styles.courseCode, { color: theme.classDetailPopup.text }]}>
                   {classInfo.SUBJECT} {classInfo.CATALOG_NBR}
                 </Text>
-                <Text style={[styles.xlatLongName, {color: theme.classDetailPopup.text}]}>
+                <Text
+                  style={[styles.xlatLongName, { color: theme.classDetailPopup.text }]}
+                >
                   {classInfo.XLATLONGNAME} – Section {classInfo.CLASS_SECTION}
                 </Text>
               </View>
               <Pressable
                 onPress={handleClose}
-                style={[styles.closeButton, {backgroundColor: "none"}]}
+                style={[styles.closeButton, { backgroundColor: "none" }]}
                 accessibilityLabel="Close"
               >
-                <MaterialIcons name="close" size={36} color={theme.classDetailPopup.buttonColor} />
+                <MaterialIcons
+                  name="close"
+                  size={36}
+                  color={theme.classDetailPopup.buttonColor}
+                />
               </Pressable>
             </View>
             <View style={styles.details}>
               <View style={styles.detailRow}>
-                <Text style={[styles.detailRowTitle, {color: theme.classDetailPopup.text}]}>Instructor:</Text>
-                <Text style={[styles.detailRowText, {color: theme.classDetailPopup.text}]}>{classInfo.INSTR_NAME}</Text>
+                <Text
+                  style={[styles.detailRowTitle, { color: theme.classDetailPopup.text }]}
+                >
+                  Instructor:
+                </Text>
+                <Text
+                  style={[styles.detailRowText, { color: theme.classDetailPopup.text }]}
+                >
+                  {classInfo.INSTR_NAME}
+                </Text>
               </View>
               <View style={styles.detailRow}>
-                <Text style={[styles.detailRowTitle, {color: theme.classDetailPopup.text}]}>Time:</Text>
-                <Text style={[styles.detailRowText, {color: theme.classDetailPopup.text}]}>
+                <Text
+                  style={[styles.detailRowTitle, { color: theme.classDetailPopup.text }]}
+                >
+                  Time:
+                </Text>
+                <Text
+                  style={[styles.detailRowText, { color: theme.classDetailPopup.text }]}
+                >
                   {classInfo.START_HOURS}:{classInfo.START_MINUTES} –{" "}
                   {classInfo.END_HOURS}:{classInfo.END_MINUTES} (
                   {getWeekdayKey(classInfo.DAY_OF_WEEK)})
                 </Text>
               </View>
               <View style={styles.detailRow}>
-                <Text style={[styles.detailRowTitle, {color: theme.classDetailPopup.text}]}>Location:</Text>
-                <Text style={[styles.detailRowText, {color: theme.classDetailPopup.text}]}>
+                <Text
+                  style={[styles.detailRowTitle, { color: theme.classDetailPopup.text }]}
+                >
+                  Location:
+                </Text>
+                <Text
+                  style={[styles.detailRowText, { color: theme.classDetailPopup.text }]}
+                >
                   Room {classInfo.CU_BLDG + "-" + classInfo.ROOM}
                 </Text>
-                <Text style={[styles.detailRowText, {color: theme.classDetailPopup.text}]}>{classInfo.CU_BUILDING}</Text>
+                <Text
+                  style={[styles.detailRowText, { color: theme.classDetailPopup.text }]}
+                >
+                  {classInfo.CU_BUILDING}
+                </Text>
               </View>
             </View>
             <Pressable
               onPress={handleLocateOnMap}
-              style={({ pressed }) => [styles.mapButton, {backgroundColor: theme.classDetailPopup.buttonColor, opacity: pressed ? 0.85 : 1 }]}
+              style={({ pressed }) => [
+                styles.mapButton,
+                {
+                  backgroundColor: theme.classDetailPopup.buttonColor,
+                  opacity: pressed ? 0.85 : 1,
+                },
+              ]}
               accessibilityLabel={`Find ${classInfo.CU_BLDG}${classInfo.ROOM} on map`}
             >
-              <Text style={[styles.mapButtonText, {color: theme.classDetailPopup.mapButtonText}]}>View in Map</Text>
+              <Text
+                style={[
+                  styles.mapButtonText,
+                  { color: theme.classDetailPopup.mapButtonText },
+                ]}
+              >
+                View in Map
+              </Text>
             </Pressable>
           </View>
         </Pressable>
