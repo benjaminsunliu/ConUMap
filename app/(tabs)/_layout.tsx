@@ -25,6 +25,8 @@ function TabHeader({ backgroundColor, logoSource }: TabHeaderProps) {
     <View
       style={[styles.header, { backgroundColor, paddingTop: insets.top }]}
       testID="tab-header"
+      accessible
+      accessibilityLabel="tab-header"
     >
       <Image source={logoSource} style={styles.logo} resizeMode="contain" />
     </View>

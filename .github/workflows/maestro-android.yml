@@ -238,6 +238,7 @@ jobs:
         timeout-minutes: 5
         run: |
           mkdir -p .maestro/output
+          export MAESTRO_DRIVER_STARTUP_TIMEOUT=600000
           maestro test .maestro/automated/smokeAppReady.yaml \
             --format junit \
             --output .maestro/output/smoke-results.xml
@@ -246,6 +247,7 @@ jobs:
         timeout-minutes: 20
         run: |
           mkdir -p .maestro/output
+          export MAESTRO_DRIVER_STARTUP_TIMEOUT=600000
           maestro test .maestro/automated/suite.yaml \
             --format junit \
             --output .maestro/output/results.xml

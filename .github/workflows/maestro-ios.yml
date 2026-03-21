@@ -1,11 +1,6 @@
 name: Maestro E2E iOS
 
 on:
-    push:
-      branches: [master]
-    pull_request:
-      branches: [master]
-      types: [opened, reopened, synchronize]
     workflow_dispatch:
 
 jobs:
