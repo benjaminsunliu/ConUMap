@@ -17,7 +17,7 @@ export default function ClassDetailPopup({
   classInfo,
   colorMap,
   onClose,
-}: ClassDetailPopupProps) {
+}: Readonly<ClassDetailPopupProps>) {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
 

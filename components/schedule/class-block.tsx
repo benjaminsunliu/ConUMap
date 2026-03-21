@@ -1,6 +1,5 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { timeToPixels } from '@/constants/scheduleConstant';
 import { ClassInfo } from '@/types/calendarTypes';
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -14,7 +13,7 @@ interface ClassBlockProps {
     onPress: (ClassInfo: ClassInfo) => void;
 }
 
-export default function ClassBlock({ classInfo, colorMap, topOffset, height, onPress }: ClassBlockProps) {
+export default function ClassBlock({ classInfo, colorMap, topOffset, height, onPress }: Readonly<ClassBlockProps>) {
     const colorScheme = useColorScheme() ?? "light";
     const theme = Colors[colorScheme];
 
