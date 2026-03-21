@@ -23,15 +23,25 @@ export default function FloorSelector({ buildingName, availableFloors, currentFl
 
     return (
         <>
-            {open && (<TouchableOpacity activeOpacity={1} onPress={() => setOpen(false)} />)}
+            {open && (<TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={() => setOpen(false)} />)}
 
             <View style={styles.container}>
-                <TouchableOpacity style={[{ backgroundColor: theme.floorSelection.buttonBackground }, styles.button]} activeOpacity={0.8} onPress={() => setOpen((prev) => !prev)}>
-                    <Ionicons style={styles.chevron} name="chevron-expand-outline" size={25} color={theme.floorSelection.chevron} />
-                    <View>
-                        <Text style={[{ color: theme.floorSelection.textColor }, styles.mainText]}> Floor {formatFloor(currentFloor)}{"\n"} </Text>
-                        <Text style={[{ color: theme.floorSelection.textColor }, styles.subText]}> {buildingName} </Text>
+                <TouchableOpacity
+                    style={[styles.button, { backgroundColor: theme.floorSelection.buttonBackground }]}
+                    activeOpacity={0.85}
+                    onPress={() => setOpen((prev) => !prev)}
+                >
+                    <View style={styles.left}>
+                        <Text style={[styles.mainText, { color: theme.floorSelection.textColor }]}>
+                            Floor {formatFloor(currentFloor)}
+                        </Text>
+
+                        <Text style={[styles.subText, { color: theme.floorSelection.textColor }]} numberOfLines={1}>
+                            {buildingName}
+                        </Text>
                     </View>
+
+                    <Ionicons name={open ? "chevron-up" : "chevron-down"} size={22} color={theme.floorSelection.chevron} />
                 </TouchableOpacity>
 
                 {open && (
@@ -39,17 +49,38 @@ export default function FloorSelector({ buildingName, availableFloors, currentFl
                         <FlatList
                             data={sortedFloors}
                             keyExtractor={(item) => item.toString()}
-                            renderItem={({ item }) => (
-                                <TouchableOpacity
-                                    style={[{ borderBottomColor: theme.floorSelection.separator }, styles.floorItem, item === currentFloor && { backgroundColor: theme.floorSelection.selectedFloor }]}
-                                    onPress={() => {
-                                        onSelectFloor(item);
-                                        setOpen(false);
-                                    }}
-                                >
-                                    <Text style={styles.floorText}> Floor {formatFloor(item)} </Text>
-                                </TouchableOpacity>
-                            )}
+                            showsVerticalScrollIndicator={false}
+                            renderItem={({ item }) => {
+                                const isActive = item === currentFloor;
+
+                                return (
+                                    <TouchableOpacity
+                                        style={[
+                                            styles.floorItem,
+                                            { borderBottomColor: theme.floorSelection.separator },
+                                            isActive && { backgroundColor: theme.floorSelection.selectedFloor }
+                                        ]}
+                                        onPress={() => {
+                                            onSelectFloor(item);
+                                            setOpen(false);
+                                        }}
+                                    >
+                                        <Text
+                                            style={[
+                                                styles.floorText,
+                                                {
+                                                    color: theme.floorSelection.textColor,
+                                                    fontWeight: isActive ? "700" : "500",
+                                                }
+                                            ]}
+                                        >
+                                            Floor {formatFloor(item)}
+                                        </Text>
+
+                                        {isActive && (<Ionicons name="checkmark" size={18} color={theme.floorSelection.chevron} />)}
+                                    </TouchableOpacity>
+                                );
+                            }}
                         />
                     </View>
                 )}
@@ -64,42 +95,53 @@ const styles = StyleSheet.create({
         top: "5%",
         alignSelf: "center",
         zIndex: 11,
-        width: "35%",
+        width: "40%",
+    },
+    overlay: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 10
     },
     button: {
         flexDirection: "row",
-        justifyContent: "space-around",
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-        borderRadius: 25,
-        elevation: 5,
+        alignItems: "center",
+        justifyContent: "space-between",
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderRadius: 22,
+        elevation: 6
+    },
+    left: {
+        flex: 1
     },
     mainText: {
-        fontWeight: "600",
-        textAlign: "center",
+        fontSize: 16,
+        fontWeight: "700"
     },
     subText: {
-        fontWeight: "300",
+        fontSize: 12,
+        opacity: 0.8,
+        marginTop: 2
     },
     dropdown: {
-        marginTop: 8,
-        borderRadius: 12,
-        maxHeight: "40%",
+        marginTop: 10,
+        borderRadius: 14,
+        maxHeight: 220,
         overflow: "hidden",
-        elevation: 6,
-        width: "90%",
-        alignSelf: "center",
+        elevation: 8
     },
     floorItem: {
-        padding: 12,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        paddingVertical: 14,
+        paddingHorizontal: 16,
         borderBottomWidth: 1,
     },
     floorText: {
-        fontSize: 16,
-        textAlign: "center",
-    },
-    chevron: {
-        alignSelf: "center"
+        fontSize: 15
     }
 });
-

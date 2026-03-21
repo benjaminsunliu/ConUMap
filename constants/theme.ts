@@ -70,12 +70,27 @@ export const Colors = {
       resultTitle: "#2e0306",
     },
     floorSelection: {
-      chevron: white,
-      buttonBackground: "#7A0C10",
-      textColor: white,
-      selectedFloor: "#f2f2f2",
+      chevron: "#2e0306",
+      buttonBackground: "#fff",
+      textColor: "#2e0306",
+      selectedFloor: "rgba(255, 148, 148, 0.29)",
       separator: "#eee",
-      dropdown: white
+      dropdown: "#fff"
+    },
+    mapSettings: {
+      fabBackground: "#fff",
+      fabIcon: "#2e0306",
+
+      panelBackground: "#ffffff",
+      title: "#11181C",
+      text: "#333333",
+      divider: "#dddddd",
+
+      toggleTrue: "#5e0e16",
+      toggleFalse: "#cccccc",
+
+      checkbox: "#2e0306",
+      icon: "#5e0e16",
     }
   },
 
@@ -143,11 +158,26 @@ export const Colors = {
     },
     floorSelection: {
       chevron: white,
-      buttonBackground: "#7A0C10",
+      buttonBackground: "#440c08",
       textColor: white,
-      selectedFloor: "#f2f2f2",
-      separator: "#eee",
-      dropdown: white
+      selectedFloor: "#441815",
+      separator: "#caabab3a",
+      dropdown: "#743b3b"
+    },
+    mapSettings: {
+      fabBackground: "#330300",
+      fabIcon: "#ffffff",
+
+      panelBackground: "#330300",
+      title: "#ffffff",
+      text: "#ffffff",
+      divider: "#dddddd",
+
+      toggleTrue: "#ffffff",
+      toggleFalse: "#b6b5b5",
+
+      checkbox: "#ffffff",
+      icon: "#ffffff",
     }
   },
 };
