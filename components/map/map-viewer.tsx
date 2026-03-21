@@ -18,7 +18,6 @@ import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
 import { useLocalSearchParams } from "expo-router/build/hooks";
-import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { router } from "expo-router";
 
 interface PolylineSegment {

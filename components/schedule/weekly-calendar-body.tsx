@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, View, PanResponder, Pressable } from 'react-native';
 import DayColumn from './day-column';
-import { ClassInfo, Weekdays, getWeekdayKey } from '@/types/calendarTypes';
+import { getWeekdayKey } from '@/types/calendarTypes';
 import { CALENDAR_END_HOUR, CALENDAR_START_HOUR, COLUMN_TOTAL_HEIGHT, HOUR_HEIGHT, PIXELS_PER_MINUTE, TIME_GUTTER_WIDTH } from '@/constants/scheduleConstant';
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
+import { ClassSchedule } from '@/hooks/use-calendar';
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const HOURS = Array.from(
@@ -16,9 +17,9 @@ const HOURS = Array.from(
 
 interface WeeklyCalendarBodyProps {
     weekStartDate: Date;
-    classes: ClassInfo[];
+    classes: ClassSchedule[];
     colorMap: Map<string, string>;
-    onClassPress: (classInfo: ClassInfo) => void;
+    onClassPress: (classInfo: ClassSchedule) => void;
     onWeekChange: (newWeekStart: Date) => void;
 }
 
@@ -28,7 +29,7 @@ function getCurrentTimeY(): number {
     return currentMinutes * PIXELS_PER_MINUTE;
 }
 
-export function getNextClass(classes: ClassInfo[]): ClassInfo {
+export function getNextClass(classes: ClassSchedule[]): ClassSchedule {
     const now = new Date();
     const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const todayWeekday = weekdays[now.getDay()];
@@ -48,7 +49,7 @@ export function getNextClass(classes: ClassInfo[]): ClassInfo {
         if (endTimeInMinutes - currentMinutes <= 0) continue;   // Class has finished
         if (currentMinutes - startTimeInMinutes > 30) continue; // More than 30 minutes since class has started
 
-        if (nextClassIndex == -1) {
+        if (nextClassIndex === -1) {
             nextClassIndex = i;
             continue;
         }
@@ -65,7 +66,7 @@ export function getNextClass(classes: ClassInfo[]): ClassInfo {
     return classesToday[nextClassIndex];
 }
 
-export default function WeeklyCalendarBody({ weekStartDate, classes, colorMap, onClassPress, onWeekChange }: WeeklyCalendarBodyProps) {
+export default function WeeklyCalendarBody({ weekStartDate, classes, colorMap, onClassPress, onWeekChange }: Readonly<WeeklyCalendarBodyProps>) {
     const colorScheme = useColorScheme() ?? "light";
     const theme = Colors[colorScheme];
     
@@ -136,7 +137,7 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, colorMap, o
                 <View style={styles.timeGutterSpacer} />
 
                 {weekDates.map((date, i) => (
-                    <View key={i} style={[styles.dayHeader, {borderLeftColor: theme.weeklyCalendarBody.borderColor,}, isToday(date) && {backgroundColor: theme.weeklyCalendarBody.todayColor}]}>
+                    <View key={date.toLocaleDateString("en-US", { weekday: 'short' })} style={[styles.dayHeader, {borderLeftColor: theme.weeklyCalendarBody.borderColor,}, isToday(date) && {backgroundColor: theme.weeklyCalendarBody.todayColor}]}>
                         <Text style={[styles.dayLabel, {color: theme.weeklyCalendarBody.dayAndTimeLabel}, isToday(date) && {color: theme.tint}]}>
                             {date.toLocaleDateString("en-US", { weekday: 'short' })}
                         </Text>
@@ -187,7 +188,7 @@ export default function WeeklyCalendarBody({ weekStartDate, classes, colorMap, o
 
                         {weekDates.map((date, i) => (
                             <DayColumn 
-                                key={i}
+                                key={date.toLocaleDateString("en-US", { weekday: 'short' }).toLowerCase()}
                                 dayIndex={i}
                                 isToday={isToday(date)}
                                 classes={classes.filter((cls) => cls.DAY_OF_WEEK.includes(date.toLocaleDateString("en-US", { weekday: 'short' }).toLowerCase()))}

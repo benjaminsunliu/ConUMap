@@ -1,13 +1,10 @@
 import ScheduleViewer from "@/components/schedule/schedule-viewer";
-
-// export default function CalendarTab() {
-//   return <ScheduleViewer />;
 import AuthWebView from "@/components/authentication/AuthWebView";
 import { ONE_WEEK_MS } from "@/constants/time";
 import { useCalendar } from "@/hooks/use-calendar";
 import { useIsLoggedIn, useLogin, useLogout } from "@/hooks/use-login";
 import React, { useEffect, useState } from "react";
-import { Button, FlatList, Text, View } from "react-native";
+import { Button, Text, View } from "react-native";
 import { Directions, Gesture, GestureDetector } from "react-native-gesture-handler";
 
 export default function CalendarScreen() {
@@ -55,19 +52,7 @@ export default function CalendarScreen() {
       <GestureDetector gesture={Gesture.Race(swipeLeftGesture, swipeRightGesture)}>
         <View style={{ flex: 1 }} testID="courses-view">
           <Button title="Logout" onPress={() => logout()} />
-          {/* <FlatList
-            data={calendarData}
-            renderItem={(info) => (
-              <View>
-                <Text>
-                  {info.item.SUBJECT}
-                  {info.item.CATALOG_NBR} - {info.item.CU_BUILDING}
-                  {info.item.ROOM}
-                </Text>
-              </View>
-            )}
-          /> */}
-          <ScheduleViewer></ScheduleViewer>
+          <ScheduleViewer data={calendarData} />
         </View>
       </GestureDetector>
     );
