@@ -9,7 +9,6 @@ import {
   Pressable,
 } from "react-native";
 import DayColumn from "./day-column";
-import { getWeekdayKey } from "@/types/calendarTypes";
 import {
   CALENDAR_END_HOUR,
   CALENDAR_START_HOUR,
@@ -23,6 +22,8 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 import { ClassSchedule } from "@/hooks/use-calendar";
+import { DayOfWeek } from "@/types/dayOfWeek";
+import { router } from "expo-router";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const HOURS = Array.from(
@@ -44,30 +45,19 @@ function getCurrentTimeY(): number {
   return currentMinutes * PIXELS_PER_MINUTE;
 }
 
-export function getNextClass(classes: ClassSchedule[]): ClassSchedule {
+export function getNextClass(classes: ClassSchedule[]): ClassSchedule | undefined {
   const now = new Date();
-  const weekdays = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
-  const todayWeekday = weekdays[now.getDay()];
+  const todayWeekday = now.getDay() as DayOfWeek;
 
   const classesToday = classes.filter((cls) => {
-    getWeekdayKey(cls.DAY_OF_WEEK) === todayWeekday;
+    return DayOfWeek.fromShortString(cls.DAY_OF_WEEK) === todayWeekday;
   });
 
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-  let nextClassIndex = -1;
+  let nextClass = undefined;
 
-  for (let i = 0; i < classesToday.length; i++) {
-    let cls = classesToday[i];
-
+  for (const cls of classesToday) {
     let startTimeInMinutes =
       Number(`${cls.START_HOURS}`) * 60 + Number(`${cls.START_MINUTES}`);
     let endTimeInMinutes = Number(`${cls.END_HOURS}`) * 60 + Number(`${cls.END_MINUTES}`);
@@ -75,22 +65,21 @@ export function getNextClass(classes: ClassSchedule[]): ClassSchedule {
     if (endTimeInMinutes - currentMinutes <= 0) continue; // Class has finished
     if (currentMinutes - startTimeInMinutes > 30) continue; // More than 30 minutes since class has started
 
-    if (nextClassIndex === -1) {
-      nextClassIndex = i;
+    if (nextClass === undefined) {
+      nextClass = cls;
       continue;
     }
 
     let thisDelta = endTimeInMinutes - currentMinutes;
-    let currentNextClass = classesToday[nextClassIndex];
     let smallestDeltaSoFar =
-      Number(currentNextClass.END_HOURS) * 60 + Number(currentNextClass.END_MINUTES);
+      Number(nextClass.END_HOURS) * 60 + Number(nextClass.END_MINUTES);
 
     if (thisDelta < smallestDeltaSoFar) {
-      nextClassIndex = i;
+      nextClass = cls;
     }
   }
 
-  return classesToday[nextClassIndex];
+  return nextClass;
 }
 
 export default function WeeklyCalendarBody({
@@ -105,7 +94,7 @@ export default function WeeklyCalendarBody({
 
   // Time state for horizontal time bar
   const [currentTimeY, setCurrentTimeY] = useState(() => getCurrentTimeY());
-  const [nextClass, setNextClass] = useState(() => getNextClass(classes));
+  const [nextClass] = useState(() => getNextClass(classes));
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -162,6 +151,14 @@ export default function WeeklyCalendarBody({
       },
     }),
   ).current;
+
+  function handleNextClassPress() {
+    if (!nextClass) return;
+    router.navigate({
+      pathname: "/map-tab",
+      params: { buildingId: nextClass.CU_BLDG },
+    });
+  }
 
   return (
     <View
@@ -312,7 +309,9 @@ export default function WeeklyCalendarBody({
 
       <View style={[styles.nextClassButtonContainer]}>
         <Pressable
-          onPress={() => {}}
+          onPress={() => {
+            handleNextClassPress();
+          }}
           style={[
             styles.nextClassButton,
             { backgroundColor: theme.weeklyCalendarBody.nextClassButtonColor },
@@ -334,7 +333,9 @@ export default function WeeklyCalendarBody({
                 { color: theme.weeklyCalendarBody.nextClassButtonText },
               ]}
             >
-              SOEN 345 Lec
+              {nextClass
+                ? `${nextClass.SUBJECT} ${nextClass.CATALOG_NBR} at ${nextClass.START_HOURS}:${String(nextClass.START_MINUTES).padStart(2, "0")}`
+                : "No more classes today"}
             </Text>
           </View>
           <MaterialIcons

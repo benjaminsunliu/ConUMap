@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Animated, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
-import { getWeekdayKey } from "@/types/calendarTypes";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -120,7 +119,7 @@ export default function ClassDetailPopup({
                 >
                   {classInfo.START_HOURS}:{classInfo.START_MINUTES} –{" "}
                   {classInfo.END_HOURS}:{classInfo.END_MINUTES} (
-                  {getWeekdayKey(classInfo.DAY_OF_WEEK)})
+                  {classInfo.DAY_OF_WEEK.toUpperCase()})
                 </Text>
               </View>
               <View style={styles.detailRow}>
