@@ -69,6 +69,14 @@ export const Colors = {
       swapButton: black,
       resultTitle: "#2e0306",
     },
+    floorSelection: {
+      chevron: white,
+      buttonBackground: "#7A0C10",
+      textColor: white,
+      selectedFloor: "#f2f2f2",
+      separator: "#eee",
+      dropdown: white
+    }
   },
 
   dark: {
@@ -133,6 +141,14 @@ export const Colors = {
       swapButton: white,
       resultTitle: white,
     },
+    floorSelection: {
+      chevron: white,
+      buttonBackground: "#7A0C10",
+      textColor: white,
+      selectedFloor: "#f2f2f2",
+      separator: "#eee",
+      dropdown: white
+    }
   },
 };
 
