@@ -191,6 +191,21 @@ jobs:
           adb shell screenrecord /sdcard/screenrecord.mp4 &
           echo $! > ~/screenrecord.pid
 
+      - name: Verify installed app and foreground launch
+        run: |
+          adb shell pm list packages | grep "com.anonymous.client"
+          adb shell monkey -p com.anonymous.client -c android.intent.category.LAUNCHER 1
+          sleep 3
+          adb shell dumpsys window | grep -E 'mCurrentFocus|mFocusedApp' || true
+
+      - name: Smoke test app readiness
+        timeout-minutes: 5
+        run: |
+          mkdir -p .maestro/output
+          maestro test .maestro/automated/smokeAppReady.yaml \
+            --format junit \
+            --output .maestro/output/smoke-results.xml
+
       - name: Run tests
         timeout-minutes: 20
         run: |

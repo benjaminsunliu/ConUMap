@@ -1,0 +1,11 @@
+appId: com.anonymous.client
+---
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "building-selection"
+    timeout: 45000
+- extendedWaitUntil:
+    visible:
+      id: "locationButton"
+    timeout: 15000
