@@ -2,27 +2,33 @@ appId: host.exp.Exponent
 ---
 - openLink: exp://localhost:8081
 - tapOn: "Search building"
-- inputText: "Hall"
-- tapOn: "H – Henry F. Hall Building"
-- tapOn: "Directions"
-- tapOn: "Your Location"
 - inputText: "Vanier"
 - tapOn: "VL – Vanier Library Building"
+- tapOn: "Directions"
+- tapOn: "Your Location"
+- inputText: "Hall"
+- tapOn: "H – Henry F. Hall Building"
+- assertVisible:
+    id: "walking-selector"
+- assertVisible:
+    id: "transit-selector"
+- assertVisible:
+    id: "driving-selector"
+- assertVisible:
+    id: "bicycling-selector"
 - assertVisible:
     id: "shuttle-selector"
 - tapOn:
-    id: "shuttle-selector"
+    id: "transit-selector"
 - swipe:
     from:
       id: "routes-info-popup"
     direction: UP
 - tapOn:
-    id: "shuttle-route-0"
+    id: "transit-route-0"
 - assertVisible:
-    id: "shuttle-step-0"
+    id: "transit-step-0"
 - swipe:
     from:
       id: "driving-selector"
     direction: DOWN
-- swipe:
-    direction: RIGHT
