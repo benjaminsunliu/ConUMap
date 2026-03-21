@@ -22,7 +22,10 @@ function TabHeader({ backgroundColor, logoSource }: TabHeaderProps) {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.header, { backgroundColor, paddingTop: insets.top }]}>
+    <View
+      style={[styles.header, { backgroundColor, paddingTop: insets.top }]}
+      testID="tab-header"
+    >
       <Image source={logoSource} style={styles.logo} resizeMode="contain" />
     </View>
   );

@@ -1,6 +1,10 @@
 appId: com.anonymous.client
 ---
-- runFlow: launchApp.yaml
-- runFlow: ../US1/AT3campusLocation.yaml
-- runFlow: ../US1/AT4buildingPopup.yaml
-- runFlow: ../US2/AT2currentBuilding.yaml
+- runFlow: 
+    file: launchApp.yaml
+- runFlow: 
+    file: ../US1/AT3campusLocation.yaml
+- runFlow: 
+    file: ../US1/AT4buildingPopup.yaml
+- runFlow: 
+    file: ../US2/AT2currentBuilding.yaml
