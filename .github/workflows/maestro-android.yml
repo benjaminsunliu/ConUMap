@@ -109,10 +109,16 @@ jobs:
           chmod +x ./gradlew
           ./gradlew assembleDebug \
             -PreactNativeArchitectures=x86_64 \
+            -PbundleInDebug=true \
             --stacktrace \
             --console=plain \
             --no-daemon \
             --max-workers=2
+
+      - name: Verify APK outputs
+        run: |
+          ls -lah android/app/build/outputs/apk/debug || true
+          find android/app/build/outputs/apk/debug -type f -name "*.apk" -print
 
       - name: Create AVD
         run: |
@@ -184,7 +190,12 @@ jobs:
 
       - name: Install app
         run: |
-          adb install -r android/app/build/outputs/apk/debug/*.apk
+          APK_PATH="$(find android/app/build/outputs/apk/debug -type f -name 'app-debug.apk' | head -1)"
+          if [ -z "$APK_PATH" ]; then
+            echo "app-debug.apk not found" >&2
+            exit 1
+          fi
+          adb install -r "$APK_PATH"
 
       - name: Start screen recording of AVD
         run: |
@@ -196,7 +207,9 @@ jobs:
           adb shell pm list packages | grep "com.anonymous.client"
           adb shell monkey -p com.anonymous.client -c android.intent.category.LAUNCHER 1
           sleep 3
+          adb shell cmd package resolve-activity --brief com.anonymous.client || true
           adb shell dumpsys window | grep -E 'mCurrentFocus|mFocusedApp' || true
+          adb logcat -d | grep -i -E "ReactNativeJS|AndroidRuntime|FATAL EXCEPTION|Unable to load script|SoLoader|Expo" | tail -n 200 > ~/app_launch_diagnostics.log || true
 
       - name: Smoke test app readiness
         timeout-minutes: 5
@@ -231,6 +244,7 @@ jobs:
             ~/.maestro
             ~/emulator_stdout.log
             ~/emulator_stderr.log
+            ~/app_launch_diagnostics.log
             ~/screenrecord.mp4
           if-no-files-found: ignore
           include-hidden-files: true
