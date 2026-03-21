@@ -219,10 +219,37 @@ jobs:
       - name: Verify installed app and foreground launch
         run: |
           adb shell pm list packages | grep "$APP_ID"
-          adb shell monkey -p "$APP_ID" -c android.intent.category.LAUNCHER 1
-          sleep 5
-          adb shell cmd package resolve-activity --brief "$APP_ID" || true
-          adb shell dumpsys window | grep -E 'mCurrentFocus|mFocusedApp' || true
+
+          MAIN_ACTIVITY=$(adb shell cmd package resolve-activity --brief "$APP_ID" | tail -n 1 | tr -d '\r')
+          if [ -z "$MAIN_ACTIVITY" ] || [[ "$MAIN_ACTIVITY" == *"No activity found"* ]]; then
+            echo "Failed to resolve launchable activity for $APP_ID" >&2
+            adb shell cmd package resolve-activity --brief "$APP_ID" || true
+            adb shell dumpsys package "$APP_ID" | head -200 || true
+            exit 1
+          fi
+
+          echo "Launching activity: $MAIN_ACTIVITY"
+          adb shell am start -W -n "$MAIN_ACTIVITY"
+
+          APP_IN_FOCUS=""
+          for i in {1..30}; do
+            FOCUS=$(adb shell dumpsys window | grep -E 'mCurrentFocus|mFocusedApp' | tr -d '\r' || true)
+            echo "$FOCUS"
+            if echo "$FOCUS" | grep -q "$APP_ID"; then
+              APP_IN_FOCUS=1
+              echo "App is in foreground"
+              break
+            fi
+            sleep 1
+          done
+
+          if [ -z "$APP_IN_FOCUS" ]; then
+            echo "App never reached foreground before Maestro" >&2
+            adb shell dumpsys window | grep -E 'mCurrentFocus|mFocusedApp' || true
+            adb shell dumpsys activity activities | head -250 || true
+            exit 1
+          fi
+
           adb logcat -d | grep -i -E "ReactNativeJS|AndroidRuntime|FATAL EXCEPTION|Unable to load script|SoLoader|Expo" | tail -n 300 > ~/app_launch_diagnostics.log || true
 
       - name: Capture pre-smoke diagnostics
