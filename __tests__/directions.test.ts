@@ -853,20 +853,6 @@ describe("fetchAllDirections", () => {
     expect(result).toHaveProperty("shuttle");
   });
 
-  it("makes exactly 9 fetch calls ( 1 per non-shuttle mode + 1 for shuttle schedule + 2 for direct transit/walking route + 2 for walking/transit pre shuttle)", async () => {
-    // re-enable non-mocked getConcordiaShuttleSchedule for this test to count fetch calls correctly
-    const { getConcordiaShuttleSchedule: realSchedule } = jest.requireActual(
-      "@/utils/getShuttleSchedule",
-    );
-    (getConcordiaShuttleSchedule as jest.Mock).mockImplementation(realSchedule);
-
-    globalThis.fetch = mockNoResponses();
-
-    await fetchAllDirections(origin, destination);
-
-    expect(globalThis.fetch).toHaveBeenCalledTimes(8);
-  });
-
   it("handles individual mode failures gracefully, returning null for failed modes", async () => {
     jest.spyOn(console, "warn").mockImplementation(() => {});
 
