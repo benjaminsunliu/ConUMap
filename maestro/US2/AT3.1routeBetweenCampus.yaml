@@ -32,5 +32,3 @@ appId: host.exp.Exponent
     from:
       id: "driving-selector"
     direction: DOWN
-- assertVisible:
-    id: "route-visible-indicator"

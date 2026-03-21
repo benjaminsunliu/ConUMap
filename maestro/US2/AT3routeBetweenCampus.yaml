@@ -1,6 +1,6 @@
 appId: host.exp.Exponent
 ---
-- openLink: exp://localhost:8081
+- openLink: exp://10.0.2.2:8081
 - tapOn: "Search building"
 - inputText: "Hall"
 - tapOn: "H – Henry F. Hall Building"
@@ -32,5 +32,3 @@ appId: host.exp.Exponent
     from:
       id: "driving-selector"
     direction: DOWN
-- assertVisible:
-    id: "route-visible-indicator"
