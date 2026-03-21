@@ -1,29 +1,76 @@
-import { CAMPUS_BUILDINGS } from "@/constants/map";
-import { BuildingCode, FloorCheckpointsGraph, RawFloorGraph } from "@/types/mapTypes";
-import * as SecureStore from "expo-secure-store";
+import {
+  BuildingCode,
+  BuildingFloorInfo,
+  FloorCheckpointsGraph,
+  FloorImages,
+  RawFloorGraph,
+} from "@/types/mapTypes";
+import { Asset } from "expo-asset";
+import { File } from "expo-file-system";
 
-// REVIEW: please tell me a better name for this
 class IndoorNavigationLoader {
-  public async clearAllData() {
-    const promises = CAMPUS_BUILDINGS.map((building) => {
-      return SecureStore.deleteItemAsync(this.getBuildingKey(building.buildingCode));
-    });
-    await Promise.all(promises);
+  private loadedBuildings: BuildingFloorInfo[] = [];
+  private maxLoadedBuildings: number;
+
+  constructor(maxLoadedBuildings: number = 5) {
+    this.maxLoadedBuildings = maxLoadedBuildings;
   }
 
-  public async searchForRoom(searchQuery: string) {
-    // TODO:
+  public async loadBuildingData(buildingCode: BuildingCode) {
+    const cacheHit = this.loadFromCache(buildingCode);
+    if (cacheHit) {
+      return cacheHit;
+    }
+    const floorInfo = await this.loadData(buildingCode);
+    if (!floorInfo) {
+      return null;
+    }
+    this.saveToCache(floorInfo);
+    return floorInfo;
   }
 
-  public async getBuildingData(buildingCode: BuildingCode) {}
-
-  private static loadData(buildingCode: BuildingCode) {}
-
-  private getBuildingKey(buildingCode: BuildingCode) {
-    return `${buildingCode}-rooms-graph`;
+  /**
+   * Clears that cache of loaded buildings
+   * @returns the buildings that were loaded in the cache
+   */
+  public clearCache() {
+    return this.loadedBuildings.splice(0, this.loadedBuildings.length);
   }
 
-  public createGraphFromObject(rawFloorGraph: RawFloorGraph) {
+  /**
+   * resizes the cache to be of a certain number of buildings
+   * @param maxBuildings the new size of the cache
+   * @returns the buildings that could no longer fit in the cache, if any
+   */
+  public resizeCache(maxBuildings: number) {
+    if (maxBuildings < this.maxLoadedBuildings) {
+      this.loadedBuildings.splice(0, maxBuildings);
+    }
+    this.maxLoadedBuildings = maxBuildings;
+    return this.loadedBuildings.splice(0, this.maxLoadedBuildings);
+  }
+
+  private async loadData(buildingCode: BuildingCode) {
+    if (!CODE_TO_FLOOR_ASSET_INFO[buildingCode]) {
+      return null;
+    }
+
+    const floorAssetInfo = CODE_TO_FLOOR_ASSET_INFO[buildingCode];
+    const jsonTextAsset = await Asset.loadAsync(floorAssetInfo.graphAssetInfo);
+
+    const localUri = jsonTextAsset[0].localUri!; // the local uri is never null since we're loading it manually from asset
+    const text = await new File(localUri).text();
+    const object = JSON.parse(text);
+    const graph = this.createGraphFromRawGraph(object);
+    const buildingFloorInfo: BuildingFloorInfo = {
+      images: floorAssetInfo.images,
+      graphData: graph,
+      buildingCode,
+    };
+    return buildingFloorInfo;
+  }
+
+  private createGraphFromRawGraph(rawFloorGraph: RawFloorGraph) {
     const floorGraph: FloorCheckpointsGraph = {
       checkpoints: {},
       adjacencySet: {},
@@ -47,6 +94,42 @@ class IndoorNavigationLoader {
 
     return floorGraph;
   }
+
+  private saveToCache(floorInfo: BuildingFloorInfo) {
+    if (this.maxLoadedBuildings <= 0) {
+      return;
+    }
+    if (this.loadedBuildings.length >= this.maxLoadedBuildings) {
+      this.loadedBuildings.shift();
+    }
+    this.loadedBuildings.push(floorInfo);
+  }
+
+  private loadFromCache(buildingCode: BuildingCode) {
+    const cacheHit = this.loadedBuildings.find(
+      (info) => info.buildingCode === buildingCode,
+    );
+    return cacheHit || null;
+  }
 }
+
+type BuildingCodeToFloorData = {
+  [key: BuildingCode]: {
+    images: FloorImages;
+    graphAssetInfo: number;
+  };
+};
+
+const CODE_TO_FLOOR_ASSET_INFO: BuildingCodeToFloorData = {
+  H: {
+    graphAssetInfo: require("@/data/buildings/floors/hall/jsonData/HallFloorPlanV4.json.txt"),
+    images: {
+      1: require("@/data/buildings/floors/hall/Images/Hall1 (Custom).png"),
+      2: require("@/data/buildings/floors/hall/Images/Hall2 (Custom).png"),
+      8: require("@/data/buildings/floors/hall/Images/Hall8 (Custom) (2) (Custom) (4).png"),
+      9: require("@/data/buildings/floors/hall/Images/Hall9 (Custom).png"),
+    },
+  },
+};
 
 export const NavigationLoader = new IndoorNavigationLoader();
