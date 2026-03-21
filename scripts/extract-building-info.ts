@@ -121,7 +121,7 @@ async function getBuildingsForCampus(campus: Campus) {
       address: el.address,
       overview: el.overview
         .split("\n")
-        .map((line) => line.replaceAll('\r', "").trim())
+        .map((line) => line.replaceAll("\r", "").trim())
         .filter((line) => line.length > 0),
       services: getResources(el.services, resources),
       departments: getResources(el.departments, resources),

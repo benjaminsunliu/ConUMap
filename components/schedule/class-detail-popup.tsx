@@ -29,7 +29,7 @@ export default function ClassDetailPopup({
       duration: 200,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [backdropOpacity]);
 
   const courseKey = `${classInfo.SUBJECT}-${classInfo.CATALOG_NBR}`;
   const color = colorMap.get(courseKey) ?? theme.classDetailPopup.courseNotInColorMap;
