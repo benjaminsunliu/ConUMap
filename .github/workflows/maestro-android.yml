@@ -24,6 +24,7 @@ jobs:
       ANDROID_AVD_HOME: /mnt/avd
       ANDROID_OS_IMAGE: system-images;android-32;google_apis;x86_64
       ANDROID_PLATFORM: platforms;android-36
+      APP_ID: com.anonymous.client
 
     steps:
       - name: Enable KVM group perms
@@ -77,11 +78,12 @@ jobs:
 
       - name: Set up bartek-scripts
         run: |
-          git clone --depth 1 https://github.com/mobile-dev-inc/bartek-scripts.git $HOME/scripts
+          git clone --depth 1 https://github.com/mobile-dev-inc/bartek-scripts.git "$HOME/scripts"
           echo "$HOME/scripts/bin" >> "$GITHUB_PATH"
 
       - name: Set up Android command-line tools
         run: |
+          export PATH="$HOME/scripts/bin:$PATH"
           install_android_sdk https://dl.google.com/android/repository/commandlinetools-linux-12266719_latest.zip
           echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
           echo "$ANDROID_HOME/emulator" >> "$GITHUB_PATH"
@@ -165,14 +167,26 @@ jobs:
         run: |
           export PATH="$ANDROID_HOME/platform-tools:$PATH"
 
+          found=""
           for i in {1..120}; do
-            adb devices
+            adb start-server || true
+            adb devices || true
             if adb devices | grep -q "emulator-.*device"; then
+              found=1
               echo "Emulator device online"
               break
             fi
             sleep 2
           done
+
+          if [ -z "$found" ]; then
+            echo "Emulator never became available"
+            echo "=== emulator stdout ==="
+            tail -200 ~/emulator_stdout.log || true
+            echo "=== emulator stderr ==="
+            tail -200 ~/emulator_stderr.log || true
+            exit 1
+          fi
 
           adb wait-for-device
 
@@ -204,12 +218,21 @@ jobs:
 
       - name: Verify installed app and foreground launch
         run: |
-          adb shell pm list packages | grep "com.anonymous.client"
-          adb shell monkey -p com.anonymous.client -c android.intent.category.LAUNCHER 1
-          sleep 3
-          adb shell cmd package resolve-activity --brief com.anonymous.client || true
+          adb shell pm list packages | grep "$APP_ID"
+          adb shell monkey -p "$APP_ID" -c android.intent.category.LAUNCHER 1
+          sleep 5
+          adb shell cmd package resolve-activity --brief "$APP_ID" || true
           adb shell dumpsys window | grep -E 'mCurrentFocus|mFocusedApp' || true
-          adb logcat -d | grep -i -E "ReactNativeJS|AndroidRuntime|FATAL EXCEPTION|Unable to load script|SoLoader|Expo" | tail -n 200 > ~/app_launch_diagnostics.log || true
+          adb logcat -d | grep -i -E "ReactNativeJS|AndroidRuntime|FATAL EXCEPTION|Unable to load script|SoLoader|Expo" | tail -n 300 > ~/app_launch_diagnostics.log || true
+
+      - name: Capture pre-smoke diagnostics
+        if: always()
+        run: |
+          mkdir -p .maestro/output
+          adb shell dumpsys window | grep -E 'mCurrentFocus|mFocusedApp' > .maestro/output/pre-smoke-focus.txt || true
+          adb exec-out uiautomator dump /dev/tty > .maestro/output/pre-smoke-uiautomator.xml || true
+          adb exec-out screencap -p > .maestro/output/pre-smoke-screen.png || true
+          adb logcat -d | tail -n 300 > .maestro/output/pre-smoke-logcat.txt || true
 
       - name: Smoke test app readiness
         timeout-minutes: 5
@@ -228,7 +251,7 @@ jobs:
             --output .maestro/output/results.xml
 
       - name: Stop screen recording of AVD
-        if: success() || failure()
+        if: always()
         run: |
           kill -SIGINT "$(cat ~/screenrecord.pid)" || echo "failed to kill screenrecord"
           sleep 5
@@ -236,7 +259,7 @@ jobs:
 
       - name: Upload Maestro artifacts
         uses: actions/upload-artifact@v4
-        if: failure()
+        if: always()
         with:
           name: maestro-android-artifacts
           path: |
