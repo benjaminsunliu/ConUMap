@@ -1,10 +1,10 @@
 appId: host.exp.Exponent
 ---
 - runFlow:
-        when:
-            notVisible:
-                id: "map-view"
-        file: ../openLink.yaml
+    when:
+      notVisible:
+        id: "map-view"
+    file: ../openLink.yaml
 - tapOn: "SGW"
 - tapOn:
     id: "marker-FB"
