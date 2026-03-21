@@ -1,0 +1,685 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<!-- ***************************************************************************************************
+DUE TO MISSING FLOOR PLANS WITH ROOM NUMBERS, THE ROOMS HAVE BEEN ID FROM 201-236 IN CHRONOLOGICAL ORDER
+*****************************************************************************************************-->
+
+<svg
+   width="2000"
+   height="953"
+   viewBox="0 0 2000 953"
+   id="svg2"
+   version="1.1"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   sodipodi:docname="ve2.svg"
+   inkscape:export-filename="G:\SOEN 390 Floorplans\VL-2.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.35"
+     inkscape:cx="962.85714"
+     inkscape:cy="704.28571"
+     inkscape:document-units="px"
+     inkscape:current-layer="g4719"
+     showgrid="false"
+     inkscape:snap-page="false"
+     units="px"
+     inkscape:object-paths="true"
+     inkscape:snap-intersection-paths="true"
+     inkscape:object-nodes="true"
+     inkscape:snap-bbox="false"
+     inkscape:window-width="1680"
+     inkscape:window-height="961"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:snap-nodes="true"
+     inkscape:snap-others="false"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     style="display:inline"
+     inkscape:label="VE2 vec copy"
+     id="g4719"
+     inkscape:groupmode="layer">
+    <path
+       inkscape:connector-curvature="0"
+       id="path4721"
+       d="M 119.03319,6.1911138 V 325.3583 H 5.0493692 V 471.26507 H 119.03319 V 952.29735 H 1083.0303 V 400.92362 h 315.9568 v 17.32976 h 154.7586 v 85.43958 h 53.1925 v 448.9535 h 174.1019 v -448.9535 -93.49979 h 102.5325 107.0332 V 275.20792 h 8.0602 V 40.389379 H 1883.5726 V 6.1911138 Z"
+       style="display:inline;fill:#f7d6d6;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       y="400.92361"
+       x="119.0332"
+       height="188.20583"
+       width="161.19966"
+       id="rect4201"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="162.35141"
+       y="522.33179"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text1"
+       style="line-height:0%">201</text>
+    <rect
+       y="589.12939"
+       x="119.0332"
+       height="191.83247"
+       width="161.19966"
+       id="rect4202.1"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="162.35141"
+       y="681.91534"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text2"
+       style="line-height:0%">202.1</text>
+    <path
+       inkscape:connector-curvature="0"
+       id="path4202.2"
+       d="M 119.03319,780.96318 V 952.29735 H 449.49591 V 802.72515 H 338.2674 v -21.76197 z"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="210.2265"
+       y="873.41571"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text3"
+       style="line-height:0%">202.2</text>
+    <rect
+       y="673.76135"
+       x="338.2674"
+       height="128.96365"
+       width="111.22852"
+       id="rect4203"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="353.85172"
+       y="745.74878"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text4"
+       style="line-height:0%">203</text>
+    <rect
+       y="543.18634"
+       x="338.2674"
+       height="130.575"
+       width="111.22852"
+       id="rect4204"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="353.85172"
+       y="618.08197"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text5"
+       style="line-height:0%">204</text>
+    <rect
+       y="400.92361"
+       x="338.2674"
+       height="142.26277"
+       width="111.22852"
+       id="rect4205"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="353.85172"
+       y="490.41507"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text6"
+       style="line-height:0%">205</text>
+    <path
+       inkscape:connector-curvature="0"
+       id="path4206"
+       d="M 449.49591,505.30124 V 952.29735 H 931.49444 V 505.30124 H 842.28971 V 520.8482 H 719.18592 v -15.54696 h -59.27656 v 15.54696 h -66.68225 v -15.54696 z"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="673.01886"
+       y="713.83209"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text7"
+       style="line-height:0%">206</text>
+    <rect
+       y="459.86621"
+       x="659.91022"
+       height="45.437241"
+       width="59.273903"
+       id="rect4207"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="660.2522"
+       y="496.79843"
+       font-family="Arial"
+       font-size="31.9167px"
+       fill="#000000"
+       stroke-width="0"
+       id="text8"
+       style="line-height:0%">207</text>
+    <rect
+       y="459.86621"
+       x="593.22705"
+       height="60.983738"
+       width="66.683128"
+       id="rect4208"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="593.22705"
+       y="496.79843"
+       font-family="Arial"
+       font-size="31.9167px"
+       fill="#000000"
+       stroke-width="0"
+       id="text9"
+       style="line-height:0%">208</text>
+    <rect
+       y="459.86621"
+       x="719.18408"
+       height="60.983738"
+       width="123.10733"
+       id="rect4209"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="752.81067"
+       y="496.79843"
+       font-family="Arial"
+       font-size="31.9167px"
+       fill="#000000"
+       stroke-width="0"
+       id="text10"
+       style="line-height:0%">209</text>
+    <rect
+       y="418.25336"
+       x="1553.7457"
+       height="85.439583"
+       width="53.192463"
+       id="rect4210"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="1550.7286"
+       y="496.79843"
+       font-family="Arial"
+       font-size="31.9167px"
+       fill="#000000"
+       stroke-width="0"
+       id="text11"
+       style="line-height:0%">210</text>
+    <rect
+       y="439.91116"
+       x="1606.9381"
+       height="86.3489"
+       width="122.51586"
+       id="rect4211"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="1627.3287"
+       y="496.79843"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text12"
+       style="line-height:0%">211</text>
+    <rect
+       y="526.26007"
+       x="1606.9381"
+       height="190.22032"
+       width="122.51586"
+       id="rect4212"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="1627.3287"
+       y="634.04028"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text13"
+       style="line-height:0%">212</text>
+    <rect
+       y="716.48029"
+       x="1606.9381"
+       height="236.16605"
+       width="122.51586"
+       id="rect4213"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="1627.3287"
+       y="841.49902"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text14"
+       style="line-height:0%">213</text>
+    <path
+       id="rect4102"
+       d="m 1883.5726,40.389379 v 234.818541 51.96441 h 107.0332 v -51.96441 h 8.0602 V 40.389379 h -8.0602 z"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:connector-curvature="0" />
+    <text
+       x="1901.8126"
+       y="107.41448"
+       font-family="Arial"
+       font-size="38.3px"
+       fill="#000000"
+       stroke-width="0"
+       id="text15"
+       style="line-height:0%">214.1</text>
+    <rect
+       y="190.15013"
+       x="1773.7859"
+       height="123.11938"
+       width="109.78683"
+       id="rect4214.2"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="1783.7207"
+       y="266.99805"
+       font-family="Arial"
+       font-size="38.3px"
+       fill="#000000"
+       stroke-width="0"
+       id="text16"
+       style="line-height:0%">214.2</text>
+    <rect
+       y="213.52466"
+       x="1528.7561"
+       height="99.744843"
+       width="245.02979"
+       id="rect4215"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="1614.562"
+       y="282.95642"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text17"
+       style="line-height:0%">215</text>
+    <path
+       inkscape:connector-curvature="0"
+       id="path4216.1"
+       d="M 1719.7812,6.1911138 V 213.52508 h 54.0029 V 190.1486 h 109.7885 V 6.1911138 h -109.7885 z"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="1742.229"
+       y="75.497765"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text18"
+       style="line-height:0%">216.1</text>
+    <rect
+       y="6.1911144"
+       x="1528.7561"
+       height="137.20992"
+       width="191.02522"
+       id="rect4216.2"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="1566.6869"
+       y="75.497765"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text19"
+       style="line-height:0%">216.2</text>
+    <rect
+       y="194.98625"
+       x="1311.937"
+       height="118.28325"
+       width="128.963"
+       id="rect4217"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="1343.2699"
+       y="266.99805"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text20"
+       style="line-height:0%">217</text>
+    <rect
+       y="194.98625"
+       x="1078.9976"
+       height="118.28325"
+       width="232.93919"
+       id="rect4218"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="1167.7279"
+       y="266.99805"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text21"
+       style="line-height:0%">218</text>
+    <rect
+       y="6.1911144"
+       x="1078.9976"
+       height="188.79514"
+       width="165.23376"
+       id="rect4219"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="1119.8529"
+       y="107.41448"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text22"
+       style="line-height:0%">219</text>
+    <path
+       inkscape:connector-curvature="0"
+       id="path4220"
+       d="M 1244.2284,6.1911138 V 194.98597 h 196.6743 v 18.53911 99.74602 h 87.8519 v -99.74602 h 191.0266 V 143.40183 H 1528.7546 V 6.1911138 Z"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="1327.3116"
+       y="107.41448"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text23"
+       style="line-height:0%">220</text>
+    <rect
+       y="139.37094"
+       x="979.85724"
+       height="173.89854"
+       width="99.140396"
+       id="rect4221"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="992.18604"
+       y="266.99805"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text24"
+       style="line-height:0%">221</text>
+    <path
+       inkscape:connector-curvature="0"
+       id="path4222"
+       d="M 921.82591,6.1911138 V 139.36861 206.26905 h 58.02983 V 139.36861 H 1078.997 V 6.1911138 Z"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="960.26929"
+       y="107.41448"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text25"
+       style="line-height:0%">222</text>
+    <path
+       inkscape:connector-curvature="0"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 921.82591,6.1911138 V 139.36861 206.26905 h -58.02982 v -66.90044 h -99.1413 V 6.1911138 Z"
+       id="path4223" />
+    <text
+       x="800.68573"
+       y="107.41448"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text26"
+       style="line-height:0%">223</text>
+    <rect
+       y="206.26904"
+       x="863.79602"
+       height="107.00044"
+       width="116.0611"
+       id="rect4224"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="880.47754"
+       y="266.99805"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text27"
+       style="line-height:0%">224</text>
+    <rect
+       y="139.36861"
+       x="764.65479"
+       height="173.90086"
+       width="99.141296"
+       id="rect4225"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="775.1524"
+       y="266.99805"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text28"
+       style="line-height:0%">225</text>
+    <rect
+       y="139.36861"
+       x="683.24231"
+       height="88.664406"
+       width="81.412476"
+       id="rect4226"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="685.78552"
+       y="187.20628"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text29"
+       style="line-height:0%">226</text>
+    <rect
+       y="228.033"
+       x="683.24231"
+       height="85.236465"
+       width="81.412468"
+       id="rect4227"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="685.78552"
+       y="282.95642"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text30"
+       style="line-height:0%">227</text>
+    <rect
+       y="6.1911144"
+       x="604.25244"
+       height="133.17749"
+       width="160.40233"
+       id="rect4228"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="650.67719"
+       y="107.41448"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text31"
+       style="line-height:0%">228</text>
+    <rect
+       y="139.36861"
+       x="604.25244"
+       height="173.90089"
+       width="78.989883"
+       id="rect4229"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="605.99377"
+       y="266.99805"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text32"
+       style="line-height:0%">229</text>
+    <rect
+       y="190.95613"
+       x="444.66074"
+       height="122.31335"
+       width="159.59171"
+       id="rect4230"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="497.47696"
+       y="266.99805"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text33"
+       style="line-height:0%">230</text>
+    <rect
+       y="6.1911144"
+       x="444.66074"
+       height="184.76501"
+       width="159.59166"
+       id="rect4231"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="497.47696"
+       y="107.41448"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text34"
+       style="line-height:0%">231</text>
+    <path
+       inkscape:connector-curvature="0"
+       id="path4232"
+       d="M 279.42716,6.1911138 V 205.46487 h 57.2257 V 134.53746 H 444.65852 V 6.1911138 Z"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="321.935"
+       y="107.41448"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text35"
+       style="line-height:0%">232</text>
+    <rect
+       y="134.53746"
+       x="336.65286"
+       height="178.73203"
+       width="108.00791"
+       id="rect4233"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path4234"
+       d="M 119.03319,6.1911138 V 135.34161 h 106.39116 v 70.12326 h 54.00281 V 6.1911138 Z"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="162.35141"
+       y="107.41448"
+       font-family="Arial"
+       font-size="47.8751px"
+       fill="#000000"
+       stroke-width="0"
+       id="text36"
+       style="line-height:0%">234</text>
+    <rect
+       y="205.46489"
+       x="225.42435"
+       height="107.80461"
+       width="111.22852"
+       id="rect4235"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       y="135.34161"
+       x="119.0332"
+       height="177.92789"
+       width="106.39114"
+       id="rect4236"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:6.38335;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       x="274.05994"
+       y="394.66495"
+       height="386.19226"
+       width="63.833431"
+       style="fill:none;stroke:none;stroke-width:3.19167"
+       id="rect36" />
+    <rect
+       x="928.35254"
+       y="649.99866"
+       height="303.2088"
+       width="159.58359"
+       style="fill:none;stroke:none;stroke-width:3.19167"
+       id="rect37" />
+    <rect
+       x="1726.2706"
+       y="873.41571"
+       height="79.791794"
+       width="63.833431"
+       style="fill:none;stroke:none;stroke-width:3.19167"
+       id="rect38" />
+    <!-- Displaying icons on the map -->
+    <!-- Displaying washroom icon on the map -->
+    <!-- Displaying stair icon on the map -->
+    <!-- Displaying water fountain icon on the map -->
+    <!-- Displaying printer icon on the map -->
+    <!-- PATH ARROW HERE  -->
+  </g>
+</svg>
