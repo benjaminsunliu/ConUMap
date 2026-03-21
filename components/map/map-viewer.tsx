@@ -836,6 +836,12 @@ export default function MapViewer({
               style={styles.androidMarkerProxyTarget}
             />
           ))}
+          {(routePolyline?.length ?? 0) > 0 && (
+            <View
+              testID="route-visible-indicator"
+              style={styles.androidMarkerProxyTarget}
+            />
+          )}
         </View>
       )}
       <LocationButton
