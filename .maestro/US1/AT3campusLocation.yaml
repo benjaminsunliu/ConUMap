@@ -3,7 +3,7 @@ appId: host.exp.Exponent
 - runFlow:
     when:
       notVisible:
-        id: "map-view"
+        id: "building-selection"
     file: ../openLink.yaml
 - setLocation:
     latitude: 45.4947027
