@@ -7,8 +7,8 @@ import { Colors } from "@/constants/theme";
 
 interface ScheduleHeaderProps {
   currentWeekStart: Date;
-  onWeekChange: (newWeekStart: Date) => void;
   onTodayPress: () => void;
+  setDate: (date: Date) => void;
 }
 
 const MONTHS = [
@@ -28,8 +28,8 @@ const MONTHS = [
 
 export default function ScheduleHeader({
   currentWeekStart,
-  onWeekChange,
   onTodayPress,
+  setDate
 }: Readonly<ScheduleHeaderProps>) {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
@@ -42,7 +42,7 @@ export default function ScheduleHeader({
   function handleMonthSelect(selectedMonth: number) {
     const firstOfMonth = new Date(year, selectedMonth, 1); // Locate first day of month
     firstOfMonth.setDate(firstOfMonth.getDate() - firstOfMonth.getDay()); // Rewind to the closest Sunday before this date
-    onWeekChange(firstOfMonth);
+    setDate(firstOfMonth);
     setMonthPickerVisible(false);
   }
 

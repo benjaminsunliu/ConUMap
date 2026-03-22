@@ -9,6 +9,8 @@ import { Colors } from "@/constants/theme";
 import { ClassSchedule } from "@/hooks/use-calendar";
 type ScheduleViewerProps = {
   data: readonly ClassSchedule[] | null | undefined;
+  date: Date;
+  setDate: (date: Date) => void;
 };
 
 function getWeekStart(date: Date): Date {
@@ -51,19 +53,16 @@ function buildColorMap(classes: readonly ClassSchedule[]): Map<string, string> {
   return colorMap;
 }
 
-export default function ScheduleViewer({ data }: Readonly<ScheduleViewerProps>) {
+export default function ScheduleViewer({ data, date, setDate }: Readonly<ScheduleViewerProps>) {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
-
   const colorMap = useMemo(() => buildColorMap(data || []), [data]);
 
   const [selectedClass, setSelectedClass] = useState<ClassSchedule | null>(null);
-  const [currentWeekStart, setCurrentWeekStart] = useState<Date>(() =>
-    getWeekStart(new Date()),
-  );
+  const weekStart = useMemo(() => getWeekStart(date), [date]);
 
   function handleTodayPress() {
-    setCurrentWeekStart(getWeekStart(new Date()));
+    setDate(new Date());
   }
 
   return (
@@ -74,17 +73,16 @@ export default function ScheduleViewer({ data }: Readonly<ScheduleViewerProps>) 
       ]}
     >
       <ScheduleHeader
-        currentWeekStart={currentWeekStart}
-        onWeekChange={setCurrentWeekStart}
+        currentWeekStart={weekStart}
         onTodayPress={handleTodayPress}
+        setDate={setDate}
       />
 
       <WeeklyCalendarBody
-        weekStartDate={currentWeekStart}
+        weekStartDate={weekStart}
         classes={data ? [...data] : []}
         colorMap={colorMap}
         onClassPress={setSelectedClass}
-        onWeekChange={setCurrentWeekStart}
       />
 
       {selectedClass && (

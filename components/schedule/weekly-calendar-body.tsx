@@ -36,7 +36,6 @@ interface WeeklyCalendarBodyProps {
   classes: ClassSchedule[];
   colorMap: Map<string, string>;
   onClassPress: (classInfo: ClassSchedule) => void;
-  onWeekChange: (newWeekStart: Date) => void;
 }
 
 function getCurrentTimeY(): number {
@@ -87,8 +86,8 @@ export default function WeeklyCalendarBody({
   classes,
   colorMap,
   onClassPress,
-  onWeekChange,
 }: Readonly<WeeklyCalendarBodyProps>) {
+  
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
 
@@ -108,9 +107,7 @@ export default function WeeklyCalendarBody({
 
   // Allows the panResponder for handling horizontal swipes to have the most recent state of week start and week change
   const weekStartDateRef = useRef(weekStartDate);
-  const onWeekChangeRef = useRef(onWeekChange);
   weekStartDateRef.current = weekStartDate;
-  onWeekChangeRef.current = onWeekChange;
 
   // Defaults the schedule to display from 08:00 onwards, rather than from 00:00 onwards
   const scrollViewRef = useRef<ScrollView>(null);
@@ -147,7 +144,6 @@ export default function WeeklyCalendarBody({
         // Read from the refs instead of the captured props
         const newDate = new Date(weekStartDateRef.current);
         newDate.setDate(newDate.getDate() + (gestureState.dx < 0 ? 7 : -7));
-        onWeekChangeRef.current(newDate);
       },
     }),
   ).current;

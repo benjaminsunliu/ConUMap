@@ -11,12 +11,13 @@ jest.mock("@/hooks/use-color-scheme", () => ({
 describe("ScheduleHeader", () => {
   it("calls onTodayPress when Today is pressed", () => {
     const onTodayPress = jest.fn();
+    const setDate = jest.fn();
 
     const screen = render(
       <ScheduleHeader
         currentWeekStart={new Date("2026-03-22T00:00:00")}
-        onWeekChange={jest.fn()}
         onTodayPress={onTodayPress}
+        setDate={setDate}
       />,
     );
 
@@ -24,30 +25,30 @@ describe("ScheduleHeader", () => {
     expect(onTodayPress).toHaveBeenCalledTimes(1);
   });
 
-  it("selects a month and sends the week start rewound to Sunday", () => {
-    const onWeekChange = jest.fn();
+  it("selects a month and sets date rewound to Sunday", () => {
+    const setDate = jest.fn();
 
     const screen = render(
       <ScheduleHeader
         currentWeekStart={new Date("2026-03-22T00:00:00")}
-        onWeekChange={onWeekChange}
         onTodayPress={jest.fn()}
+        setDate={setDate}
       />,
     );
 
     fireEvent.press(screen.getByLabelText("Change month"));
     fireEvent.press(screen.getByText("May"));
 
-    expect(onWeekChange).toHaveBeenCalledTimes(1);
-    expect(onWeekChange).toHaveBeenCalledWith(new Date("2026-04-26T00:00:00"));
+    expect(setDate).toHaveBeenCalledTimes(1);
+    expect(setDate).toHaveBeenCalledWith(new Date("2026-04-26T00:00:00"));
   });
 
   it("closes month picker when modal onRequestClose is called", () => {
     const screen = render(
       <ScheduleHeader
         currentWeekStart={new Date("2026-03-22T00:00:00")}
-        onWeekChange={jest.fn()}
         onTodayPress={jest.fn()}
+        setDate={jest.fn()}
       />,
     );
 
@@ -66,8 +67,8 @@ describe("ScheduleHeader", () => {
     const screen = render(
       <ScheduleHeader
         currentWeekStart={new Date("2026-03-22T00:00:00")}
-        onWeekChange={jest.fn()}
         onTodayPress={jest.fn()}
+        setDate={jest.fn()}
       />,
     );
 

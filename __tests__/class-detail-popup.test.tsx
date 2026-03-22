@@ -1,12 +1,37 @@
 import React from "react";
 import { fireEvent, render } from "@testing-library/react-native";
-import { Animated } from "react-native";
 
 import ClassDetailPopup from "../components/schedule/class-detail-popup";
 import type { ClassSchedule } from "@/hooks/use-calendar";
 import { Colors } from "@/constants/theme";
 
 const mockNavigate = jest.fn();
+const mockWithTiming = jest.fn((toValue, _config, callback) => {
+  if (callback) callback(true);
+  return toValue;
+});
+const mockScheduleOnRN = jest.fn((fn: () => void) => fn());
+
+jest.mock("react-native-reanimated", () => {
+  const RN = jest.requireActual("react-native");
+  return {
+    __esModule: true,
+    default: {
+      View: RN.View,
+    },
+    useSharedValue: (initial: number) => ({ value: initial }),
+    useAnimatedStyle: (updater: () => object) => updater(),
+    withTiming: (
+      toValue: number,
+      config?: { duration?: number },
+      callback?: (finished: boolean) => void,
+    ) => mockWithTiming(toValue, config, callback),
+  };
+});
+
+jest.mock("react-native-worklets", () => ({
+  scheduleOnRN: (fn: () => void) => mockScheduleOnRN(fn),
+}));
 
 jest.mock("expo-router", () => ({
   router: {
@@ -41,29 +66,19 @@ const MOCK_CLASS: ClassSchedule = {
   INSTR_NAME: "Prof. Example",
 };
 
-function createTimingSpy() {
-  return jest.spyOn(Animated, "timing").mockImplementation((() => {
-    return {
-      start: (callback?: (result: { finished: boolean }) => void) => {
-        callback?.({ finished: true });
-      },
-    };
-  }) as unknown as typeof Animated.timing);
-}
-
 describe("ClassDetailPopup", () => {
   beforeEach(() => {
     mockNavigate.mockClear();
+    mockWithTiming.mockClear();
+    mockScheduleOnRN.mockClear();
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  it("runs enter animation on mount", () => {
-    const timingSpy = createTimingSpy();
-
-    render(
+  it("renders popup content on mount", () => {
+    const screen = render(
       <ClassDetailPopup
         classInfo={MOCK_CLASS}
         colorMap={new Map<string, string>()}
@@ -71,18 +86,11 @@ describe("ClassDetailPopup", () => {
       />,
     );
 
-    expect(timingSpy).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    );
+    expect(screen.getByText("View in Map")).toBeTruthy();
+    expect(mockWithTiming).toHaveBeenCalledWith(1, { duration: 200 }, undefined);
   });
 
   it("uses class color from colorMap when available", () => {
-    createTimingSpy();
     const colorMap = new Map<string, string>([["SOEN-390", "#123456"]]);
 
     const screen = render(
@@ -93,8 +101,6 @@ describe("ClassDetailPopup", () => {
   });
 
   it("falls back to theme color when course is not in colorMap", () => {
-    createTimingSpy();
-
     const screen = render(
       <ClassDetailPopup
         classInfo={MOCK_CLASS}
@@ -109,7 +115,6 @@ describe("ClassDetailPopup", () => {
   });
 
   it("runs exit animation and calls onClose when close button is pressed", () => {
-    const timingSpy = createTimingSpy();
     const onClose = jest.fn();
 
     const screen = render(
@@ -122,19 +127,12 @@ describe("ClassDetailPopup", () => {
 
     fireEvent.press(screen.getByLabelText("Close"));
 
-    expect(timingSpy).toHaveBeenLastCalledWith(
-      expect.anything(),
-      expect.objectContaining({
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    );
     expect(onClose).toHaveBeenCalledTimes(1);
+    expect(mockWithTiming).toHaveBeenCalledWith(0, { duration: 200 }, expect.any(Function));
+    expect(mockScheduleOnRN).toHaveBeenCalledTimes(1);
   });
 
   it("closes popup and navigates to map when View in Map is pressed", () => {
-    createTimingSpy();
     const onClose = jest.fn();
 
     const screen = render(

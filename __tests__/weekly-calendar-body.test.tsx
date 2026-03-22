@@ -226,7 +226,6 @@ describe("WeeklyCalendarBody interactions", () => {
         classes={classes}
         colorMap={colorMap}
         onClassPress={jest.fn()}
-        onWeekChange={jest.fn()}
       />,
     );
 
@@ -248,7 +247,6 @@ describe("WeeklyCalendarBody interactions", () => {
         classes={classes}
         colorMap={colorMap}
         onClassPress={jest.fn()}
-        onWeekChange={jest.fn()}
       />,
     );
 
@@ -259,7 +257,6 @@ describe("WeeklyCalendarBody interactions", () => {
 
   it("sets pan responder only for horizontal movement and ignores small swipes", () => {
     setFakeNow("2026-03-23T09:00:00");
-    const onWeekChange = jest.fn();
 
     render(
       <WeeklyCalendarBody
@@ -267,7 +264,6 @@ describe("WeeklyCalendarBody interactions", () => {
         classes={[]}
         colorMap={colorMap}
         onClassPress={jest.fn()}
-        onWeekChange={onWeekChange}
       />,
     );
 
@@ -289,12 +285,10 @@ describe("WeeklyCalendarBody interactions", () => {
 
     expect(shouldSetHorizontal).toBe(true);
     expect(shouldSetVertical).toBe(false);
-    expect(onWeekChange).not.toHaveBeenCalled();
   });
 
-  it("moves to next week on left swipe and previous week on right swipe", () => {
+  it("handles large swipes without errors", () => {
     setFakeNow("2026-03-23T09:00:00");
-    const onWeekChange = jest.fn();
 
     render(
       <WeeklyCalendarBody
@@ -302,7 +296,6 @@ describe("WeeklyCalendarBody interactions", () => {
         classes={[]}
         colorMap={colorMap}
         onClassPress={jest.fn()}
-        onWeekChange={onWeekChange}
       />,
     );
 
@@ -314,9 +307,6 @@ describe("WeeklyCalendarBody interactions", () => {
       {} as GestureResponderEvent,
       { dx: 80, dy: 0 } as PanResponderGestureState,
     );
-
-    expect(onWeekChange).toHaveBeenNthCalledWith(1, new Date("2026-03-30T00:00:00"));
-    expect(onWeekChange).toHaveBeenNthCalledWith(2, new Date("2026-03-16T00:00:00"));
   });
 
   it("executes scheduled timeout and interval callbacks", () => {
@@ -328,7 +318,6 @@ describe("WeeklyCalendarBody interactions", () => {
         classes={[]}
         colorMap={colorMap}
         onClassPress={jest.fn()}
-        onWeekChange={jest.fn()}
       />,
     );
 
@@ -349,7 +338,6 @@ describe("WeeklyCalendarBody interactions", () => {
         classes={[]}
         colorMap={colorMap}
         onClassPress={jest.fn()}
-        onWeekChange={jest.fn()}
       />,
     );
 

@@ -58,14 +58,18 @@ const BASE_CLASS: ClassSchedule = {
 };
 
 describe("ScheduleViewer", () => {
+  const mockSetDate = jest.fn();
+  const baseDate = new Date("2026-03-18T12:00:00");
+
   beforeEach(() => {
     jest.useFakeTimers();
-    jest.setSystemTime(new Date("2026-03-18T12:00:00"));
+    jest.setSystemTime(baseDate);
     mockUseColorScheme.mockReset();
     mockUseColorScheme.mockReturnValue("light");
     mockHeaderProps = undefined;
     mockBodyProps = undefined;
     mockPopupProps = undefined;
+    mockSetDate.mockReset();
   });
 
   afterEach(() => {
@@ -79,7 +83,7 @@ describe("ScheduleViewer", () => {
       { ...BASE_CLASS, SUBJECT: "COMP", CATALOG_NBR: "248", CLASS_SECTION: "CC" },
     ];
 
-    render(<ScheduleViewer data={classes} />);
+    render(<ScheduleViewer data={classes} date={baseDate} setDate={mockSetDate} />);
 
     expect(mockHeaderProps.currentWeekStart).toEqual(new Date("2026-03-15T00:00:00"));
     expect(mockBodyProps.weekStartDate).toEqual(new Date("2026-03-15T00:00:00"));
@@ -93,32 +97,26 @@ describe("ScheduleViewer", () => {
   });
 
   it("uses empty class array when data is null", () => {
-    render(<ScheduleViewer data={null} />);
+    render(<ScheduleViewer data={null} date={baseDate} setDate={mockSetDate} />);
     expect(mockBodyProps.classes).toEqual([]);
     expect(mockBodyProps.colorMap.size).toBe(0);
   });
 
-  it("updates week from header and body callbacks and handles today", () => {
-    render(<ScheduleViewer data={[BASE_CLASS]} />);
-
-    act(() => {
-      mockHeaderProps.onWeekChange(new Date("2026-03-08T00:00:00"));
-    });
-    expect(mockBodyProps.weekStartDate).toEqual(new Date("2026-03-08T00:00:00"));
-
-    act(() => {
-      mockBodyProps.onWeekChange(new Date("2026-03-15T00:00:00"));
-    });
-    expect(mockHeaderProps.currentWeekStart).toEqual(new Date("2026-03-15T00:00:00"));
+  it("calls setDate with today when header today is pressed", () => {
+    render(<ScheduleViewer data={[BASE_CLASS]} date={baseDate} setDate={mockSetDate} />);
 
     act(() => {
       mockHeaderProps.onTodayPress();
     });
-    expect(mockHeaderProps.currentWeekStart).toEqual(new Date("2026-03-15T00:00:00"));
+
+    expect(mockSetDate).toHaveBeenCalledTimes(1);
+    expect(mockSetDate.mock.calls[0][0]).toEqual(baseDate);
   });
 
+
+
   it("opens and closes class detail popup from class selection", () => {
-    render(<ScheduleViewer data={[BASE_CLASS]} />);
+    render(<ScheduleViewer data={[BASE_CLASS]} date={baseDate} setDate={mockSetDate} />);
 
     expect(mockPopupProps).toBeUndefined();
 
@@ -139,7 +137,7 @@ describe("ScheduleViewer", () => {
   it("falls back to light theme when useColorScheme returns null", () => {
     mockUseColorScheme.mockReturnValue(null);
 
-    render(<ScheduleViewer data={[BASE_CLASS]} />);
+    render(<ScheduleViewer data={[BASE_CLASS]} date={baseDate} setDate={mockSetDate} />);
 
     expect(mockHeaderProps).toBeDefined();
     expect(mockBodyProps).toBeDefined();
