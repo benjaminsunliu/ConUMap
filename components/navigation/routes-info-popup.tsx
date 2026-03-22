@@ -68,7 +68,7 @@ export default function RoutesInfoPopup({
   onStepSelect,
   onBack,
 }: Props) {
-  const colorScheme = useColorScheme() ?? "light";
+  const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
   const styles = makePopupStyles(theme);
   const [tabIndex, setTabIndex] = React.useState(0);
@@ -291,7 +291,7 @@ function RouteOverview({
   readonly onRouteSelect: (route: any) => void;
   readonly testID?: string;
 }) {
-  const colorScheme = useColorScheme() ?? "light";
+  const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
   const styles = makeOverviewStyles(theme);
 
@@ -348,7 +348,7 @@ function RouteStep({
   readonly onPress: () => void;
   readonly testID?: string;
 }) {
-  const colorScheme = useColorScheme() ?? "light";
+  const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
   const styles = makeStepStyles(theme);
 

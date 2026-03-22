@@ -2,15 +2,9 @@ import { Colors } from "@/constants/theme";
 import { BuildingInfo } from "@/types/mapTypes";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback, useMemo } from "react";
-import {
-  Linking,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  useColorScheme,
-  View,
-} from "react-native";
+import { Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import InfoPopup from "../ui/popup";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 
 interface Props {
   readonly building: BuildingInfo | null;
@@ -41,7 +35,7 @@ const DEFAULT_OPENING_HOURS = [
 ];
 
 export default function BuildingInfoPopup({ building, onNavigate, onSetAsStart }: Props) {
-  const colorScheme = useColorScheme() ?? "light";
+  const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
   const styles = makeStyles(theme);
 
