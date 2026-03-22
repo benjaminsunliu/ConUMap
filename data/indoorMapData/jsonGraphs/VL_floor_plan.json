@@ -1299,7 +1299,7 @@
     },
     {
       "source": "VL_F1_hallway_waypoint_46",
-      "target": "VL_F1_doorway_115",
+      "target": "VL_140",
       "type": "door_to_hallway",
       "weight": 52,
       "accessible": true
@@ -1537,7 +1537,7 @@
     },
     {
       "source": "VL_F1_hallway_waypoint_43",
-      "target": "VL_F1_doorway_95",
+      "target": "VL_127_3",
       "type": "door_to_hallway",
       "weight": 102,
       "accessible": true
