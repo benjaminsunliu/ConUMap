@@ -9,13 +9,15 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test": "node --expose-gc node_modules/.bin/jest --coverage",
+    "test": "run-script-os",
+    "test:win32": "node --expose-gc node_modules/jest/bin/jest --coverage",
+    "test:nix": "node --expose-gc node_modules/.bin/jest --coverage",
     "format-check": "prettier --config prettier.config.mjs --ignore-path ./.prettierignore --check ."
   },
   "jest": {
-    "preset": "react-native",
+    "preset": "jest-expo",
     "transformIgnorePatterns": [
-      "node_modules/(?!@react-native|react-native|@expo/.*|expo-font|@react-navigation|expo-secure-store|expo-modules-core)"
+      "node_modules/(?!@react-native|react-native|@expo/.*|expo-font|@react-navigation|expo-secure-store|expo-modules-core|expo)"
     ],
     "transform": {
       "^.+\\.(js|ts|tsx)$": "babel-jest"
@@ -109,6 +111,7 @@
     "metro-react-native-babel-preset": "^0.77.0",
     "prettier": "^3.8.1",
     "react-test-renderer": "^19.1.0",
+    "run-script-os": "^1.1.6",
     "typescript": "~5.9.2"
   },
   "private": true

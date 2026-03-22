@@ -58,7 +58,7 @@ export type FloorCheckpointsGraph = {
   adjacencySet: FloorCheckpointAdjancencySet;
 };
 
-type FloorCheckpointAdjancencySet = {
+export type FloorCheckpointAdjancencySet = {
   [key: FloorCheckpointId]: { [key: FloorCheckpointId]: FloorCheckpointConnection };
 };
 
@@ -66,7 +66,7 @@ type FloorCheckpoints = {
   [key: FloorCheckpointId]: FloorCheckpoint;
 };
 
-type FloorCheckpoint = {
+export type FloorCheckpoint = {
   id: string;
   type: string;
   buildingId: string;
@@ -77,9 +77,9 @@ type FloorCheckpoint = {
   accessible: boolean;
 };
 
-type FloorCheckpointId = FloorCheckpoint["id"];
+export type FloorCheckpointId = FloorCheckpoint["id"];
 
-type FloorCheckpointConnection = {
+export type FloorCheckpointConnection = {
   source: FloorCheckpointId;
   target: FloorCheckpointId;
   type: string;

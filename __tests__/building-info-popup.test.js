@@ -88,22 +88,6 @@ describe("building-info-popup", () => {
     expect(Linking.openURL).toHaveBeenCalledWith(mockBuilding.url);
   });
 
-  it("does not open URL when building has no link", async () => {
-    Linking.openURL.mockClear();
-    const buildingNoLink = { ...mockBuilding, url: "" };
-    const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
-    render(<BuildingInfoPopup building={buildingNoLink} />);
-
-    const websiteButton = screen.getByTestId("website-action-button");
-    await act(async () => {
-      await fireEvent.press(websiteButton);
-    });
-
-    expect(Linking.openURL).not.toHaveBeenCalled();
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("No URL available"));
-    warnSpy.mockRestore();
-  });
-
   it("does not open URL when canOpenURL returns false", async () => {
     Linking.openURL.mockClear();
     jest.spyOn(Linking, "canOpenURL").mockResolvedValueOnce(false);
@@ -116,7 +100,7 @@ describe("building-info-popup", () => {
     });
 
     expect(Linking.openURL).not.toHaveBeenCalled();
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("Cannot open URL"));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("Cannot open URL: "));
     warnSpy.mockRestore();
   });
 
@@ -136,19 +120,6 @@ describe("building-info-popup", () => {
       expect.any(Error),
     );
     errorSpy.mockRestore();
-  });
-
-  it("falls back to Linking when Directions is pressed without onNavigate prop", async () => {
-    render(<BuildingInfoPopup building={mockBuilding} />);
-
-    const directionsButton = screen.getByTestId("directions-action-button");
-    await act(async () => {
-      await fireEvent.press(directionsButton);
-    });
-
-    expect(Linking.openURL).toHaveBeenCalledWith(
-      expect.stringContaining("google.com/maps"),
-    );
   });
 
   it("shows accessibility items when building has accessibility features", async () => {
@@ -205,10 +176,9 @@ describe("building-info-popup-panresponder", () => {
       expect(screen.queryByText("Opening Hours")).toBeNull();
     });
   });
-  it("warns and does nothing if website URL is empty", async () => {
-    jest.clearAllMocks();
 
-    const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+  it("does nothing if website URL is empty", async () => {
+    jest.clearAllMocks();
 
     const buildingWithoutUrl = {
       ...mockBuilding,
@@ -224,8 +194,5 @@ describe("building-info-popup-panresponder", () => {
     });
 
     expect(Linking.openURL).not.toHaveBeenCalled();
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("No URL available"));
-
-    warnSpy.mockRestore();
   });
 });

@@ -84,13 +84,23 @@ class IndoorNavigationLoader {
 
     // Creating the adjacency set data structure
     rawFloorGraph.edges.forEach((edge) => {
-      // Create the set if you haven't already
+      // Create the set
       if (!floorGraph.adjacencySet[edge.source]) {
         floorGraph.adjacencySet[edge.source] = {};
       }
-      // add a new edge from the source to the destination
-      const adjacencySet = floorGraph.adjacencySet[edge.source];
-      adjacencySet[edge.target] = edge;
+      if (!floorGraph.adjacencySet[edge.target]) {
+        floorGraph.adjacencySet[edge.target] = {};
+      }
+
+      // add a new edge from the source to the destination, and destination to source
+      floorGraph.adjacencySet[edge.source][edge.target] = edge;
+
+      // since it is an undirected graph, we should invert the edge to get it to go both ways
+      floorGraph.adjacencySet[edge.target][edge.source] = {
+        ...edge,
+        source: edge.target,
+        target: edge.source,
+      };
     });
 
     return floorGraph;

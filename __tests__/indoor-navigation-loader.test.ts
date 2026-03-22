@@ -1,7 +1,4 @@
-import {
-  CODE_TO_FLOOR_ASSET_INFO,
-  NavigationLoader,
-} from "@/globals/IndoorNavigationLoader";
+import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
 import { RawFloorGraph } from "@/types/mapTypes";
 
 describe("IndoorNavigationLoader", () => {
@@ -145,13 +142,6 @@ jest.mock("expo-file-system", () => ({
     }
   },
 }));
-
-jest.mock("@/data/indoorMapData/jsonGraphs/CC_floor_plan.json.txt", () => ({}));
-jest.mock("@/data/indoorMapData/jsonGraphs/H_floor_plan.json.txt", () => ({}));
-jest.mock("@/data/indoorMapData/jsonGraphs/LB_floor_plan.json.txt", () => ({}));
-jest.mock("@/data/indoorMapData/jsonGraphs/MB_floor_plan.json.txt", () => ({}));
-jest.mock("@/data/indoorMapData/jsonGraphs/VE_floor_plan.json.txt", () => ({}));
-jest.mock("@/data/indoorMapData/jsonGraphs/VL_floor_plan.json.txt", () => ({}));
 
 const forceGC = async () => {
   if (globalThis.gc) {
