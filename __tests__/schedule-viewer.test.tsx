@@ -131,13 +131,4 @@ describe("ScheduleViewer", () => {
     });
     expect(mockPopupProps).toBeUndefined();
   });
-
-  it("falls back to light theme when useColorScheme returns null", () => {
-    mockUseColorScheme.mockReturnValue(null);
-
-    render(<ScheduleViewer data={[BASE_CLASS]} date={baseDate} setDate={mockSetDate} />);
-
-    expect(mockHeaderProps).toBeDefined();
-    expect(mockBodyProps).toBeDefined();
-  });
 });

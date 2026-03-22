@@ -1,11 +1,5 @@
 import React, { ReactElement, useEffect, useRef, useState } from "react";
-import {
-  Animated,
-  PanResponder,
-  StyleSheet,
-  ScrollView,
-  View,
-} from "react-native";
+import { Animated, PanResponder, StyleSheet, ScrollView, View } from "react-native";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 

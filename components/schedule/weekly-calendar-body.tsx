@@ -1,12 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import {
-  Dimensions,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  Pressable,
-} from "react-native";
+import { Dimensions, ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
 import DayColumn from "./day-column";
 import {
   CALENDAR_END_HOUR,
@@ -102,7 +95,6 @@ export default function WeeklyCalendarBody({
   }, []);
 
   const today = new Date();
-
 
   // Defaults the schedule to display from 08:00 onwards, rather than from 00:00 onwards
   const scrollViewRef = useRef<ScrollView>(null);

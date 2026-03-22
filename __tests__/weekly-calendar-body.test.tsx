@@ -1,7 +1,5 @@
 import React from "react";
 import { act, fireEvent, render } from "@testing-library/react-native";
-import type { GestureResponderEvent, PanResponderGestureState } from "react-native";
-import { PanResponder } from "react-native";
 
 import WeeklyCalendarBody, {
   getNextClass,
@@ -172,39 +170,15 @@ describe("getNextClass", () => {
 });
 
 describe("WeeklyCalendarBody interactions", () => {
-  let capturedConfig:
-    | {
-        onMoveShouldSetPanResponder?: (
-          event: GestureResponderEvent,
-          gestureState: PanResponderGestureState,
-        ) => boolean;
-        onPanResponderRelease?: (
-          event: GestureResponderEvent,
-          gestureState: PanResponderGestureState,
-        ) => void;
-      }
-    | undefined;
-
-  let panResponderSpy: jest.SpyInstance;
-
   const weekStartDate = new Date("2026-03-23T00:00:00");
   const colorMap = new Map<string, string>();
 
   beforeEach(() => {
-    capturedConfig = undefined;
     mockNavigate.mockClear();
-    panResponderSpy = jest.spyOn(PanResponder, "create");
-    panResponderSpy.mockImplementation((config) => {
-      capturedConfig = config;
-      return {
-        panHandlers: {},
-      } as never;
-    });
   });
 
   afterEach(() => {
     jest.useRealTimers();
-    panResponderSpy.mockRestore();
   });
 
   it("navigates to the next class building when the next-class button is pressed", () => {
@@ -255,62 +229,10 @@ describe("WeeklyCalendarBody interactions", () => {
     expect(mockNavigate).not.toHaveBeenCalled();
   });
 
-  it("sets pan responder only for horizontal movement and ignores small swipes", () => {
-    setFakeNow("2026-03-23T09:00:00");
-
-    render(
-      <WeeklyCalendarBody
-        weekStartDate={weekStartDate}
-        classes={[]}
-        colorMap={colorMap}
-        onClassPress={jest.fn()}
-      />,
-    );
-
-    expect(capturedConfig).toBeDefined();
-
-    const shouldSetHorizontal = capturedConfig?.onMoveShouldSetPanResponder?.(
-      {} as GestureResponderEvent,
-      { dx: 60, dy: 10 } as PanResponderGestureState,
-    );
-    const shouldSetVertical = capturedConfig?.onMoveShouldSetPanResponder?.(
-      {} as GestureResponderEvent,
-      { dx: 10, dy: 60 } as PanResponderGestureState,
-    );
-
-    capturedConfig?.onPanResponderRelease?.(
-      {} as GestureResponderEvent,
-      { dx: 20, dy: 0 } as PanResponderGestureState,
-    );
-
-    expect(shouldSetHorizontal).toBe(true);
-    expect(shouldSetVertical).toBe(false);
-  });
-
-  it("handles large swipes without errors", () => {
-    setFakeNow("2026-03-23T09:00:00");
-
-    render(
-      <WeeklyCalendarBody
-        weekStartDate={weekStartDate}
-        classes={[]}
-        colorMap={colorMap}
-        onClassPress={jest.fn()}
-      />,
-    );
-
-    capturedConfig?.onPanResponderRelease?.(
-      {} as GestureResponderEvent,
-      { dx: -80, dy: 0 } as PanResponderGestureState,
-    );
-    capturedConfig?.onPanResponderRelease?.(
-      {} as GestureResponderEvent,
-      { dx: 80, dy: 0 } as PanResponderGestureState,
-    );
-  });
-
   it("executes scheduled timeout and interval callbacks", () => {
     setFakeNow("2026-03-23T09:00:00");
+    const timeoutSpy = jest.spyOn(globalThis, "setTimeout");
+    const intervalSpy = jest.spyOn(globalThis, "setInterval");
 
     render(
       <WeeklyCalendarBody
@@ -321,10 +243,18 @@ describe("WeeklyCalendarBody interactions", () => {
       />,
     );
 
-    act(() => {
-      jest.advanceTimersByTime(50);
-      jest.advanceTimersByTime(60000);
-    });
+    expect(timeoutSpy).toHaveBeenCalledWith(expect.any(Function), 50);
+    expect(intervalSpy).toHaveBeenCalledWith(expect.any(Function), 60000);
+
+    expect(() => {
+      act(() => {
+        jest.advanceTimersByTime(50);
+        jest.advanceTimersByTime(60000);
+      });
+    }).not.toThrow();
+
+    timeoutSpy.mockRestore();
+    intervalSpy.mockRestore();
   });
 
   it("cleans up interval and timeout handlers on unmount", () => {

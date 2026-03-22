@@ -2,13 +2,7 @@ import { Colors } from "@/constants/theme";
 import { BuildingInfo } from "@/types/mapTypes";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback, useMemo } from "react";
-import {
-  Linking,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import InfoPopup from "../ui/popup";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
