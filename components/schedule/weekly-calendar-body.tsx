@@ -104,9 +104,6 @@ export default function WeeklyCalendarBody({
 
   const today = new Date();
 
-  // Allows the panResponder for handling horizontal swipes to have the most recent state of week start and week change
-  const weekStartDateRef = useRef(weekStartDate);
-  weekStartDateRef.current = weekStartDate;
 
   // Defaults the schedule to display from 08:00 onwards, rather than from 00:00 onwards
   const scrollViewRef = useRef<ScrollView>(null);
@@ -131,22 +128,6 @@ export default function WeeklyCalendarBody({
     date.getMonth() === today.getMonth() &&
     date.getFullYear() === today.getFullYear();
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gestureState) =>
-        Math.abs(gestureState.dx) > Math.abs(gestureState.dy),
-
-      onPanResponderRelease: (_, gestureState) => {
-        const SWIPE_THRESHOLD = 50;
-        if (Math.abs(gestureState.dx) < SWIPE_THRESHOLD) return;
-
-        // Read from the refs instead of the captured props
-        const newDate = new Date(weekStartDateRef.current);
-        newDate.setDate(newDate.getDate() + (gestureState.dx < 0 ? 7 : -7));
-      },
-    }),
-  ).current;
-
   function handleNextClassPress() {
     if (!nextClass) return;
     router.navigate({
@@ -161,7 +142,6 @@ export default function WeeklyCalendarBody({
         styles.container,
         { backgroundColor: theme.weeklyCalendarBody.backgroundColor },
       ]}
-      {...panResponder.panHandlers}
     >
       <View
         style={[
