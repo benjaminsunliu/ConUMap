@@ -9,6 +9,18 @@ jest.mock("@/hooks/use-color-scheme", () => ({
 }));
 
 describe("ScheduleHeader", () => {
+  it("shows next month when week contains the first day of next month", () => {
+    const screen = render(
+      <ScheduleHeader
+        currentWeekStart={new Date("2026-03-29T00:00:00")}
+        onTodayPress={jest.fn()}
+        setDate={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByText("April 2026")).toBeTruthy();
+  });
+
   it("calls onTodayPress when Today is pressed", () => {
     const onTodayPress = jest.fn();
     const setDate = jest.fn();

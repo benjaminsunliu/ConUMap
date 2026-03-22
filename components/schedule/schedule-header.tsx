@@ -11,6 +11,22 @@ interface ScheduleHeaderProps {
   setDate: (date: Date) => void;
 }
 
+function getDisplayMonthDate(currentWeekStart: Date): Date {
+  const weekStart = new Date(currentWeekStart);
+  weekStart.setHours(0, 0, 0, 0);
+
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+
+  const firstOfNextMonth = new Date(weekStart.getFullYear(), weekStart.getMonth() + 1, 1);
+
+  if (firstOfNextMonth >= weekStart && firstOfNextMonth <= weekEnd) {
+    return firstOfNextMonth;
+  }
+
+  return weekStart;
+}
+
 export default function ScheduleHeader({
   currentWeekStart,
   onTodayPress,
@@ -21,8 +37,9 @@ export default function ScheduleHeader({
 
   const [monthPickerVisible, setMonthPickerVisible] = useState(false);
 
-  const month = currentWeekStart.getMonth();
-  const year = currentWeekStart.getFullYear();
+  const displayMonthDate = getDisplayMonthDate(currentWeekStart);
+  const month = displayMonthDate.getMonth();
+  const year = displayMonthDate.getFullYear();
 
   function handleMonthSelect(selectedMonth: number) {
     const firstOfMonth = new Date(year, selectedMonth, 1); // Locate first day of month
