@@ -7,10 +7,10 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  useColorScheme,
   View,
 } from "react-native";
 import InfoPopup from "../ui/popup";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 
 interface Props {
   readonly building: BuildingInfo | null;
@@ -41,7 +41,7 @@ const DEFAULT_OPENING_HOURS = [
 ];
 
 export default function BuildingInfoPopup({ building, onNavigate, onSetAsStart }: Props) {
-  const colorScheme = useColorScheme() ?? "light";
+  const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
   const styles = makeStyles(theme);
 

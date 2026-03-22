@@ -22,7 +22,7 @@ export default function DayColumn({
   colorMap,
   onClassPress,
 }: Readonly<DayColumnProps>) {
-  const colorScheme = useColorScheme() ?? "light";
+  const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
 
   return (

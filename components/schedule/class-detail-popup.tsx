@@ -24,7 +24,7 @@ export default function ClassDetailPopup({
   colorMap,
   onClose,
 }: Readonly<ClassDetailPopupProps>) {
-  const colorScheme = useColorScheme() ?? "light";
+  const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
 
   const backdropOpacity = useSharedValue(0);

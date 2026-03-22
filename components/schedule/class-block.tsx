@@ -20,7 +20,7 @@ export default function ClassBlock({
   height,
   onPress,
 }: Readonly<ClassBlockProps>) {
-  const colorScheme = useColorScheme() ?? "light";
+  const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
 
   const courseKey = `${classInfo.SUBJECT}-${classInfo.CATALOG_NBR}`;

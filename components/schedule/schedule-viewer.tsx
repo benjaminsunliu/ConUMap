@@ -58,7 +58,7 @@ export default function ScheduleViewer({
   date,
   setDate,
 }: Readonly<ScheduleViewerProps>) {
-  const colorScheme = useColorScheme() ?? "light";
+  const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
   const colorMap = useMemo(() => buildColorMap(data || []), [data]);
 

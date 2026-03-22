@@ -31,7 +31,7 @@ export default function ScheduleHeader({
   onTodayPress,
   setDate,
 }: Readonly<ScheduleHeaderProps>) {
-  const colorScheme = useColorScheme() ?? "light";
+  const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
 
   const [monthPickerVisible, setMonthPickerVisible] = useState(false);

@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Text,
   View,
-  PanResponder,
   Pressable,
 } from "react-native";
 import DayColumn from "./day-column";
@@ -87,7 +86,7 @@ export default function WeeklyCalendarBody({
   colorMap,
   onClassPress,
 }: Readonly<WeeklyCalendarBodyProps>) {
-  const colorScheme = useColorScheme() ?? "light";
+  const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
 
   // Time state for horizontal time bar
