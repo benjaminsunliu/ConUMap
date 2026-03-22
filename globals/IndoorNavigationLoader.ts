@@ -2,11 +2,11 @@ import {
   BuildingCode,
   BuildingFloorInfo,
   FloorCheckpointsGraph,
-  FloorImages,
   RawFloorGraph,
 } from "@/types/mapTypes";
 import { Asset } from "expo-asset";
 import { File } from "expo-file-system";
+import { ImageRequireSource } from "react-native";
 
 class IndoorNavigationLoader {
   private loadedBuildings: BuildingFloorInfo[] = [];
@@ -60,11 +60,8 @@ class IndoorNavigationLoader {
     }
 
     const floorAssetInfo = CODE_TO_FLOOR_ASSET_INFO[buildingCode];
-    const jsonTextAsset = await Asset.loadAsync(floorAssetInfo.graphAssetInfo);
-
-    const localUri = jsonTextAsset[0].localUri!; // the local uri is never null since we're loading it manually from asset
-    const text = await new File(localUri).text();
-    const object = JSON.parse(text);
+    const json = await this.loadTextFromFile(floorAssetInfo.graphAssetInfo);
+    const object = JSON.parse(json);
     const graph = this.createGraphFromRawGraph(object);
     const buildingFloorInfo: BuildingFloorInfo = {
       images: floorAssetInfo.images,
@@ -99,6 +96,11 @@ class IndoorNavigationLoader {
     return floorGraph;
   }
 
+  private async loadTextFromFile(moduleNumber: number) {
+    const asset = await Asset.loadAsync(moduleNumber);
+    return await new File(asset[0].localUri!).text();
+  }
+
   private saveToCache(floorInfo: BuildingFloorInfo) {
     if (this.maxLoadedBuildings <= 0) {
       return;
@@ -119,19 +121,57 @@ class IndoorNavigationLoader {
 
 type BuildingCodeToFloorData = {
   [key: BuildingCode]: {
-    images: FloorImages;
+    images: {
+      [key: number]: ImageRequireSource;
+    };
     graphAssetInfo: number;
   };
 };
 
-const CODE_TO_FLOOR_ASSET_INFO: BuildingCodeToFloorData = {
-  H: {
-    graphAssetInfo: require("@/data/buildings/floors/hall/jsonData/HallFloorPlanV4.json.txt"),
+export const CODE_TO_FLOOR_ASSET_INFO: BuildingCodeToFloorData = {
+  CC: {
+    graphAssetInfo: require("@/data/indoorMapData/jsonGraphs/CC_floor_plan.json.txt"),
     images: {
-      1: require("@/data/buildings/floors/hall/Images/Hall1 (Custom).png"),
-      2: require("@/data/buildings/floors/hall/Images/Hall2 (Custom).png"),
-      8: require("@/data/buildings/floors/hall/Images/Hall8 (Custom) (2) (Custom) (4).png"),
-      9: require("@/data/buildings/floors/hall/Images/Hall9 (Custom).png"),
+      1: require("@/data/indoorMapData/images/CC/CC.png"),
+    },
+  },
+  H: {
+    graphAssetInfo: require("@/data/indoorMapData/jsonGraphs/H_floor_plan.json.txt"),
+    images: {
+      1: require("@/data/indoorMapData/images/H/H-1.png"),
+      2: require("@/data/indoorMapData/images/H/H-2.png"),
+      8: require("@/data/indoorMapData/images/H/H-8.png"),
+      9: require("@/data/indoorMapData/images/H/H-9.png"),
+    },
+  },
+  LB: {
+    graphAssetInfo: require("@/data/indoorMapData/jsonGraphs/LB_floor_plan.json.txt"),
+    images: {
+      2: require("@/data/indoorMapData/images/LB/LB2.png"),
+      3: require("@/data/indoorMapData/images/LB/LB3.png"),
+      4: require("@/data/indoorMapData/images/LB/LB4.png"),
+      5: require("@/data/indoorMapData/images/LB/LB5.png"),
+    },
+  },
+  MB: {
+    graphAssetInfo: require("@/data/indoorMapData/jsonGraphs/MB_floor_plan.json.txt"),
+    images: {
+      1: require("@/data/indoorMapData/images/MB/MB-1.png"),
+      "-2": require("@/data/indoorMapData/images/MB/MB-2.png"),
+    },
+  },
+  VE: {
+    graphAssetInfo: require("@/data/indoorMapData/jsonGraphs/VE_floor_plan.json.txt"),
+    images: {
+      1: require("@/data/indoorMapData/images/VE/VE1.png"),
+      2: require("@/data/indoorMapData/images/VE/VE2.png"),
+    },
+  },
+  VL: {
+    graphAssetInfo: require("@/data/indoorMapData/jsonGraphs/VL_floor_plan.json.txt"),
+    images: {
+      1: require("@/data/indoorMapData/images/VL/VL-1.png"),
+      2: require("@/data/indoorMapData/images/VL/VL-2.png"),
     },
   },
 };

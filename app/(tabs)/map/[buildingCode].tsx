@@ -6,7 +6,8 @@ import { StyleSheet, Text, View } from "react-native";
 
 export default function IndoorMap() {
   const { buildingCode: buildingCodeParam } = useLocalSearchParams();
-  const buildingCode = buildingCodeParam[0];
+  const buildingCode =
+    typeof buildingCodeParam === "string" ? buildingCodeParam : buildingCodeParam[0];
   const {
     data: floorInfo,
     error,

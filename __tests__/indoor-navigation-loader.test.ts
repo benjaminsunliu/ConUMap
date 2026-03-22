@@ -1,4 +1,7 @@
-import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
+import {
+  CODE_TO_FLOOR_ASSET_INFO,
+  NavigationLoader,
+} from "@/globals/IndoorNavigationLoader";
 import { RawFloorGraph } from "@/types/mapTypes";
 
 describe("IndoorNavigationLoader", () => {
@@ -82,7 +85,7 @@ describe("IndoorNavigationLoader", () => {
   });
 });
 
-const HBuildingData: RawFloorGraph = {
+const fakeBuildingData: RawFloorGraph = {
   meta: {
     buildingId: "H",
   },
@@ -137,15 +140,18 @@ jest.mock("expo-file-system", () => ({
 
     public text() {
       return new Promise((r) => {
-        r(JSON.stringify(HBuildingData));
+        r(JSON.stringify(fakeBuildingData));
       });
     }
   },
 }));
 
-jest.mock("@/data/buildings/floors/hall/jsonData/HallFloorPlanV4.json.txt", () => ({
-  nothingToSeeHere: "yup, nada",
-}));
+jest.mock("@/data/indoorMapData/jsonGraphs/CC_floor_plan.json.txt", () => ({}));
+jest.mock("@/data/indoorMapData/jsonGraphs/H_floor_plan.json.txt", () => ({}));
+jest.mock("@/data/indoorMapData/jsonGraphs/LB_floor_plan.json.txt", () => ({}));
+jest.mock("@/data/indoorMapData/jsonGraphs/MB_floor_plan.json.txt", () => ({}));
+jest.mock("@/data/indoorMapData/jsonGraphs/VE_floor_plan.json.txt", () => ({}));
+jest.mock("@/data/indoorMapData/jsonGraphs/VL_floor_plan.json.txt", () => ({}));
 
 const forceGC = async () => {
   if (globalThis.gc) {
