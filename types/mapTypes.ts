@@ -1,4 +1,5 @@
 import { ImageRequireSource } from "react-native";
+export type Campus = "SGW" | "LOY";
 
 export type Coordinate = {
   latitude: number;
