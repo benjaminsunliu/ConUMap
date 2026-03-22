@@ -204,13 +204,13 @@
       "accessible": true
     },
     {
-      "id": "VL_F1_doorway_95",
+      "id": "VL_127_3",
       "type": "doorway",
       "buildingId": "VL",
       "floor": 1,
       "x": 1794,
       "y": 890,
-      "label": "",
+      "label": "VL-127-3",
       "accessible": true
     },
     {
@@ -404,13 +404,13 @@
       "accessible": true
     },
     {
-      "id": "VL_F1_doorway_115",
+      "id": "VL_140",
       "type": "doorway",
       "buildingId": "VL",
       "floor": 1,
       "x": 482,
       "y": 1639,
-      "label": "",
+      "label": "VL-140",
       "accessible": true
     },
     {
