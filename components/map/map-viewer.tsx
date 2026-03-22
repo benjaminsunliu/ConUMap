@@ -18,6 +18,7 @@ import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
 import { router } from "expo-router";
+import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
 
 interface PolylineSegment {
   coordinates: Coordinate[];
@@ -862,6 +863,9 @@ export default function MapViewer({
       {navigationMode === "browse" && selectedBuilding && (
         <BuildingInfoPopup
           building={selectedBuilding}
+          hasIndoorNavigation={NavigationLoader.buildingHasNavigationData(
+            selectedBuilding.buildingCode,
+          )}
           onNavigate={navigateToBuilding}
           onSetAsStart={setBuildingAsStart}
           onExploreRooms={openIndoorNavigation}

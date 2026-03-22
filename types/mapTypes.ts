@@ -1,4 +1,4 @@
-import { ImageSourcePropType } from "react-native";
+import { ImageRequireSource } from "react-native";
 
 export type Coordinate = {
   latitude: number;
@@ -36,9 +36,12 @@ export type CoordinateDelta = {
 
 export type Region = Coordinate & CoordinateDelta;
 
+// ---- Information about floors and graphs of said floors
+
 export type BuildingFloorInfo = {
-  imageURI: ImageSourcePropType;
+  images: FloorImages;
   graphData: FloorCheckpointsGraph;
+  buildingCode: BuildingCode;
 };
 
 export type RawFloorGraph = {
@@ -81,4 +84,8 @@ type FloorCheckpointConnection = {
   type: string;
   weight: number;
   accessible: boolean;
+};
+
+export type FloorImages = {
+  [key: number]: ImageRequireSource;
 };

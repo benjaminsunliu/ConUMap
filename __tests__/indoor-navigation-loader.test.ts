@@ -75,6 +75,11 @@ describe("IndoorNavigationLoader", () => {
 
     expect(NavigationLoader.clearCache()).toHaveLength(1);
   });
+
+  it("buildingHasNavigationData should return false if the building doesn't exist", () => {
+    const result = NavigationLoader.buildingHasNavigationData("asdf");
+    expect(result).toBe(false);
+  });
 });
 
 const HBuildingData: RawFloorGraph = {

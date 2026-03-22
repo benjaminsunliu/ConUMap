@@ -1,25 +1,35 @@
 import BuildingFloor from "@/components/map/building-floor";
-import hallImage from "@/data/buildings/floors/hall/Images/Hall9 (Custom).png";
-import data from "@/data/buildings/floors/hall/jsonData/HallFloorPlanV4.json";
 import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
+import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
-import { useMemo } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 export default function IndoorMap() {
-  const { buildingCode } = useLocalSearchParams();
-  const graph = useMemo(() => {
-    return NavigationLoader.createGraphFromObject(data);
-  }, []);
+  const { buildingCode: buildingCodeParam } = useLocalSearchParams();
+  const buildingCode = buildingCodeParam[0];
+  const {
+    data: floorInfo,
+    error,
+    isFetching,
+  } = useQuery({
+    queryKey: [buildingCode, "floorInfo"],
+    queryFn: async () => {
+      const floorInfo = await NavigationLoader.loadBuildingData(buildingCode);
+      if (!floorInfo) {
+        throw new Error("Couldn't load the floor info");
+      }
+      return floorInfo;
+    },
+    retry: false,
+    throwOnError: true,
+    gcTime: 0, // We set the gc time to 0 since we handle our own caching and garbage collection
+  });
+
   return (
     <View style={styles.container}>
-      <BuildingFloor
-        info={{
-          graphData: graph,
-          imageURI: hallImage,
-        }}
-        floorNumber={9}
-      />
+      {isFetching ? <Text>Loading...</Text> : null}
+      {error ? <Text>Shiiit somethign went wrong</Text> : null}
+      {floorInfo ? <BuildingFloor info={floorInfo} /> : null}
     </View>
   );
 }

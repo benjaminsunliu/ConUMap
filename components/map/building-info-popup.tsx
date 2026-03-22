@@ -9,6 +9,7 @@ import { ScrollView } from "react-native-gesture-handler";
 
 interface Props {
   building: BuildingInfo | null;
+  hasIndoorNavigation: boolean;
   onNavigate?: () => void;
   onSetAsStart?: () => void;
   onExploreRooms?: () => void;
@@ -40,11 +41,13 @@ interface Action {
   type: string;
   label: string;
   icon?: IconName;
+  active?: boolean;
   handler?: () => void;
 }
 
 export default function BuildingInfoPopup({
   building,
+  hasIndoorNavigation,
   onNavigate,
   onSetAsStart,
   onExploreRooms,
@@ -84,9 +87,10 @@ export default function BuildingInfoPopup({
       },
       {
         label: "Explore Rooms",
-        icon: "globe-outline",
+        icon: "business-outline",
         type: "rooms",
         handler: onExploreRooms,
+        active: hasIndoorNavigation,
       },
     ],
     [onNavigate, onSetAsStart, openWebsiteURL, onExploreRooms],
@@ -206,43 +210,53 @@ const ActionButton = ({
   onPress,
   testID,
   theme,
+  active = true,
 }: {
   readonly label: string;
   readonly icon?: IconName;
   readonly onPress?: () => void;
   readonly testID: string;
   readonly theme: typeof Colors.light;
-}) => (
-  <TouchableOpacity
-    style={[
-      {
-        flexDirection: "row",
-        alignItems: "center",
-        paddingHorizontal: 10,
-        borderRadius: 20,
-        height: 40,
-        backgroundColor: theme.buildingInfoPopup.actionButtonBackground,
-      },
-    ]}
-    onPress={onPress}
-    testID={testID}
-  >
-    <Ionicons
-      name={icon}
-      size={18}
-      color={theme.buildingInfoPopup.actionButtonIcon}
-      style={{ marginRight: 6 }}
-    />
-    <Text
-      style={{
-        color: theme.buildingInfoPopup.actionButtonText,
-        fontWeight: "500",
-      }}
+  readonly active?: boolean;
+}) => {
+  return (
+    <TouchableOpacity
+      style={[
+        {
+          flexDirection: "row",
+          alignItems: "center",
+          paddingHorizontal: 10,
+          borderRadius: 20,
+          height: 40,
+          backgroundColor: theme.buildingInfoPopup.actionButtonBackground,
+        },
+      ]}
+      onPress={active ? onPress : undefined}
+      testID={testID}
     >
-      {label}
-    </Text>
-  </TouchableOpacity>
-);
+      <Ionicons
+        name={icon}
+        size={18}
+        color={
+          active
+            ? theme.buildingInfoPopup.actionButtonIcon
+            : theme.buildingInfoPopup.disabledActionButtonColor
+        }
+        style={{ marginRight: 6 }}
+      />
+      <Text
+        style={{
+          color: active
+            ? theme.buildingInfoPopup.actionButtonText
+            : theme.buildingInfoPopup.disabledActionButtonColor,
+          fontWeight: "500",
+        }}
+      >
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
+};
 
 const makeStyles = (theme: (typeof Colors)["light" | "dark"]) =>
   StyleSheet.create({

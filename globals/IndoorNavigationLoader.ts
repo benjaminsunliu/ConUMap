@@ -29,6 +29,10 @@ class IndoorNavigationLoader {
     return floorInfo;
   }
 
+  public buildingHasNavigationData(buildingCode: BuildingCode) {
+    return CODE_TO_FLOOR_ASSET_INFO[buildingCode] !== undefined;
+  }
+
   /**
    * Clears that cache of loaded buildings
    * @returns the buildings that were loaded in the cache

@@ -44,6 +44,7 @@ export const Colors = {
       actionButtonBackground: "#e8f0fe",
       actionButtonText: "#1a73e8",
       actionButtonIcon: "#1a73e8",
+      disabledActionButtonColor: "#6e6e6eff",
     },
 
     routesInfoPopup: {
@@ -109,6 +110,7 @@ export const Colors = {
       actionButtonBackground: "#C2E8F6",
       actionButtonText: "#1a73e8",
       actionButtonIcon: "#1a73e8",
+      disabledActionButtonColor: "#6e6e6eff",
     },
 
     routesInfoPopup: {
