@@ -3,19 +3,10 @@ import AuthWebView from "@/components/authentication/AuthWebView";
 import { ONE_WEEK_MS } from "@/constants/time";
 import { ClassSchedule, useCalendar } from "@/hooks/use-calendar";
 import { useIsLoggedIn, useLogin, useLogout } from "@/hooks/use-login";
+import { DayOfWeek } from "@/types/dayOfWeek";
 import React, { useEffect, useMemo, useState } from "react";
 import { Button, Text, View } from "react-native";
 import { Directions, Gesture, GestureDetector } from "react-native-gesture-handler";
-
-const WEEKDAY_ORDER: Record<string, number> = {
-  sun: 0,
-  mon: 1,
-  tue: 2,
-  wed: 3,
-  thu: 4,
-  fri: 5,
-  sat: 6,
-};
 
 function sortCalendarData(
   data: readonly ClassSchedule[] | null | undefined,
@@ -23,9 +14,9 @@ function sortCalendarData(
   if (!data) return [];
 
   return [...data].sort((a, b) => {
-    const dayDiff =
-      WEEKDAY_ORDER[a.DAY_OF_WEEK?.toLowerCase()] -
-      WEEKDAY_ORDER[b.DAY_OF_WEEK?.toLowerCase()];
+    const aDay = DayOfWeek.fromShortString(a.DAY_OF_WEEK);
+    const bDay = DayOfWeek.fromShortString(b.DAY_OF_WEEK);
+    const dayDiff = aDay - bDay;
     if (dayDiff !== 0) return dayDiff;
 
     const aStartMinutes = Number(a.START_HOURS) * 60 + Number(a.START_MINUTES);

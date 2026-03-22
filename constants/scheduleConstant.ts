@@ -29,3 +29,29 @@ export function timeToPixels(time: string, startOrEnd: string = "start"): number
   }
   return roundedMinutes * PIXELS_PER_MINUTE;
 }
+
+export const PALETTE = [
+  "#5e0e16",
+  "#193764",
+  "#46243d",
+  "#9f6619",
+  "#19645b",
+  "#823e42",
+  "#ab435e",
+  "#a36c70",
+];
+
+export const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];

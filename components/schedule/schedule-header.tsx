@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-
+import { MONTHS } from "@/constants/scheduleConstant";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 
@@ -10,21 +10,6 @@ interface ScheduleHeaderProps {
   onTodayPress: () => void;
   setDate: (date: Date) => void;
 }
-
-const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
 
 export default function ScheduleHeader({
   currentWeekStart,

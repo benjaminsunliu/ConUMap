@@ -3,7 +3,7 @@ import { View, StyleSheet } from "react-native";
 import ClassDetailPopup from "./class-detail-popup";
 import ScheduleHeader from "./schedule-header";
 import WeeklyCalendarBody from "./weekly-calendar-body";
-
+import { PALETTE } from "@/constants/scheduleConstant";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 import { ClassSchedule } from "@/hooks/use-calendar";
@@ -24,18 +24,6 @@ function getWeekStart(date: Date): Date {
 }
 
 function buildColorMap(classes: readonly ClassSchedule[]): Map<string, string> {
-  // Build a color mapping for the classes in the user's class list
-  const PALETTE = [
-    "#5e0e16",
-    "#193764",
-    "#46243d",
-    "#9f6619",
-    "#19645b",
-    "#823e42",
-    "#ab435e",
-    "#a36c70",
-  ];
-
   const colorMap = new Map<string, string>();
   let colorIndex = 0;
 

@@ -36,7 +36,7 @@ export namespace DayOfWeek {
     return names[dayLower] ?? null;
   }
 
-  export function fromShortString(day: string): DayOfWeek | null {
+  export function fromShortString(day: string): DayOfWeek {
     const short = day.toLowerCase();
     const map: Record<string, DayOfWeek> = {
       sun: DayOfWeek.Sunday,
@@ -48,7 +48,7 @@ export namespace DayOfWeek {
       sat: DayOfWeek.Saturday,
     };
 
-    return map[short] ?? null;
+    return map[short];
   }
 
   export function fromInteger(day: number): DayOfWeek | null {
