@@ -1,7 +1,13 @@
 import React, { useEffect, useRef } from "react";
-import { Animated, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
@@ -21,26 +27,26 @@ export default function ClassDetailPopup({
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
 
-  const backdropOpacity = useRef(new Animated.Value(0)).current;
+  const backdropOpacity = useSharedValue(0);
 
   useEffect(() => {
-    Animated.timing(backdropOpacity, {
-      toValue: 1,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
+    backdropOpacity.value = withTiming(1, { duration: 200 });
   }, [backdropOpacity]);
+
+  const backdropAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: backdropOpacity.value,
+  }));
+
+  function handleClose() {
+    backdropOpacity.value = withTiming(0, { duration: 200 }, (finished) => {
+      if (finished) {
+        scheduleOnRN(onClose);
+      }
+    });
+  }
 
   const courseKey = `${classInfo.SUBJECT}-${classInfo.CATALOG_NBR}`;
   const color = colorMap.get(courseKey) ?? theme.classDetailPopup.courseNotInColorMap;
-
-  function handleClose() {
-    Animated.timing(backdropOpacity, {
-      toValue: 0,
-      duration: 200,
-      useNativeDriver: true,
-    }).start(() => onClose());
-  }
 
   function handleLocateOnMap() {
     onClose();
@@ -55,10 +61,8 @@ export default function ClassDetailPopup({
       <Animated.View
         style={[
           styles.backdrop,
-          {
-            backgroundColor: theme.classDetailPopup.backdropColor,
-            opacity: backdropOpacity,
-          },
+          { backgroundColor: theme.classDetailPopup.backdropColor },
+          backdropAnimatedStyle,
         ]}
       >
         <Pressable style={StyleSheet.absoluteFill} onPress={handleClose} />
