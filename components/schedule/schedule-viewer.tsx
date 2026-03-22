@@ -53,7 +53,11 @@ function buildColorMap(classes: readonly ClassSchedule[]): Map<string, string> {
   return colorMap;
 }
 
-export default function ScheduleViewer({ data, date, setDate }: Readonly<ScheduleViewerProps>) {
+export default function ScheduleViewer({
+  data,
+  date,
+  setDate,
+}: Readonly<ScheduleViewerProps>) {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
   const colorMap = useMemo(() => buildColorMap(data || []), [data]);

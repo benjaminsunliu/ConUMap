@@ -17,23 +17,22 @@ const WEEKDAY_ORDER: Record<string, number> = {
   sat: 6,
 };
 
-function sortCalendarData(data: readonly ClassSchedule[] | null | undefined): ClassSchedule[] {
+function sortCalendarData(
+  data: readonly ClassSchedule[] | null | undefined,
+): ClassSchedule[] {
   if (!data) return [];
 
   return [...data].sort((a, b) => {
     const dayDiff =
-      (WEEKDAY_ORDER[a.DAY_OF_WEEK?.toLowerCase()]) -
-      (WEEKDAY_ORDER[b.DAY_OF_WEEK?.toLowerCase()]);
+      WEEKDAY_ORDER[a.DAY_OF_WEEK?.toLowerCase()] -
+      WEEKDAY_ORDER[b.DAY_OF_WEEK?.toLowerCase()];
     if (dayDiff !== 0) return dayDiff;
 
     const aStartMinutes = Number(a.START_HOURS) * 60 + Number(a.START_MINUTES);
     const bStartMinutes = Number(b.START_HOURS) * 60 + Number(b.START_MINUTES);
-    if (aStartMinutes - bStartMinutes > 0) 
-      return 1;
-    if (aStartMinutes - bStartMinutes < 0) 
-      return -1;
+    if (aStartMinutes - bStartMinutes > 0) return 1;
+    if (aStartMinutes - bStartMinutes < 0) return -1;
     return 0;
-
   });
 }
 
@@ -48,7 +47,10 @@ export default function CalendarScreen() {
     refetch: fetchCalendar,
   } = useCalendar(date);
 
-  const sortedCalendarData = useMemo(() => sortCalendarData(calendarData), [calendarData]);
+  const sortedCalendarData = useMemo(
+    () => sortCalendarData(calendarData),
+    [calendarData],
+  );
 
   // whoever is on UI should change this gesture because its a bit finnicky
   const swipeLeftGesture = Gesture.Fling()
@@ -78,7 +80,7 @@ export default function CalendarScreen() {
       </View>
     );
   }
-  
+
   if (isLoggedIn) {
     return (
       <GestureDetector gesture={Gesture.Race(swipeLeftGesture, swipeRightGesture)}>

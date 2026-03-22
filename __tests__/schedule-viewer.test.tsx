@@ -113,8 +113,6 @@ describe("ScheduleViewer", () => {
     expect(mockSetDate.mock.calls[0][0]).toEqual(baseDate);
   });
 
-
-
   it("opens and closes class detail popup from class selection", () => {
     render(<ScheduleViewer data={[BASE_CLASS]} date={baseDate} setDate={mockSetDate} />);
 

@@ -87,7 +87,6 @@ export default function WeeklyCalendarBody({
   colorMap,
   onClassPress,
 }: Readonly<WeeklyCalendarBodyProps>) {
-  
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];
 

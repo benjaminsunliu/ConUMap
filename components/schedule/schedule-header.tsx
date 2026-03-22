@@ -29,7 +29,7 @@ const MONTHS = [
 export default function ScheduleHeader({
   currentWeekStart,
   onTodayPress,
-  setDate
+  setDate,
 }: Readonly<ScheduleHeaderProps>) {
   const colorScheme = useColorScheme() ?? "light";
   const theme = Colors[colorScheme];

@@ -128,7 +128,11 @@ describe("ClassDetailPopup", () => {
     fireEvent.press(screen.getByLabelText("Close"));
 
     expect(onClose).toHaveBeenCalledTimes(1);
-    expect(mockWithTiming).toHaveBeenCalledWith(0, { duration: 200 }, expect.any(Function));
+    expect(mockWithTiming).toHaveBeenCalledWith(
+      0,
+      { duration: 200 },
+      expect.any(Function),
+    );
     expect(mockScheduleOnRN).toHaveBeenCalledTimes(1);
   });
 
