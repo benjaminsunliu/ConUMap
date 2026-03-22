@@ -72,7 +72,7 @@ export function getNextClass(classes: ClassSchedule[]): ClassSchedule | undefine
 
     let thisDelta = endTimeInMinutes - currentMinutes;
     let smallestDeltaSoFar =
-      Number(nextClass.END_HOURS) * 60 + Number(nextClass.END_MINUTES);
+      Number(nextClass.END_HOURS) * 60 + Number(nextClass.END_MINUTES) - currentMinutes;
 
     if (thisDelta < smallestDeltaSoFar) {
       nextClass = cls;

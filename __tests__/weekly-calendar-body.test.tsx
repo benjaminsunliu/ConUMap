@@ -1,15 +1,364 @@
 import React from "react";
-import { render, fireEvent } from "@testing-library/react-native";
+import { act, fireEvent, render } from "@testing-library/react-native";
+import type { GestureResponderEvent, PanResponderGestureState } from "react-native";
+import { PanResponder } from "react-native";
+
 import WeeklyCalendarBody, {
   getNextClass,
 } from "../components/schedule/weekly-calendar-body";
+import type { ClassSchedule } from "@/hooks/use-calendar";
+
+const mockNavigate = jest.fn();
+
+jest.mock("expo-router", () => ({
+  router: {
+    navigate: (...args: unknown[]) => mockNavigate(...args),
+  },
+}));
+
+const DEFAULT_CLASS: ClassSchedule = {
+  STRM: "2244",
+  SUBJECT: "SOEN",
+  CATALOG_NBR: "390",
+  SSR_COMPONENT: "LEC",
+  XLATLONGNAME: "Lecture",
+  CLASS_SECTION: "AA",
+  DAY_OF_WEEK: "mon",
+  START_HOURS: "10",
+  START_MINUTES: "00",
+  END_HOURS: "11",
+  END_MINUTES: "00",
+  CU_BLDG: "EV",
+  CU_BUILDING: "Engineering, Computer Science and Visual Arts Integrated Complex",
+  ROOM: "1.001",
+  INSTRUCTION_MODE: "In Person",
+  EXPR20_20: "",
+  START_DT: "2026-01-01",
+  END_DT: "2026-04-30",
+  ACAD_CAREER: "UGRD",
+  INSTR_NAME: "Prof. Test",
+};
+
+function makeClass(overrides: Partial<ClassSchedule>): ClassSchedule {
+  return { ...DEFAULT_CLASS, ...overrides };
+}
+
+function setFakeNow(isoDate: string) {
+  jest.useFakeTimers();
+  jest.setSystemTime(new Date(isoDate));
+}
 
 describe("getNextClass", () => {
-  it("returns null if there are no classes today", () => {});
+  afterEach(() => {
+    jest.useRealTimers();
+  });
 
-  it("finds the next class if no classes are in progress", () => {});
+  it("returns undefined if there are no classes today", () => {
+    setFakeNow("2026-03-23T09:00:00"); // Monday (local time)
+    const classes = [makeClass({ DAY_OF_WEEK: "tue" })];
 
-  it("chooses an ongoing class as the next class if it started 30 minutes ago or less", () => {});
+    expect(getNextClass(classes)).toBeUndefined();
+  });
 
-  it("skips an ongoing class if it started more than 30 minutes ago", () => {});
+  it("finds the next class if no classes are in progress", () => {
+    setFakeNow("2026-03-23T09:00:00"); // Monday (local time)
+    const early = makeClass({
+      DAY_OF_WEEK: "mon",
+      START_HOURS: "08",
+      START_MINUTES: "00",
+      END_HOURS: "08",
+      END_MINUTES: "50",
+      CU_BLDG: "H",
+    });
+    const next = makeClass({
+      DAY_OF_WEEK: "mon",
+      START_HOURS: "10",
+      START_MINUTES: "00",
+      END_HOURS: "11",
+      END_MINUTES: "00",
+      CU_BLDG: "EV",
+    });
+
+    expect(getNextClass([early, next])).toEqual(next);
+  });
+
+  it("chooses an ongoing class if it started 30 minutes ago or less", () => {
+    setFakeNow("2026-03-23T09:20:00"); // Monday (local time)
+    const ongoing = makeClass({
+      DAY_OF_WEEK: "mon",
+      START_HOURS: "09",
+      START_MINUTES: "00",
+      END_HOURS: "10",
+      END_MINUTES: "00",
+      CU_BLDG: "MB",
+    });
+    const later = makeClass({
+      DAY_OF_WEEK: "mon",
+      START_HOURS: "10",
+      START_MINUTES: "00",
+      END_HOURS: "11",
+      END_MINUTES: "00",
+      CU_BLDG: "EV",
+    });
+
+    expect(getNextClass([ongoing, later])).toEqual(ongoing);
+  });
+
+  it("skips an ongoing class if it started more than 30 minutes ago", () => {
+    setFakeNow("2026-03-23T09:31:00"); // Monday (local time)
+    const oldOngoing = makeClass({
+      DAY_OF_WEEK: "mon",
+      START_HOURS: "09",
+      START_MINUTES: "00",
+      END_HOURS: "10",
+      END_MINUTES: "00",
+      CU_BLDG: "MB",
+    });
+    const later = makeClass({
+      DAY_OF_WEEK: "mon",
+      START_HOURS: "10",
+      START_MINUTES: "00",
+      END_HOURS: "11",
+      END_MINUTES: "00",
+      CU_BLDG: "EV",
+    });
+
+    expect(getNextClass([oldOngoing, later])).toEqual(later);
+  });
+
+  it("keeps the current next class when another class ends later", () => {
+    setFakeNow("2026-03-23T09:00:00"); // Monday (local time)
+    const sooner = makeClass({
+      DAY_OF_WEEK: "mon",
+      START_HOURS: "09",
+      START_MINUTES: "30",
+      END_HOURS: "10",
+      END_MINUTES: "00",
+      CU_BLDG: "MB",
+    });
+    const later = makeClass({
+      DAY_OF_WEEK: "mon",
+      START_HOURS: "11",
+      START_MINUTES: "00",
+      END_HOURS: "12",
+      END_MINUTES: "00",
+      CU_BLDG: "EV",
+    });
+
+    expect(getNextClass([sooner, later])).toEqual(sooner);
+  });
+
+  it("replaces next class when a later iterated class ends sooner", () => {
+    setFakeNow("2026-03-23T09:00:00"); // Monday (local time)
+    const farther = makeClass({
+      DAY_OF_WEEK: "mon",
+      START_HOURS: "11",
+      START_MINUTES: "00",
+      END_HOURS: "12",
+      END_MINUTES: "00",
+      CU_BLDG: "FG",
+    });
+    const closer = makeClass({
+      DAY_OF_WEEK: "mon",
+      START_HOURS: "10",
+      START_MINUTES: "00",
+      END_HOURS: "10",
+      END_MINUTES: "30",
+      CU_BLDG: "EV",
+    });
+
+    expect(getNextClass([farther, closer])).toEqual(closer);
+  });
+});
+
+describe("WeeklyCalendarBody interactions", () => {
+  let capturedConfig:
+    | {
+        onMoveShouldSetPanResponder?: (
+          event: GestureResponderEvent,
+          gestureState: PanResponderGestureState,
+        ) => boolean;
+        onPanResponderRelease?: (
+          event: GestureResponderEvent,
+          gestureState: PanResponderGestureState,
+        ) => void;
+      }
+    | undefined;
+
+  let panResponderSpy: jest.SpyInstance;
+
+  const weekStartDate = new Date("2026-03-23T00:00:00");
+  const colorMap = new Map<string, string>();
+
+  beforeEach(() => {
+    capturedConfig = undefined;
+    mockNavigate.mockClear();
+    panResponderSpy = jest.spyOn(PanResponder, "create");
+    panResponderSpy.mockImplementation((config) => {
+      capturedConfig = config;
+      return {
+        panHandlers: {},
+      } as never;
+    });
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+    panResponderSpy.mockRestore();
+  });
+
+  it("navigates to the next class building when the next-class button is pressed", () => {
+    setFakeNow("2026-03-23T09:00:00"); // Monday (local time)
+    const classes = [
+      makeClass({
+        DAY_OF_WEEK: "mon",
+        START_HOURS: "10",
+        START_MINUTES: "00",
+        END_HOURS: "11",
+        END_MINUTES: "00",
+        CU_BLDG: "EV",
+      }),
+    ];
+
+    const screen = render(
+      <WeeklyCalendarBody
+        weekStartDate={weekStartDate}
+        classes={classes}
+        colorMap={colorMap}
+        onClassPress={jest.fn()}
+        onWeekChange={jest.fn()}
+      />,
+    );
+
+    fireEvent.press(screen.getByLabelText("Jump to next class"));
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      pathname: "/map-tab",
+      params: { buildingId: "EV" },
+    });
+  });
+
+  it("does not navigate when there is no next class", () => {
+    setFakeNow("2026-03-23T09:00:00"); // Monday (local time)
+    const classes = [makeClass({ DAY_OF_WEEK: "tue" })];
+
+    const screen = render(
+      <WeeklyCalendarBody
+        weekStartDate={weekStartDate}
+        classes={classes}
+        colorMap={colorMap}
+        onClassPress={jest.fn()}
+        onWeekChange={jest.fn()}
+      />,
+    );
+
+    fireEvent.press(screen.getByLabelText("Jump to next class"));
+
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  it("sets pan responder only for horizontal movement and ignores small swipes", () => {
+    setFakeNow("2026-03-23T09:00:00");
+    const onWeekChange = jest.fn();
+
+    render(
+      <WeeklyCalendarBody
+        weekStartDate={weekStartDate}
+        classes={[]}
+        colorMap={colorMap}
+        onClassPress={jest.fn()}
+        onWeekChange={onWeekChange}
+      />,
+    );
+
+    expect(capturedConfig).toBeDefined();
+
+    const shouldSetHorizontal = capturedConfig?.onMoveShouldSetPanResponder?.(
+      {} as GestureResponderEvent,
+      { dx: 60, dy: 10 } as PanResponderGestureState,
+    );
+    const shouldSetVertical = capturedConfig?.onMoveShouldSetPanResponder?.(
+      {} as GestureResponderEvent,
+      { dx: 10, dy: 60 } as PanResponderGestureState,
+    );
+
+    capturedConfig?.onPanResponderRelease?.(
+      {} as GestureResponderEvent,
+      { dx: 20, dy: 0 } as PanResponderGestureState,
+    );
+
+    expect(shouldSetHorizontal).toBe(true);
+    expect(shouldSetVertical).toBe(false);
+    expect(onWeekChange).not.toHaveBeenCalled();
+  });
+
+  it("moves to next week on left swipe and previous week on right swipe", () => {
+    setFakeNow("2026-03-23T09:00:00");
+    const onWeekChange = jest.fn();
+
+    render(
+      <WeeklyCalendarBody
+        weekStartDate={weekStartDate}
+        classes={[]}
+        colorMap={colorMap}
+        onClassPress={jest.fn()}
+        onWeekChange={onWeekChange}
+      />,
+    );
+
+    capturedConfig?.onPanResponderRelease?.(
+      {} as GestureResponderEvent,
+      { dx: -80, dy: 0 } as PanResponderGestureState,
+    );
+    capturedConfig?.onPanResponderRelease?.(
+      {} as GestureResponderEvent,
+      { dx: 80, dy: 0 } as PanResponderGestureState,
+    );
+
+    expect(onWeekChange).toHaveBeenNthCalledWith(1, new Date("2026-03-30T00:00:00"));
+    expect(onWeekChange).toHaveBeenNthCalledWith(2, new Date("2026-03-16T00:00:00"));
+  });
+
+  it("executes scheduled timeout and interval callbacks", () => {
+    setFakeNow("2026-03-23T09:00:00");
+
+    render(
+      <WeeklyCalendarBody
+        weekStartDate={weekStartDate}
+        classes={[]}
+        colorMap={colorMap}
+        onClassPress={jest.fn()}
+        onWeekChange={jest.fn()}
+      />,
+    );
+
+    act(() => {
+      jest.advanceTimersByTime(50);
+      jest.advanceTimersByTime(60000);
+    });
+  });
+
+  it("cleans up interval and timeout handlers on unmount", () => {
+    setFakeNow("2026-03-23T09:00:00");
+    const clearIntervalSpy = jest.spyOn(globalThis, "clearInterval");
+    const clearTimeoutSpy = jest.spyOn(globalThis, "clearTimeout");
+
+    const screen = render(
+      <WeeklyCalendarBody
+        weekStartDate={weekStartDate}
+        classes={[]}
+        colorMap={colorMap}
+        onClassPress={jest.fn()}
+        onWeekChange={jest.fn()}
+      />,
+    );
+
+    screen.unmount();
+
+    expect(clearIntervalSpy).toHaveBeenCalled();
+    expect(clearTimeoutSpy).toHaveBeenCalled();
+
+    clearIntervalSpy.mockRestore();
+    clearTimeoutSpy.mockRestore();
+  });
 });
