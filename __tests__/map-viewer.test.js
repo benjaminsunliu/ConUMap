@@ -53,6 +53,13 @@ jest.mock("@/utils/decodePolyline", () => ({
   decodePolyline: jest.fn().mockReturnValue([]),
 }));
 
+jest.mock("expo-router", () => ({
+  router: {
+    replace: jest.fn(),
+  },
+  useLocalSearchParams: jest.fn(() => ({})),
+}));
+
 jest.mock("react-native", () => {
   const rn = jest.requireActual("react-native");
   rn.PanResponder.create = (config) => ({
@@ -108,6 +115,9 @@ jest.mock("@/constants/map", () => {
 
 beforeEach(() => {
   mockAnimateToRegion.mockClear();
+  const { useLocalSearchParams, router } = require("expo-router");
+  useLocalSearchParams.mockReturnValue({});
+  router.replace.mockClear();
 });
 
 describe("map tab", () => {
@@ -126,6 +136,43 @@ describe("map tab", () => {
       latitudeDelta: 0.0922,
       longitudeDelta: 0.0922,
     });
+  });
+
+  it("opens routes mode directly when opened with buildingId and autoNavigate=true", async () => {
+    const { useLocalSearchParams, router } = require("expo-router");
+    const { fetchAllDirections } = require("@/utils/directions");
+
+    useLocalSearchParams.mockReturnValue({
+      buildingId: "LB",
+      autoNavigate: "true",
+    });
+
+    const mapViewer = render(<MapViewer />);
+    const mapView = mapViewer.getByTestId("map-view");
+
+    fireEvent(mapView, "onUserLocationChange", {
+      nativeEvent: { coordinate: { latitude: 45.495, longitude: -73.579 } },
+    });
+
+    await waitFor(() => {
+      expect(mapViewer.queryByTestId("building-info-popup")).toBeNull();
+      expect(fetchAllDirections).toHaveBeenCalled();
+    });
+    expect(router.replace).toHaveBeenCalledWith("/map-tab");
+  });
+
+  it("keeps browse mode when opened with buildingId only", async () => {
+    const { useLocalSearchParams, router } = require("expo-router");
+
+    useLocalSearchParams.mockReturnValue({
+      buildingId: "LB",
+    });
+
+    const mapViewer = render(<MapViewer />);
+
+    expect(mapViewer.queryByTestId("building-info-popup")).toBeTruthy();
+    expect(mapViewer.queryByTestId("routes-info-popup")).toBeNull();
+    expect(router.replace).toHaveBeenCalledWith("/map-tab");
   });
 
   it("if location enabled is  on and ForegroundPermissions is not granted it would not try to getCurrentPosition  ", async () => {
