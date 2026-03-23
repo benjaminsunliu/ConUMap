@@ -1,6 +1,6 @@
 import { BuildingFloorInfo } from "@/types/mapTypes";
 import { Image, StyleSheet, View } from "react-native";
-import data from "@/data/buildings/floors/hall/jsonData/HallFloorPlanV4.json";
+import data from "@/data/buildings/floors/H/jsonData/H.json";
 import { useMemo, useState, useEffect } from "react";
 import { BuildingNavigation } from "@/globals/BuildingRoomsStore";
 import FloorSelector from "./floor-selection-menu";

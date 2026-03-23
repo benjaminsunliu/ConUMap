@@ -69,6 +69,7 @@ export const Colors = {
       swapButton: black,
       resultTitle: "#2e0306",
     },
+
     floorSelection: {
       chevron: "#2e0306",
       buttonBackground: "#fff",
@@ -77,6 +78,7 @@ export const Colors = {
       separator: "#eee",
       dropdown: "#fff",
     },
+
     mapSettings: {
       fabBackground: "#fff",
       fabIcon: "#2e0306",
@@ -204,6 +206,80 @@ export const Colors = {
       containerBackground: "#420A0F",
       swapButton: white,
       resultTitle: white,
+    },
+
+    floorSelection: {
+      chevron: white,
+      buttonBackground: "#5e0e16",
+      textColor: white,
+      selectedFloor: "rgba(255, 148, 148, 0.29)",
+      separator: "#eee",
+      dropdown: "#5e0e16",
+    },
+
+    mapSettings: {
+      fabBackground: "#5e0e16",
+      fabIcon: white,
+
+      panelBackground: "#5e0e16",
+      title: white,
+      text: white,
+      divider: "#dddddd",
+
+      toggleTrue: "#cccccc",
+      toggleFalse: white,
+
+      checkbox: white,
+      icon: white,
+    },
+
+    scheduleViewer: {
+      containerBackground: white,
+    },
+
+    weeklyCalendarBody: {
+      todayColor: "rgba(148, 142, 25, 0.1)",
+      backgroundColor: "#333",
+      borderColor: "#E0E0E0",
+      dayAndTimeLabel: "#7d7d7d",
+      dateNumber: white,
+      dateNumberToday: black,
+      hourLineColor: "#d4d4d4",
+      timeDotColor: "#E53935",
+      nextClassButtonColor: "#5e0e16",
+      nextClassButtonText: "#fdfcea",
+    },
+
+    scheduleHeader: {
+      backgroundColor: "#fdfcea",
+      shadowColor: "#333",
+      monthButtonText: white,
+      todayButtonText: black,
+      monthPickerBackdrop: "rgba(0,0,0,0.3)",
+      monthPickerBackground: "#5e0e16",
+      monthMenuItemActive: "#fdebeb",
+      monthMenuText: white,
+      monthMenuTextActive: "#e81a1a",
+    },
+
+    dayColumn: {
+      borderColor: "#d4d4d4",
+      todayColor: "rgba(148, 142, 25, 0.1)",
+    },
+
+    classDetailPopup: {
+      courseNotInColorMap: "#707070",
+      buttonColor: "#fdfcea",
+      backdropColor: "rgba(0,0,0,0.4)",
+      cardShadowColor: black,
+      text: "#fdfcea",
+      mapButtonText: black,
+    },
+
+    classBlock: {
+      courseNotInColorMap: "#707070",
+      shadowColor: black,
+      text: "#fdfcea",
     },
   },
 };
