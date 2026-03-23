@@ -1,6 +1,6 @@
 appId: com.anonymous.client
 ---
-- launchApp:
+- launchApp
 
 - setPermissions:
   permissions:
