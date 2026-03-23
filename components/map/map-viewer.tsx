@@ -312,12 +312,7 @@ export default function MapViewer({
         setSelectionOverrides((prev) => ({ ...prev, start: startLabel }));
       }
     }
-  }, [
-    navigationMode,
-    navCoords.start,
-    selectionOverrides.start,
-    resolveStartLocation,
-  ]);
+  }, [navigationMode, navCoords.start, selectionOverrides.start, resolveStartLocation]);
 
   /**
    * Animates the map to center on the given building's location, using a tighter zoom level for better focus. The latitude and longitude deltas are adjusted to be no larger than 0.0025 to ensure a close-up view of the building, while still respecting the current zoom level if it's already close enough. This function is used when a building is selected to provide a focused view of that building on the map.
