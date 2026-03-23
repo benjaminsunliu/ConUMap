@@ -5,6 +5,7 @@ import MapViewer from "../components/map/map-viewer";
 import { Colors } from "@/constants/theme";
 import { CAMPUS_BUILDINGS } from "../constants/map";
 import { fetchAllDirections } from "@/utils/directions";
+import { useLocalSearchParams, router } from "expo-router";
 const mockAnimateToRegion = jest.fn();
 jest.mock("react-native-map-clustering", () => {
   const React = require("react");
@@ -110,7 +111,6 @@ jest.mock("@/constants/map", () => {
 
 beforeEach(() => {
   mockAnimateToRegion.mockClear();
-  const { useLocalSearchParams, router } = require("expo-router");
   useLocalSearchParams.mockReturnValue({});
   router.replace.mockClear();
 });
@@ -134,8 +134,6 @@ describe("map tab", () => {
   });
 
   it("opens routes mode directly when opened with buildingId and autoNavigate=true", async () => {
-    const { useLocalSearchParams, router } = require("expo-router");
-
     fetchAllDirections.mockResolvedValue({
       walking: [],
       transit: [],
@@ -171,8 +169,6 @@ describe("map tab", () => {
   });
 
   it("keeps browse mode when opened with buildingId only", async () => {
-    const { useLocalSearchParams, router } = require("expo-router");
-
     useLocalSearchParams.mockReturnValue({
       buildingId: "LB",
     });
