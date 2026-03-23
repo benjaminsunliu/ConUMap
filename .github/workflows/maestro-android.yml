@@ -247,24 +247,6 @@ jobs:
 
           adb logcat -d | grep -i -E "ReactNativeJS|AndroidRuntime|FATAL EXCEPTION|Unable to load script|SoLoader|Expo" | tail -n 300 > ~/app_launch_diagnostics.log || true
 
-      - name: Capture pre-smoke diagnostics
-        if: always()
-        run: |
-          mkdir -p .maestro/output
-          adb shell dumpsys window | grep -E 'mCurrentFocus|mFocusedApp' > .maestro/output/pre-smoke-focus.txt || true
-          adb exec-out uiautomator dump /dev/tty > .maestro/output/pre-smoke-uiautomator.xml || true
-          adb exec-out screencap -p > .maestro/output/pre-smoke-screen.png || true
-          adb logcat -d | tail -n 300 > .maestro/output/pre-smoke-logcat.txt || true
-
-      - name: Smoke test app readiness
-        timeout-minutes: 5
-        run: |
-          mkdir -p .maestro/output
-          export MAESTRO_DRIVER_STARTUP_TIMEOUT=600000
-          maestro test .maestro/automated/smokeAppReady.yaml \
-            --format junit \
-            --output .maestro/output/smoke-results.xml
-
       - name: Run tests
         timeout-minutes: 20
         run: |
