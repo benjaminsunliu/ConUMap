@@ -1,12 +1,6 @@
 import React, { ReactElement, useEffect, useRef, useState } from "react";
-import {
-  Animated,
-  PanResponder,
-  StyleSheet,
-  ScrollView,
-  useColorScheme,
-  View,
-} from "react-native";
+import { Animated, PanResponder, StyleSheet, ScrollView, View } from "react-native";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 
 interface Props {
@@ -21,7 +15,7 @@ const OPEN_TRANSLATE_Y = 0;
 const COLLAPSED_TRANSLATE_Y = CLOSE_HEIGHT - COLLAPSED_HEIGHT;
 
 export default function InfoPopup(props: React.PropsWithChildren<Props>) {
-  const colorScheme = useColorScheme() ?? "light";
+  const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
   const styles = makeStyles(theme);
 

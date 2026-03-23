@@ -91,7 +91,56 @@ export const Colors = {
 
       checkbox: "#2e0306",
       icon: "#5e0e16",
-    }
+    },
+
+    scheduleViewer: {
+      containerBackground: white,
+    },
+
+    weeklyCalendarBody: {
+      todayColor: "rgba(148, 142, 25, 0.1)",
+      backgroundColor: "#fdfcea",
+      borderColor: "#E0E0E0",
+      dayAndTimeLabel: "#7d7d7d",
+      dateNumber: "#333",
+      dateNumberToday: white,
+      hourLineColor: "#d4d4d4",
+      timeDotColor: "#E53935",
+      nextClassButtonColor: "#5e0e16",
+      nextClassButtonText: "#fdfcea",
+    },
+
+    scheduleHeader: {
+      backgroundColor: "#fdfcea",
+      shadowColor: black,
+      monthButtonText: "#5e0e16",
+      todayButtonText: "#fdfcea",
+      monthPickerBackdrop: "rgba(0,0,0,0.3)",
+      monthPickerBackground: "#fbf6ec",
+      monthMenuItemActive: "#fdebeb",
+      monthMenuText: "#333",
+      monthMenuTextActive: "#e81a1a",
+    },
+
+    dayColumn: {
+      borderColor: "#d4d4d4",
+      todayColor: "rgba(148, 142, 25, 0.1)",
+    },
+
+    classDetailPopup: {
+      courseNotInColorMap: "#707070",
+      buttonColor: "#fdfcea",
+      backdropColor: "rgba(0,0,0,0.4)",
+      cardShadowColor: black,
+      text: "#fdfcea",
+      mapButtonText: black,
+    },
+
+    classBlock: {
+      courseNotInColorMap: "#707070",
+      shadowColor: black,
+      text: "#fdfcea",
+    },
   },
 
   dark: {
@@ -156,29 +205,6 @@ export const Colors = {
       swapButton: white,
       resultTitle: white,
     },
-    floorSelection: {
-      chevron: white,
-      buttonBackground: "#440c08",
-      textColor: white,
-      selectedFloor: "#441815",
-      separator: "#caabab3a",
-      dropdown: "#743b3b"
-    },
-    mapSettings: {
-      fabBackground: "#330300",
-      fabIcon: "#ffffff",
-
-      panelBackground: "#330300",
-      title: "#ffffff",
-      text: "#ffffff",
-      divider: "#dddddd",
-
-      toggleTrue: "#ffffff",
-      toggleFalse: "#b6b5b5",
-
-      checkbox: "#ffffff",
-      icon: "#ffffff",
-    }
   },
 };
 

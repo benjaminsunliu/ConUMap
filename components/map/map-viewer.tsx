@@ -17,7 +17,7 @@ import BuildingSelection, { CURRENT_LOCATION_CODE } from "./building-selection";
 import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 
 interface PolylineSegment {
   coordinates: Coordinate[];
@@ -211,6 +211,11 @@ export default function MapViewer({
   const showStartHint =
     navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
 
+  const { buildingId } = useLocalSearchParams<{
+    buildingId?: string;
+    buildingName?: string;
+  }>();
+
   useEffect(() => {
     if (!navCoords.start || !navCoords.end) {
       return;
@@ -327,6 +332,21 @@ export default function MapViewer({
     setSelectedBuilding(nextBuilding);
     return nextBuilding;
   }, []);
+
+  /**
+   * Handles "View in Map" button from class-block.tsx and class-detail-popup.tsx. When a buildingId is present in the search parameters, it attempts to find the corresponding building and focus the map on it. After handling the building selection and map focus, it replaces the current route with "/map-tab" to clear the buildingId from the URL, preventing repeated navigation to the same building.
+   *
+   */
+  useEffect(() => {
+    if (!buildingId) return;
+
+    const nextBuilding = selectBuildingByCode(buildingId);
+    if (nextBuilding) {
+      focusBuilding(nextBuilding);
+    }
+    // Ensures that buildingId is undefined after
+    router.replace("/map-tab");
+  }, [buildingId, selectBuildingByCode, focusBuilding]);
 
   /**
    * Handles the event when a building is pressed on the map. It updates the selected building, focuses the map on that building, and resets any existing navigation state to switch back to browse mode. The function also sets a flag to suppress the next map press event, preventing unintended deselection of the building when the map is tapped immediately after selecting a building. This ensures a smooth user experience when interacting with buildings on the map.
