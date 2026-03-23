@@ -4,6 +4,7 @@ import * as LocationPermissions from "expo-location";
 import MapViewer from "../components/map/map-viewer";
 import { Colors } from "@/constants/theme";
 import { CAMPUS_BUILDINGS } from "../constants/map";
+import { fetchAllDirections } from "@/utils/directions";
 const mockAnimateToRegion = jest.fn();
 jest.mock("react-native-map-clustering", () => {
   const React = require("react");
@@ -40,13 +41,7 @@ jest.mock("react-native-maps", () => {
 });
 
 jest.mock("@/utils/directions", () => ({
-  fetchAllDirections: jest.fn().mockResolvedValue({
-    walking: [],
-    transit: [],
-    driving: [],
-    bicycling: [],
-    shuttle: [],
-  }),
+  fetchAllDirections: jest.fn(),
 }));
 
 jest.mock("@/utils/decodePolyline", () => ({
@@ -140,7 +135,14 @@ describe("map tab", () => {
 
   it("opens routes mode directly when opened with buildingId and autoNavigate=true", async () => {
     const { useLocalSearchParams, router } = require("expo-router");
-    const { fetchAllDirections } = require("@/utils/directions");
+
+    fetchAllDirections.mockResolvedValue({
+      walking: [],
+      transit: [],
+      driving: [],
+      bicycling: [],
+      shuttle: [],
+    });
 
     useLocalSearchParams.mockReturnValue({
       buildingId: "LB",
@@ -150,14 +152,21 @@ describe("map tab", () => {
     const mapViewer = render(<MapViewer />);
     const mapView = mapViewer.getByTestId("map-view");
 
-    fireEvent(mapView, "onUserLocationChange", {
-      nativeEvent: { coordinate: { latitude: 45.495, longitude: -73.579 } },
+    await act(async () => {
+      fireEvent(mapView, "onUserLocationChange", {
+        nativeEvent: { coordinate: { latitude: 45.495, longitude: -73.579 } },
+      });
     });
 
     await waitFor(() => {
       expect(mapViewer.queryByTestId("building-info-popup")).toBeNull();
       expect(fetchAllDirections).toHaveBeenCalled();
     });
+
+    await waitFor(() => {
+      expect(mapViewer.queryByTestId("routes-info-popup")).toBeTruthy();
+    });
+
     expect(router.replace).toHaveBeenCalledWith("/map-tab");
   });
 
