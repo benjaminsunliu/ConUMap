@@ -1,20 +1,24 @@
-import { BuildingFloorInfo } from "@/types/mapTypes";
+import { BuildingFloorInfo, IndoorNavigationPath } from "@/types/mapTypes";
 import { useMemo, useRef } from "react";
 import { Image, StyleSheet, View } from "react-native";
-import Svg, { Circle } from "react-native-svg";
+import Svg, { Circle, Line } from "react-native-svg";
 
 interface BuildingFloorProps {
   info: BuildingFloorInfo;
-  floor?: number;
+  floor: number;
+  navigationPath?: IndoorNavigationPath;
 }
 
-export default function BuildingFloor({ info, floor }: Readonly<BuildingFloorProps>) {
+export default function BuildingFloor({
+  info,
+  floor,
+  navigationPath,
+}: Readonly<BuildingFloorProps>) {
   const { images, graphData: graph } = info;
   const viewContainerRef = useRef(null);
-  const floorNumber = floor || getFirstFloor(info);
 
   const imageSize = useMemo(() => {
-    const info = Image.resolveAssetSource(images[floorNumber]);
+    const info = Image.resolveAssetSource(images[floor]);
     return { width: info.width, height: info.height };
   }, [images]);
 
@@ -24,7 +28,7 @@ export default function BuildingFloor({ info, floor }: Readonly<BuildingFloorPro
     }
     return Object.values(graph.checkpoints)
       .filter((floorCheckpoint) => {
-        return floorCheckpoint.floor === floorNumber;
+        return floorCheckpoint.floor === floor;
       })
       .map((floorCheckpoint) => {
         return (
@@ -41,11 +45,37 @@ export default function BuildingFloor({ info, floor }: Readonly<BuildingFloorPro
       });
   }, [viewContainerRef]);
 
+  const lines = useMemo(() => {
+    if (!navigationPath) {
+      return null;
+    }
+
+    const checkpoints = info.graphData.checkpoints;
+    const result = [];
+    for (let i = 0; i < navigationPath.length - 1; i++) {
+      const current = checkpoints[navigationPath[i]];
+      const next = checkpoints[navigationPath[i + 1]];
+      result.push(
+        <Line
+          key={current.id + next.id}
+          x1={current.x}
+          y1={current.y}
+          x2={next.x}
+          y2={next.y}
+          stroke={"red"}
+          strokeWidth={10}
+        />,
+      );
+    }
+    return result;
+  }, [navigationPath]);
+
   return (
     <View style={styles.container} ref={viewContainerRef}>
-      <Image source={images[floorNumber]} style={styles.image} resizeMode="contain" />
+      <Image source={images[floor]} style={styles.image} resizeMode="contain" />
       <Svg style={styles.svg} viewBox={`0 0 ${imageSize.width} ${imageSize.height}`}>
         {nodes}
+        {lines}
       </Svg>
     </View>
   );
@@ -66,8 +96,3 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
 });
-
-function getFirstFloor(info: BuildingFloorInfo) {
-  const firstFloor = Object.keys(info.images).sort((a, b) => Number(a) - Number(b))[0];
-  return Number(firstFloor);
-}

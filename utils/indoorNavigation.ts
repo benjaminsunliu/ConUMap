@@ -1,4 +1,8 @@
-import { FloorCheckpointId, FloorCheckpointsGraph } from "@/types/mapTypes";
+import {
+  FloorCheckpointId,
+  FloorCheckpointsGraph,
+  IndoorNavigationPath,
+} from "@/types/mapTypes";
 import { PriorityQueue } from "./priorityQueue";
 
 /**
@@ -7,11 +11,11 @@ import { PriorityQueue } from "./priorityQueue";
  * @param source the id of the source node
  * @param destination the id of the destination node
  */
-export function findPathFromRoomToRoom(
+export function findIndoorPath(
   graph: FloorCheckpointsGraph,
   source: FloorCheckpointId,
   destination: FloorCheckpointId,
-): FloorCheckpointId[] | null {
+): IndoorNavigationPath | null {
   const queue = new PriorityQueue<Vertex>((a, b) => a.distance < b.distance);
   const shortestDistance: ShortestDistanceInfo = {};
 
@@ -31,6 +35,7 @@ export function findPathFromRoomToRoom(
       break;
     }
     const neighbours = graph.adjacencySet[vertex.id];
+    if (!neighbours) continue;
 
     Object.entries(neighbours).forEach(([neighbourId, edge]) => {
       if (edge.weight < 0) {
@@ -59,7 +64,6 @@ export function findPathFromRoomToRoom(
       }
     });
   }
-
   return getPathFromDistanceInfo(shortestDistance, destination);
 }
 

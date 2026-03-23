@@ -1,4 +1,4 @@
-import { findPathFromRoomToRoom } from "@/utils/indoorNavigation"; // Adjust path accordingly
+import { findIndoorPath } from "@/utils/indoorNavigation"; // Adjust path accordingly
 import {
   FloorCheckpointAdjancencySet,
   FloorCheckpointConnection,
@@ -36,8 +36,8 @@ describe("findPathFromRoomToRoom (Undirected Graph)", () => {
   ]);
 
   it("should find a path in both directions (Symmetry)", () => {
-    const forward = findPathFromRoomToRoom(graph, "Lobby", "Room-101");
-    const backward = findPathFromRoomToRoom(graph, "Room-101", "Lobby");
+    const forward = findIndoorPath(graph, "Lobby", "Room-101");
+    const backward = findIndoorPath(graph, "Room-101", "Lobby");
 
     expect(forward).toEqual(["Lobby", "Elevator", "Hallway-1", "Room-101"]);
     expect(backward).toEqual(["Room-101", "Hallway-1", "Elevator", "Lobby"]);
@@ -46,7 +46,7 @@ describe("findPathFromRoomToRoom (Undirected Graph)", () => {
   it("should prioritize the shorter weighted path, even if it has more steps", () => {
     // Direct Lobby -> Room-102 is weight 10.
     // Lobby -> Elevator -> Hallway-1 -> Room-102 is weight (2+1+5) = 8.
-    const path = findPathFromRoomToRoom(graph, "Lobby", "Room-102");
+    const path = findIndoorPath(graph, "Lobby", "Room-102");
 
     expect(path).toEqual(["Lobby", "Elevator", "Hallway-1", "Room-102"]);
   });
@@ -57,7 +57,7 @@ describe("findPathFromRoomToRoom (Undirected Graph)", () => {
       ["C", "D", 1],
     ]);
 
-    const path = findPathFromRoomToRoom(disconnectedGraph, "A", "D");
+    const path = findIndoorPath(disconnectedGraph, "A", "D");
     expect(path).toBeNull();
   });
 
@@ -70,13 +70,13 @@ describe("findPathFromRoomToRoom (Undirected Graph)", () => {
       ["D", "A", 10], // The "long way" around
     ]);
 
-    const path = findPathFromRoomToRoom(circularGraph, "A", "D");
+    const path = findIndoorPath(circularGraph, "A", "D");
     // Should go A-B-C-D (weight 3) rather than A-D (weight 10)
     expect(path).toEqual(["A", "B", "C", "D"]);
   });
 
   it("should return a single-item array when source and destination are identical", () => {
-    const path = findPathFromRoomToRoom(graph, "Lobby", "Lobby");
+    const path = findIndoorPath(graph, "Lobby", "Lobby");
     expect(path).toEqual(["Lobby"]);
   });
 
@@ -84,7 +84,7 @@ describe("findPathFromRoomToRoom (Undirected Graph)", () => {
     const invalidGraph = buildUndirectedGraph([["A", "B", -5]]);
 
     expect(() => {
-      findPathFromRoomToRoom(invalidGraph, "A", "B");
+      findIndoorPath(invalidGraph, "A", "B");
     }).toThrow("Negative weights are not allowed");
   });
 });

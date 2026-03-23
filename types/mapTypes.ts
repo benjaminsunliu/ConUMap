@@ -90,3 +90,5 @@ export type FloorCheckpointConnection = {
 export type FloorImages = {
   [key: number]: ImageRequireSource;
 };
+
+export type IndoorNavigationPath = FloorCheckpointId[];
