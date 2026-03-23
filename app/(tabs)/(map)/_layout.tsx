@@ -3,7 +3,7 @@ import lightIcon from "@/assets/logo/logo-light.png";
 import TabHeader from "@/components/ui/TabHeader";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { router, Stack } from "expo-router";
+import { Stack } from "expo-router";
 
 export default function MapTabLayout() {
   const colorScheme = useColorScheme();
