@@ -1,7 +1,13 @@
 name: Maestro E2E iOS
 
 on:
-    workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+    types: [opened, synchronize, reopened]
 
 jobs:
   e2e-ios:
@@ -91,10 +97,33 @@ jobs:
         run: |
             export PATH="$HOME/.maestro/bin:$PATH"
             export MAESTRO_DRIVER_STARTUP_TIMEOUT=600000
-            mkdir -p .maestro/output
+            mkdir -p .maestro/output .maestro/recordings
+
+            VIDEO_FILE=".maestro/recordings/maestro-ios-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.mp4"
+            xcrun simctl io "$DEVICE_UDID" recordVideo --codec=h264 "$VIDEO_FILE" >/tmp/simctl-record-video.log 2>&1 &
+            REC_PID=$!
+
+            set +e
             maestro --device "$DEVICE_UDID" test .maestro/automated/suite.yaml \
             --format junit \
             --output .maestro/output/results.xml
+            FLOW_EXIT=$?
+            set -e
+
+            if kill -0 "$REC_PID" 2>/dev/null; then
+              kill -INT "$REC_PID" 2>/dev/null || true
+              wait "$REC_PID" 2>/dev/null || true
+            fi
+
+            exit $FLOW_EXIT
+
+      - name: Upload screen recording (mp4)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-ios-recording
+          path: .maestro/recordings/*.mp4
+          if-no-files-found: ignore
 
       - name: Upload Maestro artifacts
         if: failure()
