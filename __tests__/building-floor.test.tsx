@@ -13,7 +13,7 @@ describe("building floor", () => {
             checkpoints: {},
           },
           images: {
-            1: require("@/data/indoorMapData/images/H/H-1.png"),
+            1: require("@/data/indoorMapData/images/H/H1.png"),
           },
         }}
       />,
