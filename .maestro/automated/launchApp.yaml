@@ -3,8 +3,8 @@ appId: com.anonymous.client
 - launchApp
 
 - setPermissions:
-  permissions:
-    location: inuse
+    permissions:
+      location: inuse
 
 - extendedWaitUntil:
     visible:
