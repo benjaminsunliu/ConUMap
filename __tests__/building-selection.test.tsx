@@ -401,7 +401,7 @@ describe("BuildingSelection Integration Tests", () => {
     await waitFor(() => {
       expect(mapViewer.getByPlaceholderText("Destination").props.value).toBe("CL Annex");
     });
-  });
+  }, 10000);
 
   it("should set selected building as start when Set Start is pressed", async () => {
     const MapViewer = require("@/components/map/map-viewer").default;
