@@ -1,7 +1,6 @@
 import darkIcon from "@/assets/logo/logo-dark.png";
 import lightIcon from "@/assets/logo/logo-light.png";
 import { HapticTab } from "@/components/haptic-tab";
-import { IconSymbol } from "@/components/ui/icon-symbol";
 import TabHeader from "@/components/ui/TabHeader";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -11,10 +10,6 @@ import React from "react";
 
 function MapTabIcon({ color }: { readonly color: string }) {
   return <Feather name="map" size={24} color={color} />;
-}
-
-function HomeTabIcon({ color }: { readonly color: string }) {
-  return <IconSymbol size={28} name="house.fill" color={color} />;
 }
 
 function CalendarTabIcon({ color }: { readonly color: string }) {

@@ -33,7 +33,7 @@ export default function IndoorMap() {
     throwOnError: true,
     gcTime: 0, // We set the gc time to 0 since we handle our own caching and garbage collection
   });
-  const [floor, setFloor] = useState<number | undefined>(undefined);
+  const [floor] = useState<number | undefined>(undefined);
   const [navigationPath, setNavigationPath] = useState<IndoorNavigationPath | undefined>(
     undefined,
   );

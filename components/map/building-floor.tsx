@@ -14,19 +14,18 @@ export default function BuildingFloor({
   floor,
   navigationPath,
 }: Readonly<BuildingFloorProps>) {
-  const { images, graphData: graph } = info;
   const viewContainerRef = useRef(null);
 
   const imageSize = useMemo(() => {
-    const info = Image.resolveAssetSource(images[floor]);
-    return { width: info.width, height: info.height };
-  }, [images]);
+    const imageInfo = Image.resolveAssetSource(info.images[floor]);
+    return { width: imageInfo.width, height: imageInfo.height };
+  }, [info.images, floor]);
 
   const nodes = useMemo(() => {
     if (!viewContainerRef) {
       return null;
     }
-    return Object.values(graph.checkpoints)
+    return Object.values(info.graphData.checkpoints)
       .filter((floorCheckpoint) => {
         return floorCheckpoint.floor === floor;
       })
@@ -43,7 +42,7 @@ export default function BuildingFloor({
           />
         );
       });
-  }, [viewContainerRef]);
+  }, [viewContainerRef, info.graphData.checkpoints, floor]);
 
   const lines = useMemo(() => {
     if (!navigationPath) {
@@ -68,11 +67,11 @@ export default function BuildingFloor({
       );
     }
     return result;
-  }, [navigationPath]);
+  }, [navigationPath, info.graphData.checkpoints]);
 
   return (
     <View style={styles.container} ref={viewContainerRef}>
-      <Image source={images[floor]} style={styles.image} resizeMode="contain" />
+      <Image source={info.images[floor]} style={styles.image} resizeMode="contain" />
       <Svg style={styles.svg} viewBox={`0 0 ${imageSize.width} ${imageSize.height}`}>
         {nodes}
         {lines}

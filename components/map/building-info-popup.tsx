@@ -93,7 +93,7 @@ export default function BuildingInfoPopup({
         active: hasIndoorNavigation,
       },
     ],
-    [onNavigate, onSetAsStart, openWebsiteURL, onExploreRooms],
+    [onNavigate, onSetAsStart, openWebsiteURL, onExploreRooms, hasIndoorNavigation],
   );
 
   const header = useMemo(() => {
@@ -137,6 +137,7 @@ export default function BuildingInfoPopup({
     styles.title,
     theme,
     todayIdx,
+    styles.headerText,
   ]);
 
   return (
