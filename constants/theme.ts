@@ -75,7 +75,7 @@ export const Colors = {
       textColor: "#2e0306",
       selectedFloor: "rgba(255, 148, 148, 0.29)",
       separator: "#eee",
-      dropdown: "#fff"
+      dropdown: "#fff",
     },
     mapSettings: {
       fabBackground: "#fff",

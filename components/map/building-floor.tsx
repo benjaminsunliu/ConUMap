@@ -44,15 +44,11 @@ export default function BuildingFloor({
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
   const goToNextStep = () => {
-    setCurrentStepIndex((prev) =>
-      Math.min(prev + 1, steps.length - 1)
-    );
+    setCurrentStepIndex((prev) => Math.min(prev + 1, steps.length - 1));
   };
 
   const goToPreviousStep = () => {
-    setCurrentStepIndex((prev) =>
-      Math.max(prev - 1, 0)
-    );
+    setCurrentStepIndex((prev) => Math.max(prev - 1, 0));
   };
 
   const currentStep = steps[currentStepIndex];
