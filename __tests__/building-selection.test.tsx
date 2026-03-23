@@ -354,53 +354,58 @@ describe("BuildingSelection Directions", () => {
 });
 
 describe("BuildingSelection Integration Tests", () => {
-  it("should remove display results when a result is pressed, call the onSelect, and set the query correctly", async () => {
-    const MapViewer = require("@/components/map/map-viewer").default;
-    const mapViewer = render(<MapViewer />);
+  const TEST_TIMEOUT = 20000;
+  it(
+    "should remove display results when a result is pressed, call the onSelect, and set the query correctly",
+    async () => {
+      const MapViewer = require("@/components/map/map-viewer").default;
+      const mapViewer = render(<MapViewer />);
 
-    let searchBar = await mapViewer.findByPlaceholderText("Search building");
+      let searchBar = await mapViewer.findByPlaceholderText("Search building");
 
-    fireEvent(searchBar, "focus");
-    fireEvent.changeText(searchBar, "CL");
+      fireEvent(searchBar, "focus");
+      fireEvent.changeText(searchBar, "CL");
 
-    const clResult = await mapViewer.findByTestId("end-result-CL");
-    fireEvent.press(clResult);
+      const clResult = await mapViewer.findByTestId("end-result-CL");
+      fireEvent.press(clResult);
 
-    searchBar = await mapViewer.findByPlaceholderText("Search building");
+      searchBar = await mapViewer.findByPlaceholderText("Search building");
 
-    await waitFor(() => {
-      expect(searchBar.props.value).toBeTruthy();
-    });
+      await waitFor(() => {
+        expect(searchBar.props.value).toBeTruthy();
+      });
 
-    const directionsButton = await mapViewer.findByTestId("directions-action-button");
+      const directionsButton = await mapViewer.findByTestId("directions-action-button");
 
-    await act(async () => {
-      fireEvent.press(directionsButton);
-    });
+      await act(async () => {
+        fireEvent.press(directionsButton);
+      });
 
-    const startInput = mapViewer.getByPlaceholderText("Your location");
-    const destinationInput = mapViewer.getByPlaceholderText("Destination");
+      const startInput = mapViewer.getByPlaceholderText("Your location");
+      const destinationInput = mapViewer.getByPlaceholderText("Destination");
 
-    fireEvent(startInput, "focus");
-    fireEvent.changeText(startInput, "Hall");
+      fireEvent(startInput, "focus");
+      fireEvent.changeText(startInput, "Hall");
 
-    const hallResult = await mapViewer.findByTestId("start-result-H");
+      const hallResult = await mapViewer.findByTestId("start-result-H");
 
-    fireEvent.press(hallResult);
+      fireEvent.press(hallResult);
 
-    await act(async () => {});
+      await act(async () => {});
 
-    const startResultsAfterPress = await mapViewer.queryByTestId("start-results");
-    expect(startResultsAfterPress).toBeNull();
+      const startResultsAfterPress = await mapViewer.queryByTestId("start-results");
+      expect(startResultsAfterPress).toBeNull();
 
-    await waitFor(() => {
-      expect(startInput.props.value).toBe("Henry F. Hall Building");
-    });
+      await waitFor(() => {
+        expect(startInput.props.value).toBe("Henry F. Hall Building");
+      });
 
-    await waitFor(() => {
-      expect(destinationInput.props.value).toBe("CL Annex");
-    });
-  }, 20000);
+      await waitFor(() => {
+        expect(destinationInput.props.value).toBe("CL Annex");
+      });
+    },
+    TEST_TIMEOUT,
+  );
 
   it("should set selected building as start when Set Start is pressed", async () => {
     const MapViewer = require("@/components/map/map-viewer").default;

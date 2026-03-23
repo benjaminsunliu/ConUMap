@@ -2,7 +2,7 @@ import BuildingFloor from "@/components/map/building-floor";
 import { render } from "@testing-library/react-native";
 
 describe("building floor", () => {
-  it("Shoudl render", () => {
+  it("Should render", () => {
     render(
       <BuildingFloor
         floor={1}

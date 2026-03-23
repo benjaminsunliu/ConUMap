@@ -179,6 +179,8 @@ async function openURL(url: string) {
 }
 
 function formatCamelCase(text: string) {
+  // the regex matches lower case followed by a capital case
+  // or a capital case followed by a lower case. and puts a space in between.
   return text
     .replaceAll(/(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])/g, " ")
     .trim()

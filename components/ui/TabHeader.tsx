@@ -1,16 +1,31 @@
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import { Image, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface TabHeaderProps {
-  readonly backgroundColor: string;
-  readonly logoSource: number;
+  backgroundColor: string;
+  logoSource: number;
+  showBackButton?: boolean;
 }
 
-export default function TabHeader({ backgroundColor, logoSource }: TabHeaderProps) {
+export default function TabHeader({
+  backgroundColor,
+  logoSource,
+  showBackButton,
+}: TabHeaderProps) {
   const insets = useSafeAreaInsets();
-
   return (
     <View style={[styles.header, { backgroundColor, paddingTop: insets.top }]}>
+      {showBackButton ? (
+        <Ionicons
+          name="chevron-back"
+          style={styles.backButton}
+          onPress={() => {
+            router.back();
+          }}
+        />
+      ) : null}
       <Image source={logoSource} style={styles.logo} resizeMode="contain" />
     </View>
   );
@@ -18,6 +33,7 @@ export default function TabHeader({ backgroundColor, logoSource }: TabHeaderProp
 
 const styles = StyleSheet.create({
   header: {
+    flexDirection: "row",
     paddingBottom: 15,
     justifyContent: "center",
     alignItems: "center",
@@ -26,5 +42,8 @@ const styles = StyleSheet.create({
   logo: {
     width: 120,
     height: 40,
+  },
+  backButton: {
+    fontSize: 20,
   },
 });

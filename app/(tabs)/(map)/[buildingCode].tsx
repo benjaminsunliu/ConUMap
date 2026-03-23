@@ -30,7 +30,6 @@ export default function IndoorMap() {
       return info;
     },
     retry: false,
-    throwOnError: true,
     gcTime: 0, // We set the gc time to 0 since we handle our own caching and garbage collection
   });
   const [floor] = useState<number | undefined>(undefined);

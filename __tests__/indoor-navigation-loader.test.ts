@@ -2,14 +2,14 @@ import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
 import { RawFloorGraph } from "@/types/mapTypes";
 
 describe("IndoorNavigationLoader", () => {
-  it("Should be able to load a building", async () => {
+  it("Should be able to load ALL the data in one building", async () => {
     const navigationData = await NavigationLoader.loadBuildingData("H");
     expect(navigationData).not.toBeNull();
     expect(navigationData!.buildingCode).toBe("H");
     const graphCheckpoints = Object.keys(navigationData!.graphData.checkpoints);
     const adjacencySets = Object.keys(navigationData!.graphData.adjacencySet);
-    expect(graphCheckpoints.length).toBeGreaterThan(0);
-    expect(adjacencySets.length).toBeGreaterThan(0);
+    expect(graphCheckpoints.length).toBe(2);
+    expect(adjacencySets.length).toBe(2);
   });
 
   it("Should return null when trying to find a building that doesn't exist", async () => {

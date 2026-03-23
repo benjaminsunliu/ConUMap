@@ -148,10 +148,10 @@ export const CODE_TO_FLOOR_ASSET_INFO: BuildingCodeToFloorData = {
   H: {
     graphAssetInfo: require("@/data/indoorMapData/jsonGraphs/H_floor_plan.json.txt"),
     images: {
-      1: require("@/data/indoorMapData/images/H/H-1.png"),
-      2: require("@/data/indoorMapData/images/H/H-2.png"),
-      8: require("@/data/indoorMapData/images/H/H-8.png"),
-      9: require("@/data/indoorMapData/images/H/H-9.png"),
+      1: require("@/data/indoorMapData/images/H/H1.png"),
+      2: require("@/data/indoorMapData/images/H/H2.png"),
+      8: require("@/data/indoorMapData/images/H/H8.png"),
+      9: require("@/data/indoorMapData/images/H/H9.png"),
     },
   },
   LB: {
@@ -166,7 +166,7 @@ export const CODE_TO_FLOOR_ASSET_INFO: BuildingCodeToFloorData = {
   MB: {
     graphAssetInfo: require("@/data/indoorMapData/jsonGraphs/MB_floor_plan.json.txt"),
     images: {
-      1: require("@/data/indoorMapData/images/MB/MB-1.png"),
+      1: require("@/data/indoorMapData/images/MB/MB1.png"),
       "-2": require("@/data/indoorMapData/images/MB/MB-2.png"),
     },
   },
@@ -180,8 +180,8 @@ export const CODE_TO_FLOOR_ASSET_INFO: BuildingCodeToFloorData = {
   VL: {
     graphAssetInfo: require("@/data/indoorMapData/jsonGraphs/VL_floor_plan.json.txt"),
     images: {
-      1: require("@/data/indoorMapData/images/VL/VL-1.png"),
-      2: require("@/data/indoorMapData/images/VL/VL-2.png"),
+      1: require("@/data/indoorMapData/images/VL/VL1.png"),
+      2: require("@/data/indoorMapData/images/VL/VL2.png"),
     },
   },
 };

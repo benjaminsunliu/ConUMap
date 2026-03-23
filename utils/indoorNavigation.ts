@@ -80,7 +80,7 @@ type ShortestDistanceInfo = {
 function getPathFromDistanceInfo(
   info: ShortestDistanceInfo,
   destination: FloorCheckpointId,
-) {
+): FloorCheckpointId[] | null {
   // Couldn't find the path to the destination
   if (!info[destination] || info[destination].distance === Infinity) {
     return null;
