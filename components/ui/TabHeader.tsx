@@ -13,7 +13,7 @@ export default function TabHeader({
   backgroundColor,
   logoSource,
   showBackButton,
-}: TabHeaderProps) {
+}: Readonly<TabHeaderProps>) {
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.header, { backgroundColor, paddingTop: insets.top }]}>
