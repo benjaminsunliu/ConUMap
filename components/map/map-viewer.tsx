@@ -211,9 +211,10 @@ export default function MapViewer({
   const showStartHint =
     navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
 
-  const { buildingId } = useLocalSearchParams<{
+  const { buildingId, autoNavigate } = useLocalSearchParams<{
     buildingId?: string;
     buildingName?: string;
+    autoNavigate?: string;
   }>();
 
   useEffect(() => {
@@ -343,10 +344,57 @@ export default function MapViewer({
     const nextBuilding = selectBuildingByCode(buildingId);
     if (nextBuilding) {
       focusBuilding(nextBuilding);
+
+      if (autoNavigate === "true") {
+        let startCoord: Coordinate | null = null;
+        let startLabel: string | null = null;
+
+        if (lastManualStartRef.current.coord && lastManualStartRef.current.label) {
+          startCoord = lastManualStartRef.current.coord;
+          startLabel = lastManualStartRef.current.label;
+        } else if (inBuildingCodes.size > 0) {
+          const firstCode = [...inBuildingCodes][0];
+          const startBuilding = CAMPUS_BUILDINGS.find(
+            (building) => building.buildingCode === firstCode,
+          );
+          startLabel = startBuilding?.buildingName ?? firstCode;
+          startCoord = startBuilding?.location ?? userLocation ?? null;
+        } else if (userLocation) {
+          startLabel = "Current Location";
+          startCoord = userLocation;
+        } else if (lastStartRef.current.coord && lastStartRef.current.label) {
+          startLabel = lastStartRef.current.label;
+          startCoord = lastStartRef.current.coord;
+        }
+
+        if (startCoord && startLabel) {
+          lastStartRef.current = { coord: startCoord, label: startLabel };
+        }
+
+        setSelectionOverrides({
+          start: startLabel,
+          end: nextBuilding.buildingName,
+        });
+        lastDestinationRef.current = {
+          coord: nextBuilding.location,
+          label: nextBuilding.buildingName,
+        };
+        userClearedStart.current = false;
+        setNavCoords({ start: startCoord, end: nextBuilding.location });
+        setNavigationMode("directions");
+        setShouldDisplayRoutes(true);
+      }
     }
     // Ensures that buildingId is undefined after
     router.replace("/map-tab");
-  }, [buildingId, selectBuildingByCode, focusBuilding]);
+  }, [
+    buildingId,
+    autoNavigate,
+    selectBuildingByCode,
+    focusBuilding,
+    inBuildingCodes,
+    userLocation,
+  ]);
 
   /**
    * Handles the event when a building is pressed on the map. It updates the selected building, focuses the map on that building, and resets any existing navigation state to switch back to browse mode. The function also sets a flag to suppress the next map press event, preventing unintended deselection of the building when the map is tapped immediately after selecting a building. This ensures a smooth user experience when interacting with buildings on the map.
@@ -789,36 +837,36 @@ export default function MapViewer({
 
         {Platform.OS === "android"
           ? routeNodes.map((node, index) => (
-              <Circle
-                key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
-                center={node.coordinate}
-                radius={7}
-                fillColor={node.toColor}
-                strokeColor="#fff"
-                strokeWidth={3}
-                zIndex={12}
-              />
-            ))
+            <Circle
+              key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
+              center={node.coordinate}
+              radius={7}
+              fillColor={node.toColor}
+              strokeColor="#fff"
+              strokeWidth={3}
+              zIndex={12}
+            />
+          ))
           : routeNodes.map((node, index) => (
-              <Marker
-                key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
-                coordinate={node.coordinate}
-                anchor={{ x: 0.5, y: 0.5 }}
-                zIndex={12}
-              >
-                <View
-                  collapsable={false}
-                  style={{
-                    width: 18,
-                    height: 18,
-                    borderRadius: 9,
-                    backgroundColor: node.toColor,
-                    borderWidth: 3,
-                    borderColor: "#fff",
-                  }}
-                />
-              </Marker>
-            ))}
+            <Marker
+              key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
+              coordinate={node.coordinate}
+              anchor={{ x: 0.5, y: 0.5 }}
+              zIndex={12}
+            >
+              <View
+                collapsable={false}
+                style={{
+                  width: 18,
+                  height: 18,
+                  borderRadius: 9,
+                  backgroundColor: node.toColor,
+                  borderWidth: 3,
+                  borderColor: "#fff",
+                }}
+              />
+            </Marker>
+          ))}
         {navigationMode === "directions" && navCoords.start && (
           <NavEndpointMarker
             key={`nav-start-${navCoords.start.latitude}-${navCoords.start.longitude}`}
