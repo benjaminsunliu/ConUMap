@@ -12,9 +12,9 @@ import { useMemo, useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 
 export default function IndoorMap() {
-  const { buildingCode: buildingCodeParam } = useLocalSearchParams();
-  const buildingCode =
-    typeof buildingCodeParam === "string" ? buildingCodeParam : buildingCodeParam[0];
+  const { buildingCode } = useLocalSearchParams<{
+    buildingCode: string;
+  }>();
 
   const {
     data: floorInfo,

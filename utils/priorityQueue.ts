@@ -7,8 +7,8 @@ type ComparatorFunction<T> = (a: T, b: T) => boolean;
 // From: https://stackoverflow.com/questions/42919469/efficient-way-to-implement-priority-queue-in-javascript
 export class PriorityQueue<T> {
   private heap: T[] = [];
-  private comparator: ComparatorFunction<T>;
-  private topIndex = 0;
+  private readonly comparator: ComparatorFunction<T>;
+  private readonly topIndex = 0;
 
   public constructor(comparator: ComparatorFunction<T>) {
     this.comparator = comparator;
@@ -90,7 +90,13 @@ export class PriorityQueue<T> {
     }
   }
 
-  private parent = (i: number) => ((i + 1) >>> 1) - 1;
-  private left = (i: number) => (i << 1) + 1;
-  private right = (i: number) => (i + 1) << 1;
+  private parent(i: number) {
+    return ((i + 1) >>> 1) - 1;
+  }
+  private left(i: number) {
+    return (i << 1) + 1;
+  }
+  private right(i: number) {
+    return (i + 1) << 1;
+  }
 }

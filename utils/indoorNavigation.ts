@@ -45,11 +45,10 @@ export function findIndoorPath(
         shortestDistance[vertex.id].distance + edge.weight;
 
       // Initialize shortest distance if it has been done yet
-      if (shortestDistance[neighbourId] === undefined) {
-        shortestDistance[neighbourId] = {
-          distance: Infinity,
-        };
-      }
+
+      shortestDistance[neighbourId] ??= {
+        distance: Infinity,
+      };
 
       // If we found a shortest distance, update it
       if (distanceFromMeToNeighbour < shortestDistance[neighbourId].distance) {
