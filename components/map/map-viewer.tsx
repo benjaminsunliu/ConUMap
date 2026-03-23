@@ -264,6 +264,40 @@ export default function MapViewer({
     return codes;
   }, [userLocation]);
 
+  const resolveStartLocation = useCallback(() => {
+    if (lastManualStartRef.current.coord && lastManualStartRef.current.label) {
+      return {
+        coord: lastManualStartRef.current.coord,
+        label: lastManualStartRef.current.label,
+      };
+    }
+
+    if (inBuildingCodes.size > 0) {
+      const firstCode = [...inBuildingCodes][0];
+      const startBuilding = CAMPUS_BUILDINGS.find(
+        (building) => building.buildingCode === firstCode,
+      );
+
+      return {
+        coord: startBuilding?.location ?? userLocation ?? null,
+        label: startBuilding?.buildingName ?? firstCode,
+      };
+    }
+
+    if (userLocation) {
+      return { coord: userLocation, label: "Current Location" };
+    }
+
+    if (lastStartRef.current.coord && lastStartRef.current.label) {
+      return {
+        coord: lastStartRef.current.coord,
+        label: lastStartRef.current.label,
+      };
+    }
+
+    return { coord: null, label: null };
+  }, [inBuildingCodes, userLocation]);
+
   useEffect(() => {
     if (
       navigationMode === "directions" &&
@@ -271,28 +305,7 @@ export default function MapViewer({
       selectionOverrides.start === null &&
       !userClearedStart.current
     ) {
-      let startCoord: Coordinate | null = null;
-      let startLabel: string | null = null;
-
-      // Priority 1: Check if there's a saved manual start location
-      if (lastManualStartRef.current.coord && lastManualStartRef.current.label) {
-        startCoord = lastManualStartRef.current.coord;
-        startLabel = lastManualStartRef.current.label;
-      }
-      // Priority 2: User is inside a building
-      else if (inBuildingCodes.size > 0) {
-        const firstCode = [...inBuildingCodes][0];
-        const startBuilding = CAMPUS_BUILDINGS.find(
-          (building) => building.buildingCode === firstCode,
-        );
-        startLabel = startBuilding?.buildingName ?? firstCode;
-        startCoord = startBuilding?.location ?? null;
-      }
-      // Priority 3: Use current location
-      else if (userLocation) {
-        startLabel = "Current Location";
-        startCoord = userLocation;
-      }
+      const { coord: startCoord, label: startLabel } = resolveStartLocation();
 
       if (startCoord && startLabel) {
         setNavCoords((prev) => ({ ...prev, start: startCoord }));
@@ -303,8 +316,7 @@ export default function MapViewer({
     navigationMode,
     navCoords.start,
     selectionOverrides.start,
-    inBuildingCodes,
-    userLocation,
+    resolveStartLocation,
   ]);
 
   /**
@@ -346,26 +358,7 @@ export default function MapViewer({
       focusBuilding(nextBuilding);
 
       if (autoNavigate === "true") {
-        let startCoord: Coordinate | null = null;
-        let startLabel: string | null = null;
-
-        if (lastManualStartRef.current.coord && lastManualStartRef.current.label) {
-          startCoord = lastManualStartRef.current.coord;
-          startLabel = lastManualStartRef.current.label;
-        } else if (inBuildingCodes.size > 0) {
-          const firstCode = [...inBuildingCodes][0];
-          const startBuilding = CAMPUS_BUILDINGS.find(
-            (building) => building.buildingCode === firstCode,
-          );
-          startLabel = startBuilding?.buildingName ?? firstCode;
-          startCoord = startBuilding?.location ?? userLocation ?? null;
-        } else if (userLocation) {
-          startLabel = "Current Location";
-          startCoord = userLocation;
-        } else if (lastStartRef.current.coord && lastStartRef.current.label) {
-          startLabel = lastStartRef.current.label;
-          startCoord = lastStartRef.current.coord;
-        }
+        const { coord: startCoord, label: startLabel } = resolveStartLocation();
 
         if (startCoord && startLabel) {
           lastStartRef.current = { coord: startCoord, label: startLabel };
@@ -392,8 +385,7 @@ export default function MapViewer({
     autoNavigate,
     selectBuildingByCode,
     focusBuilding,
-    inBuildingCodes,
-    userLocation,
+    resolveStartLocation,
   ]);
 
   /**
@@ -523,33 +515,7 @@ export default function MapViewer({
       return;
     }
 
-    let startCoord: Coordinate | null = null;
-    let startLabel: string | null = null;
-
-    // Priority 1: Check if there's a saved manual start location
-    if (lastManualStartRef.current.coord && lastManualStartRef.current.label) {
-      startCoord = lastManualStartRef.current.coord;
-      startLabel = lastManualStartRef.current.label;
-    }
-    // Priority 2: User is inside a building
-    else if (inBuildingCodes.size > 0) {
-      const firstCode = [...inBuildingCodes][0];
-      const startBuilding = CAMPUS_BUILDINGS.find(
-        (building) => building.buildingCode === firstCode,
-      );
-      startLabel = startBuilding?.buildingName ?? firstCode;
-      startCoord = startBuilding?.location ?? userLocation ?? null;
-    }
-    // Priority 3: Use current location
-    else if (userLocation) {
-      startLabel = "Current Location";
-      startCoord = userLocation;
-    }
-    // Priority 4: Use last start ref if it exists
-    else if (lastStartRef.current.coord && lastStartRef.current.label) {
-      startLabel = lastStartRef.current.label;
-      startCoord = lastStartRef.current.coord;
-    }
+    const { coord: startCoord, label: startLabel } = resolveStartLocation();
 
     if (startCoord && startLabel) {
       lastStartRef.current = { coord: startCoord, label: startLabel };
@@ -568,7 +534,7 @@ export default function MapViewer({
     setNavCoords({ start: startCoord, end: mapBuilding.location });
     setNavigationMode("directions");
     setShouldDisplayRoutes(true);
-  }, [selectedBuilding, inBuildingCodes, userLocation]);
+  }, [selectedBuilding, resolveStartLocation]);
 
   const setBuildingAsStart = useCallback(() => {
     if (!selectedBuilding) {
