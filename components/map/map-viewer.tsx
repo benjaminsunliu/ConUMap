@@ -265,6 +265,7 @@ export default function MapViewer({
   }, [userLocation]);
 
   const resolveStartLocation = useCallback(() => {
+    // Priority 1: Check if there's a saved manual start location
     if (lastManualStartRef.current.coord && lastManualStartRef.current.label) {
       return {
         coord: lastManualStartRef.current.coord,
@@ -272,6 +273,7 @@ export default function MapViewer({
       };
     }
 
+    // Priority 2: User is inside a building
     if (inBuildingCodes.size > 0) {
       const firstCode = [...inBuildingCodes][0];
       const startBuilding = CAMPUS_BUILDINGS.find(
@@ -284,10 +286,12 @@ export default function MapViewer({
       };
     }
 
+    // Priority 3: Use current location
     if (userLocation) {
       return { coord: userLocation, label: "Current Location" };
     }
 
+    // Priority 4: Use last start ref if it exists
     if (lastStartRef.current.coord && lastStartRef.current.label) {
       return {
         coord: lastStartRef.current.coord,
