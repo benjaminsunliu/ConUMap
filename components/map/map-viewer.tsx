@@ -635,7 +635,7 @@ export default function MapViewer({
     if (!selectedBuilding?.buildingCode) {
       return;
     }
-    router.push(`/map/${encodeURIComponent(selectedBuilding.buildingCode)}`);
+    router.push(`/${encodeURIComponent(selectedBuilding.buildingCode)}`);
   };
 
   return (

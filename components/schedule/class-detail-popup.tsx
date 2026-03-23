@@ -51,7 +51,7 @@ export default function ClassDetailPopup({
   function handleLocateOnMap() {
     onClose();
     router.navigate({
-      pathname: "/map",
+      pathname: "/",
       params: { buildingId: classInfo.CU_BLDG },
     });
   }

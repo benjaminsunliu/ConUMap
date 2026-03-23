@@ -206,7 +206,7 @@ describe("WeeklyCalendarBody interactions", () => {
     fireEvent.press(screen.getByLabelText("Jump to next class"));
 
     expect(mockNavigate).toHaveBeenCalledWith({
-      pathname: "/map",
+      pathname: "/",
       params: { buildingId: "EV" },
     });
   });
