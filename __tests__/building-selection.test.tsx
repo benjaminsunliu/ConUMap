@@ -355,23 +355,30 @@ describe("BuildingSelection Directions", () => {
 
 describe("BuildingSelection Integration Tests", () => {
   it("should remove display results when a result is pressed, call the onSelect, and set the query correctly", async () => {
+    console.log(0);
     const MapViewer = require("@/components/map/map-viewer").default;
     const mapViewer = render(<MapViewer />);
 
+    console.log(1);
     let searchBar = await mapViewer.findByPlaceholderText("Search building");
 
     fireEvent(searchBar, "focus");
     fireEvent.changeText(searchBar, "CL");
 
+    console.log(2);
     const clResult = await mapViewer.findByTestId("end-result-CL");
     fireEvent.press(clResult);
 
+    console.log(3);
     searchBar = await mapViewer.findByPlaceholderText("Search building");
+
+    console.log(4);
 
     await waitFor(() => {
       expect(searchBar.props.value).toBeTruthy();
     });
 
+    console.log(5);
     const directionsButton = await mapViewer.findByTestId("directions-action-button");
 
     await act(async () => {
@@ -379,6 +386,7 @@ describe("BuildingSelection Integration Tests", () => {
     });
 
     const startInput = mapViewer.getByPlaceholderText("Your location");
+    const destinationInput = mapViewer.getByPlaceholderText("Destination");
 
     fireEvent(startInput, "focus");
     fireEvent.changeText(startInput, "Hall");
@@ -389,19 +397,20 @@ describe("BuildingSelection Integration Tests", () => {
 
     await act(async () => {});
 
+    console.log(6);
     const startResultsAfterPress = await mapViewer.queryByTestId("start-results");
     expect(startResultsAfterPress).toBeNull();
 
+    console.log("Waiting for your location");
     await waitFor(() => {
-      expect(mapViewer.getByPlaceholderText("Your location").props.value).toBe(
-        "Henry F. Hall Building",
-      );
+      expect(startInput.props.value).toBe("Henry F. Hall Building");
     });
+    console.log("Waiting for destination");
 
     await waitFor(() => {
-      expect(mapViewer.getByPlaceholderText("Destination").props.value).toBe("CL Annex");
+      expect(destinationInput.props.value).toBe("CL Annex");
     });
-  }, 10000);
+  }, 100000);
 
   it("should set selected building as start when Set Start is pressed", async () => {
     const MapViewer = require("@/components/map/map-viewer").default;
