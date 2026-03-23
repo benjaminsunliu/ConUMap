@@ -117,20 +117,6 @@ const fakeBuildingData: RawFloorGraph = {
   ],
 };
 
-jest.mock("expo-asset", () => ({
-  Asset: class MockedAsset {
-    public static loadAsync() {
-      return new Promise((r) => {
-        r([
-          {
-            localUri: "file://fakePath.txt",
-          },
-        ]);
-      });
-    }
-  },
-}));
-
 jest.mock("expo-file-system", () => ({
   File: class MockedFile {
     constructor(path: string) {}

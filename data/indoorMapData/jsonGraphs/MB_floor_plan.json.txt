@@ -812,7 +812,7 @@
       "floor": 1,
       "x": 633,
       "y": 516,
-      "label": "",
+      "label": "MB-1-214",
       "accessible": true
     },
     {

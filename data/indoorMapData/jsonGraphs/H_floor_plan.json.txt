@@ -180,7 +180,7 @@
       "floor": 2,
       "x": 1734,
       "y": 1410,
-      "label": "",
+      "label": "H-298",
       "accessible": true
     },
     {
@@ -660,7 +660,7 @@
       "floor": 8,
       "x": 1418,
       "y": 1521,
-      "label": "",
+      "label": "H-885",
       "accessible": true
     },
     {
@@ -3410,7 +3410,7 @@
       "floor": 1,
       "x": 1930,
       "y": 746,
-      "label": "",
+      "label": "H-151",
       "accessible": true
     },
     {
