@@ -123,7 +123,7 @@ export default function WeeklyCalendarBody({
     if (!nextClass) return;
     router.navigate({
       pathname: "/",
-      params: { buildingId: nextClass.CU_BLDG },
+      params: { buildingId: nextClass.CU_BLDG, autoNavigate: "true" },
     });
   }
 
