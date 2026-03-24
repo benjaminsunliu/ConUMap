@@ -10,7 +10,6 @@ appId: host.exp.exponent
     longitude: -73.577225
 - tapOn:
     id: "locationButton"
-- tapOn: "Search building"
 - runFlow:
     when:
       visible:
