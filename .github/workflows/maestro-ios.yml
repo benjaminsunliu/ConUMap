@@ -8,6 +8,7 @@ on:
     branches:
       - master
     types: [opened, synchronize, reopened]
+  workflow_dispatch:
 
 jobs:
   e2e-ios:

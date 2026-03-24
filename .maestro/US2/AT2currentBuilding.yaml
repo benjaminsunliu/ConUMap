@@ -5,19 +5,10 @@ appId: host.exp.exponent
       notVisible:
         id: "building-selection"
     file: ../openLink.yaml
-
-- setPermissions:
-    permissions:
-      location: inuse
-      
 - setLocation:
     latitude: 45.4957849
     longitude: -73.577225
-
-- runFlow:
-    commands:
-      - tapOn: "Search building"
-
+- tapOn: "Search building"
 - tapOn:
     id: "locationButton"
 - runFlow:
