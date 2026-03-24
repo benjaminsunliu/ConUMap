@@ -207,7 +207,7 @@ describe("WeeklyCalendarBody interactions", () => {
 
     expect(mockNavigate).toHaveBeenCalledWith({
       pathname: "/map-tab",
-      params: { buildingId: "EV" },
+      params: { buildingId: "EV", autoNavigate: "true" },
     });
   });
 
