@@ -1,6 +1,7 @@
 appId: com.anonymous.client
 ---
-- launchApp
+- launchApp:
+    clearState: true
 
 - setPermissions:
     permissions:
