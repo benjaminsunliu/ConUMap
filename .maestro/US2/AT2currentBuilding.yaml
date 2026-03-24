@@ -8,9 +8,9 @@ appId: host.exp.exponent
 - setLocation:
     latitude: 45.4957849
     longitude: -73.577225
-- tapOn: "Search building"
 - tapOn:
     id: "locationButton"
+- tapOn: "Search building"
 - runFlow:
     when:
       visible:
