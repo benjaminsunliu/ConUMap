@@ -44,6 +44,7 @@ export const Colors = {
       actionButtonBackground: "#e8f0fe",
       actionButtonText: "#1a73e8",
       actionButtonIcon: "#1a73e8",
+      disabledActionButtonColor: "#6e6e6eff",
     },
 
     routesInfoPopup: {
@@ -68,6 +69,55 @@ export const Colors = {
       containerBackground: "#fbf6ec",
       swapButton: black,
       resultTitle: "#2e0306",
+    },
+
+    scheduleViewer: {
+      containerBackground: white,
+    },
+
+    weeklyCalendarBody: {
+      todayColor: "rgba(148, 142, 25, 0.1)",
+      backgroundColor: "#fdfcea",
+      borderColor: "#E0E0E0",
+      dayAndTimeLabel: "#7d7d7d",
+      dateNumber: "#333",
+      dateNumberToday: white,
+      hourLineColor: "#d4d4d4",
+      timeDotColor: "#E53935",
+      nextClassButtonColor: "#5e0e16",
+      nextClassButtonText: "#fdfcea",
+    },
+
+    scheduleHeader: {
+      backgroundColor: "#fdfcea",
+      shadowColor: black,
+      monthButtonText: "#5e0e16",
+      todayButtonText: "#fdfcea",
+      monthPickerBackdrop: "rgba(0,0,0,0.3)",
+      monthPickerBackground: "#fbf6ec",
+      monthMenuItemActive: "#fdebeb",
+      monthMenuText: "#333",
+      monthMenuTextActive: "#e81a1a",
+    },
+
+    dayColumn: {
+      borderColor: "#d4d4d4",
+      todayColor: "rgba(148, 142, 25, 0.1)",
+    },
+
+    classDetailPopup: {
+      courseNotInColorMap: "#707070",
+      buttonColor: "#fdfcea",
+      backdropColor: "rgba(0,0,0,0.4)",
+      cardShadowColor: black,
+      text: "#fdfcea",
+      mapButtonText: black,
+    },
+
+    classBlock: {
+      courseNotInColorMap: "#707070",
+      shadowColor: black,
+      text: "#fdfcea",
     },
   },
 
@@ -109,6 +159,7 @@ export const Colors = {
       actionButtonBackground: "#C2E8F6",
       actionButtonText: "#1a73e8",
       actionButtonIcon: "#1a73e8",
+      disabledActionButtonColor: "#6e6e6eff",
     },
 
     routesInfoPopup: {
@@ -132,6 +183,55 @@ export const Colors = {
       containerBackground: "#420A0F",
       swapButton: white,
       resultTitle: white,
+    },
+
+    scheduleViewer: {
+      containerBackground: black,
+    },
+
+    weeklyCalendarBody: {
+      todayColor: "rgba(110, 93, 88, 0.1)",
+      backgroundColor: "#241c1a",
+      borderColor: "#3c4043",
+      dayAndTimeLabel: "#9b9b9b",
+      dateNumber: "#fdfcea",
+      dateNumberToday: black,
+      hourLineColor: "#3c4043",
+      timeDotColor: "#d83532",
+      nextClassButtonColor: "#5e0e16",
+      nextClassButtonText: "#fdfcea",
+    },
+
+    scheduleHeader: {
+      backgroundColor: "#fdfcea",
+      shadowColor: black,
+      monthButtonText: "#fdfcea",
+      todayButtonText: black,
+      monthPickerBackdrop: "rgba(0,0,0,0.3)",
+      monthPickerBackground: "#5e0e16",
+      monthMenuItemActive: "#47080d",
+      monthMenuText: "#fdfcea",
+      monthMenuTextActive: "#e41313",
+    },
+
+    dayColumn: {
+      borderColor: "#3c4043",
+      todayColor: "rgba(110, 93, 88, 0.1)",
+    },
+
+    classDetailPopup: {
+      courseNotInColorMap: "#707070",
+      buttonColor: "#fdfcea",
+      backdropColor: "rgba(0,0,0,0.4)",
+      cardShadowColor: black,
+      text: "#fdfcea",
+      mapButtonText: black,
+    },
+
+    classBlock: {
+      courseNotInColorMap: "#707070",
+      shadowColor: black,
+      text: "#fdfcea",
     },
   },
 };
