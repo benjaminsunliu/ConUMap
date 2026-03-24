@@ -3,6 +3,11 @@ appId: com.anonymous.client
 - runFlow:
     file: launchApp.yaml
 - runFlow:
+    file: ../US2/AT2currentBuilding.yaml
+
+- runFlow:
+    file: launchApp.yaml
+- runFlow:
     file: ../US1/AT1viewBothCampus.yaml
 - runFlow:
     file: ../US1/AT2distinguishBuilding.yaml
@@ -10,5 +15,3 @@ appId: com.anonymous.client
     file: ../US1/AT3campusLocation.yaml
 - runFlow:
     file: ../US1/AT4buildingPopup.yaml
-- runFlow:
-    file: ../US2/AT2currentBuilding.yaml
