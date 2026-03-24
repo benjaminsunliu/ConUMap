@@ -47,15 +47,15 @@ class IndoorNavigationLoader {
    * @returns the buildings that could no longer fit in the cache, if any
    */
   public resizeCache(maxBuildings: number) {
-    if (maxBuildings < this.maxLoadedBuildings) {
-      this.loadedBuildings.splice(0, maxBuildings);
-    }
     this.maxLoadedBuildings = maxBuildings;
-    return this.loadedBuildings.splice(0, this.maxLoadedBuildings);
+    const extraCount = this.loadedBuildings.length - this.maxLoadedBuildings;
+    if (extraCount > 0) {
+      return this.loadedBuildings.splice(this.maxLoadedBuildings, extraCount);
+    }
   }
 
   private async loadData(buildingCode: BuildingCode) {
-    if (!CODE_TO_FLOOR_ASSET_INFO[buildingCode]) {
+    if (!this.buildingHasNavigationData(buildingCode)) {
       return null;
     }
 

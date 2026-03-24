@@ -48,7 +48,7 @@ export default function IndoorMap() {
   return (
     <View style={styles.container}>
       {isFetching ? <Text>Loading...</Text> : null}
-      {error ? <Text>Shiiit somethign went wrong</Text> : null}
+      {error ? <Text>Something went wrong</Text> : null}
       {floorInfo && defaultFloor ? (
         <>
           <BuildingFloor

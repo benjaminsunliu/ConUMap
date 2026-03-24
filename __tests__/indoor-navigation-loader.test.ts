@@ -80,6 +80,11 @@ describe("IndoorNavigationLoader", () => {
     const result = NavigationLoader.buildingHasNavigationData("asdf");
     expect(result).toBe(false);
   });
+
+  it("Should not return any elements when the cache is bigger than the current number of cached items", async () => {
+    await NavigationLoader.loadBuildingData("H");
+    expect(NavigationLoader.resizeCache(2)).toBeUndefined();
+  });
 });
 
 const fakeBuildingData: RawFloorGraph = {
