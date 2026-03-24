@@ -19,6 +19,7 @@ export default function MapTabLayout() {
         header: (a) => (
           <TabHeader
             backgroundColor={Colors[colorScheme].background}
+            backButtonColor={Colors[colorScheme].text}
             logoSource={logoSource}
             showBackButton={a.back !== undefined}
           />

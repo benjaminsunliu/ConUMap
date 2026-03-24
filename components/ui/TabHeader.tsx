@@ -7,12 +7,14 @@ interface TabHeaderProps {
   backgroundColor: string;
   logoSource: number;
   showBackButton?: boolean;
+  backButtonColor?: string;
 }
 
 export default function TabHeader({
   backgroundColor,
   logoSource,
   showBackButton,
+  backButtonColor,
 }: Readonly<TabHeaderProps>) {
   const insets = useSafeAreaInsets();
   return (
@@ -20,7 +22,7 @@ export default function TabHeader({
       {showBackButton ? (
         <Ionicons
           name="chevron-back"
-          style={styles.backButton}
+          style={(styles.backButton, { color: backButtonColor })}
           onPress={() => {
             router.back();
           }}
