@@ -51,7 +51,7 @@ jest.mock("@/utils/decodePolyline", () => ({
 
 jest.mock("expo-router", () => ({
   router: {
-    replace: jest.fn(),
+    setParams: jest.fn(),
   },
   useLocalSearchParams: jest.fn(() => ({})),
 }));
@@ -112,7 +112,7 @@ jest.mock("@/constants/map", () => {
 beforeEach(() => {
   mockAnimateToRegion.mockClear();
   useLocalSearchParams.mockReturnValue({});
-  router.replace.mockClear();
+  router.setParams.mockClear();
 });
 
 describe("map tab", () => {
@@ -165,7 +165,11 @@ describe("map tab", () => {
       expect(mapViewer.queryByTestId("routes-info-popup")).toBeTruthy();
     });
 
-    expect(router.replace).toHaveBeenCalledWith("/map-tab");
+    expect(router.setParams).toHaveBeenCalledWith({
+      buildingId: "",
+      buildingName: "",
+      autoNavigate: "",
+    });
   });
 
   it("keeps browse mode when opened with buildingId only", async () => {
@@ -177,7 +181,11 @@ describe("map tab", () => {
 
     expect(mapViewer.queryByTestId("building-info-popup")).toBeTruthy();
     expect(mapViewer.queryByTestId("routes-info-popup")).toBeNull();
-    expect(router.replace).toHaveBeenCalledWith("/map-tab");
+    expect(router.setParams).toHaveBeenCalledWith({
+      buildingId: "",
+      buildingName: "",
+      autoNavigate: "",
+    });
   });
 
   it("if location enabled is  on and ForegroundPermissions is not granted it would not try to getCurrentPosition  ", async () => {

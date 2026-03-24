@@ -378,7 +378,7 @@ export default function MapViewer({
       }
     }
     // Ensures that buildingId is undefined after
-    router.setParams({ buildingId: "" });
+    router.setParams({ buildingId: "", buildingName: "", autoNavigate: "" });
   }, [
     buildingId,
     autoNavigate,
