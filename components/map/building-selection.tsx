@@ -19,16 +19,13 @@ interface Props {
   readonly currentBuildingCodes?: Set<string>;
   readonly hasUserLocation?: boolean;
   readonly mode: "browse" | "directions";
-  readonly selectedBuilding?: SearchBuilding;
-  readonly onSelect: (
-    buildings: SearchInput,
-    type: FieldType,
-  ) => void;
+  readonly selectedBuilding?: SearchBuilding | null;
+  readonly onSelect: (buildings: SearchInput, type: FieldType) => void;
   readonly onSwap?: () => void;
-  readonly startOverride?: string;
-  readonly endOverride?: string;
-  readonly startHint?: string;
-} 
+  readonly startOverride?: string | null;
+  readonly endOverride?: string | null;
+  readonly startHint?: string | null;
+}
 
 export default function BuildingSelection({
   currentBuildingCodes = new Set(),
@@ -48,12 +45,12 @@ export default function BuildingSelection({
     currentBuildingCodes,
     hasUserLocation,
   });
-  
 
   const [focusedField, setFocusedField] = useState<FieldType | null>(null);
-  const [selectedBuildings, setSelectedBuildings] = useState<
-    SearchInput
-  >({ start: null, end: null });
+  const [selectedBuildings, setSelectedBuildings] = useState<SearchInput>({
+    start: null,
+    end: null,
+  });
 
   const selectedBuildingsRef = useRef(selectedBuildings);
   const selectedBuildingRef = useRef(selectedBuilding);
@@ -78,15 +75,11 @@ export default function BuildingSelection({
   }, [focusedField, mode, selectedBuilding, updateQuery]);
 
   useEffect(() => {
-    if (startOverride !== undefined) {
-      updateQuery("start", startOverride);
-    }
+    if (startOverride !== undefined) updateQuery("start", startOverride ?? "");
   }, [startOverride, updateQuery]);
 
   useEffect(() => {
-    if (endOverride !== undefined) {
-      updateQuery("end", endOverride);
-    }
+    if (endOverride !== undefined) updateQuery("end", endOverride ?? "");
   }, [endOverride, updateQuery]);
 
   const handleChange = useCallback(
