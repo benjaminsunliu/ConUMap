@@ -1,36 +1,15 @@
 import darkIcon from "@/assets/logo/logo-dark.png";
 import lightIcon from "@/assets/logo/logo-light.png";
 import { HapticTab } from "@/components/haptic-tab";
-import { IconSymbol } from "@/components/ui/icon-symbol";
+import TabHeader from "@/components/ui/TabHeader";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import Feather from "@expo/vector-icons/Feather";
 import { Tabs } from "expo-router";
 import React from "react";
-import { Image, StyleSheet, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-interface TabHeaderProps {
-  readonly backgroundColor: string;
-  readonly logoSource: number;
-}
-
-function TabHeader({ backgroundColor, logoSource }: TabHeaderProps) {
-  const insets = useSafeAreaInsets();
-
-  return (
-    <View style={[styles.header, { backgroundColor, paddingTop: insets.top }]}>
-      <Image source={logoSource} style={styles.logo} resizeMode="contain" />
-    </View>
-  );
-}
 
 function MapTabIcon({ color }: { readonly color: string }) {
   return <Feather name="map" size={24} color={color} />;
-}
-
-function HomeTabIcon({ color }: { readonly color: string }) {
-  return <IconSymbol size={28} name="house.fill" color={color} />;
 }
 
 function CalendarTabIcon({ color }: { readonly color: string }) {
@@ -49,12 +28,10 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        header: () => (
-          <TabHeader
-            backgroundColor={Colors[colorScheme].background}
-            logoSource={logoSource}
-          />
-        ),
+        headerStyle: {
+          backgroundColor: Colors[colorScheme].background,
+        },
+        headerTitleAlign: "center",
         tabBarButton: HapticTab,
         tabBarActiveTintColor: Colors[colorScheme].tint,
         tabBarInactiveTintColor: Colors[colorScheme].text,
@@ -63,20 +40,21 @@ export default function TabLayout() {
           borderTopWidth: 0,
           elevation: 5,
         },
+        headerTitle: () => {
+          return (
+            <TabHeader
+              backgroundColor={Colors[colorScheme].background}
+              logoSource={logoSource}
+            />
+          );
+        },
       }}
     >
       <Tabs.Screen
-        name="map-tab"
+        name="(map)"
         options={{
           title: "Map",
           tabBarIcon: MapTabIcon,
-        }}
-      />
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
-          tabBarIcon: HomeTabIcon,
         }}
       />
       <Tabs.Screen
@@ -89,16 +67,3 @@ export default function TabLayout() {
     </Tabs>
   );
 }
-
-const styles = StyleSheet.create({
-  header: {
-    paddingBottom: 15,
-    justifyContent: "center",
-    alignItems: "center",
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  logo: {
-    width: 120,
-    height: 40,
-  },
-});

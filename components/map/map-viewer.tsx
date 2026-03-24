@@ -1,5 +1,6 @@
 import { CAMPUS_BUILDINGS } from "@/constants/map";
 import { Colors } from "@/constants/theme";
+import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
 import { ColorSchemeName, useColorScheme } from "@/hooks/use-color-scheme";
 import { FieldType, SearchBuilding, TransportationMode } from "@/types/buildingTypes";
 import { BuildingInfo, Coordinate, CoordinateDelta } from "@/types/mapTypes";
@@ -7,6 +8,7 @@ import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
 import { decodePolyline } from "@/utils/decodePolyline";
 import { fetchAllDirections } from "@/utils/directions";
 import * as LocationPermissions from "expo-location";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
@@ -17,7 +19,6 @@ import BuildingSelection, { CURRENT_LOCATION_CODE } from "./building-selection";
 import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
-import { router, useLocalSearchParams } from "expo-router";
 
 interface PolylineSegment {
   coordinates: Coordinate[];
@@ -346,12 +347,11 @@ export default function MapViewer({
   }, []);
 
   /**
-   * Handles "View in Map" button from class-block.tsx and class-detail-popup.tsx. When a buildingId is present in the search parameters, it attempts to find the corresponding building and focus the map on it. After handling the building selection and map focus, it replaces the current route with "/map-tab" to clear the buildingId from the URL, preventing repeated navigation to the same building.
+   * Handles "View in Map" button from class-block.tsx and class-detail-popup.tsx. When a buildingId is present in the search parameters, it attempts to find the corresponding building and focus the map on it. After handling the building selection and map focus, it replaces the current route with "/map" to clear the buildingId from the URL, preventing repeated navigation to the same building.
    *
    */
   useEffect(() => {
     if (!buildingId) return;
-
     const nextBuilding = selectBuildingByCode(buildingId);
     if (nextBuilding) {
       focusBuilding(nextBuilding);
@@ -378,7 +378,7 @@ export default function MapViewer({
       }
     }
     // Ensures that buildingId is undefined after
-    router.replace("/map-tab");
+    router.setParams({ buildingId: "", buildingName: "", autoNavigate: "" });
   }, [
     buildingId,
     autoNavigate,
@@ -643,6 +643,13 @@ export default function MapViewer({
     [focusBuilding, selectBuildingByCode],
   );
 
+  const openIndoorNavigation = () => {
+    if (!selectedBuilding?.buildingCode) {
+      return;
+    }
+    router.push(`/${encodeURIComponent(selectedBuilding.buildingCode)}`);
+  };
+
   return (
     <View style={styles.container}>
       <BuildingSelection
@@ -888,8 +895,12 @@ export default function MapViewer({
       {navigationMode === "browse" && selectedBuilding && (
         <BuildingInfoPopup
           building={selectedBuilding}
+          hasIndoorNavigation={NavigationLoader.buildingHasNavigationData(
+            selectedBuilding.buildingCode,
+          )}
           onNavigate={navigateToBuilding}
           onSetAsStart={setBuildingAsStart}
+          onExploreRooms={openIndoorNavigation}
         />
       )}
 
