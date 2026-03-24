@@ -28,6 +28,10 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
+        headerStyle: {
+          backgroundColor: Colors[colorScheme].background,
+        },
+        headerTitleAlign: "center",
         tabBarButton: HapticTab,
         tabBarActiveTintColor: Colors[colorScheme].tint,
         tabBarInactiveTintColor: Colors[colorScheme].text,
@@ -36,6 +40,14 @@ export default function TabLayout() {
           borderTopWidth: 0,
           elevation: 5,
         },
+        headerTitle: () => {
+          return (
+            <TabHeader
+              backgroundColor={Colors[colorScheme].background}
+              logoSource={logoSource}
+            />
+          );
+        },
       }}
     >
       <Tabs.Screen
@@ -43,7 +55,6 @@ export default function TabLayout() {
         options={{
           title: "Map",
           tabBarIcon: MapTabIcon,
-          headerShown: false,
         }}
       />
       <Tabs.Screen
@@ -51,12 +62,6 @@ export default function TabLayout() {
         options={{
           title: "Calendar",
           tabBarIcon: CalendarTabIcon,
-          header: () => (
-            <TabHeader
-              backgroundColor={Colors[colorScheme].background}
-              logoSource={logoSource}
-            />
-          ),
         }}
       />
     </Tabs>

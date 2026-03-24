@@ -13,21 +13,10 @@ interface TabHeaderProps {
 export default function TabHeader({
   backgroundColor,
   logoSource,
-  showBackButton,
-  backButtonColor,
 }: Readonly<TabHeaderProps>) {
   const insets = useSafeAreaInsets();
   return (
-    <View style={[styles.header, { backgroundColor, paddingTop: insets.top }]}>
-      {showBackButton ? (
-        <Ionicons
-          name="chevron-back"
-          style={(styles.backButton, { color: backButtonColor })}
-          onPress={() => {
-            router.back();
-          }}
-        />
-      ) : null}
+    <View style={[styles.header, { backgroundColor }]}>
       <Image source={logoSource} style={styles.logo} resizeMode="contain" />
     </View>
   );
@@ -35,17 +24,10 @@ export default function TabHeader({
 
 const styles = StyleSheet.create({
   header: {
-    flexDirection: "row",
-    paddingBottom: 15,
-    justifyContent: "center",
     alignItems: "center",
-    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   logo: {
     width: 120,
     height: 40,
-  },
-  backButton: {
-    fontSize: 20,
   },
 });

@@ -1,33 +1,23 @@
-import darkIcon from "@/assets/logo/logo-dark.png";
-import lightIcon from "@/assets/logo/logo-light.png";
-import TabHeader from "@/components/ui/TabHeader";
-import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
+import IndoorMapHeader from "@/components/ui/indoor-map-header";
 import { Stack } from "expo-router";
 
 export default function MapTabLayout() {
-  const colorScheme = useColorScheme();
-  const logos = {
-    light: lightIcon,
-    dark: darkIcon,
-  };
-
-  const logoSource = logos[colorScheme];
   return (
-    <Stack
-      screenOptions={{
-        header: (a) => (
-          <TabHeader
-            backgroundColor={Colors[colorScheme].background}
-            backButtonColor={Colors[colorScheme].text}
-            logoSource={logoSource}
-            showBackButton={a.back !== undefined}
-          />
-        ),
-      }}
-    >
-      <Stack.Screen name="index" />
-      <Stack.Screen name="[buildingCode]" />
+    <Stack>
+      <Stack.Screen
+        name="index"
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="[buildingCode]"
+        options={{
+          header: () => {
+            return <IndoorMapHeader />;
+          },
+        }}
+      />
     </Stack>
   );
 }
