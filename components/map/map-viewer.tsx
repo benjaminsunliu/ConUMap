@@ -10,7 +10,14 @@ import * as LocationPermissions from "expo-location";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
-import MapView, { Circle, Marker, Polygon, Polyline, Region } from "react-native-maps";
+import MapView, {
+  Circle,
+  MapStyleElement,
+  Marker,
+  Polygon,
+  Polyline,
+  Region,
+} from "react-native-maps";
 import RoutesInfoPopup from "../navigation/routes-info-popup";
 import BuildingInfoPopup from "./building-info-popup";
 import BuildingSelection, { CURRENT_LOCATION_CODE } from "./building-selection";
@@ -675,6 +682,7 @@ export default function MapViewer({
         ref={mapViewRef}
         testID="map-view"
         style={styles.map}
+        customMapStyle={customMapStyle}
         initialRegion={initialRegion}
         showsUserLocation={!!userLocation}
         followsUserLocation={locationState === "centered"}
@@ -1132,6 +1140,17 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
 });
+
+const customMapStyle: MapStyleElement[] = [
+  {
+    featureType: "poi",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+];
 
 const defaultFocusDelta: CoordinateDelta = {
   latitudeDelta: 0.00922,
