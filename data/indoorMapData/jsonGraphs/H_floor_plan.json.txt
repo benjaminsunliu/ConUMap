@@ -8050,6 +8050,27 @@
       "type": "elevator",
       "weight": 500,
       "accessible": true
+    },
+    {
+      "source": "Hall_F8_hallway_waypoint_150",
+      "target": "H_806_1",
+      "type": "door_to_hallway",
+      "weight": 152,
+      "accessible": true
+    },
+    {
+      "source": "Hall_F8_hallway_waypoint_150",
+      "target": "H_806_2",
+      "type": "door_to_hallway",
+      "weight": 229,
+      "accessible": true
+    },
+    {
+      "source": "Hall_F8_hallway_waypoint_150",
+      "target": "H_806_3",
+      "type": "door_to_hallway",
+      "weight": 314,
+      "accessible": true
     }
   ]
 }
