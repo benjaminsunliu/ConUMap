@@ -11,8 +11,8 @@ appId: host.exp.exponent
     id: "tab-calendar"
 - runFlow:
     when:
-      visible:
-        id: "courses-view"
+      notVisible:
+        id: "auth-webview"
     commands:
       - assertVisible: "Class Schedule"
       - assertVisible:
