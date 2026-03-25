@@ -8,12 +8,12 @@ appId: host.exp.exponent
 - assertVisible: "Calendar"
 - tapOn: "Calendar"
 - runFlow:
-   when:
-     notVisible: "Sign in"
-   commands:
-       - assertVisible: "Class Schedule"
-       - assertVisible:
-           text: "SOEN.*357"
-       - tapOn:
-           text: "SOEN.*357"
-       - assertVisible: "Room H-535"
+    when:
+      notVisible: "Sign in"
+    commands:
+      - assertVisible: "Class Schedule"
+      - assertVisible:
+          text: "SOEN.*357"
+      - tapOn:
+          text: "SOEN.*357"
+      - assertVisible: "Room H-535"
