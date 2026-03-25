@@ -5,7 +5,7 @@ import {
   FloorCheckpointsGraph,
   IndoorNavigationPath,
 } from "@/types/mapTypes";
-import { findIndoorPath } from "@/utils/indoorNavigation";
+import { findIndoorPath,findNearestEntryExitPath } from "@/utils/indoorNavigation";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
@@ -63,6 +63,15 @@ export default function IndoorMap() {
               const source = getRandomCheckpointOnFloor(graph, defaultFloor).id;
               const destination = getRandomCheckpointOnFloor(graph, defaultFloor).id;
               const path = findIndoorPath(floorInfo.graphData, source, destination);
+              setNavigationPath(path || undefined);
+            }}
+          />
+          <Button
+            title="Random Checkpoint To Nearest Entry/Exit"
+            onPress={() => {
+              const graph = floorInfo.graphData;
+              const source = getRandomCheckpointOnFloor(graph, defaultFloor).id;
+              const path = findNearestEntryExitPath(graph, source);
               setNavigationPath(path || undefined);
             }}
           />

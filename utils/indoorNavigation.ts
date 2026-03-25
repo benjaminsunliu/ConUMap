@@ -20,6 +20,44 @@ export function findIndoorPath(
   return getPathFromDistanceInfo(shortestDistance, destination);
 }
 
+/* 
+ * finds the nearest entry/exit point from a given source checkpoint, 
+ * and returns the path to it 
+*/
+export function findNearestEntryExitPath(
+  graph: FloorCheckpointsGraph,
+  source: FloorCheckpointId,
+): IndoorNavigationPath | null {
+  const shortestDistance = runDijkstra(graph, source);
+
+  let nearestEntryExitId: FloorCheckpointId | undefined;
+  let minDistance = Infinity;
+
+  Object.values(graph.checkpoints).forEach((checkpoint) => {
+    if (checkpoint.type !== "building_entry_exit") {
+      return;
+    }
+    // if this entry/exit is unreachable from the source, skip it
+    const distance = shortestDistance[checkpoint.id]?.distance ?? Infinity;
+    if(distance === Infinity) {
+      return;
+    }
+    // if this entry/exit is closer than the previously found ones, update nearest entry/exit
+    if(distance < minDistance) {
+      minDistance = distance;
+      nearestEntryExitId = checkpoint.id;
+    }
+  });
+
+  // if there is no path to any entry/exit, return null
+  if (!nearestEntryExitId) {
+    return null;
+  }
+  // return the path to the nearest entry/exit
+  return getPathFromDistanceInfo(shortestDistance, nearestEntryExitId);
+}
+
+
 function runDijkstra(
   graph: FloorCheckpointsGraph,
   source: FloorCheckpointId,
