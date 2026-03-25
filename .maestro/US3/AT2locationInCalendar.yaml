@@ -5,8 +5,10 @@ appId: host.exp.exponent
       notVisible:
         id: "building-selection"
     file: ../openLink.yaml
-- assertVisible: "Calendar"
-- tapOn: "Calendar"
+- assertVisible:
+    id: "tab-calendar"
+- tapOn:
+    id: "tab-calendar"
 - runFlow:
     when:
       notVisible: "Sign in"

@@ -8,7 +8,10 @@ appId: host.exp.exponent
 - setLocation:
     latitude: 45.4957849
     longitude: -73.577225
-- tapOn: "Calendar"
+- assertVisible:
+    id: "tab-calendar"
+- tapOn:
+    id: "tab-calendar"
 - runFlow:
     when:
       notVisible: "Sign in"
