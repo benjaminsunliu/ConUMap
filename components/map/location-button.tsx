@@ -14,7 +14,7 @@ export default function LocationButton({
   state,
   onPress,
   position = { bottom: 40, right: 20 },
-}: LocationButtonProps) {
+}: Readonly<LocationButtonProps>) {
   const icon = iconFromButtonState(state);
   return (
     <View style={[styles.container, { bottom: position.bottom, right: position.right }]}>

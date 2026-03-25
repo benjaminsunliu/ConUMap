@@ -1,7 +1,6 @@
 import darkIcon from "@/assets/logo/logo-dark.png";
 import lightIcon from "@/assets/logo/logo-light.png";
 import { HapticTab } from "@/components/haptic-tab";
-import { IconSymbol } from "@/components/ui/icon-symbol";
 import TabHeader from "@/components/ui/TabHeader";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -11,10 +10,6 @@ import React from "react";
 
 function MapTabIcon({ color }: { readonly color: string }) {
   return <Feather name="map" size={24} color={color} />;
-}
-
-function HomeTabIcon({ color }: { readonly color: string }) {
-  return <IconSymbol size={28} name="house.fill" color={color} />;
 }
 
 function CalendarTabIcon({ color }: { readonly color: string }) {
@@ -33,6 +28,10 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
+        headerStyle: {
+          backgroundColor: Colors[colorScheme].background,
+        },
+        headerTitleAlign: "center",
         tabBarButton: HapticTab,
         tabBarActiveTintColor: Colors[colorScheme].tint,
         tabBarInactiveTintColor: Colors[colorScheme].text,
@@ -41,14 +40,21 @@ export default function TabLayout() {
           borderTopWidth: 0,
           elevation: 5,
         },
+        headerTitle: () => {
+          return (
+            <TabHeader
+              backgroundColor={Colors[colorScheme].background}
+              logoSource={logoSource}
+            />
+          );
+        },
       }}
     >
       <Tabs.Screen
-        name="map"
+        name="(map)"
         options={{
           title: "Map",
-          tabBarIcon: MapTabIcon,
-          headerShown: false,
+          tabBarIcon: MapTabIcon
         }}
       />
       <Tabs.Screen
@@ -56,12 +62,6 @@ export default function TabLayout() {
         options={{
           title: "Calendar",
           tabBarIcon: CalendarTabIcon,
-          header: () => (
-            <TabHeader
-              backgroundColor={Colors[colorScheme].background}
-              logoSource={logoSource}
-            />
-          ),
         }}
       />
     </Tabs>

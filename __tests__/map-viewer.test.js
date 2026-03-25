@@ -4,6 +4,8 @@ import * as LocationPermissions from "expo-location";
 import MapViewer from "../components/map/map-viewer";
 import { Colors } from "@/constants/theme";
 import { CAMPUS_BUILDINGS } from "../constants/map";
+import { fetchAllDirections } from "@/utils/directions";
+import { useLocalSearchParams, router } from "expo-router";
 const mockAnimateToRegion = jest.fn();
 jest.mock("react-native-map-clustering", () => {
   const React = require("react");
@@ -40,17 +42,18 @@ jest.mock("react-native-maps", () => {
 });
 
 jest.mock("@/utils/directions", () => ({
-  fetchAllDirections: jest.fn().mockResolvedValue({
-    walking: [],
-    transit: [],
-    driving: [],
-    bicycling: [],
-    shuttle: [],
-  }),
+  fetchAllDirections: jest.fn(),
 }));
 
 jest.mock("@/utils/decodePolyline", () => ({
   decodePolyline: jest.fn().mockReturnValue([]),
+}));
+
+jest.mock("expo-router", () => ({
+  router: {
+    setParams: jest.fn(),
+  },
+  useLocalSearchParams: jest.fn(() => ({})),
 }));
 
 jest.mock("react-native", () => {
@@ -108,6 +111,8 @@ jest.mock("@/constants/map", () => {
 
 beforeEach(() => {
   mockAnimateToRegion.mockClear();
+  useLocalSearchParams.mockReturnValue({});
+  router.setParams.mockClear();
 });
 
 describe("map tab", () => {
@@ -125,6 +130,61 @@ describe("map tab", () => {
       longitude: -73.5793055556,
       latitudeDelta: 0.0922,
       longitudeDelta: 0.0922,
+    });
+  });
+
+  it("opens routes mode directly when opened with buildingId and autoNavigate=true", async () => {
+    fetchAllDirections.mockResolvedValue({
+      walking: [],
+      transit: [],
+      driving: [],
+      bicycling: [],
+      shuttle: [],
+    });
+
+    useLocalSearchParams.mockReturnValue({
+      buildingId: "LB",
+      autoNavigate: "true",
+    });
+
+    const mapViewer = render(<MapViewer />);
+    const mapView = mapViewer.getByTestId("map-view");
+
+    await act(async () => {
+      fireEvent(mapView, "onUserLocationChange", {
+        nativeEvent: { coordinate: { latitude: 45.495, longitude: -73.579 } },
+      });
+    });
+
+    await waitFor(() => {
+      expect(mapViewer.queryByTestId("building-info-popup")).toBeNull();
+      expect(fetchAllDirections).toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(mapViewer.queryByTestId("routes-info-popup")).toBeTruthy();
+    });
+
+    expect(router.setParams).toHaveBeenCalledWith({
+      buildingId: "",
+      buildingName: "",
+      autoNavigate: "",
+    });
+  });
+
+  it("keeps browse mode when opened with buildingId only", async () => {
+    useLocalSearchParams.mockReturnValue({
+      buildingId: "LB",
+    });
+
+    const mapViewer = render(<MapViewer />);
+
+    expect(mapViewer.queryByTestId("building-info-popup")).toBeTruthy();
+    expect(mapViewer.queryByTestId("routes-info-popup")).toBeNull();
+    expect(router.setParams).toHaveBeenCalledWith({
+      buildingId: "",
+      buildingName: "",
+      autoNavigate: "",
     });
   });
 

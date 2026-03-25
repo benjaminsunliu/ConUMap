@@ -1,91 +1,81 @@
-import { BuildingFloorInfo } from "@/types/mapTypes";
+import { BuildingFloorInfo, IndoorNavigationPath } from "@/types/mapTypes";
+import { useMemo, useRef } from "react";
 import { Image, StyleSheet, View } from "react-native";
-import data from "@/data/buildings/floors/H/jsonData/H.json";
-import { useMemo, useState, useEffect } from "react";
-import { BuildingNavigation } from "@/globals/BuildingRoomsStore";
-import FloorSelector from "./floor-selection-menu";
-import MapSettings from "./indoor-map-settings";
-import IndoorNavigationControls from "./indoor-navigation-controls";
+import Svg, { Circle, Line } from "react-native-svg";
 
 interface BuildingFloorProps {
   info: BuildingFloorInfo;
+  floor: number;
+  navigationPath?: IndoorNavigationPath;
 }
 
-type Step = {
-  instruction: string;
-  floor?: number;
-  coordinates?: { x: number; y: number };
-};
-
 export default function BuildingFloor({
-  info: { imageURI },
+  info,
+  floor,
+  navigationPath,
 }: Readonly<BuildingFloorProps>) {
-  const [currentFloor, setCurrentFloor] = useState(1);
-  const graph = useMemo(() => {
-    return BuildingNavigation.createGraphFromObject(data);
-  }, []);
+  const viewContainerRef = useRef(null);
 
-  //TODO temp
-  const [wheelchairOnly, setWheelchairOnly] = useState(false);
-  const [poiFilters, setPoiFilters] = useState({
-    bathrooms: false,
-    elevators: false,
-    washrooms: false,
-  });
+  const imageSize = useMemo(() => {
+    const imageInfo = Image.resolveAssetSource(info.images[floor]);
+    return imageInfo ? { width: imageInfo.width, height: imageInfo.height } : {};
+  }, [info.images, floor]);
 
-  const steps: Step[] = [
-    { instruction: "Head straight through the entrance", floor: 1 },
-    { instruction: "Keep walking forward down the hall", floor: 1 },
-    { instruction: "Turn right at the elevators", floor: 1 },
-    { instruction: "Go up to the next floor", floor: 2 },
-    { instruction: "Continue to the end of the corridor", floor: 2 },
-  ];
-
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
-
-  const goToNextStep = () => {
-    setCurrentStepIndex((prev) => Math.min(prev + 1, steps.length - 1));
-  };
-
-  const goToPreviousStep = () => {
-    setCurrentStepIndex((prev) => Math.max(prev - 1, 0));
-  };
-
-  const currentStep = steps[currentStepIndex];
-  const instruction = currentStep.instruction;
-  const canGoNext = currentStepIndex < steps.length - 1;
-  const canGoPrevious = currentStepIndex > 0;
-
-  useEffect(() => {
-    if (currentStep.floor && currentStep.floor !== currentFloor) {
-      setCurrentFloor(currentStep.floor);
+  const nodes = useMemo(() => {
+    if (!viewContainerRef) {
+      return null;
     }
-  }, [currentFloor, currentStep.floor, currentStepIndex]);
+    return Object.values(info.graphData.checkpoints)
+      .filter((floorCheckpoint) => {
+        return floorCheckpoint.floor === floor;
+      })
+      .map((floorCheckpoint) => {
+        return (
+          <Circle
+            key={floorCheckpoint.id}
+            fill="blue"
+            stroke="green"
+            strokeWidth="5"
+            cx={floorCheckpoint.x}
+            cy={floorCheckpoint.y}
+            r="10"
+          />
+        );
+      });
+  }, [viewContainerRef, info.graphData.checkpoints, floor]);
+
+  const lines = useMemo(() => {
+    if (!navigationPath) {
+      return null;
+    }
+
+    const checkpoints = info.graphData.checkpoints;
+    const result = [];
+    for (let i = 0; i < navigationPath.length - 1; i++) {
+      const current = checkpoints[navigationPath[i]];
+      const next = checkpoints[navigationPath[i + 1]];
+      result.push(
+        <Line
+          key={current.id + next.id}
+          x1={current.x}
+          y1={current.y}
+          x2={next.x}
+          y2={next.y}
+          stroke={"red"}
+          strokeWidth={10}
+        />,
+      );
+    }
+    return result;
+  }, [navigationPath, info.graphData.checkpoints]);
 
   return (
-    <View style={styles.container}>
-      <Image source={imageURI} style={styles.image} resizeMode="contain" />
-
-      <FloorSelector
-        buildingName="Hall" //TODO temp
-        availableFloors={[1, 2, 3, 4, 5, 6, 7, 8, 9]} //TODO temp
-        currentFloor={currentFloor}
-        onSelectFloor={(floor: number) => setCurrentFloor(floor)}
-      />
-
-      <MapSettings
-        wheelchairOnly={wheelchairOnly} //TODO temp
-        setWheelchairOnly={setWheelchairOnly} //TODO temp
-        poiFilters={poiFilters} //TODO temp
-        setPoiFilters={setPoiFilters} //TODO temp
-      />
-      <IndoorNavigationControls
-        instruction={instruction}
-        onNext={goToNextStep}
-        onPrevious={goToPreviousStep}
-        canGoNext={canGoNext}
-        canGoPrevious={canGoPrevious}
-      />
+    <View style={styles.container} ref={viewContainerRef}>
+      <Image source={info.images[floor]} style={styles.image} resizeMode="contain" />
+      <Svg style={styles.svg} viewBox={`0 0 ${imageSize.width} ${imageSize.height}`}>
+        {nodes}
+        {lines}
+      </Svg>
     </View>
   );
 }
@@ -98,5 +88,10 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: "100%",
+  },
+  svg: {
+    width: "100%",
+    height: "100%",
+    position: "absolute",
   },
 });

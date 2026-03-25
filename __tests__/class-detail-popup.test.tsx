@@ -151,7 +151,7 @@ describe("ClassDetailPopup", () => {
 
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith({
-      pathname: "/map-tab",
+      pathname: "/",
       params: { buildingId: "EV" },
     });
     expect(onClose.mock.invocationCallOrder[0]).toBeLessThan(

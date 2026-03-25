@@ -3,12 +3,6 @@ import { SearchBuilding, FieldType } from "@/types/buildingTypes";
 import buildingAddressesRaw from "@/data/building-addresses.json";
 
 export const CURRENT_LOCATION_CODE = "CURRENT_LOCATION";
-
-// Static mapping to resolve the dynamic import error
-const BUILDING_DATA_MAP: Record<string, () => Promise<any>> = {
-  H: () => import("@/data/buildings/floors/H/jsonData/H.json"),
-};
-
 const buildingAddresses = buildingAddressesRaw as SearchBuilding[];
 
 const CURRENT_LOCATION_SENTINEL: SearchBuilding = {
@@ -29,6 +23,7 @@ export function useBuildingSearch({
     start: "",
     end: "",
   });
+  // TODO: to be incorporate before the building results later
   const [roomResults, setRoomResults] = useState<Record<FieldType, SearchBuilding[]>>({
     start: [],
     end: [],
@@ -36,7 +31,6 @@ export function useBuildingSearch({
   const roomCache = useRef<Map<string, string[]>>(new Map());
 
   const updateQuery = useCallback((type: FieldType, text: string | null) => {
-    // CRITICAL: Ensure null input becomes an empty string immediately
     setQueries((prev) => ({ ...prev, [type]: text || "" }));
   }, []);
 
@@ -52,9 +46,9 @@ export function useBuildingSearch({
       return;
     }
 
-    const buildingCode = Object.keys(BUILDING_DATA_MAP).find((code) =>
-      q.startsWith(code),
-    );
+    const buildingCode = buildingAddresses.find((b) =>
+      q.startsWith(b.buildingCode),
+    )?.buildingCode;
     if (!buildingCode) {
       setRoomResults((prev) => ({ ...prev, [type]: [] }));
       return;
@@ -65,8 +59,10 @@ export function useBuildingSearch({
       if (roomCache.current.has(buildingCode)) {
         allRooms = roomCache.current.get(buildingCode)!;
       } else {
-        const loader = BUILDING_DATA_MAP[buildingCode];
-        const data = await loader();
+        const response = await fetch(
+          `@/data/indoorMapData/${buildingCode}_floor_plan.json.txt`,
+        );
+        const data = await response.json().catch(() => new Object())
         allRooms = data.rooms || [];
         roomCache.current.set(buildingCode, allRooms);
       }
@@ -136,10 +132,10 @@ export function useBuildingSearch({
     };
 
     return {
-      start: [...roomResults.start, ...getStandardResults(queries.start, "start")],
-      end: [...roomResults.end, ...getStandardResults(queries.end, "end")],
+      start: [...getStandardResults(queries.start, "start")],
+      end: [...getStandardResults(queries.end, "end")],
     };
-  }, [queries, roomResults, hasUserLocation, currentBuildingCodes]); // Added currentBuildingCodes to dependency array
+  }, [queries, hasUserLocation, currentBuildingCodes]); // Added currentBuildingCodes to dependency array
 
   return { queries, updateQuery, swapQueries, results };
 }

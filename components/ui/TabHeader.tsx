@@ -2,15 +2,16 @@ import { Image, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface TabHeaderProps {
-  readonly backgroundColor: string;
-  readonly logoSource: number;
+  backgroundColor: string;
+  logoSource: number;
 }
 
-export default function TabHeader({ backgroundColor, logoSource }: TabHeaderProps) {
-  const insets = useSafeAreaInsets();
-
+export default function TabHeader({
+  backgroundColor,
+  logoSource,
+}: Readonly<TabHeaderProps>) {
   return (
-    <View style={[styles.header, { backgroundColor, paddingTop: insets.top }]}>
+    <View style={[styles.header, { backgroundColor }]}>
       <Image source={logoSource} style={styles.logo} resizeMode="contain" />
     </View>
   );
@@ -18,13 +19,10 @@ export default function TabHeader({ backgroundColor, logoSource }: TabHeaderProp
 
 const styles = StyleSheet.create({
   header: {
-    paddingBottom: 15,
-    justifyContent: "center",
     alignItems: "center",
-    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   logo: {
     width: 120,
-    height: 40,
+    height: 35,
   },
 });

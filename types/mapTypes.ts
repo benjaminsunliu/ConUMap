@@ -1,5 +1,4 @@
-import { ImageSourcePropType } from "react-native";
-
+import { ImageRequireSource } from "react-native";
 export type Campus = "SGW" | "LOY";
 
 export type Coordinate = {
@@ -38,9 +37,12 @@ export type CoordinateDelta = {
 
 export type Region = Coordinate & CoordinateDelta;
 
+// ---- Information about floors and graphs of said floors
+
 export type BuildingFloorInfo = {
-  imageURI: ImageSourcePropType;
+  images: FloorImages;
   graphData: FloorCheckpointsGraph;
+  buildingCode: BuildingCode;
 };
 
 export type RawFloorGraph = {
@@ -56,7 +58,7 @@ export type FloorCheckpointsGraph = {
   adjacencySet: FloorCheckpointAdjancencySet;
 };
 
-type FloorCheckpointAdjancencySet = {
+export type FloorCheckpointAdjancencySet = {
   [key: FloorCheckpointId]: { [key: FloorCheckpointId]: FloorCheckpointConnection };
 };
 
@@ -64,7 +66,7 @@ type FloorCheckpoints = {
   [key: FloorCheckpointId]: FloorCheckpoint;
 };
 
-type FloorCheckpoint = {
+export type FloorCheckpoint = {
   id: string;
   type: string;
   buildingId: string;
@@ -75,12 +77,18 @@ type FloorCheckpoint = {
   accessible: boolean;
 };
 
-type FloorCheckpointId = FloorCheckpoint["id"];
+export type FloorCheckpointId = FloorCheckpoint["id"];
 
-type FloorCheckpointConnection = {
+export type FloorCheckpointConnection = {
   source: FloorCheckpointId;
   target: FloorCheckpointId;
   type: string;
   weight: number;
   accessible: boolean;
 };
+
+export type FloorImages = {
+  [key: number]: ImageRequireSource;
+};
+
+export type IndoorNavigationPath = FloorCheckpointId[];

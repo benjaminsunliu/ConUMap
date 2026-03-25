@@ -1,8 +1,10 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const buildingFile = "H/jsonData/H.json";
-const absoluteJsonPath = path.resolve("../data/buildings/floors", buildingFile);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const targetDir = path.resolve(__dirname, "../data/indoorMapData/jsonGraphs");
 
 interface BuildingNode {
   buildingId: string;
@@ -35,14 +37,12 @@ function formatLabel(node: BuildingNode): string {
   return `${bId} ${floor}${suffix}`;
 }
 
-async function updateJsonInPlace() {
+function processFile(filePath: string) {
   try {
-    if (!fs.existsSync(absoluteJsonPath)) {
-      console.error(`Error: File not found at ${absoluteJsonPath}`);
-      process.exit(1);
-    }
-    const rawData = fs.readFileSync(absoluteJsonPath, "utf8");
+    const rawData = fs.readFileSync(filePath, "utf8");
     const data = JSON.parse(rawData);
+    if (!data.nodes || !Array.isArray(data.nodes)) return;
+
     const doorwayLabels = (
       [
         ...new Set(
@@ -54,14 +54,26 @@ async function updateJsonInPlace() {
     ).sort((a, b) =>
       a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }),
     );
+
     data.rooms = doorwayLabels;
-    fs.writeFileSync(absoluteJsonPath, JSON.stringify(data, null, 2), "utf8");
-    console.log(`Success: Updated ${buildingFile}`);
-    console.log(`Added ${doorwayLabels.length} sorted unique labels to the "rooms" key.`);
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+    console.log(`Updated: ${path.basename(filePath)}`);
   } catch (error) {
-    console.error("Error updating JSON:", error instanceof Error ? error.message : error);
-    process.exit(1);
+    console.error(
+      `Error in ${filePath}:`,
+      error instanceof Error ? error.message : error,
+    );
   }
 }
 
-await updateJsonInPlace();
+async function runBatchUpdate() {
+  if (!fs.existsSync(targetDir)) {
+    console.error(`Directory not found: ${targetDir}`);
+    process.exit(1);
+  }
+  const files = fs.readdirSync(targetDir).filter((f) => f.endsWith(".json.txt"));
+  files.forEach((file) => processFile(path.join(targetDir, file)));
+  console.log(`Processed ${files.length} files.`);
+}
+
+await runBatchUpdate();
