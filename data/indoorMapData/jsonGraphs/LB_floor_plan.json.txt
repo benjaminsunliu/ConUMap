@@ -4273,56 +4273,56 @@
       "source": "LB_F3_stair_landing_9",
       "target": "LB_F2_stair_landing_5",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F3_elevator_door_5",
       "target": "LB_F2_elevator_door_1",
       "type": "elevator",
-      "weight": 0,
+      "weight": 500,
       "accessible": true
     },
     {
       "source": "LB_F3_stair_landing_10",
       "target": "LB_F2_stair_landing_7",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F3_stair_landing_11",
       "target": "LB_F2_stair_landing_3",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F3_stair_landing_12",
       "target": "LB_F2_stair_landing_1",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F3_stair_landing_13",
       "target": "LB_F2_stair_landing_4",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F3_stair_landing_14",
       "target": "LB_F2_stair_landing_6",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F3_stair_landing_15",
       "target": "LB_F2_stair_landing_8",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
@@ -5064,49 +5064,49 @@
       "source": "LB_F4_stair_landing_16",
       "target": "LB_F3_stair_landing_9",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F4_stair_landing_20",
       "target": "LB_F3_stair_landing_10",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F4_stair_landing_19",
       "target": "LB_F3_stair_landing_11",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F4_stair_landing_18",
       "target": "LB_F3_stair_landing_12",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F4_stair_landing_23",
       "target": "LB_F3_stair_landing_14",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F4_stair_landing_22",
       "target": "LB_F3_stair_landing_15",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F4_elevator_door_6",
       "target": "LB_F3_elevator_door_5",
       "type": "elevator",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
@@ -5652,49 +5652,49 @@
       "source": "LB_F5_stair_landing_26",
       "target": "LB_F4_stair_landing_16",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F5_stair_landing_27",
       "target": "LB_F4_stair_landing_18",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F5_stair_landing_28",
       "target": "LB_F4_stair_landing_19",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F5_stair_landing_29",
       "target": "LB_F4_stair_landing_21",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F5_stair_landing_30",
       "target": "LB_F4_stair_landing_23",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F5_stair_landing_31",
       "target": "LB_F4_stair_landing_22",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F5_elevator_door_7",
       "target": "LB_F4_elevator_door_6",
       "type": "elevator",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {

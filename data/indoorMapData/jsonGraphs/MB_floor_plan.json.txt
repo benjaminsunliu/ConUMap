@@ -1910,14 +1910,14 @@
       "source": "MB_F-2_stair_landing_4",
       "target": "MB_F1_stair_landing_9",
       "type": "stair",
-      "weight": 0,
+      "weight": 1200,
       "accessible": true
     },
     {
       "source": "MB_F-2_stair_landing_1",
       "target": "MB_F1_stair_landing_10",
       "type": "stair",
-      "weight": 0,
+      "weight": 1200,
       "accessible": true
     },
     {
@@ -1945,49 +1945,49 @@
       "source": "MB_F1_elevator_door_7",
       "target": "MB_F-2_elevator_door_1",
       "type": "elevator",
-      "weight": 0,
+      "weight": 1000,
       "accessible": true
     },
     {
       "source": "MB_F1_elevator_door_8",
       "target": "MB_F-2_elevator_door_2",
       "type": "elevator",
-      "weight": 0,
+      "weight": 1000,
       "accessible": true
     },
     {
       "source": "MB_F1_elevator_door_9",
       "target": "MB_F-2_elevator_door_3",
       "type": "elevator",
-      "weight": 0,
+      "weight": 1000,
       "accessible": true
     },
     {
       "source": "MB_F1_elevator_door_10",
       "target": "MB_F-2_elevator_door_6",
       "type": "elevator",
-      "weight": 0,
+      "weight": 100,
       "accessible": true
     },
     {
       "source": "MB_F1_elevator_door_11",
       "target": "MB_F-2_elevator_door_5",
       "type": "elevator",
-      "weight": 0,
+      "weight": 1000,
       "accessible": true
     },
     {
       "source": "MB_F1_elevator_door_12",
       "target": "MB_F-2_elevator_door_4",
       "type": "elevator",
-      "weight": 0,
+      "weight": 1000,
       "accessible": true
     },
     {
       "source": "MB_F1_escalator_3",
       "target": "MB_F-2_escalator_1",
       "type": "stair",
-      "weight": 0,
+      "weight": 1000,
       "accessible": true
     },
     {
@@ -2022,7 +2022,7 @@
       "source": "MB_F1_stair_landing_11",
       "target": "MB_F-2_stair_landing_7",
       "type": "stair",
-      "weight": 0,
+      "weight": 1200,
       "accessible": true
     },
     {
@@ -2050,7 +2050,7 @@
       "source": "MB_F1_stair_landing_12",
       "target": "MB_F-2_stair_landing_6",
       "type": "stair",
-      "weight": 0,
+      "weight": 1200,
       "accessible": true
     },
     {
