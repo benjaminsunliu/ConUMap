@@ -16,6 +16,15 @@ export function findIndoorPath(
   source: FloorCheckpointId,
   destination: FloorCheckpointId,
 ): IndoorNavigationPath | null {
+  const shortestDistance = runDijkstra(graph, source, destination);
+  return getPathFromDistanceInfo(shortestDistance, destination);
+}
+
+function runDijkstra(
+  graph: FloorCheckpointsGraph,
+  source: FloorCheckpointId,
+  destination?: FloorCheckpointId,
+): ShortestDistanceInfo {
   const queue = new PriorityQueue<Vertex>((a, b) => a.distance < b.distance);
   const shortestDistance: ShortestDistanceInfo = {};
 
@@ -31,7 +40,7 @@ export function findIndoorPath(
   while (!queue.isEmpty()) {
     const vertex = queue.pop();
     if (vertex.distance > shortestDistance[vertex.id].distance) continue;
-    if (vertex.id === destination) {
+    if (destination && vertex.id === destination) {
       break;
     }
     const neighbours = graph.adjacencySet[vertex.id];
@@ -62,7 +71,7 @@ export function findIndoorPath(
       }
     });
   }
-  return getPathFromDistanceInfo(shortestDistance, destination);
+  return shortestDistance;
 }
 
 type Vertex = {
