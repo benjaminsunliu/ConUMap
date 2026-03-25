@@ -5,12 +5,12 @@ appId: host.exp.Exponent
       notVisible:
         id: "building-selection"
     file: ../openLink.yaml
-- tapOn: "SGW"
+- tapOn: "LOY"
 - tapOn:
-    id: "marker-FB"
+    id: "marker-VL"
 - assertVisible:
-    text: "FB – Faubourg Building"
+    text: "VL – Vanier Library Building"
 - tapOn:
     point: "95%, 50%"
 - assertNotVisible:
-    text: "FB – Faubourg Building"
+    text: "VL – Vanier Library Building"
