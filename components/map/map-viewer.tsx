@@ -872,15 +872,18 @@ export default function MapViewer({
               onPress={() => handleBuildingPress(building)}
             />
           ))}
-          {Array.from(inBuildingCodes).map((code) => (
-            <View
-              key={`highlight-label-${code}`}
-              testID={`highlight-label-${code}`}
-              style={styles.androidMarkerProxyTarget}
-            />
-          ))}
         </View>
       )}
+
+      {Array.from(inBuildingCodes).map((code) => (
+        <View
+          key={`highlight-label-${code}`}
+          testID={`highlight-label-${code}`}
+          style={styles.highlightLabelProxy}
+          pointerEvents="none"
+        />
+      ))}
+
       <LocationButton
         state={locationState}
         onPress={() => {
@@ -1156,6 +1159,15 @@ const styles = StyleSheet.create({
     height: 1,
     opacity: 0.01,
     zIndex: 10,
+  },
+  highlightLabelProxy: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: 1,
+    height: 1,
+    opacity: 0.01,
+    zIndex: 1,
   },
 });
 

@@ -1630,21 +1630,21 @@
       "source": "VL_F2_stair_landing_17",
       "target": "VL_F1_stair_landing_15",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "VL_F2_elevator_door_15",
       "target": "VL_F1_elevator_door_13",
       "type": "elevator",
-      "weight": 0,
+      "weight": 500,
       "accessible": true
     },
     {
       "source": "VL_F2_stair_landing_18",
       "target": "VL_F1_stair_landing_14",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
@@ -1665,21 +1665,21 @@
       "source": "VL_F2_stair_landing_20",
       "target": "VL_F1_stair_landing_19",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "VL_F2_stair_landing_21",
       "target": "VL_F1_stair_landing_16",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "VL_F2_stair_landing_24",
       "target": "VL_F1_stair_landing_23",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {

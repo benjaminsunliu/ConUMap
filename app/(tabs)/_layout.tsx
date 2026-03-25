@@ -8,6 +8,10 @@ import Feather from "@expo/vector-icons/Feather";
 import { Tabs } from "expo-router";
 import React from "react";
 
+export const unstable_settings = {
+  initialRouteName: "(map)",
+};
+
 function MapTabIcon({ color }: { readonly color: string }) {
   return <Feather name="map" size={24} color={color} />;
 }
@@ -27,6 +31,7 @@ export default function TabLayout() {
 
   return (
     <Tabs
+      initialRouteName="(map)"
       screenOptions={{
         headerStyle: {
           backgroundColor: Colors[colorScheme].background,
@@ -40,21 +45,20 @@ export default function TabLayout() {
           borderTopWidth: 0,
           elevation: 5,
         },
-        headerTitle: () => {
-          return (
-            <TabHeader
-              backgroundColor={Colors[colorScheme].background}
-              logoSource={logoSource}
-            />
-          );
-        },
+        headerTitle: () => (
+          <TabHeader
+            backgroundColor={Colors[colorScheme].background}
+            logoSource={logoSource}
+          />
+        ),
       }}
     >
       <Tabs.Screen
         name="(map)"
         options={{
           title: "Map",
-          tabBarIcon: MapTabIcon
+          tabBarIcon: MapTabIcon,
+          tabBarButtonTestID: "tab-map",
         }}
       />
       <Tabs.Screen
@@ -62,6 +66,7 @@ export default function TabLayout() {
         options={{
           title: "Calendar",
           tabBarIcon: CalendarTabIcon,
+          tabBarButtonTestID: "tab-calendar",
         }}
       />
     </Tabs>
