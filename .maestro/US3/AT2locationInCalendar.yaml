@@ -1,0 +1,19 @@
+appId: host.exp.exponent
+---
+- runFlow:
+    when:
+      notVisible:
+        id: "building-selection"
+    file: ../openLink.yaml
+- assertVisible: "Calendar"
+- tapOn: "Calendar"
+- runFlow:
+   when:
+     notVisible: "Sign in"
+   commands:
+       - assertVisible: "Class Schedule"
+       - assertVisible:
+           text: "SOEN.*357"
+       - tapOn:
+           text: "SOEN.*357"
+       - assertVisible: "Room H-535"

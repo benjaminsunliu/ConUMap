@@ -1,6 +1,10 @@
-appId: host.exp.Exponent
+appId: host.exp.exponent
 ---
-- openLink: exp://localhost:8081
+- runFlow:
+    when:
+      notVisible:
+        id: "building-selection"
+    file: ../openLink.yaml
 - tapOn: "Search building"
 - inputText: "Vanier"
 - tapOn: "VL – Vanier Library Building"

@@ -286,6 +286,7 @@ export default function WeeklyCalendarBody({
         >
           <View>
             <Text
+              testID="next-class"
               style={[
                 styles.nextClassButtonTitle,
                 { color: theme.weeklyCalendarBody.nextClassButtonText },

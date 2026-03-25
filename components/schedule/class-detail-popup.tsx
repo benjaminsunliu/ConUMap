@@ -88,6 +88,7 @@ export default function ClassDetailPopup({
                 </Text>
               </View>
               <Pressable
+                testID="close-class-popup"
                 onPress={handleClose}
                 style={[styles.closeButton, { backgroundColor: "none" }]}
                 accessibilityLabel="Close"
