@@ -8041,7 +8041,7 @@
       "source": "Hall_F8_elevator_door_13",
       "target": "H_F1_elevator_door_8",
       "type": "elevator",
-      "weight": 500,
+      "weight": 3500,
       "accessible": true
     },
     {

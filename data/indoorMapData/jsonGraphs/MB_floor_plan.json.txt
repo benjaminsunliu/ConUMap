@@ -1966,7 +1966,7 @@
       "source": "MB_F1_elevator_door_10",
       "target": "MB_F-2_elevator_door_6",
       "type": "elevator",
-      "weight": 100,
+      "weight": 1000,
       "accessible": true
     },
     {

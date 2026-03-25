@@ -5106,7 +5106,7 @@
       "source": "LB_F4_elevator_door_6",
       "target": "LB_F3_elevator_door_5",
       "type": "elevator",
-      "weight": 600,
+      "weight": 500,
       "accessible": true
     },
     {
@@ -5694,7 +5694,7 @@
       "source": "LB_F5_elevator_door_7",
       "target": "LB_F4_elevator_door_6",
       "type": "elevator",
-      "weight": 600,
+      "weight": 500,
       "accessible": true
     },
     {
