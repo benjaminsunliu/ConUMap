@@ -25,6 +25,7 @@ import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
 import { router, useLocalSearchParams } from "expo-router";
+import { usePoi } from "@/hooks/use-poi";
 
 interface PolylineSegment {
   coordinates: Coordinate[];
@@ -222,6 +223,7 @@ export default function MapViewer({
     buildingId?: string;
     buildingName?: string;
   }>();
+  const places = usePoi(currentRegion, 1000);
 
   useEffect(() => {
     if (!navCoords.start || !navCoords.end) {
