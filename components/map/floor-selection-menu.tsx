@@ -16,7 +16,7 @@ export default function FloorSelector({
   availableFloors,
   currentFloor,
   onSelectFloor,
-}: FloorSelectorProps) {
+}: Readonly<FloorSelectorProps>) {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
   const [open, setOpen] = useState(false);

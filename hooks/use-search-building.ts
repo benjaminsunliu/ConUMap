@@ -23,7 +23,6 @@ export function useBuildingSearch({
     start: "",
     end: "",
   });
-  // TODO: to be incorporate before the building results later
   const [roomResults, setRoomResults] = useState<Record<FieldType, SearchBuilding[]>>({
     start: [],
     end: [],

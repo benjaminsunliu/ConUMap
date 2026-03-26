@@ -18,7 +18,7 @@ export default function IndoorNavigationControls({
   onPrevious,
   canGoNext = true,
   canGoPrevious = true,
-}: IndoorNavigationControlsProps) {
+}: Readonly<IndoorNavigationControlsProps>) {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
   const styles = makeStyles(theme);

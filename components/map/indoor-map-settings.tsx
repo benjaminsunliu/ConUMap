@@ -21,7 +21,7 @@ export default function MapSettings({
   setWheelchairOnly,
   poiFilters,
   setPoiFilters,
-}: MapSettingsProps) {
+}: Readonly<MapSettingsProps>) {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
   const styles = makeStyles(theme);
