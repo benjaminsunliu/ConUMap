@@ -11,7 +11,8 @@ appId: host.exp.exponent
     id: "tab-calendar"
 - runFlow:
     when:
-      visible: "Class Schedule"
+      visible:
+        id: "courses-view"
     commands:
       - assertVisible:
           text: "SOEN.*357"
