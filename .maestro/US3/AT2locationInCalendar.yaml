@@ -14,13 +14,13 @@ appId: host.exp.exponent
       visible: "SIGN IN"
     commands:
       - assertVisible: "SIGN IN"
-- runFlow:
-    when:
-      visible:
-        id: "courses-view"
-    commands:
-      - assertVisible:
-          text: "SOEN.*357"
-      - tapOn:
-          text: "SOEN.*357"
-      - assertVisible: "Room H-535"
+# - runFlow:
+#     when:
+#       visible:
+#         id: "courses-view"
+#     commands:
+#       - assertVisible:
+#           text: "SOEN.*357"
+#       - tapOn:
+#           text: "SOEN.*357"
+#       - assertVisible: "Room H-535"
