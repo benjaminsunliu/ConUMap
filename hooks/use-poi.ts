@@ -2,6 +2,18 @@ import { Campus, POI } from "@/types/mapTypes";
 import { useEffect, useState } from "react";
 import { SGW_CENTER, LOY_CENTER } from "@/constants/map";
 
+const SEARCH_TYPES = [
+  "restaurant",
+  "cafe",
+  "library",
+  "university",
+  "gym",
+  "park",
+  "shopping_mall",
+  "supermarket",
+  "transit_station",
+];
+
 /**
  * Custom hook to fetch Points of Interest (POIs) from the Google Places API based on a given campus and radius (in meters).
  * @param campus - The campus for which to search for POIs.
@@ -9,62 +21,66 @@ import { SGW_CENTER, LOY_CENTER } from "@/constants/map";
  * @returns An array of POIs that match the search criteria.
  */
 export function usePoi(campus: Campus, radius: number) {
+  console.log("SGW_CENTER at runtime:", SGW_CENTER);
   const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
   const [places, setPlaces] = useState<POI[]>([]);
 
+  const handlePromises = async (requests: Promise<any>[]) => {
+    //Promise.allSettled instead of all because in theory don't want to return nothing if one request fails
+    const settled = await Promise.allSettled(requests);
+    const allResults: POI[] = [];
+
+    settled.forEach((result) => {
+      if (result.status === "fulfilled") {
+        allResults.push(...result.value);
+      } else {
+        console.warn("POI fetch subrequest failed:", result.reason);
+      }
+    });
+
+    const uniquePOI = new Map<string, POI>();
+    allResults.forEach((place) => {
+      if (place?.place_id) {
+        uniquePOI.set(place.place_id, place);
+      }
+    });
+    return uniquePOI;
+  };
+
   useEffect(() => {
     (async () => {
-      let region = campus === "SGW" ? SGW_CENTER : LOY_CENTER;
-      const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${region.latitude},${region.longitude}&radius=${radius}&key=${GOOGLE_API_KEY}`;
-      const response = await fetch(url);
-      const data = await response.json();
+      if (!GOOGLE_API_KEY || !campus) {
+        setPlaces([]);
+        return;
+      }
 
-      const mappedPlaces: POI[] = (data.results ?? []).map((place: any) => ({
-        poi_id: place.place_id,
-        name: place.name,
-        vicinity: place.vicinity,
-        rating: place.rating,
-        user_ratings_total: place.user_ratings_total,
-        types: place.types,
-        geometry: {
-          location: {
-            lat: place.geometry.location.lat,
-            lng: place.geometry.location.lng,
-          },
-          viewport: {
-            northeast: {
-              lat: place.geometry.viewport.northeast.lat,
-              lng: place.geometry.viewport.northeast.lng,
-            },
-            southwest: {
-              lat: place.geometry.viewport.southwest.lat,
-              lng: place.geometry.viewport.southwest.lng,
-            },
-          },
-        },
-        opening_hours: place.opening_hours?.open_now ?? false,
-        photos: mapPhotos(place.photos),
-      }));
+      const region = campus === "SGW" ? SGW_CENTER : LOY_CENTER;
+
+      const requests = SEARCH_TYPES.map((type) => {
+        const url =
+          `https://maps.googleapis.com/maps/api/place/nearbysearch/json` +
+          `?location=${region.latitude},${region.longitude}` +
+          `&radius=${radius}` +
+          `&type=${encodeURIComponent(type)}` +
+          `&key=${GOOGLE_API_KEY}`;
+
+        return fetch(url)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`${type}: ${response.status} ${response.statusText}`);
+            }
+            return response.json() as Promise<{ results?: POI[] }>;
+          })
+          .then((data) => data.results ?? []);
+      });
+
+      const uniquePOI = await handlePromises(requests);
+
+      const mappedPlaces: POI[] = [...uniquePOI.values()];
 
       setPlaces(mappedPlaces);
     })();
   }, [GOOGLE_API_KEY, radius, campus]);
-
-  const mapPhotos = (
-    photos: {
-      photo_reference: string;
-      height: number;
-      width: number;
-      html_attributions: string[];
-    }[],
-  ) => {
-    return photos?.map((photo) => ({
-      photo_reference: photo.photo_reference,
-      height: photo.height,
-      width: photo.width,
-      html_attributions: photo.html_attributions,
-    }));
-  };
 
   return places;
 }

@@ -35,7 +35,7 @@ export type CoordinateDelta = {
 export type Region = Coordinate & CoordinateDelta;
 
 export interface POI {
-  poi_id: string;
+  place_id: string;
   name: string;
   vicinity?: string;
   rating?: number;
@@ -46,17 +46,17 @@ export interface POI {
     location: {
       lat: number;
       lng: number;
-    },
+    };
     viewport: {
       northeast: {
         lat: number;
         lng: number;
-      },
+      };
       southwest: {
         lat: number;
         lng: number;
-      }
-    }
+      };
+    };
   };
 
   opening_hours?: {
