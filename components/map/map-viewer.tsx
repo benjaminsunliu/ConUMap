@@ -2,7 +2,7 @@ import { CAMPUS_BUILDINGS } from "@/constants/map";
 import { Colors } from "@/constants/theme";
 import { ColorSchemeName, useColorScheme } from "@/hooks/use-color-scheme";
 import { FieldType, SearchBuilding, TransportationMode } from "@/types/buildingTypes";
-import { BuildingInfo, Coordinate, CoordinateDelta } from "@/types/mapTypes";
+import { BuildingInfo, Campus, Coordinate, CoordinateDelta } from "@/types/mapTypes";
 import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
 import { decodePolyline } from "@/utils/decodePolyline";
 import { fetchAllDirections } from "@/utils/directions";
@@ -168,6 +168,7 @@ export default function MapViewer({
   const mapColors = Colors[colorScheme].map;
   const mapViewRef = useRef<MapView>(null);
   const suppressNextMapPress = useRef(false);
+  const [currCampus, setCurrCampus] = useState<Campus>("SGW");
 
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
@@ -223,7 +224,7 @@ export default function MapViewer({
     buildingId?: string;
     buildingName?: string;
   }>();
-  const places = usePoi(currentRegion, 1000);
+  const places = usePoi(currCampus, 1000);
 
   useEffect(() => {
     if (!navCoords.start || !navCoords.end) {
@@ -642,14 +643,14 @@ export default function MapViewer({
   const renderPOIMarkers = useMemo(() => {
     return places.map((p, i) => (
       <Marker
-            key={i}
-            coordinate={{
-              latitude: p.geometry.location.lat,
-              longitude: p.geometry.location.lng,
-            }}
-            title={p.name}
-            onPress={() => console.log(`Pressed POI: ${p.name}`)}
-          />
+        key={i}
+        coordinate={{
+          latitude: p.geometry.location.lat,
+          longitude: p.geometry.location.lng,
+        }}
+        title={p.name}
+        onPress={() => console.log(`Pressed POI: ${p.name}`)}
+      />
     ));
   }, [places]);
 
@@ -692,7 +693,11 @@ export default function MapViewer({
         }}
       />
 
-      <CampusToggle mapRef={mapViewRef} viewRegion={currentRegion} />
+      <CampusToggle
+        mapRef={mapViewRef}
+        viewRegion={currentRegion}
+        setCurrCampus={setCurrCampus}
+      />
 
       <MapViewCluster
         ref={mapViewRef}
