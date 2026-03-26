@@ -6,12 +6,10 @@ const SEARCH_TYPES = [
   "restaurant",
   "cafe",
   "library",
-  "university",
   "gym",
   "park",
   "shopping_mall",
   "supermarket",
-  "transit_station",
 ];
 
 /**
@@ -21,7 +19,6 @@ const SEARCH_TYPES = [
  * @returns An array of POIs that match the search criteria.
  */
 export function usePoi(campus: Campus, radius: number) {
-  console.log("SGW_CENTER at runtime:", SGW_CENTER);
   const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
   const [places, setPlaces] = useState<POI[]>([]);
 

@@ -24,6 +24,7 @@ import BuildingSelection, { CURRENT_LOCATION_CODE } from "./building-selection";
 import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
+import PoiMarker from "./poi-marker";
 import { router, useLocalSearchParams } from "expo-router";
 import { usePoi } from "@/hooks/use-poi";
 
@@ -168,7 +169,9 @@ export default function MapViewer({
   const mapColors = Colors[colorScheme].map;
   const mapViewRef = useRef<MapView>(null);
   const suppressNextMapPress = useRef(false);
+  
   const [currCampus, setCurrCampus] = useState<Campus>("SGW");
+  const [radius, setRadius] = useState(1000);
 
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
@@ -224,7 +227,7 @@ export default function MapViewer({
     buildingId?: string;
     buildingName?: string;
   }>();
-  const places = usePoi(currCampus, 1000);
+  const places = usePoi(currCampus, radius);
 
   useEffect(() => {
     if (!navCoords.start || !navCoords.end) {
@@ -641,14 +644,10 @@ export default function MapViewer({
   );
 
   const renderPOIMarkers = useMemo(() => {
-    return places.map((p, i) => (
-      <Marker
-        key={i}
-        coordinate={{
-          latitude: p.geometry.location.lat,
-          longitude: p.geometry.location.lng,
-        }}
-        title={p.name}
+    return places.map((p) => (
+      <PoiMarker
+        key={p.place_id}
+        poi={p}
         onPress={() => console.log(`Pressed POI: ${p.name}`)}
       />
     ));
@@ -708,6 +707,8 @@ export default function MapViewer({
         showsUserLocation={!!userLocation}
         followsUserLocation={locationState === "centered"}
         clusteringEnabled={Platform.OS !== "ios"}
+        showsPointsOfInterest={false}
+        onPoiClick={() => {}}
         onRegionChangeComplete={(region) => {
           setCurrentRegion(region);
 

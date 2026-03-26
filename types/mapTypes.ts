@@ -40,7 +40,7 @@ export interface POI {
   vicinity?: string;
   rating?: number;
   user_ratings_total?: number;
-  types?: string[];
+  types: string[];
 
   geometry: {
     location: {

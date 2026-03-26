@@ -5,6 +5,23 @@ const black = "#000000";
 const tintColorLight = "#5e0e16";
 const tintColorDark = white;
 
+export const PoiMarkerColors = {
+  restaurant: "#ef6c00",
+  cafe: "#6d4c41",
+  library: "#455a64",
+  school: "#5e35b1",
+  gym: "#2e7d32",
+  park: "#388e3c",
+  shopping: "#1976d2",
+  supermarket: "#00897b",
+  transit: "#546e7a",
+  lodging: "#8d6e63",
+  default: "#1a73e8",
+  icon: white,
+  border: white,
+  shadow: black,
+};
+
 export const Colors = {
   light: {
     text: "#11181C",
