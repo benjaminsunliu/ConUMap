@@ -639,6 +639,20 @@ export default function MapViewer({
     [focusBuilding, selectBuildingByCode],
   );
 
+  const renderPOIMarkers = useMemo(() => {
+    return places.map((p, i) => (
+      <Marker
+            key={i}
+            coordinate={{
+              latitude: p.geometry.location.lat,
+              longitude: p.geometry.location.lng,
+            }}
+            title={p.name}
+            onPress={() => console.log(`Pressed POI: ${p.name}`)}
+          />
+    ));
+  }, [places]);
+
   return (
     <View style={styles.container}>
       <BuildingSelection
@@ -743,6 +757,7 @@ export default function MapViewer({
       >
         {renderedPolygons}
         {renderedMarkers}
+        {renderPOIMarkers}
 
         {routePolyline?.map((segment, index) => {
           const dashedWidth = Platform.OS === "android" ? 6 : 3;
