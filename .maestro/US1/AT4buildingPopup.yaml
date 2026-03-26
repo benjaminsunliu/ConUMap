@@ -1,0 +1,16 @@
+appId: host.exp.Exponent
+---
+- runFlow:
+    when:
+      notVisible:
+        id: "building-selection"
+    file: ../openLink.yaml
+- tapOn: "SGW"
+- tapOn:
+    id: "marker-FB"
+- assertVisible:
+    text: "FB – Faubourg Building"
+- tapOn:
+    point: "95%, 50%"
+- assertNotVisible:
+    text: "FB – Faubourg Building"
