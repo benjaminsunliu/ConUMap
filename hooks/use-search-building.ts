@@ -138,10 +138,10 @@ export function useBuildingSearch({
     };
 
     return {
-      start: [...getStandardResults(queries.start, "start")],
-      end: [...getStandardResults(queries.end, "end")],
+      start: [...getStandardResults(queries.start, "start"), ...roomResults.start],
+      end: [...getStandardResults(queries.end, "end"), ...roomResults.end],
     };
-  }, [queries, hasUserLocation, currentBuildingCodes]); // Added currentBuildingCodes to dependency array
+  }, [queries.start, queries.end, roomResults.start, roomResults.end, hasUserLocation, currentBuildingCodes]); // Added currentBuildingCodes to dependency array
 
   return { queries, updateQuery, swapQueries, results };
 }
