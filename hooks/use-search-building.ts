@@ -90,6 +90,12 @@ export function useBuildingSearch({
   }, []);
 
   useEffect(() => {
+    if (!queries.start.trim() && !queries.end.trim()) {
+      searchRooms("", "start");
+      searchRooms("", "end");
+      return;
+    }
+
     // Small debounce helps React process the "Selection" before
     // starting a new search cycle
     const delayDebounceFn = setTimeout(() => {

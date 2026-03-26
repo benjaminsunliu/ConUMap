@@ -667,7 +667,6 @@ export default function MapViewer({
           type: FieldType,
         ) => {
           const selected = buildings[type];
-          if (!selected) return;
           const selectedCode = selected?.buildingCode;
           const coord = resolveSelectionCoordinate(selectedCode);
 
@@ -683,6 +682,14 @@ export default function MapViewer({
 
           if (!coord) {
             clearRouteRendering();
+            setRoutePolyline(null);
+            setRoutes({
+              walking: null,
+              transit: null,
+              driving: null,
+              bicycling: null,
+              shuttle: null,
+            });
           }
 
           if (type === "end") {

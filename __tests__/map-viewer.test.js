@@ -677,7 +677,7 @@ describe("map tab", () => {
 
   it("logs an error when fetching directions fails", async () => {
     const { fetchAllDirections } = require("@/utils/directions");
-    const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => { });
     fetchAllDirections.mockRejectedValueOnce(new Error("directions failed"));
 
     const mapViewer = render(<MapViewer />);
@@ -693,7 +693,7 @@ describe("map tab", () => {
     await act(async () => {
       fireEvent.press(mapViewer.getByTestId("directions-action-button"));
     });
-    await act(async () => {});
+    await act(async () => { });
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       "Failed to fetch directions:",
@@ -800,7 +800,7 @@ describe("map tab", () => {
     });
 
     // Wait for fetchAllDirections to resolve
-    await act(async () => {});
+    await act(async () => { });
 
     // Expand the RoutesInfoPopup
     const routesPopup = mapViewer.getByTestId("routes-info-popup");
@@ -901,7 +901,7 @@ describe("map tab", () => {
     await act(async () => {
       fireEvent.press(mapViewer.getByTestId("directions-action-button"));
     });
-    await act(async () => {});
+    await act(async () => { });
 
     const routesPopup = mapViewer.getByTestId("routes-info-popup");
     await act(async () => {
@@ -986,7 +986,7 @@ describe("map tab", () => {
     await act(async () => {
       fireEvent.press(mapViewer.getByTestId("directions-action-button"));
     });
-    await act(async () => {});
+    await act(async () => { });
 
     const routesPopup = mapViewer.getByTestId("routes-info-popup");
     await act(async () => {
@@ -1065,7 +1065,7 @@ describe("map tab", () => {
     await act(async () => {
       fireEvent.press(mapViewer.getByTestId("directions-action-button"));
     });
-    await act(async () => {});
+    await act(async () => { });
 
     const routesPopup = mapViewer.getByTestId("routes-info-popup");
     await act(async () => {
@@ -1170,7 +1170,7 @@ describe("map tab", () => {
     await act(async () => {
       fireEvent.press(mapViewer.getByTestId("directions-action-button"));
     });
-    await act(async () => {});
+    await act(async () => { });
 
     const routesPopup = mapViewer.getByTestId("routes-info-popup");
     await act(async () => {
@@ -1293,7 +1293,7 @@ describe("map tab", () => {
     await act(async () => {
       fireEvent.press(mapViewer.getByTestId("directions-action-button"));
     });
-    await act(async () => {});
+    await act(async () => { });
 
     const routesPopup = mapViewer.getByTestId("routes-info-popup");
     await act(async () => {
@@ -1376,7 +1376,7 @@ describe("map tab", () => {
     await act(async () => {
       fireEvent.press(mapViewer.getByTestId("directions-action-button"));
     });
-    await act(async () => {});
+    await act(async () => { });
 
     const routesPopup = mapViewer.getByTestId("routes-info-popup");
     await act(async () => {
@@ -1460,7 +1460,7 @@ describe("map tab", () => {
     await act(async () => {
       fireEvent.press(mapViewer.getByTestId("directions-action-button"));
     });
-    await act(async () => {});
+    await act(async () => { });
 
     const routesPopup = mapViewer.getByTestId("routes-info-popup");
     await act(async () => {
@@ -1540,7 +1540,7 @@ describe("map tab", () => {
     await act(async () => {
       fireEvent.press(mapViewer.getByTestId("directions-action-button"));
     });
-    await act(async () => {});
+    await act(async () => { });
 
     const routesPopup = mapViewer.getByTestId("routes-info-popup");
     await act(async () => {
@@ -1620,7 +1620,7 @@ describe("map tab", () => {
     await act(async () => {
       fireEvent.press(mapViewer.getByTestId("directions-action-button"));
     });
-    await act(async () => {});
+    await act(async () => { });
 
     const routesPopup = mapViewer.getByTestId("routes-info-popup");
     await act(async () => {
@@ -1772,7 +1772,7 @@ describe("map tab", () => {
     await act(async () => {
       fireEvent.press(mapViewer.getByTestId("directions-action-button"));
     });
-    await act(async () => {});
+    await act(async () => { });
 
     const routesPopup = mapViewer.getByTestId("routes-info-popup");
     await act(async () => {
@@ -1977,7 +1977,7 @@ describe("map tab", () => {
       await act(async () => {
         fireEvent.press(mapViewer.getByTestId("directions-action-button"));
       });
-      await act(async () => {});
+      await act(async () => { });
 
       const routesPopup = mapViewer.getByTestId("routes-info-popup");
       await act(async () => {
@@ -2252,7 +2252,7 @@ describe("map tab", () => {
       });
 
       // Routes should be re-fetched with new start (current GPS)
-      await act(async () => {});
+      await act(async () => { });
 
       // Should now use current GPS location as start point (manual start was cleared)
       expect(fetchAllDirections).toHaveBeenCalledWith(
