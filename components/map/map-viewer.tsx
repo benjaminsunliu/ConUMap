@@ -10,6 +10,7 @@ import { fetchAllDirections } from "@/utils/directions";
 import * as LocationPermissions from "expo-location";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Slider from "@react-native-community/slider";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
 import MapView, {
@@ -170,7 +171,7 @@ export default function MapViewer({
   const mapColors = Colors[colorScheme].map;
   const mapViewRef = useRef<MapView>(null);
   const suppressNextMapPress = useRef(false);
-  
+
   const [currCampus, setCurrCampus] = useState<Campus>("SGW");
   const [radius, setRadius] = useState(1000);
 
@@ -182,6 +183,7 @@ export default function MapViewer({
 
   const [navigationMode, setNavigationMode] = useState<"browse" | "directions">("browse");
   const [shouldDisplayRoutes, setShouldDisplayRoutes] = useState(false);
+
   const [routes, setRoutes] = useState<Record<TransportationMode, any[] | null>>({
     walking: null,
     transit: null,
@@ -665,7 +667,7 @@ export default function MapViewer({
       />
     ));
   }, [places]);
-  
+
   const openIndoorNavigation = () => {
     if (!selectedBuilding?.buildingCode) {
       return;
@@ -926,6 +928,26 @@ export default function MapViewer({
 
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
 
+      {/* TODO Remove */}
+      <View style={styles.radiusContainer}>
+        <View style={styles.radiusHeader}>
+          <Text style={[styles.radiusLabel, { color: mapColors.clusterText }]}>
+            Radius
+          </Text>
+          <Text style={[styles.radiusValue, { color: mapColors.clusterText }]}>
+            {radius} m
+          </Text>
+        </View>
+        <Slider
+          testID="radius-slider"
+          value={radius}
+          minimumValue={MIN_RADIUS_METERS}
+          maximumValue={MAX_RADIUS_METERS}
+          step={10}
+          onValueChange={(value) => setRadius(Math.round(value))}
+        />
+      </View>
+
       {navigationMode === "browse" && selectedBuilding && (
         <BuildingInfoPopup
           building={selectedBuilding}
@@ -1126,6 +1148,34 @@ function getPolygonColor(
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { width: "100%", flex: 1 },
+  // TODO Remove
+  radiusContainer: {
+    position: "absolute",
+    left: "30%",
+    right: "25%",
+    bottom: 42,
+    zIndex: 15,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingTop: 8,
+    paddingBottom: 4,
+    backgroundColor: "#eb9696",
+  },
+  radiusHeader: {
+    flexDirection: "row",
+    alignItems: "center" as const,
+    justifyContent: "space-between" as const,
+  },
+  radiusLabel: {
+    color: "#000",
+    fontSize: 12,
+    fontWeight: "700" as const,
+  },
+  radiusValue: {
+    color: "#000",
+    fontSize: 12,
+    fontWeight: "700" as const,
+  },
   marker: {
     paddingHorizontal: 5,
     paddingVertical: 4,
@@ -1222,3 +1272,7 @@ const defaultInitialRegion: Region = {
   latitudeDelta: 0.0922,
   longitudeDelta: 0.0922,
 };
+
+// TODO Remove
+const MIN_RADIUS_METERS = 100;
+const MAX_RADIUS_METERS = 1000;
