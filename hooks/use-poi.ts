@@ -1,6 +1,6 @@
 import { Campus, POI } from "@/types/mapTypes";
 import { useEffect, useState } from "react";
-import { SGW_CENTER, LOY_CENTER } from "@/constants/map";
+import { SGW_CENTER, LOY_CENTER } from "@/constants/campusCenters";
 
 const SEARCH_TYPES = [
   "restaurant",
@@ -56,7 +56,7 @@ export function usePoi(campus: Campus, radius: number) {
 
       const region = campus === "SGW" ? SGW_CENTER : LOY_CENTER;
 
-      const requests = SEARCH_TYPES.map((type) => {
+      const requests = SEARCH_TYPES.map(async (type) => {
         const url =
           `https://maps.googleapis.com/maps/api/place/nearbysearch/json` +
           `?location=${region.latitude},${region.longitude}` +
@@ -64,14 +64,12 @@ export function usePoi(campus: Campus, radius: number) {
           `&type=${encodeURIComponent(type)}` +
           `&key=${GOOGLE_API_KEY}`;
 
-        return fetch(url)
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error(`${type}: ${response.status} ${response.statusText}`);
-            }
-            return response.json() as Promise<{ results?: POI[] }>;
-          })
-          .then((data) => data.results ?? []);
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`${type}: ${response.status} ${response.statusText}`);
+        }
+        const data = await (response.json() as Promise<{ results?: POI[]; }>);
+        return data.results ?? [];
       });
 
       const uniquePOI = await handlePromises(requests);

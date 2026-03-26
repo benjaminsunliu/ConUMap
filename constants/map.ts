@@ -60,7 +60,6 @@ import buildingVE from "@/data/buildings/VE.json";
 import buildingVL from "@/data/buildings/VL.json";
 import buildingX from "@/data/buildings/X.json";
 import buildingZ from "@/data/buildings/Z.json";
-import { Coordinate } from "@/types/mapTypes";
 
 export const CAMPUS_BUILDINGS = [
   buildingAD,
@@ -126,13 +125,3 @@ export const CAMPUS_BUILDINGS = [
   buildingT,
   buildingVL,
 ];
-
-export const SGW_CENTER: Coordinate = {
-  latitude: 45.4957849,
-  longitude: -73.577225,
-};
-
-export const LOY_CENTER: Coordinate = {
-  latitude: 45.4578596,
-  longitude: -73.6395856,
-};

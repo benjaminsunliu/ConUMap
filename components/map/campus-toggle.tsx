@@ -5,7 +5,7 @@ import SwitchSelector from "react-native-switch-selector";
 import MapView from "react-native-maps";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
-import { SGW_CENTER, LOY_CENTER } from "@/constants/map";
+import { SGW_CENTER, LOY_CENTER } from "@/constants/campusCenters";
 
 interface Props {
   mapRef: React.RefObject<MapView | null>;

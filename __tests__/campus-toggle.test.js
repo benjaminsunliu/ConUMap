@@ -3,6 +3,7 @@ import { render, fireEvent } from "@testing-library/react-native";
 import CampusToggle from "../components/map/campus-toggle";
 
 const mapRef = { current: { animateToRegion: jest.fn() } };
+const setCurrCampus = jest.fn();
 
 const viewRegionNearLOY = {
   latitude: 45.458,
@@ -19,16 +20,28 @@ const viewRegionNearSGW = {
 };
 
 describe("campus-toggle", () => {
+  beforeEach(() => {
+    setCurrCampus.mockClear();
+  });
+
   it("initial switchValue is SGW if viewRegion is closer to SGW", () => {
     const { getByText } = render(
-      <CampusToggle mapRef={mapRef} viewRegion={viewRegionNearSGW} />,
+      <CampusToggle
+        mapRef={mapRef}
+        viewRegion={viewRegionNearSGW}
+        setCurrCampus={setCurrCampus}
+      />,
     );
     const sgwButton = getByText("SGW");
     expect(sgwButton.props.style.some((s) => s.color === "#000000")).toBeTruthy();
   });
   it("initial selection is LOY if viewRegion is closer to LOY", () => {
     const { getByText } = render(
-      <CampusToggle mapRef={mapRef} viewRegion={viewRegionNearLOY} />,
+      <CampusToggle
+        mapRef={mapRef}
+        viewRegion={viewRegionNearLOY}
+        setCurrCampus={setCurrCampus}
+      />,
     );
     const loyButton = getByText("LOY");
     expect(loyButton.props.style.some((s) => s.color === "#000000")).toBeTruthy();
@@ -36,7 +49,11 @@ describe("campus-toggle", () => {
 
   it("pressing SGW button animates map to SGW_CENTER", () => {
     const { getByText } = render(
-      <CampusToggle mapRef={mapRef} viewRegion={viewRegionNearLOY} />,
+      <CampusToggle
+        mapRef={mapRef}
+        viewRegion={viewRegionNearLOY}
+        setCurrCampus={setCurrCampus}
+      />,
     );
     const sgwButton = getByText("SGW");
     fireEvent.press(sgwButton);
@@ -47,7 +64,11 @@ describe("campus-toggle", () => {
 
   it("pressing LOY button animates map to LOY_CENTER", () => {
     const { getByText } = render(
-      <CampusToggle mapRef={mapRef} viewRegion={viewRegionNearSGW} />,
+      <CampusToggle
+        mapRef={mapRef}
+        viewRegion={viewRegionNearSGW}
+        setCurrCampus={setCurrCampus}
+      />,
     );
     const loyButton = getByText("LOY");
     fireEvent.press(loyButton);
@@ -58,13 +79,23 @@ describe("campus-toggle", () => {
 
   it("updates switchValue when viewRegion prop changes to the other campus", () => {
     const { getByText, rerender } = render(
-      <CampusToggle mapRef={mapRef} viewRegion={viewRegionNearSGW} />,
+      <CampusToggle
+        mapRef={mapRef}
+        viewRegion={viewRegionNearSGW}
+        setCurrCampus={setCurrCampus}
+      />,
     );
     // Initially SGW is selected
     expect(getByText("SGW").props.style.some((s) => s.color === "#000000")).toBeTruthy();
 
     // Rerender with a region near LOY
-    rerender(<CampusToggle mapRef={mapRef} viewRegion={viewRegionNearLOY} />);
+    rerender(
+      <CampusToggle
+        mapRef={mapRef}
+        viewRegion={viewRegionNearLOY}
+        setCurrCampus={setCurrCampus}
+      />,
+    );
 
     // Now LOY should be selected as the active tab
     expect(getByText("LOY").props.style.some((s) => s.color === "#000000")).toBeTruthy();
