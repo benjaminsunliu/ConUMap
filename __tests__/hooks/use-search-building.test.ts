@@ -1,8 +1,5 @@
 import { renderHook, act, waitFor } from "@testing-library/react-native";
-import {
-  useBuildingSearch,
-  CURRENT_LOCATION_CODE,
-} from "@/hooks/use-search-building";
+import { useBuildingSearch, CURRENT_LOCATION_CODE } from "@/hooks/use-search-building";
 
 jest.mock("@/data/building-addresses.json", () => [
   {

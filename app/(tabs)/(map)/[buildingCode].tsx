@@ -14,7 +14,6 @@ import { useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 
-
 type Step = {
   instruction: string;
   floor?: number;
@@ -61,26 +60,26 @@ export default function IndoorMap() {
     { instruction: "Continue to the end of the corridor", floor: 2 },
   ];
 
-   const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
-   const goToNextStep = () => {
-     setCurrentStepIndex((prev) => Math.min(prev + 1, steps.length - 1));
-   };
+  const goToNextStep = () => {
+    setCurrentStepIndex((prev) => Math.min(prev + 1, steps.length - 1));
+  };
 
-   const goToPreviousStep = () => {
-     setCurrentStepIndex((prev) => Math.max(prev - 1, 0));
-   };
+  const goToPreviousStep = () => {
+    setCurrentStepIndex((prev) => Math.max(prev - 1, 0));
+  };
 
-   const currentStep = steps[currentStepIndex];
-   const instruction = currentStep.instruction;
-   const canGoNext = currentStepIndex < steps.length - 1;
-   const canGoPrevious = currentStepIndex > 0;
+  const currentStep = steps[currentStepIndex];
+  const instruction = currentStep.instruction;
+  const canGoNext = currentStepIndex < steps.length - 1;
+  const canGoPrevious = currentStepIndex > 0;
 
-   useEffect(() => {
-       if (currentStep.floor && currentStep.floor !== floor) {
-         setFloor(currentStep.floor);
-       }
-     }, [floor, currentStep.floor, currentStepIndex]);
+  useEffect(() => {
+    if (currentStep.floor && currentStep.floor !== floor) {
+      setFloor(currentStep.floor);
+    }
+  }, [floor, currentStep.floor, currentStepIndex]);
 
   const firstFloor = useMemo(() => {
     if (floorInfo) {
@@ -89,7 +88,8 @@ export default function IndoorMap() {
   }, [floorInfo]);
 
   const defaultFloor = floor || firstFloor;
-  const availableFloors = floorInfo && floorInfo.images ? Object.keys(floorInfo.images).map(Number) : []
+  const availableFloors =
+    floorInfo && floorInfo.images ? Object.keys(floorInfo.images).map(Number) : [];
 
   return (
     <View style={styles.container}>

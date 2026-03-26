@@ -62,7 +62,7 @@ export function useBuildingSearch({
         const response = await fetch(
           `@/data/indoorMapData/${buildingCode}_floor_plan.json.txt`,
         );
-        const data = await response.json().catch(() => new Object())
+        const data = await response.json().catch(() => new Object());
         allRooms = data.rooms || [];
         roomCache.current.set(buildingCode, allRooms);
       }
@@ -141,7 +141,14 @@ export function useBuildingSearch({
       start: [...getStandardResults(queries.start, "start"), ...roomResults.start],
       end: [...getStandardResults(queries.end, "end"), ...roomResults.end],
     };
-  }, [queries.start, queries.end, roomResults.start, roomResults.end, hasUserLocation, currentBuildingCodes]); // Added currentBuildingCodes to dependency array
+  }, [
+    queries.start,
+    queries.end,
+    roomResults.start,
+    roomResults.end,
+    hasUserLocation,
+    currentBuildingCodes,
+  ]); // Added currentBuildingCodes to dependency array
 
   return { queries, updateQuery, swapQueries, results };
 }
