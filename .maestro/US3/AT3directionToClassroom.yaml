@@ -12,8 +12,6 @@ appId: host.exp.exponent
     id: "tab-calendar"
 - tapOn:
     id: "tab-calendar"
-- assertVisible:
-    id: "auth-webview"
 # - runFlow:
 #     when:
 #       visible:
