@@ -42,18 +42,16 @@ export default function AuthWebView({ onLogin }: Readonly<AuthWebViewProps>) {
   };
 
   return (
-    <View testID="auth-container" style={{ flex: 1 }}>
-      <WebView
-        testID="auth-webview"
-        ref={webviewRef}
-        source={{ uri: authenticationURL }}
-        onMessage={handleMessage}
-        onNavigationStateChange={handleNavigationChange}
-        incognito={true} // allows us to be able to clear the cookies when the component umounts
-        originWhitelist={["https://*", "tp-set-custom-vars://*"]}
-        onShouldStartLoadWithRequest={handleShouldStartLoad}
-      />
-    </View>
+    <WebView
+      testID="auth-webview"
+      ref={webviewRef}
+      source={{ uri: authenticationURL }}
+      onMessage={handleMessage}
+      onNavigationStateChange={handleNavigationChange}
+      incognito={true} // allows us to be able to clear the cookies when the component umounts
+      originWhitelist={["https://*", "tp-set-custom-vars://*"]}
+      onShouldStartLoadWithRequest={handleShouldStartLoad}
+    />
   );
 }
 

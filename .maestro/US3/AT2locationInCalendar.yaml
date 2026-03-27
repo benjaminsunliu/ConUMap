@@ -11,8 +11,9 @@ appId: host.exp.exponent
     id: "tab-calendar"
 - extendedWaitUntil:
     visible:
-      id: "auth-container"
+      id: "auth-webview"
     timeout: 10000
+- takeScreenshot: "after-calendar-tap"
 # - runFlow:
 #     when:
 #       visible:
