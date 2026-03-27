@@ -11,7 +11,7 @@ import {
 import { findIndoorPath } from "@/utils/indoorNavigation";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 
 type Step = {
@@ -62,24 +62,20 @@ export default function IndoorMap() {
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
-  const goToNextStep = () => {
-    setCurrentStepIndex((prev) => Math.min(prev + 1, steps.length - 1));
-  };
-
-  const goToPreviousStep = () => {
-    setCurrentStepIndex((prev) => Math.max(prev - 1, 0));
+  type StepType = "next" | "prev";
+  const handleStep = (step: StepType) => {
+    if (step === "next") {
+      setCurrentStepIndex((prev) => Math.min(prev + 1, steps.length - 1));
+    } else {
+      setCurrentStepIndex((prev) => Math.max(prev - 1, 0));
+    }
+    setFloor(steps[currentStepIndex].floor);
   };
 
   const currentStep = steps[currentStepIndex];
   const instruction = currentStep.instruction;
   const canGoNext = currentStepIndex < steps.length - 1;
   const canGoPrevious = currentStepIndex > 0;
-
-  useEffect(() => {
-    if (currentStep.floor && currentStep.floor !== floor) {
-      setFloor(currentStep.floor);
-    }
-  }, [floor, currentStep.floor, currentStepIndex]);
 
   const firstFloor = useMemo(() => {
     if (floorInfo) {
@@ -88,8 +84,9 @@ export default function IndoorMap() {
   }, [floorInfo]);
 
   const defaultFloor = floor || firstFloor;
-  const availableFloors =
-    floorInfo && floorInfo.images ? Object.keys(floorInfo.images).map(Number) : [];
+  const availableFloors = floorInfo?.images
+    ? Object.keys(floorInfo.images).map(Number)
+    : [];
 
   return (
     <View style={styles.container}>
@@ -98,10 +95,12 @@ export default function IndoorMap() {
       {floorInfo && defaultFloor ? (
         <>
           <FloorSelector
-            buildingName="Hall" //TODO temp
-            availableFloors={availableFloors} //TODO temp
+            buildingName={buildingCode} //TODO temp
+            availableFloors={availableFloors}
             currentFloor={defaultFloor}
-            onSelectFloor={(floor: number) => setFloor(floor)}
+            onSelectFloor={(floor: number) => {
+              setFloor(floor);
+            }}
           />
 
           <MapSettings
@@ -112,8 +111,8 @@ export default function IndoorMap() {
           />
           <IndoorNavigationControls
             instruction={instruction}
-            onNext={goToNextStep}
-            onPrevious={goToPreviousStep}
+            onNext={() => handleStep("next")}
+            onPrevious={() => handleStep("prev")}
             canGoNext={canGoNext}
             canGoPrevious={canGoPrevious}
           />
