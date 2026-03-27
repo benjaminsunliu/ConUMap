@@ -5,7 +5,7 @@ import {
   FloorCheckpointsGraph,
   IndoorNavigationPath,
 } from "@/types/mapTypes";
-import { findIndoorPath,findNearestEntryExitPath } from "@/utils/indoorNavigation";
+import { findIndoorPath, findNearestEntryExitPath } from "@/utils/indoorNavigation";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
@@ -32,7 +32,7 @@ export default function IndoorMap() {
     retry: false,
     gcTime: 0, // We set the gc time to 0 since we handle our own caching and garbage collection
   });
-  const [floor] = useState<number | undefined>(undefined);
+  const [floor, setFloor] = useState<number | undefined>(undefined);
   const [navigationPath, setNavigationPath] = useState<IndoorNavigationPath | undefined>(
     undefined,
   );
@@ -43,7 +43,17 @@ export default function IndoorMap() {
     }
   }, [floorInfo]);
 
-  const defaultFloor = floor || firstFloor;
+  const availableFloors = useMemo(() => {
+    if (!floorInfo) {
+      return [] as number[];
+    }
+
+    return Object.keys(floorInfo.images)
+      .map((f) => Number(f))
+      .sort((a, b) => a - b);
+  }, [floorInfo]);
+
+  const defaultFloor = floor ?? firstFloor;
 
   return (
     <View style={styles.container}>
@@ -60,17 +70,40 @@ export default function IndoorMap() {
             title="Create Random Path"
             onPress={() => {
               const graph = floorInfo.graphData;
-              const source = getRandomCheckpointOnFloor(graph, defaultFloor).id;
-              const destination = getRandomCheckpointOnFloor(graph, defaultFloor).id;
+              const source = getRandomCheckpoint(graph).id;
+              const destination = getRandomCheckpoint(graph).id;
               const path = findIndoorPath(floorInfo.graphData, source, destination);
               setNavigationPath(path || undefined);
+            }}
+          />
+          <Button
+            title={`Next Floor (${defaultFloor})`}
+            onPress={() => {
+              if (!availableFloors.length) {
+                return;
+              }
+
+              setFloor((currentFloor) => {
+                const activeFloor = currentFloor ?? firstFloor;
+                if (activeFloor === undefined) {
+                  return availableFloors[0];
+                }
+
+                const activeIndex = availableFloors.indexOf(activeFloor);
+                if (activeIndex === -1) {
+                  return availableFloors[0];
+                }
+
+                const nextIndex = (activeIndex + 1) % availableFloors.length;
+                return availableFloors[nextIndex];
+              });
             }}
           />
           <Button
             title="Random Checkpoint To Nearest Entry/Exit"
             onPress={() => {
               const graph = floorInfo.graphData;
-              const source = getRandomCheckpointOnFloor(graph, defaultFloor).id;
+              const source = getRandomCheckpoint(graph).id;
               const path = findNearestEntryExitPath(graph, source);
               setNavigationPath(path || undefined);
             }}
@@ -92,10 +125,8 @@ function getFirstFloor(info: BuildingFloorInfo) {
   return Number(firstFloor);
 }
 
-function getRandomCheckpointOnFloor(graph: FloorCheckpointsGraph, floor: number) {
-  const possibleCheckpoints = Object.values(graph.checkpoints).filter(
-    (checkpoint) => checkpoint.floor === floor,
-  );
+function getRandomCheckpoint(graph: FloorCheckpointsGraph) {
+  const possibleCheckpoints = Object.values(graph.checkpoints);
   const r = randomInt(possibleCheckpoints.length);
   return possibleCheckpoints[r];
 }

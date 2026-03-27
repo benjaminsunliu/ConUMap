@@ -54,6 +54,12 @@ export default function BuildingFloor({
     for (let i = 0; i < navigationPath.length - 1; i++) {
       const current = checkpoints[navigationPath[i]];
       const next = checkpoints[navigationPath[i + 1]];
+
+      // Only render edges fully on the currently viewed floor.
+      if (current.floor !== floor || next.floor !== floor) {
+        continue;
+      }
+
       result.push(
         <Line
           key={current.id + next.id}
@@ -67,7 +73,7 @@ export default function BuildingFloor({
       );
     }
     return result;
-  }, [navigationPath, info.graphData.checkpoints]);
+  }, [navigationPath, info.graphData.checkpoints, floor]);
 
   return (
     <View style={styles.container} ref={viewContainerRef}>
