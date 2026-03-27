@@ -42,7 +42,6 @@ export default function AuthWebView({ onLogin }: Readonly<AuthWebViewProps>) {
 
   return (
     <WebView
-      testID="auth-webview"
       ref={webviewRef}
       source={{ uri: authenticationURL }}
       onMessage={handleMessage}
