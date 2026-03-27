@@ -10,8 +10,9 @@ appId: host.exp.exponent
 - tapOn:
     id: "tab-calendar"
 - extendedWaitUntil:
-    visible: "SIGN IN"
-    timeout: 30000
+    visible:
+      id: "auth-container"
+    timeout: 10000
 # - runFlow:
 #     when:
 #       visible:

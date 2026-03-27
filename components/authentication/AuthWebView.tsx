@@ -1,5 +1,6 @@
 import { LoggedInData } from "@/types/authTypes";
 import { useRef } from "react";
+import { View } from "react-native";
 import { WebView, WebViewMessageEvent, WebViewNavigation } from "react-native-webview";
 
 interface AuthWebViewProps {
@@ -41,16 +42,18 @@ export default function AuthWebView({ onLogin }: Readonly<AuthWebViewProps>) {
   };
 
   return (
-    <WebView
-      testID="auth-webview"
-      ref={webviewRef}
-      source={{ uri: authenticationURL }}
-      onMessage={handleMessage}
-      onNavigationStateChange={handleNavigationChange}
-      incognito={true} // allows us to be able to clear the cookies when the component umounts
-      originWhitelist={["https://*", "tp-set-custom-vars://*"]}
-      onShouldStartLoadWithRequest={handleShouldStartLoad}
-    />
+    <View testID="auth-container" style={{ flex: 1 }}>
+      <WebView
+        testID="auth-webview"
+        ref={webviewRef}
+        source={{ uri: authenticationURL }}
+        onMessage={handleMessage}
+        onNavigationStateChange={handleNavigationChange}
+        incognito={true} // allows us to be able to clear the cookies when the component umounts
+        originWhitelist={["https://*", "tp-set-custom-vars://*"]}
+        onShouldStartLoadWithRequest={handleShouldStartLoad}
+      />
+    </View>
   );
 }
 
