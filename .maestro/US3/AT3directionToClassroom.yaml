@@ -12,6 +12,10 @@ appId: host.exp.exponent
     id: "tab-calendar"
 - tapOn:
     id: "tab-calendar"
+- extendedWaitUntil:
+    visible:
+      id: "auth-webview"
+    timeout: 30000
 # - runFlow:
 #     when:
 #       visible:
