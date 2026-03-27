@@ -65,7 +65,7 @@ export function usePoi(campus: Campus, radius: number) {
         if (!response.ok) {
           throw new Error(`${type}: ${response.status} ${response.statusText}`);
         }
-        const data = await (response.json() as Promise<{ results?: POI[]; }>);
+        const data = await (response.json() as Promise<{ results?: POI[] }>);
         return data.results ?? [];
       });
 

@@ -1159,7 +1159,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingTop: 8,
     paddingBottom: 4,
-    backgroundColor: "#eb9696",
+    backgroundColor: "#3a0b09", //UI changes on the POI slider container colour
   },
   radiusHeader: {
     flexDirection: "row",

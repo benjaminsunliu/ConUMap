@@ -114,19 +114,22 @@ describe("poi-marker", () => {
       expectedIcon: "location",
       expectedColor: PoiMarkerColors.default,
     },
-  ])("uses correct icon and color for $label", ({ types, expectedIcon, expectedColor }) => {
-    const poi = makePoi(types);
-    const { getByTestId } = render(<PoiMarker poi={poi} />);
+  ])(
+    "uses correct icon and color for $label",
+    ({ types, expectedIcon, expectedColor }) => {
+      const poi = makePoi(types);
+      const { getByTestId } = render(<PoiMarker poi={poi} />);
 
-    const icon = getByTestId("poi-icon");
-    expect(icon.props.name).toBe(expectedIcon);
-    expect(icon.props.color).toBe(PoiMarkerColors.icon);
+      const icon = getByTestId("poi-icon");
+      expect(icon.props.name).toBe(expectedIcon);
+      expect(icon.props.color).toBe(PoiMarkerColors.icon);
 
-    const markerBody = getByTestId("poi-marker-body");
-    expect(markerBody.props.style).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ backgroundColor: expectedColor }),
-      ]),
-    );
-  });
+      const markerBody = getByTestId("poi-marker-body");
+      expect(markerBody.props.style).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ backgroundColor: expectedColor }),
+        ]),
+      );
+    },
+  );
 });
