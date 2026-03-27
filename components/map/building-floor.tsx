@@ -18,7 +18,7 @@ export default function BuildingFloor({
 
   const imageSize = useMemo(() => {
     const imageInfo = Image.resolveAssetSource(info.images[floor]);
-    return { width: imageInfo.width, height: imageInfo.height };
+    return imageInfo ? { width: imageInfo.width, height: imageInfo.height } : {};
   }, [info.images, floor]);
 
   const nodes = useMemo(() => {

@@ -12,7 +12,8 @@
     "test": "run-script-os",
     "test:win32": "node --expose-gc node_modules/jest/bin/jest --coverage",
     "test:nix": "node --expose-gc node_modules/.bin/jest --coverage",
-    "format-check": "prettier --config prettier.config.mjs --ignore-path ./.prettierignore --check ."
+    "format-check": "prettier --config prettier.config.mjs --ignore-path ./.prettierignore --check .",
+    "format-write": "prettier --config prettier.config.mjs --ignore-path ./.prettierignore --write ."
   },
   "jest": {
     "preset": "jest-expo",

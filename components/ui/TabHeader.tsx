@@ -3,8 +3,6 @@ import { Image, StyleSheet, View } from "react-native";
 interface TabHeaderProps {
   backgroundColor: string;
   logoSource: number;
-  showBackButton?: boolean;
-  backButtonColor?: string;
 }
 
 export default function TabHeader({
@@ -24,6 +22,6 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: 120,
-    height: 40,
+    height: 35,
   },
 });

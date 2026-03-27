@@ -71,6 +71,31 @@ export const Colors = {
       resultTitle: "#2e0306",
     },
 
+    floorSelection: {
+      chevron: "#2e0306",
+      buttonBackground: "#fff",
+      textColor: "#2e0306",
+      selectedFloor: "rgba(255, 148, 148, 0.29)",
+      separator: "#eee",
+      dropdown: "#fff",
+    },
+
+    mapSettings: {
+      fabBackground: "#fff",
+      fabIcon: "#2e0306",
+
+      panelBackground: "#ffffff",
+      title: "#11181C",
+      text: "#333333",
+      divider: "#dddddd",
+
+      toggleTrue: "#5e0e16",
+      toggleFalse: "#cccccc",
+
+      checkbox: "#2e0306",
+      icon: "#5e0e16",
+    },
+
     scheduleViewer: {
       containerBackground: white,
     },
@@ -185,38 +210,63 @@ export const Colors = {
       resultTitle: white,
     },
 
+    floorSelection: {
+      chevron: white,
+      buttonBackground: "#5e0e16",
+      textColor: white,
+      selectedFloor: "rgba(255, 148, 148, 0.29)",
+      separator: "#eee",
+      dropdown: "#5e0e16",
+    },
+
+    mapSettings: {
+      fabBackground: "#5e0e16",
+      fabIcon: white,
+
+      panelBackground: "#5e0e16",
+      title: white,
+      text: white,
+      divider: "#dddddd",
+
+      toggleTrue: "#cccccc",
+      toggleFalse: white,
+
+      checkbox: white,
+      icon: white,
+    },
+
     scheduleViewer: {
-      containerBackground: black,
+      containerBackground: white,
     },
 
     weeklyCalendarBody: {
-      todayColor: "rgba(110, 93, 88, 0.1)",
-      backgroundColor: "#241c1a",
-      borderColor: "#3c4043",
-      dayAndTimeLabel: "#9b9b9b",
-      dateNumber: "#fdfcea",
+      todayColor: "rgba(148, 142, 25, 0.1)",
+      backgroundColor: "#333",
+      borderColor: "#E0E0E0",
+      dayAndTimeLabel: "#7d7d7d",
+      dateNumber: white,
       dateNumberToday: black,
-      hourLineColor: "#3c4043",
-      timeDotColor: "#d83532",
+      hourLineColor: "#d4d4d4",
+      timeDotColor: "#E53935",
       nextClassButtonColor: "#5e0e16",
       nextClassButtonText: "#fdfcea",
     },
 
     scheduleHeader: {
       backgroundColor: "#fdfcea",
-      shadowColor: black,
-      monthButtonText: "#fdfcea",
+      shadowColor: "#333",
+      monthButtonText: white,
       todayButtonText: black,
       monthPickerBackdrop: "rgba(0,0,0,0.3)",
       monthPickerBackground: "#5e0e16",
-      monthMenuItemActive: "#47080d",
-      monthMenuText: "#fdfcea",
-      monthMenuTextActive: "#e41313",
+      monthMenuItemActive: "#fdebeb",
+      monthMenuText: white,
+      monthMenuTextActive: "#e81a1a",
     },
 
     dayColumn: {
-      borderColor: "#3c4043",
-      todayColor: "rgba(110, 93, 88, 0.1)",
+      borderColor: "#d4d4d4",
+      todayColor: "rgba(148, 142, 25, 0.1)",
     },
 
     classDetailPopup: {

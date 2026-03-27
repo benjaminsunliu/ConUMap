@@ -1,4 +1,7 @@
 import BuildingFloor from "@/components/map/building-floor";
+import FloorSelector from "@/components/map/floor-selection-menu";
+import MapSettings from "@/components/map/indoor-map-settings";
+import IndoorNavigationControls from "@/components/map/indoor-navigation-controls";
 import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
 import {
   BuildingFloorInfo,
@@ -10,6 +13,12 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
+
+type Step = {
+  instruction: string;
+  floor?: number;
+  coordinates?: { x: number; y: number };
+};
 
 export default function IndoorMap() {
   const { buildingCode } = useLocalSearchParams<{
@@ -32,10 +41,41 @@ export default function IndoorMap() {
     retry: false,
     gcTime: 0, // We set the gc time to 0 since we handle our own caching and garbage collection
   });
-  const [floor] = useState<number | undefined>(undefined);
+  const [floor, setFloor] = useState<number | undefined>(undefined);
   const [navigationPath, setNavigationPath] = useState<IndoorNavigationPath | undefined>(
     undefined,
   );
+  const [wheelchairOnly, setWheelchairOnly] = useState(false);
+  const [poiFilters, setPoiFilters] = useState({
+    bathrooms: false,
+    elevators: false,
+    washrooms: false,
+  });
+
+  const steps: Step[] = [
+    { instruction: "Head straight through the entrance", floor: 1 },
+    { instruction: "Keep walking forward down the hall", floor: 1 },
+    { instruction: "Turn right at the elevators", floor: 1 },
+    { instruction: "Go up to the next floor", floor: 2 },
+    { instruction: "Continue to the end of the corridor", floor: 2 },
+  ];
+
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+
+  type StepType = "next" | "prev";
+  const handleStep = (step: StepType) => {
+    if (step === "next") {
+      setCurrentStepIndex((prev) => Math.min(prev + 1, steps.length - 1));
+    } else {
+      setCurrentStepIndex((prev) => Math.max(prev - 1, 0));
+    }
+    setFloor(steps[currentStepIndex].floor);
+  };
+
+  const currentStep = steps[currentStepIndex];
+  const instruction = currentStep.instruction;
+  const canGoNext = currentStepIndex < steps.length - 1;
+  const canGoPrevious = currentStepIndex > 0;
 
   const firstFloor = useMemo(() => {
     if (floorInfo) {
@@ -44,6 +84,9 @@ export default function IndoorMap() {
   }, [floorInfo]);
 
   const defaultFloor = floor || firstFloor;
+  const availableFloors = floorInfo?.images
+    ? Object.keys(floorInfo.images).map(Number)
+    : [];
 
   return (
     <View style={styles.container}>
@@ -51,6 +94,28 @@ export default function IndoorMap() {
       {error ? <Text>Something went wrong</Text> : null}
       {floorInfo && defaultFloor ? (
         <>
+          <FloorSelector
+            buildingName={buildingCode} //TODO temp
+            availableFloors={availableFloors}
+            currentFloor={defaultFloor}
+            onSelectFloor={(floor: number) => {
+              setFloor(floor);
+            }}
+          />
+
+          <MapSettings
+            wheelchairOnly={wheelchairOnly} //TODO temp
+            setWheelchairOnly={setWheelchairOnly} //TODO temp
+            poiFilters={poiFilters} //TODO temp
+            setPoiFilters={setPoiFilters} //TODO temp
+          />
+          <IndoorNavigationControls
+            instruction={instruction}
+            onNext={() => handleStep("next")}
+            onPrevious={() => handleStep("prev")}
+            canGoNext={canGoNext}
+            canGoPrevious={canGoPrevious}
+          />
           <BuildingFloor
             info={floorInfo}
             navigationPath={navigationPath}

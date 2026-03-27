@@ -15,10 +15,11 @@ import MapViewCluster from "react-native-map-clustering";
 import MapView, { Circle, Marker, Polygon, Polyline, Region } from "react-native-maps";
 import RoutesInfoPopup from "../navigation/routes-info-popup";
 import BuildingInfoPopup from "./building-info-popup";
-import BuildingSelection, { CURRENT_LOCATION_CODE } from "./building-selection";
+import BuildingSelection from "./building-selection";
 import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
+import { CURRENT_LOCATION_CODE } from "@/hooks/use-search-building";
 
 interface PolylineSegment {
   coordinates: Coordinate[];
@@ -681,6 +682,14 @@ export default function MapViewer({
 
           if (!coord) {
             clearRouteRendering();
+            setRoutePolyline(null);
+            setRoutes({
+              walking: null,
+              transit: null,
+              driving: null,
+              bicycling: null,
+              shuttle: null,
+            });
           }
 
           if (type === "end") {
