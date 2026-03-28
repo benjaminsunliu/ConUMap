@@ -177,6 +177,7 @@ describe("map tab", () => {
     await waitFor(() => {
       expect(mapViewer.queryByTestId("routes-info-popup")).toBeTruthy();
     });
+    expect(mapViewer.queryByTestId("radius-slider")).toBeNull();
 
     expect(router.setParams).toHaveBeenCalledWith({
       buildingId: "",
@@ -194,6 +195,7 @@ describe("map tab", () => {
 
     expect(mapViewer.queryByTestId("building-info-popup")).toBeTruthy();
     expect(mapViewer.queryByTestId("routes-info-popup")).toBeNull();
+    expect(mapViewer.queryByTestId("radius-slider")).toBeNull();
     expect(router.setParams).toHaveBeenCalledWith({
       buildingId: "",
       buildingName: "",

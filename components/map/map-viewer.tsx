@@ -676,6 +676,11 @@ export default function MapViewer({
     router.push(`/${encodeURIComponent(selectedBuilding.buildingCode)}`);
   };
 
+  const hasVisiblePopup =
+    modalOpen ||
+    navigationMode === "directions" ||
+    (navigationMode === "browse" && selectedBuilding != null);
+
   return (
     <View style={styles.container}>
       <BuildingSelection
@@ -929,24 +934,26 @@ export default function MapViewer({
 
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
 
-      <View style={styles.radiusContainer}>
-        <View style={styles.radiusHeader}>
-          <Text style={[styles.radiusLabel, { color: mapColors.clusterText }]}>
-            Radius
-          </Text>
-          <Text style={[styles.radiusValue, { color: mapColors.clusterText }]}>
-            {radius} m
-          </Text>
+      {!hasVisiblePopup && (
+        <View style={styles.radiusContainer}>
+          <View style={styles.radiusHeader}>
+            <Text style={[styles.radiusLabel, { color: mapColors.clusterText }]}>
+              Radius
+            </Text>
+            <Text style={[styles.radiusValue, { color: mapColors.clusterText }]}>
+              {radius} m
+            </Text>
+          </View>
+          <Slider
+            testID="radius-slider"
+            value={radius}
+            minimumValue={MIN_RADIUS_METERS}
+            maximumValue={MAX_RADIUS_METERS}
+            step={10}
+            onSlidingComplete={(value) => setRadius(Math.round(value))}
+          />
         </View>
-        <Slider
-          testID="radius-slider"
-          value={radius}
-          minimumValue={MIN_RADIUS_METERS}
-          maximumValue={MAX_RADIUS_METERS}
-          step={10}
-          onSlidingComplete={(value) => setRadius(Math.round(value))}
-        />
-      </View>
+      )}
 
       {navigationMode === "browse" && selectedBuilding && (
         <BuildingInfoPopup
