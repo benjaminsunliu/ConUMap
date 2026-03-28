@@ -20,7 +20,7 @@ const fetchingPromise = new Map<Campus, Promise<POI[]>>();
  * Calculates distance between two coordinates using the Haversine formula (in meters).
  * Taken from https://www.movable-type.co.uk/scripts/latlong.html
  */
-function calculateDistance(
+export function calculateDistance(
   lat1: number,
   lon1: number,
   lat2: number,
@@ -63,8 +63,6 @@ export function usePoi(campus: Campus, radius: number) {
     settled.forEach((result) => {
       if (result.status === "fulfilled") {
         allResults.push(...result.value);
-      } else {
-        console.warn("POI fetch subrequest failed:", result.reason);
       }
     });
 
@@ -87,7 +85,7 @@ export function usePoi(campus: Campus, radius: number) {
     // Return existing promise if fetch is in progress
     if (fetchingPromise.has(campusToFetch)) {
       return fetchingPromise.get(campusToFetch);
-    }F
+    }
 
     const fetchPromise = (async () => {
       try {
@@ -101,7 +99,7 @@ export function usePoi(campus: Campus, radius: number) {
             `&type=${encodeURIComponent(type)}` +
             `&key=${GOOGLE_API_KEY}`;
 
-          const response = await fetch(url, {signal});
+          const response = await fetch(url, { signal });
           if (!response.ok) {
             console.error(`${type}: ${response.status} ${response.statusText}`);
           }
@@ -157,7 +155,7 @@ export function usePoi(campus: Campus, radius: number) {
 
     fetchAllPOIsForCampus(campus, controller.signal);
 
-    return () => controller.abort(); 
+    return () => controller.abort();
   }, [campus]);
 
   return filteredPlaces;

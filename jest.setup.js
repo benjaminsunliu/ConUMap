@@ -9,14 +9,6 @@ jest.mock("@expo/vector-icons", () => {
     Ionicons: (props) => null, //
   };
 });
-jest.mock("@react-native-community/slider", () => {
-  const React = require("react");
-  const { View } = require("react-native");
-
-  return function MockSlider(props) {
-    return React.createElement(View, props);
-  };
-});
 jest.mock("expo-router", () => ({
   useLocalSearchParams: jest.fn(() => ({})),
   useRouter: jest.fn(() => ({
