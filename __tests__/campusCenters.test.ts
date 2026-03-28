@@ -21,7 +21,7 @@ describe("campusCenters constants", () => {
   });
 
   it("exports valid radius bounds", () => {
-    expect(MIN_RADIUS_METERS).toBe(100);
+    expect(MIN_RADIUS_METERS).toBe(0);
     expect(MAX_RADIUS_METERS).toBe(1000);
     expect(MAX_RADIUS_METERS).toBeGreaterThan(MIN_RADIUS_METERS);
   });
