@@ -29,6 +29,7 @@ import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
 import PoiMarker from "./poi-marker";
 import { usePoi } from "@/hooks/use-poi";
+import { MIN_RADIUS_METERS, MAX_RADIUS_METERS } from "@/constants/campusCenters";
 
 interface PolylineSegment {
   coordinates: Coordinate[];
@@ -928,7 +929,6 @@ export default function MapViewer({
 
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
 
-      {/* TODO Remove */}
       <View style={styles.radiusContainer}>
         <View style={styles.radiusHeader}>
           <Text style={[styles.radiusLabel, { color: mapColors.clusterText }]}>
@@ -944,7 +944,7 @@ export default function MapViewer({
           minimumValue={MIN_RADIUS_METERS}
           maximumValue={MAX_RADIUS_METERS}
           step={10}
-          onValueChange={(value) => setRadius(Math.round(value))}
+          onSlidingComplete={(value) => setRadius(Math.round(value))}
         />
       </View>
 
@@ -1148,7 +1148,6 @@ function getPolygonColor(
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { width: "100%", flex: 1 },
-  // TODO Remove
   radiusContainer: {
     position: "absolute",
     left: "30%",
@@ -1272,7 +1271,3 @@ const defaultInitialRegion: Region = {
   latitudeDelta: 0.0922,
   longitudeDelta: 0.0922,
 };
-
-// TODO Remove
-const MIN_RADIUS_METERS = 100;
-const MAX_RADIUS_METERS = 1000;

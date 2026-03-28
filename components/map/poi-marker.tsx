@@ -28,9 +28,6 @@ function getPoiMarkerVisual(types: string[]): PoiMarkerVisual {
   if (typeSet.has("library")) {
     return { icon: "library", backgroundColor: PoiMarkerColors.library };
   }
-  if (typeSet.has("gym")) {
-    return { icon: "barbell", backgroundColor: PoiMarkerColors.gym };
-  }
   if (typeSet.has("park")) {
     return { icon: "leaf", backgroundColor: PoiMarkerColors.park };
   }
@@ -42,6 +39,9 @@ function getPoiMarkerVisual(types: string[]): PoiMarkerVisual {
   }
   if (typeSet.has("lodging")) {
     return { icon: "bed", backgroundColor: PoiMarkerColors.lodging };
+  }
+  if (typeSet.has("gym")) {
+    return { icon: "barbell", backgroundColor: PoiMarkerColors.gym };
   }
 
   return { icon: "location", backgroundColor: PoiMarkerColors.default };
@@ -56,6 +56,7 @@ export default function PoiMarker({ poi, onPress }: Readonly<PoiMarkerProps>) {
         latitude: poi.geometry.location.lat,
         longitude: poi.geometry.location.lng,
       }}
+      onPress={onPress}
     >
       <View
         testID="poi-marker-body"
