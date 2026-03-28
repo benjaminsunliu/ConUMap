@@ -42,12 +42,6 @@ export default function CampusToggle({
   });
 
   useEffect(() => {
-    if (switchValue === Campus.SGW) {
-      setCurrCampus("SGW");
-    } else {
-      setCurrCampus("LOY");
-    }
-
     let sgwDistance = Math.hypot(
       viewRegion.latitude - SGW_CENTER.latitude,
       viewRegion.longitude - SGW_CENTER.longitude,
@@ -58,13 +52,16 @@ export default function CampusToggle({
     );
     let newSwitchValue = sgwDistance < loyDistance ? Campus.SGW : Campus.Loyola;
 
-    if (newSwitchValue !== switchValue) {
-      setSwitchValue(newSwitchValue);
-    }
-  }, [viewRegion, switchValue, setCurrCampus]);
+    setCurrCampus(newSwitchValue === Campus.SGW ? "SGW" : "LOY");
+
+    setSwitchValue((prev) => (prev === newSwitchValue ? prev : newSwitchValue));
+  }, [viewRegion, setCurrCampus]);
 
   const focusCampusOnPress = (value: number) => {
     let newFocus: Coordinate = value === Campus.SGW ? SGW_CENTER : LOY_CENTER;
+
+    setSwitchValue(value);
+    setCurrCampus(value === Campus.SGW ? "SGW" : "LOY");
 
     mapRef.current?.animateToRegion({
       ...newFocus,

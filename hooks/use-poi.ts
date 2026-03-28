@@ -78,8 +78,8 @@ export function usePoi(campus: Campus, radius: number) {
     return [...uniquePOI.values()];
   };
 
-  // Fetch all POIs for a campus 
-  const fetchAllPOIsForCampus = async (campusToFetch: Campus) => {
+  // Fetch all POIs for a campus
+  const fetchAllPOIsForCampus = async (campusToFetch: Campus, signal: AbortSignal) => {
     if (poiCache.has(campusToFetch)) {
       return poiCache.get(campusToFetch);
     }
@@ -87,7 +87,7 @@ export function usePoi(campus: Campus, radius: number) {
     // Return existing promise if fetch is in progress
     if (fetchingPromise.has(campusToFetch)) {
       return fetchingPromise.get(campusToFetch);
-    }
+    }F
 
     const fetchPromise = (async () => {
       try {
@@ -101,7 +101,7 @@ export function usePoi(campus: Campus, radius: number) {
             `&type=${encodeURIComponent(type)}` +
             `&key=${GOOGLE_API_KEY}`;
 
-          const response = await fetch(url);
+          const response = await fetch(url, {signal});
           if (!response.ok) {
             console.error(`${type}: ${response.status} ${response.statusText}`);
           }
@@ -116,8 +116,7 @@ export function usePoi(campus: Campus, radius: number) {
         setCacheVersion((prev) => prev + 1);
 
         return allPOIs;
-      } 
-      finally {
+      } finally {
         fetchingPromise.delete(campusToFetch);
       }
     })();
@@ -154,7 +153,11 @@ export function usePoi(campus: Campus, radius: number) {
   }, [campus, radius, cacheVersion]);
 
   useEffect(() => {
-    fetchAllPOIsForCampus(campus);
+    const controller = new AbortController();
+
+    fetchAllPOIsForCampus(campus, controller.signal);
+
+    return () => controller.abort(); 
   }, [campus]);
 
   return filteredPlaces;
