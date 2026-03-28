@@ -9,17 +9,13 @@ appId: host.exp.exponent
     id: "tab-calendar"
 - tapOn:
     id: "tab-calendar"
-- extendedWaitUntil:
-    visible:
-      text: "SIGN IN"
-    timeout: 60000
-# - runFlow:
-#     when:
-#       visible:
-#         id: "courses-view"
-#     commands:
-#       - assertVisible:
-#           text: "SOEN.*357"
-#       - tapOn:
-#           text: "SOEN.*357"
-#       - assertVisible: "Room H-535"
+- runFlow:
+    when:
+      visible:
+        id: "courses-view"
+    commands:
+      - assertVisible:
+          text: "SOEN.*357"
+      - tapOn:
+          text: "SOEN.*357"
+      - assertVisible: "Room H-535"

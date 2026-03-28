@@ -12,47 +12,44 @@ appId: host.exp.exponent
     id: "tab-calendar"
 - tapOn:
     id: "tab-calendar"
-- extendedWaitUntil:
-    visible:
-      text: "SIGN IN"
-    timeout: 60000
-# - runFlow:
-#     when:
-#       visible:
-#         id: "courses-view"
-#     commands:
-#       - assertVisible:
-#           id: "next-class"
-#       - assertVisible: "SOEN 357 at 08:45"
-#       - tapOn:
-#           text: "SOEN.*357"
-#       - assertVisible: "Room H-535"
-#       - tapOn:
-#           id: "close-class-popup"
-#       - tapOn: "SOEN 357 at 08:45"
-#       - assertVisible: "H – Henry F. Hall Building"
-#       - tapOn: "Directions"
-#       - assertVisible:
-#           id: "walking-selector"
-#       - assertVisible:
-#           id: "transit-selector"
-#       - assertVisible:
-#           id: "driving-selector"
-#       - assertVisible:
-#           id: "bicycling-selector"
-#       - assertVisible:
-#           id: "shuttle-selector"
-#       - tapOn:
-#           id: "transit-selector"
-#       - swipe:
-#           from:
-#             id: "routes-info-popup"
-#           direction: UP
-#       - tapOn:
-#           id: "transit-route-0"
-#       - assertVisible:
-#           id: "transit-step-0"
-#       - swipe:
-#           from:
-#             id: "driving-selector"
-#           direction: DOWN
+- runFlow:
+    when:
+      visible:
+        id: "courses-view"
+    commands:
+      - assertVisible:
+          id: "next-class"
+      - assertVisible: "SOEN 357 at 08:45"
+      - tapOn:
+          text: "SOEN.*357"
+      - assertVisible: "Room H-535"
+      - tapOn:
+          id: "close-class-popup"
+      - tapOn:
+          id: "next-class"
+      - assertVisible: "H – Henry F. Hall Building"
+      - tapOn: "Directions"
+      - assertVisible:
+          id: "walking-selector"
+      - assertVisible:
+          id: "transit-selector"
+      - assertVisible:
+          id: "driving-selector"
+      - assertVisible:
+          id: "bicycling-selector"
+      - assertVisible:
+          id: "shuttle-selector"
+      - tapOn:
+          id: "transit-selector"
+      - swipe:
+          from:
+            id: "routes-info-popup"
+          direction: UP
+      - tapOn:
+          id: "transit-route-0"
+      - assertVisible:
+          id: "transit-step-0"
+      - swipe:
+          from:
+            id: "driving-selector"
+          direction: DOWN
