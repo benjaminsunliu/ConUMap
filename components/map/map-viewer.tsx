@@ -3,22 +3,33 @@ import { Colors } from "@/constants/theme";
 import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
 import { ColorSchemeName, useColorScheme } from "@/hooks/use-color-scheme";
 import { FieldType, SearchBuilding, TransportationMode } from "@/types/buildingTypes";
-import { BuildingInfo, Coordinate, CoordinateDelta } from "@/types/mapTypes";
+import { BuildingInfo, Campus, Coordinate, CoordinateDelta } from "@/types/mapTypes";
 import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
 import { decodePolyline } from "@/utils/decodePolyline";
 import { fetchAllDirections } from "@/utils/directions";
 import * as LocationPermissions from "expo-location";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Slider from "@react-native-community/slider";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
-import MapView, { Circle, Marker, Polygon, Polyline, Region } from "react-native-maps";
+import MapView, {
+  Circle,
+  MapStyleElement,
+  Marker,
+  Polygon,
+  Polyline,
+  Region,
+} from "react-native-maps";
 import RoutesInfoPopup from "../navigation/routes-info-popup";
 import BuildingInfoPopup from "./building-info-popup";
 import BuildingSelection, { CURRENT_LOCATION_CODE } from "./building-selection";
 import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
+import PoiMarker from "./poi-marker";
+import { usePoi } from "@/hooks/use-poi";
+import { MIN_RADIUS_METERS, MAX_RADIUS_METERS } from "@/constants/campusCenters";
 
 interface PolylineSegment {
   coordinates: Coordinate[];
@@ -162,6 +173,9 @@ export default function MapViewer({
   const mapViewRef = useRef<MapView>(null);
   const suppressNextMapPress = useRef(false);
 
+  const [currCampus, setCurrCampus] = useState<Campus>("SGW");
+  const [radius, setRadius] = useState(1000);
+
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
   const [modalOpen, setModalOpen] = useState(false);
@@ -170,6 +184,7 @@ export default function MapViewer({
 
   const [navigationMode, setNavigationMode] = useState<"browse" | "directions">("browse");
   const [shouldDisplayRoutes, setShouldDisplayRoutes] = useState(false);
+
   const [routes, setRoutes] = useState<Record<TransportationMode, any[] | null>>({
     walking: null,
     transit: null,
@@ -217,6 +232,7 @@ export default function MapViewer({
     buildingName?: string;
     autoNavigate?: string;
   }>();
+  const places = usePoi(currCampus, radius);
 
   useEffect(() => {
     if (!navCoords.start || !navCoords.end) {
@@ -643,12 +659,27 @@ export default function MapViewer({
     [focusBuilding, selectBuildingByCode],
   );
 
+  const renderPOIMarkers = useMemo(() => {
+    return places.map((p) => (
+      <PoiMarker
+        key={p.place_id}
+        poi={p}
+        onPress={() => console.log(`Pressed POI: ${p.name}`)}
+      />
+    ));
+  }, [places]);
+
   const openIndoorNavigation = () => {
     if (!selectedBuilding?.buildingCode) {
       return;
     }
     router.push(`/${encodeURIComponent(selectedBuilding.buildingCode)}`);
   };
+
+  const hasVisiblePopup =
+    modalOpen ||
+    navigationMode === "directions" ||
+    (navigationMode === "browse" && selectedBuilding != null);
 
   return (
     <View style={styles.container}>
@@ -689,16 +720,23 @@ export default function MapViewer({
         }}
       />
 
-      <CampusToggle mapRef={mapViewRef} viewRegion={currentRegion} />
+      <CampusToggle
+        mapRef={mapViewRef}
+        viewRegion={currentRegion}
+        setCurrCampus={setCurrCampus}
+      />
 
       <MapViewCluster
         ref={mapViewRef}
         testID="map-view"
         style={styles.map}
+        customMapStyle={customMapStyle}
         initialRegion={initialRegion}
         showsUserLocation={!!userLocation}
         followsUserLocation={locationState === "centered"}
         clusteringEnabled={Platform.OS !== "ios"}
+        showsPointsOfInterest={false}
+        onPoiClick={() => {}}
         onRegionChangeComplete={(region) => {
           setCurrentRegion(region);
 
@@ -753,6 +791,7 @@ export default function MapViewer({
       >
         {renderedPolygons}
         {renderedMarkers}
+        {renderPOIMarkers}
 
         {routePolyline?.map((segment, index) => {
           const dashedWidth = Platform.OS === "android" ? 6 : 3;
@@ -894,6 +933,27 @@ export default function MapViewer({
       />
 
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
+
+      {!hasVisiblePopup && (
+        <View style={styles.radiusContainer}>
+          <View style={styles.radiusHeader}>
+            <Text style={[styles.radiusLabel, { color: mapColors.clusterText }]}>
+              Radius
+            </Text>
+            <Text style={[styles.radiusValue, { color: mapColors.clusterText }]}>
+              {radius} m
+            </Text>
+          </View>
+          <Slider
+            testID="radius-slider"
+            value={radius}
+            minimumValue={MIN_RADIUS_METERS}
+            maximumValue={MAX_RADIUS_METERS}
+            step={10}
+            onSlidingComplete={(value) => setRadius(Math.round(value))}
+          />
+        </View>
+      )}
 
       {navigationMode === "browse" && selectedBuilding && (
         <BuildingInfoPopup
@@ -1095,6 +1155,33 @@ function getPolygonColor(
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { width: "100%", flex: 1 },
+  radiusContainer: {
+    position: "absolute",
+    left: "30%",
+    right: "25%",
+    bottom: 42,
+    zIndex: 15,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingTop: 8,
+    paddingBottom: 4,
+    backgroundColor: "#3a0b09", //UI changes on the POI slider container colour
+  },
+  radiusHeader: {
+    flexDirection: "row",
+    alignItems: "center" as const,
+    justifyContent: "space-between" as const,
+  },
+  radiusLabel: {
+    color: "#000",
+    fontSize: 12,
+    fontWeight: "700" as const,
+  },
+  radiusValue: {
+    color: "#000",
+    fontSize: 12,
+    fontWeight: "700" as const,
+  },
   marker: {
     paddingHorizontal: 5,
     paddingVertical: 4,
@@ -1168,6 +1255,17 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
 });
+
+const customMapStyle: MapStyleElement[] = [
+  {
+    featureType: "poi",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+];
 
 const defaultFocusDelta: CoordinateDelta = {
   latitudeDelta: 0.00922,
