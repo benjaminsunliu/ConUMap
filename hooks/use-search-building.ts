@@ -1,6 +1,8 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { SearchBuilding, FieldType } from "@/types/buildingTypes";
 import buildingAddressesRaw from "@/data/building-addresses.json";
+import * as FileSystem from 'expo-file-system/legacy';
+import { Asset } from 'expo-asset';
 
 export const CURRENT_LOCATION_CODE = "CURRENT_LOCATION";
 const buildingAddresses = buildingAddressesRaw as SearchBuilding[];
@@ -10,6 +12,24 @@ const CURRENT_LOCATION_SENTINEL: SearchBuilding = {
   buildingName: "Current Location",
   address: "Your current GPS position",
   campus: "",
+};
+
+const loadLocalFile = async (buildingCode: string) => {
+  const assetMap: Record<string, string> = {
+    'CC': require('../data/indoorMapData/jsonGraphs/CC_floor_plan.json.txt'),
+    'H': require('../data/indoorMapData/jsonGraphs/H_floor_plan.json.txt'),
+    'LB': require('../data/indoorMapData/jsonGraphs/LB_floor_plan.json.txt'),
+    'MB': require('../data/indoorMapData/jsonGraphs/MB_floor_plan.json.txt'),
+    'VE': require('../data/indoorMapData/jsonGraphs/VE_floor_plan.json.txt'),
+    'VL': require('../data/indoorMapData/jsonGraphs/VL_floor_plan.json.txt'),
+  };
+
+  const asset = Asset.fromModule(assetMap[buildingCode]);
+  await asset.downloadAsync(); 
+
+  if(!asset.localUri) return []
+  const content = await FileSystem.readAsStringAsync(asset.localUri);
+  return JSON.parse(content);
 };
 
 export function useBuildingSearch({
@@ -58,10 +78,11 @@ export function useBuildingSearch({
       if (roomCache.current.has(buildingCode)) {
         allRooms = roomCache.current.get(buildingCode)!;
       } else {
-        const response = await fetch(
-          `@/data/indoorMapData/${buildingCode}_floor_plan.json.txt`,
-        );
-        const data = await response.json().catch(() => new Object());
+        // const response = await fetch(
+        //   `file://../data/indoorMapData/${buildingCode}_floor_plan.json.txt`,
+        // );
+        // const data = await response.json().catch(() => new Object());
+        const data = await loadLocalFile(buildingCode)
         allRooms = data.rooms || [];
         roomCache.current.set(buildingCode, allRooms);
       }
