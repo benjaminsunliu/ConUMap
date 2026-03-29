@@ -118,6 +118,24 @@ jobs:
 
             exit $FLOW_EXIT
 
+      - name: Collect simulator system logs
+        if: always()
+        run: |
+          mkdir -p .maestro/output/simlogs
+          xcrun simctl spawn "$DEVICE_UDID" log collect --output .maestro/output/simlogs/system.logarchive --all
+      
+      - name: Collect XCTest crash logs
+        if: always()
+        run: |
+          mkdir -p .maestro/output/crashlogs
+          cp ~/Library/Logs/DiagnosticReports/*.crash .maestro/output/crashlogs/ || true
+
+      - name: Collect Maestro logs
+        if: always()
+        run: |
+          mkdir -p .maestro/output/maestro-logs
+          cp -R ~/Library/Logs/Maestro/* .maestro/output/maestro-logs/ || 
+          
       - name: Upload screen recording (mp4)
         if: always()
         uses: actions/upload-artifact@v4
@@ -127,10 +145,14 @@ jobs:
           if-no-files-found: ignore
 
       - name: Upload Maestro artifacts
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: maestro-ios-artifacts
-          path: .maestro/output/results.xml
+          path: |
+            .maestro/output/results.xml
+            .maestro/output/simlogs
+            .maestro/output/crashlogs
+            .maestro/output/maestro-logs
           if-no-files-found: ignore
           include-hidden-files: true
