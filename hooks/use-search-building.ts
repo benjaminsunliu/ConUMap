@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { SearchBuilding, FieldType } from "@/types/buildingTypes";
 import buildingAddressesRaw from "@/data/building-addresses.json";
-import * as FileSystem from 'expo-file-system/legacy';
 import { Asset } from 'expo-asset';
 
 export const CURRENT_LOCATION_CODE = "CURRENT_LOCATION";
@@ -14,7 +13,7 @@ const CURRENT_LOCATION_SENTINEL: SearchBuilding = {
   campus: "",
 };
 
-const loadLocalFile = async (buildingCode: string) => {
+const loadBuildingFile = async (buildingCode: string) => {
   const assetMap: Record<string, string> = {
     'CC': require('../data/indoorMapData/jsonGraphs/CC_floor_plan.json.txt'),
     'H': require('../data/indoorMapData/jsonGraphs/H_floor_plan.json.txt'),
@@ -25,10 +24,18 @@ const loadLocalFile = async (buildingCode: string) => {
   };
 
   const asset = Asset.fromModule(assetMap[buildingCode]);
-  await asset.downloadAsync(); 
+  await asset.downloadAsync();
 
   if(!asset.localUri) return []
-  const content = await FileSystem.readAsStringAsync(asset.localUri);
+  const content = await fetch(asset.localUri)
+    .then(res => {
+      if (!res.ok) throw new Error(`File not found: ${res.status}`);
+      return res.text();
+    })
+     .catch((e) => {
+       console.error(`Unable to fetch building file for ${buildingCode}`, e)
+       return "{}"
+    })
   return JSON.parse(content);
 };
 
@@ -82,7 +89,7 @@ export function useBuildingSearch({
         //   `file://../data/indoorMapData/${buildingCode}_floor_plan.json.txt`,
         // );
         // const data = await response.json().catch(() => new Object());
-        const data = await loadLocalFile(buildingCode)
+        const data = await loadBuildingFile(buildingCode)
         allRooms = data.rooms || [];
         roomCache.current.set(buildingCode, allRooms);
       }

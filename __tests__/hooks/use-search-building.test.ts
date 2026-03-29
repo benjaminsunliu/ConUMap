@@ -1,6 +1,12 @@
 import { renderHook, act, waitFor } from "@testing-library/react-native";
 import { useBuildingSearch, CURRENT_LOCATION_CODE } from "@/hooks/use-search-building";
+import { Asset } from 'expo-asset';
 
+jest.mock('expo-asset', () => ({
+  Asset: {
+    fromModule: jest.fn(),
+  },
+}));
 jest.mock("@/data/building-addresses.json", () => [
   {
     buildingCode: "H",
@@ -64,10 +70,16 @@ describe("useBuildingSearch - Full Coverage Suite", () => {
   });
 
   it("should fetch and cache room results", async () => {
-    const mockRoomData = { rooms: ["H963"] };
-    (global.fetch as jest.Mock).mockResolvedValue({
-      json: jest.fn().mockResolvedValue(mockRoomData),
+    const mockRoomData = JSON.stringify({ rooms: ["H963"] });
+    (Asset.fromModule as jest.Mock).mockReturnValue({
+      downloadAsync: jest.fn().mockResolvedValue(true),
+      localUri: 'mock-uri'
     });
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: jest.fn().mockResolvedValue(mockRoomData),
+     });
 
     const { result } = renderHook(() => useBuildingSearch({}));
 
@@ -87,7 +99,7 @@ describe("useBuildingSearch - Full Coverage Suite", () => {
       jest.advanceTimersByTime(100);
     });
 
-    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
   });
 
   it("should handle fetch error in catch block and keep matching buildings", async () => {
