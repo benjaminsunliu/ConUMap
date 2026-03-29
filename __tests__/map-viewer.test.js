@@ -133,6 +133,19 @@ describe("map tab", () => {
     });
   });
 
+  it("updates radius when slider interaction completes", () => {
+    const mapViewer = render(<MapViewer />);
+
+    expect(mapViewer.getByText("1000 m")).toBeTruthy();
+
+    const slider = mapViewer.getByTestId("radius-slider");
+    act(() => {
+      fireEvent(slider, "onSlidingComplete", 760);
+    });
+
+    expect(mapViewer.getByText("760 m")).toBeTruthy();
+  });
+
   it("opens routes mode directly when opened with buildingId and autoNavigate=true", async () => {
     fetchAllDirections.mockResolvedValue({
       walking: [],
@@ -164,6 +177,7 @@ describe("map tab", () => {
     await waitFor(() => {
       expect(mapViewer.queryByTestId("routes-info-popup")).toBeTruthy();
     });
+    expect(mapViewer.queryByTestId("radius-slider")).toBeNull();
 
     expect(router.setParams).toHaveBeenCalledWith({
       buildingId: "",
@@ -181,6 +195,7 @@ describe("map tab", () => {
 
     expect(mapViewer.queryByTestId("building-info-popup")).toBeTruthy();
     expect(mapViewer.queryByTestId("routes-info-popup")).toBeNull();
+    expect(mapViewer.queryByTestId("radius-slider")).toBeNull();
     expect(router.setParams).toHaveBeenCalledWith({
       buildingId: "",
       buildingName: "",

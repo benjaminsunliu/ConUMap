@@ -37,6 +37,42 @@ export type CoordinateDelta = {
 
 export type Region = Coordinate & CoordinateDelta;
 
+export interface POI {
+  place_id: string;
+  name: string;
+  vicinity?: string;
+  rating?: number;
+  user_ratings_total?: number;
+  types: string[];
+
+  geometry: {
+    location: {
+      lat: number;
+      lng: number;
+    };
+    viewport: {
+      northeast: {
+        lat: number;
+        lng: number;
+      };
+      southwest: {
+        lat: number;
+        lng: number;
+      };
+    };
+  };
+
+  opening_hours?: {
+    open_now: boolean;
+  };
+
+  photos?: {
+    photo_reference: string;
+    height: number;
+    width: number;
+    html_attributions: string[];
+  }[];
+}
 // ---- Information about floors and graphs of said floors
 
 export type BuildingFloorInfo = {
