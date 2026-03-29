@@ -15,3 +15,10 @@ appId: com.anonymous.client
     file: ../US1/AT3campusLocation.yaml
 - runFlow:
     file: ../US1/AT4buildingPopup.yaml
+
+- runFlow:
+    file: launchApp.yaml
+- runFlow:
+    file: ../US3/AT2locationInCalendar.yaml
+- runFlow:
+    file: ../US3/AT3directionToClassroom.yaml

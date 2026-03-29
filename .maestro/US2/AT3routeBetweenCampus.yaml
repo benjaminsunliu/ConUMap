@@ -1,6 +1,10 @@
-appId: host.exp.Exponent
+appId: host.exp.exponent
 ---
-- openLink: exp://10.0.2.2:8081
+- runFlow:
+    when:
+      notVisible:
+        id: "building-selection"
+    file: ../openLink.yaml
 - tapOn: "Search building"
 - inputText: "Hall"
 - tapOn: "H – Henry F. Hall Building"
