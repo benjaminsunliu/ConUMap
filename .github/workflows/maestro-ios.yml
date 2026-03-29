@@ -42,7 +42,7 @@ jobs:
 
       - name: Select simulator
         run: |
-          LINE=$(xcrun simctl list devices available | grep "iPhone SE (3rd generation)" | head -1)
+          LINE=$(xcrun simctl list devices available | grep "iPhone 14 Pro" | head -1)
           DEVICE=$(echo "$LINE" | sed -nE 's/.*\(([0-9A-F-]{36})\).*/\1/p')
           echo "DEVICE_UDID=$DEVICE" >> $GITHUB_ENV
 
