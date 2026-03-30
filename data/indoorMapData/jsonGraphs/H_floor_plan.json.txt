@@ -5000,20 +5000,6 @@
       "accessible": true
     },
     {
-      "source": "Hall_F2_stair_landing_9",
-      "target": "Hall_F9_stair_landing_20",
-      "type": "stair",
-      "weight": 4200,
-      "accessible": true
-    },
-    {
-      "source": "Hall_F2_stair_landing_10",
-      "target": "Hall_F9_stair_landing_21",
-      "type": "stair",
-      "weight": 4200,
-      "accessible": true
-    },
-    {
       "source": "H_890",
       "target": "Hall_F8_stair_landing_31",
       "type": "door_to_hallway",
