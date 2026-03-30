@@ -10,7 +10,7 @@ import { fetchAllDirections } from "@/utils/directions";
 import * as LocationPermissions from "expo-location";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Button, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
 import MapView, { Circle, Marker, Polygon, Polyline, Region } from "react-native-maps";
 import RoutesInfoPopup from "../navigation/routes-info-popup";
@@ -212,11 +212,92 @@ export default function MapViewer({
   const showStartHint =
     navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
 
-  const { buildingId, autoNavigate } = useLocalSearchParams<{
+  const {
+    buildingId,
+    autoNavigate,
+    outdoorStartLat,
+    outdoorStartLng,
+    outdoorEndLat,
+    outdoorEndLng,
+    outdoorStartLabel,
+    outdoorEndLabel,
+    hybridDestBuildingCode,
+    hybridDestPath,
+    hybridDestPhase,
+    hybridDestStatus,
+  } = useLocalSearchParams<{
     buildingId?: string;
     buildingName?: string;
     autoNavigate?: string;
+    outdoorStartLat?: string;
+    outdoorStartLng?: string;
+    outdoorEndLat?: string;
+    outdoorEndLng?: string;
+    outdoorStartLabel?: string;
+    outdoorEndLabel?: string;
+    hybridDestBuildingCode?: string;
+    hybridDestPath?: string;
+    hybridDestPhase?: string;
+    hybridDestStatus?: string;
   }>();
+
+  // Handles nav info from indoor to outdoor nav. Uses existing building
+  useEffect(() => {
+    if (!outdoorStartLat || !outdoorStartLng || !outdoorEndLat || !outdoorEndLng) {
+      return;
+    }
+
+    const startLat = Number(outdoorStartLat);
+    const startLng = Number(outdoorStartLng);
+    const endLat = Number(outdoorEndLat);
+    const endLng = Number(outdoorEndLng);
+
+    if (
+      Number.isNaN(startLat) ||
+      Number.isNaN(startLng) ||
+      Number.isNaN(endLat) ||
+      Number.isNaN(endLng)
+    ) {
+      return;
+    }
+
+    const startCoord: Coordinate = { latitude: startLat, longitude: startLng };
+    const endCoord: Coordinate = { latitude: endLat, longitude: endLng };
+
+    setNavigationMode("directions");
+    setShouldDisplayRoutes(true);
+    setNavCoords({ start: startCoord, end: endCoord });
+    setSelectionOverrides({
+      start: outdoorStartLabel ?? "Outdoor start",
+      end: outdoorEndLabel ?? "Outdoor destination",
+    });
+
+    lastStartRef.current = {
+      coord: startCoord,
+      label: outdoorStartLabel ?? "Outdoor start",
+    };
+    lastDestinationRef.current = {
+      coord: endCoord,
+      label: outdoorEndLabel ?? "Outdoor destination",
+    };
+    userClearedStart.current = false;
+
+    router.setParams({
+      outdoorStartLat: "",
+      outdoorStartLng: "",
+      outdoorEndLat: "",
+      outdoorEndLng: "",
+      outdoorStartLabel: "",
+      outdoorEndLabel: "",
+    });
+  }, [
+    outdoorStartLat,
+    outdoorStartLng,
+    outdoorEndLat,
+    outdoorEndLng,
+    outdoorStartLabel,
+    outdoorEndLabel,
+  ]);
 
   useEffect(() => {
     if (!navCoords.start || !navCoords.end) {
@@ -893,6 +974,27 @@ export default function MapViewer({
         }}
       />
 
+      {navigationMode === "directions" && hybridDestBuildingCode && hybridDestPath ? (
+        <View style={styles.hybridEnterIndoorButtonContainer}>
+          <Button
+            title="Enter Destination Building"
+            onPress={() => {
+              router.push({
+                pathname: "/[buildingCode]",
+                params: {
+                  buildingCode: hybridDestBuildingCode,
+                  hybridPath: hybridDestPath,
+                  hybridPhaseParam: hybridDestPhase ?? "INDOOR_DEST",
+                  hybridStatusParam:
+                    hybridDestStatus ??
+                    `Destination indoor phase in building ${hybridDestBuildingCode}`,
+                },
+              });
+            }}
+          />
+        </View>
+      ) : null}
+
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
 
       {navigationMode === "browse" && selectedBuilding && (
@@ -1166,6 +1268,13 @@ const styles = StyleSheet.create({
     height: 1,
     opacity: 0.01,
     zIndex: 1,
+  },
+  hybridEnterIndoorButtonContainer: {
+    position: "absolute",
+    top: 140,
+    alignSelf: "center",
+    width: "80%",
+    zIndex: 30,
   },
 });
 
