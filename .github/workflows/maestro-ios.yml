@@ -96,45 +96,30 @@ jobs:
 
       - name: Run Maestro flow
         run: |
-            export PATH="$HOME/.maestro/bin:$PATH"
-            export MAESTRO_DRIVER_STARTUP_TIMEOUT=600000
-            mkdir -p .maestro/output .maestro/recordings
+          export PATH="$HOME/.maestro/bin:$PATH"
+          export MAESTRO_DRIVER_STARTUP_TIMEOUT=600000
+          mkdir -p .maestro/output .maestro/debug .maestro/artifacts .maestro/recordings
 
-            VIDEO_FILE=".maestro/recordings/maestro-ios-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.mp4"
-            xcrun simctl io "$DEVICE_UDID" recordVideo --codec=h264 "$VIDEO_FILE" >/tmp/simctl-record-video.log 2>&1 &
-            REC_PID=$!
+          VIDEO_FILE=".maestro/recordings/maestro-ios-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.mp4"
+          xcrun simctl io "$DEVICE_UDID" recordVideo --codec=h264 "$VIDEO_FILE" >/tmp/simctl-record-video.log 2>&1 &
+          REC_PID=$!
 
-            set +e
-            maestro --device "$DEVICE_UDID" test .maestro/automated/suite.yaml \
-            --format junit \
-            --output .maestro/output/results.xml
-            FLOW_EXIT=$?
-            set -e
+          set +e
+          maestro --verbose --device "$DEVICE_UDID" test .maestro/automated/suite.yaml \
+            --format html-detailed \
+            --output .maestro/output/report.html \
+            --debug-output .maestro/debug \
+            --test-output-dir .maestro/artifacts \
+            2>&1 | tee .maestro/output/maestro-console.log
+          FLOW_EXIT=${PIPESTATUS[0]}
+          set -e
 
-            if kill -0 "$REC_PID" 2>/dev/null; then
-              kill -INT "$REC_PID" 2>/dev/null || true
-              wait "$REC_PID" 2>/dev/null || true
-            fi
+          if kill -0 "$REC_PID" 2>/dev/null; then
+            kill -INT "$REC_PID" 2>/dev/null || true
+            wait "$REC_PID" 2>/dev/null || true
+          fi
 
-            exit $FLOW_EXIT
-
-      - name: Collect simulator system logs
-        if: always()
-        run: |
-         mkdir -p .maestro/output/simlogs
-         log collect --last 30m --output .maestro/output/simlogs/system.logarchive || true
-      
-      - name: Collect XCTest crash logs
-        if: always()
-        run: |
-          mkdir -p .maestro/output/crashlogs
-          cp ~/Library/Logs/DiagnosticReports/*.crash .maestro/output/crashlogs/ || true
-
-      - name: Collect Maestro logs
-        if: always()
-        run: |
-          mkdir -p .maestro/output/maestro-logs
-          cp -R ~/Library/Logs/Maestro/* .maestro/output/maestro-logs/ || true
+          exit $FLOW_EXIT
           
       - name: Upload screen recording (mp4)
         if: always()
@@ -144,15 +129,15 @@ jobs:
           path: .maestro/recordings/*.mp4
           if-no-files-found: ignore
 
-      - name: Upload Maestro artifacts
-        if: failure()
+      - name: Upload Maestro outputs
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: maestro-ios-artifacts
+          name: maestro-ios-outputs
           path: |
-            .maestro/output/results.xml
-            .maestro/output/simlogs
-            .maestro/output/crashlogs
-            .maestro/output/maestro-logs
+            .maestro/output/**
+            .maestro/debug/**
+            .maestro/artifacts/**
+            .maestro/recordings/*.mp4
           if-no-files-found: ignore
           include-hidden-files: true
