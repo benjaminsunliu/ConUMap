@@ -72,21 +72,21 @@ export default function IndoorMap() {
     setFloor(steps[currentStepIndex].floor);
   };
 
+  const availableFloors: number[] = useMemo(() => {
+    return floorInfo?.images
+    ? Object.keys(floorInfo.images).map(Number).sort((a, b) => a - b)
+    : [];
+  }, [floorInfo])
   const currentStep = steps[currentStepIndex];
   const instruction = currentStep.instruction;
   const canGoNext = currentStepIndex < steps.length - 1;
   const canGoPrevious = currentStepIndex > 0;
 
   const firstFloor = useMemo(() => {
-    if (floorInfo) {
-      return getFirstFloor(floorInfo);
-    }
-  }, [floorInfo]);
+    return availableFloors[0]
+  }, [availableFloors]);
 
-  const defaultFloor = floor || firstFloor;
-  const availableFloors = floorInfo?.images
-    ? Object.keys(floorInfo.images).map(Number)
-    : [];
+  const defaultFloor = firstFloor;
 
   return (
     <View style={styles.container}>
@@ -142,11 +142,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-
-function getFirstFloor(info: BuildingFloorInfo) {
-  const firstFloor = Object.keys(info.images).sort((a, b) => Number(a) - Number(b))[0];
-  return Number(firstFloor);
-}
 
 function getRandomCheckpointOnFloor(graph: FloorCheckpointsGraph, floor: number) {
   const possibleCheckpoints = Object.values(graph.checkpoints).filter(
