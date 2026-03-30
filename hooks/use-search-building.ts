@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { SearchBuilding, FieldType } from "@/types/buildingTypes";
 import buildingAddressesRaw from "@/data/building-addresses.json";
-import { Asset } from 'expo-asset';
+import { Asset } from "expo-asset";
 
 export const CURRENT_LOCATION_CODE = "CURRENT_LOCATION";
 const buildingAddresses = buildingAddressesRaw as SearchBuilding[];
@@ -15,27 +15,27 @@ const CURRENT_LOCATION_SENTINEL: SearchBuilding = {
 
 const loadBuildingFile = async (buildingCode: string) => {
   const assetMap: Record<string, string> = {
-    'CC': require('../data/indoorMapData/jsonGraphs/CC_floor_plan.json.txt'),
-    'H': require('../data/indoorMapData/jsonGraphs/H_floor_plan.json.txt'),
-    'LB': require('../data/indoorMapData/jsonGraphs/LB_floor_plan.json.txt'),
-    'MB': require('../data/indoorMapData/jsonGraphs/MB_floor_plan.json.txt'),
-    'VE': require('../data/indoorMapData/jsonGraphs/VE_floor_plan.json.txt'),
-    'VL': require('../data/indoorMapData/jsonGraphs/VL_floor_plan.json.txt'),
+    CC: require("../data/indoorMapData/jsonGraphs/CC_floor_plan.json.txt"),
+    H: require("../data/indoorMapData/jsonGraphs/H_floor_plan.json.txt"),
+    LB: require("../data/indoorMapData/jsonGraphs/LB_floor_plan.json.txt"),
+    MB: require("../data/indoorMapData/jsonGraphs/MB_floor_plan.json.txt"),
+    VE: require("../data/indoorMapData/jsonGraphs/VE_floor_plan.json.txt"),
+    VL: require("../data/indoorMapData/jsonGraphs/VL_floor_plan.json.txt"),
   };
 
   const asset = Asset.fromModule(assetMap[buildingCode]);
   await asset.downloadAsync();
 
-  if(!asset.localUri) return []
+  if (!asset.localUri) return [];
   const content = await fetch(asset.localUri)
-    .then(res => {
+    .then((res) => {
       if (!res.ok) throw new Error(`File not found: ${res.status}`);
       return res.text();
     })
-     .catch((e) => {
-       console.error(`Unable to fetch building file for ${buildingCode}`, e)
-       return "{}"
-    })
+    .catch((e) => {
+      console.error(`Unable to fetch building file for ${buildingCode}`, e);
+      return "{}";
+    });
   return JSON.parse(content);
 };
 
@@ -66,12 +66,12 @@ export function useBuildingSearch({
 
   const searchRooms = useCallback(async (query: string, type: FieldType) => {
     const q = (query || "").trim().toUpperCase();
-
-    if (q.length < 2) {
+    
+    // if the query is empty, return nothing
+    if (q.length < 1) {
       setRoomResults((prev) => ({ ...prev, [type]: [] }));
       return;
     }
-
     const buildingCode = buildingAddresses.find((b) =>
       q.startsWith(b.buildingCode),
     )?.buildingCode;
@@ -85,11 +85,7 @@ export function useBuildingSearch({
       if (roomCache.current.has(buildingCode)) {
         allRooms = roomCache.current.get(buildingCode)!;
       } else {
-        // const response = await fetch(
-        //   `file://../data/indoorMapData/${buildingCode}_floor_plan.json.txt`,
-        // );
-        // const data = await response.json().catch(() => new Object());
-        const data = await loadBuildingFile(buildingCode)
+        const data = await loadBuildingFile(buildingCode);
         allRooms = data.rooms || [];
         roomCache.current.set(buildingCode, allRooms);
       }
@@ -136,32 +132,53 @@ export function useBuildingSearch({
   const results = useMemo(() => {
     const getStandardResults = (q: string, fieldType: FieldType) => {
       const safeQ = (q || "").toLowerCase().trim();
-      if (!safeQ) return [];
+      if (!safeQ) return []
 
+      const buildingFromQuery = (buildingAddressesRaw as SearchBuilding[]).find(
+       (b) => safeQ.startsWith(b.buildingCode.toLowerCase()) || b.buildingName.toLowerCase().includes(safeQ)
+      );
       let filtered = (buildingAddressesRaw as SearchBuilding[]).filter(
         (b) =>
           (b.buildingName || "").toLowerCase().includes(safeQ) ||
-          (b.buildingCode || "").toLowerCase().includes(safeQ),
+          (b.buildingCode || "").toLowerCase().includes(safeQ) ||
+          (b.buildingCode === buildingFromQuery?.buildingCode)
       );
 
-      if (
-        hasUserLocation &&
-        ("current location".includes(safeQ) || "gps".includes(safeQ))
-      ) {
-        filtered = [CURRENT_LOCATION_SENTINEL, ...filtered];
+      // 1. Sort with tiered priority: 
+      // Tier 1: In currentBuildingCodes
+      // Tier 2: Building code starts with query
+      // Tier 3: Building name starts with query
+      // Tier 4: Everything else (includes/substrings)
+      const sortedBuildings = [...filtered].sort((a, b) => {
+        const aCode = a.buildingCode.toLowerCase();
+        const bCode = b.buildingCode.toLowerCase();
+        const aName = (a.buildingName || "").toLowerCase();
+        const bName = (b.buildingName || "").toLowerCase();
+    
+        // Priority 1: Current Building
+        const aIsCurrent = currentBuildingCodes.has(a.buildingCode) ? 1 : 0;
+        const bIsCurrent = currentBuildingCodes.has(b.buildingCode) ? 1 : 0;
+        if (aIsCurrent !== bIsCurrent) return bIsCurrent - aIsCurrent;
+    
+        // Priority 2: Code starts with query
+        const aStartsCode = aCode.startsWith(safeQ) ? 1 : 0;
+        const bStartsCode = bCode.startsWith(safeQ) ? 1 : 0;
+        if (aStartsCode !== bStartsCode) return bStartsCode - aStartsCode;
+    
+        // Priority 3: Name starts with query
+        const aStartsName = aName.startsWith(safeQ) ? 1 : 0;
+        const bStartsName = bName.startsWith(safeQ) ? 1 : 0;
+        if (aStartsName !== bStartsName) return bStartsName - aStartsName;
+    
+        // Default: Alphabetical by code
+        return aCode.localeCompare(bCode);
+      });
+
+      if (hasUserLocation && ("current location".includes(safeQ) || "gps".includes(safeQ))) {
+        return [CURRENT_LOCATION_SENTINEL, ...sortedBuildings];
       }
 
-      if (
-        fieldType === "start" &&
-        currentBuildingCodes &&
-        currentBuildingCodes.size > 0
-      ) {
-        const inside = filtered.filter((b) => currentBuildingCodes.has(b.buildingCode));
-        const outside = filtered.filter((b) => !currentBuildingCodes.has(b.buildingCode));
-        return [...inside, ...outside];
-      }
-
-      return filtered;
+      return sortedBuildings;
     };
 
     return {

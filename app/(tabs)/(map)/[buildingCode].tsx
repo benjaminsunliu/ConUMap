@@ -15,7 +15,6 @@ import { useMemo, useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 
 type Step = {
-  instruction: string;
   floor?: number;
   coordinates?: { x: number; y: number };
 };
@@ -52,41 +51,37 @@ export default function IndoorMap() {
     washrooms: false,
   });
 
-  const steps: Step[] = [
-    { instruction: "Head straight through the entrance", floor: 1 },
-    { instruction: "Keep walking forward down the hall", floor: 1 },
-    { instruction: "Turn right at the elevators", floor: 1 },
-    { instruction: "Go up to the next floor", floor: 2 },
-    { instruction: "Continue to the end of the corridor", floor: 2 },
-  ];
-
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
   type StepType = "next" | "prev";
   const handleStep = (step: StepType) => {
+    let newStep;
     if (step === "next") {
-      setCurrentStepIndex((prev) => Math.min(prev + 1, steps.length - 1));
+      newStep = Math.min(currentStepIndex + 1, floorSteps.length - 1);
     } else {
-      setCurrentStepIndex((prev) => Math.max(prev - 1, 0));
+      newStep = Math.max(currentStepIndex - 1, 0);
     }
-    setFloor(steps[currentStepIndex].floor);
+    setFloor(floorSteps[newStep]);
+    setCurrentStepIndex(newStep);
   };
 
   const availableFloors: number[] = useMemo(() => {
     return floorInfo?.images
-    ? Object.keys(floorInfo.images).map(Number).sort((a, b) => a - b)
-    : [];
-  }, [floorInfo])
-  const currentStep = steps[currentStepIndex];
-  const instruction = currentStep.instruction;
-  const canGoNext = currentStepIndex < steps.length - 1;
+      ? Object.keys(floorInfo.images)
+          .map(Number)
+          .sort((a, b) => a - b)
+      : [];
+  }, [floorInfo]);
+  type AvailableFloor = (typeof availableFloors)[number];
+  const floorSteps: AvailableFloor[] = [1, 2];
+  const canGoNext = currentStepIndex < floorSteps.length - 1;
   const canGoPrevious = currentStepIndex > 0;
 
   const firstFloor = useMemo(() => {
-    return availableFloors[0]
+    return availableFloors[0];
   }, [availableFloors]);
 
-  const defaultFloor = firstFloor;
+  const defaultFloor = floor || firstFloor;
 
   return (
     <View style={styles.container}>
@@ -110,7 +105,6 @@ export default function IndoorMap() {
             setPoiFilters={setPoiFilters} //TODO temp
           />
           <IndoorNavigationControls
-            instruction={instruction}
             onNext={() => handleStep("next")}
             onPrevious={() => handleStep("prev")}
             canGoNext={canGoNext}

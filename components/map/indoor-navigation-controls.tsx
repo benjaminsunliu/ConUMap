@@ -5,7 +5,6 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
 interface IndoorNavigationControlsProps {
-  instruction: string;
   onNext: () => void;
   onPrevious: () => void;
   canGoNext?: boolean;
@@ -13,7 +12,6 @@ interface IndoorNavigationControlsProps {
 }
 
 export default function IndoorNavigationControls({
-  instruction,
   onNext,
   onPrevious,
   canGoNext = true,
@@ -33,16 +31,6 @@ export default function IndoorNavigationControls({
         <Ionicons name="arrow-back" size={22} color={theme.mapSettings.fabIcon} />
         <Text style={styles.sideText}>Back</Text>
       </TouchableOpacity>
-
-      <View style={styles.centerCard}>
-        <Text style={styles.instructionText}> {instruction} </Text>
-        <Ionicons
-          name="arrow-up"
-          size={20}
-          color={theme.mapSettings.icon}
-          style={{ marginTop: 4 }}
-        />
-      </View>
 
       <TouchableOpacity
         style={[styles.sideButton, !canGoNext && styles.disabled]}

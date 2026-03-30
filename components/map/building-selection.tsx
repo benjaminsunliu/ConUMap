@@ -52,6 +52,8 @@ export default function BuildingSelection({
     end: null,
   });
 
+  const startInputRef = useRef<TextInput>(null);
+  const endInputRef = useRef<TextInput>(null);
   const selectedBuildingsRef = useRef(selectedBuildings);
   const selectedBuildingRef = useRef(selectedBuilding);
 
@@ -90,15 +92,24 @@ export default function BuildingSelection({
     [updateQuery],
   );
 
+  const removeInputFocus = useCallback((type: FieldType) => {
+    if (type === "start") {
+      startInputRef.current?.blur();
+    } else {
+      endInputRef.current?.blur();
+    }
+    setFocusedField(null);
+  }, []);
+
   const handleSelect = useCallback(
     (building: SearchBuilding, type: FieldType) => {
       updateQuery(type, building.buildingName);
       const updated = { ...selectedBuildingsRef.current, [type]: building };
       setSelectedBuildings(updated);
       onSelect(updated, type);
-      setFocusedField(null);
+      removeInputFocus(type);
     },
-    [updateQuery, onSelect],
+    [updateQuery, onSelect, removeInputFocus],
   );
 
   const clearField = useCallback(
@@ -107,8 +118,9 @@ export default function BuildingSelection({
       const updated = { ...selectedBuildingsRef.current, [type]: null };
       setSelectedBuildings(updated);
       onSelect(updated, type);
+      removeInputFocus(type);
     },
-    [updateQuery, onSelect],
+    [updateQuery, onSelect, removeInputFocus],
   );
 
   const swapFields = useCallback(() => {
@@ -119,6 +131,7 @@ export default function BuildingSelection({
     };
     setSelectedBuildings(swapped);
     if (onSwap) onSwap();
+    setFocusedField(null);
   }, [onSwap, swapQueries]);
 
   const renderInput = useCallback(
@@ -142,6 +155,7 @@ export default function BuildingSelection({
             />
           )}
           <TextInput
+            ref={type === "start" ? startInputRef : endInputRef}
             placeholder={placeholder}
             placeholderTextColor={theme.placeholder}
             value={value}
