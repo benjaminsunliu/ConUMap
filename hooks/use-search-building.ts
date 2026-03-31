@@ -66,7 +66,7 @@ export function useBuildingSearch({
 
   const searchRooms = useCallback(async (query: string, type: FieldType) => {
     const q = (query || "").trim().toUpperCase();
-    
+
     // if the query is empty, return nothing
     if (q.length < 1) {
       setRoomResults((prev) => ({ ...prev, [type]: [] }));
@@ -132,19 +132,21 @@ export function useBuildingSearch({
   const results = useMemo(() => {
     const getStandardResults = (q: string, fieldType: FieldType) => {
       const safeQ = (q || "").toLowerCase().trim();
-      if (!safeQ) return []
+      if (!safeQ) return [];
 
       const buildingFromQuery = (buildingAddressesRaw as SearchBuilding[]).find(
-       (b) => safeQ.startsWith(b.buildingCode.toLowerCase()) || b.buildingName.toLowerCase().includes(safeQ)
+        (b) =>
+          safeQ.startsWith(b.buildingCode.toLowerCase()) ||
+          b.buildingName.toLowerCase().includes(safeQ),
       );
       let filtered = (buildingAddressesRaw as SearchBuilding[]).filter(
         (b) =>
           (b.buildingName || "").toLowerCase().includes(safeQ) ||
           (b.buildingCode || "").toLowerCase().includes(safeQ) ||
-          (b.buildingCode === buildingFromQuery?.buildingCode)
+          b.buildingCode === buildingFromQuery?.buildingCode,
       );
 
-      // 1. Sort with tiered priority: 
+      // 1. Sort with tiered priority:
       // Tier 1: In currentBuildingCodes
       // Tier 2: Building code starts with query
       // Tier 3: Building name starts with query
@@ -154,27 +156,30 @@ export function useBuildingSearch({
         const bCode = b.buildingCode.toLowerCase();
         const aName = (a.buildingName || "").toLowerCase();
         const bName = (b.buildingName || "").toLowerCase();
-    
+
         // Priority 1: Current Building
         const aIsCurrent = currentBuildingCodes.has(a.buildingCode) ? 1 : 0;
         const bIsCurrent = currentBuildingCodes.has(b.buildingCode) ? 1 : 0;
         if (aIsCurrent !== bIsCurrent) return bIsCurrent - aIsCurrent;
-    
+
         // Priority 2: Code starts with query
         const aStartsCode = aCode.startsWith(safeQ) ? 1 : 0;
         const bStartsCode = bCode.startsWith(safeQ) ? 1 : 0;
         if (aStartsCode !== bStartsCode) return bStartsCode - aStartsCode;
-    
+
         // Priority 3: Name starts with query
         const aStartsName = aName.startsWith(safeQ) ? 1 : 0;
         const bStartsName = bName.startsWith(safeQ) ? 1 : 0;
         if (aStartsName !== bStartsName) return bStartsName - aStartsName;
-    
+
         // Default: Alphabetical by code
         return aCode.localeCompare(bCode);
       });
 
-      if (hasUserLocation && ("current location".includes(safeQ) || "gps".includes(safeQ))) {
+      if (
+        hasUserLocation &&
+        ("current location".includes(safeQ) || "gps".includes(safeQ))
+      ) {
         return [CURRENT_LOCATION_SENTINEL, ...sortedBuildings];
       }
 

@@ -175,8 +175,12 @@ describe("BuildingSelection Directions", () => {
     const swapButton = await selectionView.findByTestId("swap-fields");
     fireEvent.press(swapButton);
 
-    expect(startInput.props.value).toBe("J.W. McConnell Building");
-    expect(endInput.props.value).toBe("Henry F. Hall Building");
+    expect(selectionView.getByPlaceholderText("Your location").props.value).toBe(
+      "J.W. McConnell Building",
+    );
+    expect(selectionView.getByPlaceholderText("Destination").props.value).toBe(
+      "Henry F. Hall Building",
+    );
 
     expect(mockOnSelect).toHaveBeenCalled();
   });
@@ -212,7 +216,9 @@ describe("BuildingSelection Directions", () => {
       },
       "start",
     );
-    expect(startInput.props.value).toBe("Henry F. Hall Building");
+    expect(selectionView.getByPlaceholderText("Your location").props.value).toBe(
+      "Henry F. Hall Building",
+    );
     expect(
       (await selectionView.findByPlaceholderText("Destination")).props.value,
     ).toBeFalsy();
@@ -292,7 +298,7 @@ describe("BuildingSelection Directions", () => {
       />,
     );
 
-    expect(endInput.props.value).toBe("CI Annex");
+    expect(getByPlaceholderText("Destination").props.value).toBe("CI Annex");
   });
 
   it("shouldn't update previously focused field when selectedBuilding changes and no field focused", async () => {
@@ -321,7 +327,7 @@ describe("BuildingSelection Directions", () => {
       />,
     );
 
-    expect(startInput.props.value).toBe("");
+    expect(selectionView.getByPlaceholderText("Your location").props.value).toBe("");
   });
 
   it("should update start field when focused and selectedBuilding changes (prop change)", async () => {
@@ -349,7 +355,7 @@ describe("BuildingSelection Directions", () => {
       />,
     );
 
-    expect(startInput.props.value).toBe("CI Annex");
+    expect(getByPlaceholderText("Your location").props.value).toBe("CI Annex");
   });
 });
 
@@ -397,11 +403,15 @@ describe("BuildingSelection Integration Tests", () => {
       expect(startResultsAfterPress).toBeNull();
 
       await waitFor(() => {
-        expect(startInput.props.value).toBe("Henry F. Hall Building");
+        expect(mapViewer.getByPlaceholderText("Your location").props.value).toBe(
+          "Henry F. Hall Building",
+        );
       });
 
       await waitFor(() => {
-        expect(destinationInput.props.value).toBe("CL Annex");
+        expect(mapViewer.getByPlaceholderText("Destination").props.value).toBe(
+          "CL Annex",
+        );
       });
     },
     TEST_TIMEOUT,

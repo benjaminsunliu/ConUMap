@@ -14,11 +14,6 @@ import { useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 
-type Step = {
-  floor?: number;
-  coordinates?: { x: number; y: number };
-};
-
 export default function IndoorMap() {
   const { buildingCode } = useLocalSearchParams<{
     buildingCode: string;

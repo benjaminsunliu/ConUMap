@@ -118,13 +118,13 @@ export default function BuildingSelection({
   useEffect(() => {
     selectedBuildingsRef.current = selectedBuildings;
   }, [selectedBuildings]);
-useEffect(() => {
+  useEffect(() => {
     if (mode === "browse" && selectedBuilding) {
       updateQuery("end", selectedBuilding.buildingName);
       setSelectedBuildings((prev) => ({ ...prev, end: selectedBuilding }));
     } else if (selectedBuilding !== selectedBuildingRef.current) {
       if (!selectedBuilding || selectedBuilding === null) {
-      if (mode === "browse") {
+        if (mode === "browse") {
           updateQuery("end", "");
           setSelectedBuildings((prev) => ({ ...prev, end: null }));
         } else {
@@ -193,7 +193,19 @@ useEffect(() => {
         </View>
       );
     },
-    [queries, mode, theme.buildingSelection.inputBackground, theme.buildingSelection.magnifierColor, theme.buildingSelection.borderColor, theme.buildingSelection.inputText, theme.buildingSelection.clearButton, theme.placeholder, selectedBuildings, handleChange, clearField],
+    [
+      queries,
+      mode,
+      theme.buildingSelection.inputBackground,
+      theme.buildingSelection.magnifierColor,
+      theme.buildingSelection.borderColor,
+      theme.buildingSelection.inputText,
+      theme.buildingSelection.clearButton,
+      theme.placeholder,
+      selectedBuildings,
+      handleChange,
+      clearField,
+    ],
   );
 
   const renderResults = useCallback(

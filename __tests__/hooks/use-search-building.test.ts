@@ -124,7 +124,7 @@ describe("useBuildingSearch - Full Coverage Suite", () => {
 
     await waitFor(() => {
       expect(result.current.results.start).toHaveLength(1);
-      expect(result.current.results.start.some(r => r.buildingCode === "H")).toBe(true);
+      expect(result.current.results.start.some((r) => r.buildingCode === "H")).toBe(true);
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining("Unable to fetch building file for H"),
         networkError,
@@ -153,7 +153,7 @@ describe("useBuildingSearch - Full Coverage Suite", () => {
 
     await waitFor(() => {
       expect(result.current.results.start).toHaveLength(1);
-      expect(result.current.results.start.some(r => r.buildingCode === "H")).toBe(true);
+      expect(result.current.results.start.some((r) => r.buildingCode === "H")).toBe(true);
     });
     consoleSpy.mockRestore();
   });
@@ -168,14 +168,14 @@ describe("useBuildingSearch - Full Coverage Suite", () => {
 
     await waitFor(() => {
       expect(result.current.results.start[0].buildingCode).toBe("LB");
-    })
+    });
 
     act(() => {
       result.current.updateQuery("end", "H");
     });
     await waitFor(() => {
       expect(result.current.results.end[0].buildingCode).toBe("H");
-    })
+    });
   });
 
   it("should show current location sentinel", () => {
