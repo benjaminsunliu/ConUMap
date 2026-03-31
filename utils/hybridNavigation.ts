@@ -37,9 +37,12 @@ export type HybridRoute = {
   initialPhase: HybridNavigationPhase;
 };
 
-// Helps for indoor/Outdoor transitions. Maps building codes and checkpoint ids of entry/exit points to their outdoor coordinates.
+// Maps entry/exit checkpoint IDs to outdoor coordinates for one building.
+type EntryExitCoordinateMap = Partial<Record<FloorCheckpointId, Coordinate>>;
+
+// Maps building codes to their available indoor/outdoor bridge points.
 export type IndoorOutdoorBridgeMap = Partial<
-  Record<BuildingCode, Partial<Record<FloorCheckpointId, Coordinate>>>
+  Record<BuildingCode, EntryExitCoordinateMap>
 >;
 
 export type BuildHybridRouteParams = {
@@ -114,6 +117,7 @@ export async function buildHybridRoute(
     };
   }
 
+  // The rest is a bit longer, we need indoor paths of start and destination buildings + we need outdoor path from building to building
   const startToExitPath = findNearestEntryExitPath(startGraph, startRoomNodeId);
   if (!startToExitPath || startToExitPath.length === 0) {
     throw new Error("No reachable start building entry/exit from start room");
@@ -200,6 +204,7 @@ export async function buildHybridRoute(
   };
 }
 
+// To find the user's next phase, important for user feedback,transitions and UI updates
 export function getNextHybridPhase(
   current: HybridNavigationPhase,
   route: HybridRoute,
