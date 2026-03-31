@@ -161,7 +161,7 @@ export default function BuildingSelection({
           )}
           <TextInput
             ref={type === "start" ? startInputRef : endInputRef}
-            key={`${type}-${!!selectedBuildings[type]}`}
+            key={type}
             placeholder={placeholder}
             placeholderTextColor={theme.placeholder}
             value={value}
@@ -202,7 +202,6 @@ export default function BuildingSelection({
       theme.buildingSelection.inputText,
       theme.buildingSelection.clearButton,
       theme.placeholder,
-      selectedBuildings,
       handleChange,
       clearField,
     ],
