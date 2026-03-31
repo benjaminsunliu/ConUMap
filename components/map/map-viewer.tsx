@@ -3,7 +3,7 @@ import { Colors } from "@/constants/theme";
 import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
 import { ColorSchemeName, useColorScheme } from "@/hooks/use-color-scheme";
 import { FieldType, SearchBuilding, TransportationMode } from "@/types/buildingTypes";
-import { BuildingInfo, Campus, Coordinate, CoordinateDelta } from "@/types/mapTypes";
+import { BuildingInfo, Campus, Coordinate, CoordinateDelta, POI } from "@/types/mapTypes";
 import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
 import { decodePolyline } from "@/utils/decodePolyline";
 import { fetchAllDirections } from "@/utils/directions";
@@ -30,6 +30,7 @@ import LocationModal from "./location-modal";
 import PoiMarker from "./poi-marker";
 import { usePoi } from "@/hooks/use-poi";
 import { MIN_RADIUS_METERS, MAX_RADIUS_METERS } from "@/constants/campusCenters";
+import { POIInfoPopup } from "./poi-info-popup";
 
 interface PolylineSegment {
   coordinates: Coordinate[];
@@ -233,6 +234,7 @@ export default function MapViewer({
     autoNavigate?: string;
   }>();
   const places = usePoi(currCampus, radius);
+  const [selectedPOI, setSelectedPOI] = useState<POI | null>(null);
 
   useEffect(() => {
     if (!navCoords.start || !navCoords.end) {
@@ -340,10 +342,10 @@ export default function MapViewer({
    * @param building The BuildingInfo object representing the building to focus on, which contains its location and other details.
    */
   const focusBuilding = useCallback(
-    (building: BuildingInfo) => {
+    (lat: number, lng: number) => {
       mapViewRef.current?.animateToRegion({
-        latitude: building.location.latitude,
-        longitude: building.location.longitude,
+        latitude: lat,
+        longitude: lng,
         latitudeDelta: Math.min(currentRegion.latitudeDelta, 0.0025),
         longitudeDelta: Math.min(currentRegion.longitudeDelta, 0.0025),
       });
@@ -370,7 +372,7 @@ export default function MapViewer({
     if (!buildingId) return;
     const nextBuilding = selectBuildingByCode(buildingId);
     if (nextBuilding) {
-      focusBuilding(nextBuilding);
+      focusBuilding(nextBuilding.location.latitude, nextBuilding.location.longitude);
 
       if (autoNavigate === "true") {
         const { coord: startCoord, label: startLabel } = resolveStartLocation();
@@ -411,7 +413,7 @@ export default function MapViewer({
     (building: BuildingInfo) => {
       suppressNextMapPress.current = true;
       selectBuildingByCode(building.buildingCode);
-      focusBuilding(building);
+      focusBuilding(building.location.latitude, building.location.longitude);
       setNavigationMode("browse");
       setShouldDisplayRoutes(false);
       setRoutePolyline(null);
@@ -426,6 +428,8 @@ export default function MapViewer({
     },
     [selectBuildingByCode, focusBuilding],
   );
+
+  const handlePOIPress = useCallback((poi: POI) => {}, []);
 
   /**
    * Requests the user's current location, handling permissions and potential errors. If location services are disabled, it opens a modal to inform the user. If permissions are granted, it retrieves the current location and updates the userLocation state, as well as setting the location button state to "on". This function is called when the user presses the location button while location is currently off, allowing them to enable location tracking and center the map on their current position.
@@ -515,6 +519,28 @@ export default function MapViewer({
     [mapColors],
   );
 
+  const navigate = useCallback((endLabel: string, endCoord: Coordinate) => {
+    const { coord: startCoord, label: startLabel } = resolveStartLocation();
+
+    if (startCoord && startLabel) {
+      lastStartRef.current = { coord: startCoord, label: startLabel };
+    }
+
+    setSelectionOverrides({
+      start: startLabel,
+      end: endLabel,
+    });
+
+    lastDestinationRef.current = {
+      coord: endCoord,
+      label: endLabel,
+    };
+    userClearedStart.current = false;
+    setNavCoords({ start: startCoord, end: endCoord });
+    setNavigationMode("directions");
+    setShouldDisplayRoutes(true);
+  }, []);
+
   /**
    * Handles the navigation action when the user chooses to navigate to a selected building. It determines the starting point for navigation based on the user's current location, any buildings they are currently in, or a manually selected start point. It then sets the navigation coordinates and mode to "directions", which triggers the fetching and display of routes from the start location to the selected building. This function is called when the user presses the navigate button in the BuildingInfoPopup, allowing them to easily get directions to the building they are interested in.
    */
@@ -530,26 +556,19 @@ export default function MapViewer({
       return;
     }
 
-    const { coord: startCoord, label: startLabel } = resolveStartLocation();
-
-    if (startCoord && startLabel) {
-      lastStartRef.current = { coord: startCoord, label: startLabel };
-    }
-
-    setSelectionOverrides({
-      start: startLabel,
-      end: selectedBuilding.buildingName,
-    });
-
-    lastDestinationRef.current = {
-      coord: mapBuilding.location,
-      label: selectedBuilding.buildingName,
-    };
-    userClearedStart.current = false;
-    setNavCoords({ start: startCoord, end: mapBuilding.location });
-    setNavigationMode("directions");
-    setShouldDisplayRoutes(true);
+    navigate(selectedBuilding.buildingName, mapBuilding.location);
   }, [selectedBuilding, resolveStartLocation]);
+
+  const navigateToPOI = useCallback(() => {
+    if (!selectedPOI) {
+      return;
+    }
+    const endCoord = {
+      latitude: selectedPOI.geometry.location.lat,
+      longitude: selectedPOI.geometry.location.lng,
+    };
+    navigate(selectedPOI.name, endCoord);
+  }, [selectedPOI]);
 
   const setBuildingAsStart = useCallback(() => {
     if (!selectedBuilding) {
@@ -650,7 +669,7 @@ export default function MapViewer({
       if (selected?.buildingCode && selected.buildingCode !== CURRENT_LOCATION_CODE) {
         const nextBuilding = selectBuildingByCode(selected.buildingCode);
         if (nextBuilding) {
-          focusBuilding(nextBuilding);
+          focusBuilding(nextBuilding.location.latitude, nextBuilding.location.longitude);
         }
       } else {
         setSelectedBuilding(null);
@@ -659,13 +678,9 @@ export default function MapViewer({
     [focusBuilding, selectBuildingByCode],
   );
 
-  const renderPOIMarkers = useMemo(() => {
+  const renderedPOIMarkers = useMemo(() => {
     return places.map((p) => (
-      <PoiMarker
-        key={p.place_id}
-        poi={p}
-        onPress={() => console.log(`Pressed POI: ${p.name}`)}
-      />
+      <PoiMarker key={p.place_id} poi={p} onPress={() => setSelectedPOI(p)} />
     ));
   }, [places]);
 
@@ -791,7 +806,7 @@ export default function MapViewer({
       >
         {renderedPolygons}
         {renderedMarkers}
-        {renderPOIMarkers}
+        {renderedPOIMarkers}
 
         {routePolyline?.map((segment, index) => {
           const dashedWidth = Platform.OS === "android" ? 6 : 3;
@@ -938,7 +953,7 @@ export default function MapViewer({
         <View style={styles.radiusContainer}>
           <View style={styles.radiusHeader}>
             <Text style={[styles.radiusLabel, { color: mapColors.clusterText }]}>
-              Radius
+              Places within:
             </Text>
             <Text style={[styles.radiusValue, { color: mapColors.clusterText }]}>
               {radius} m
@@ -965,6 +980,10 @@ export default function MapViewer({
           onSetAsStart={setBuildingAsStart}
           onExploreRooms={openIndoorNavigation}
         />
+      )}
+
+      {navigationMode === "directions" && selectedPOI && (
+        <POIInfoPopup poi={selectedPOI} onNavigate={navigateToPOI} />
       )}
 
       {navigationMode === "directions" && (
