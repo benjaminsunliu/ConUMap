@@ -73,7 +73,9 @@ describe("poi-info-popup", () => {
     expect(screen.getByText("(192)")).toBeTruthy();
     expect(screen.getByText("Open Now")).toBeTruthy();
     expect(screen.getByText("+1 514-544-2386")).toBeTruthy();
-    expect(screen.getByText("1440 Rue Sainte-Catherine Ouest #402, Montreal")).toBeTruthy();
+    expect(
+      screen.getByText("1440 Rue Sainte-Catherine Ouest #402, Montreal"),
+    ).toBeTruthy();
   });
 
   it('calls onNavigate when "Directions" is pressed', async () => {
