@@ -1,0 +1,47 @@
+appId: host.exp.Exponent
+---
+- openLink: exp://192.168.0.110:8081
+- assertVisible: "Search building"
+- tapOn: "Search building"
+- inputText: "Hall"
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn: "H – Henry F. Hall Building"
+- assertVisible:
+    id: "directions-action-button"
+- tapOn:
+    id: "directions-action-button"
+- tapOn: "Your location"
+- inputText: "Grey Nuns"
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn: "GN – Grey Nuns Building"
+
+- assertVisible:
+    id: "transit-selector"
+- swipe:
+    start: 45%, 74%
+    end: 45%, 40%
+- tapOn:
+    id: "transit-selector"
+- tapOn:
+    id: "transit-route-1"
+- swipe:
+    start: 45%, 40%
+    end: 45%, 74%
+
+- swipe:
+    start: 50%, 50%
+    end: 15%, 12%
+    duration: 2000
+
+- swipe:
+    start: 45%, 74%
+    end: 45%, 40%
+- tapOn:
+    id: "walking-selector"
+- tapOn:
+    id: "walking-route-0"
+- swipe:
+    start: 45%, 40%
+    end: 45%, 74%
