@@ -7,8 +7,8 @@ import { useCallback, useMemo } from "react";
 import { ActionButton, ActionIconName } from "./action-button";
 
 interface Props {
-  poi: POI | null;
-  onNavigate?: () => void;
+  readonly poi: POI | null;
+  readonly onNavigate?: () => void;
 }
 
 interface Action {
@@ -44,15 +44,17 @@ export function POIInfoPopup({ poi, onNavigate }: Props) {
         icon: "navigate-outline",
         type: "directions",
         handler: onNavigate,
+        active: !!onNavigate,
       },
       {
         label: "Call",
         icon: "call-outline",
         type: "call",
         handler: handleCall,
+        active: !!poi?.international_phone_number,
       },
     ],
-    [onNavigate, handleCall],
+    [onNavigate, handleCall, poi?.international_phone_number],
   );
 
   const header = useMemo(() => {
@@ -71,7 +73,7 @@ export function POIInfoPopup({ poi, onNavigate }: Props) {
             {poi?.user_ratings_total ? (
               <Text style={styles.reviewCount}>({poi.user_ratings_total})</Text>
             ) : (
-              0
+              <Text style={styles.reviewCount}>(0)</Text>
             )}
           </View>
 

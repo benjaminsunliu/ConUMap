@@ -339,7 +339,8 @@ export default function MapViewer({
 
   /**
    * Animates the map to center on the given building's location, using a tighter zoom level for better focus. The latitude and longitude deltas are adjusted to be no larger than 0.0025 to ensure a close-up view of the building, while still respecting the current zoom level if it's already close enough. This function is used when a building is selected to provide a focused view of that building on the map.
-   * @param building The BuildingInfo object representing the building to focus on, which contains its location and other details.
+   * @param lat The latitude of the building's location to focus on.
+   * @param lng The longitude of the building's location to focus on.
    */
   const focusBuilding = useCallback(
     (lat: number, lng: number) => {
@@ -429,6 +430,7 @@ export default function MapViewer({
    */
   const handleBuildingPress = useCallback(
     (building: BuildingInfo) => {
+      setSelectedPOI(null);
       suppressNextMapPress.current = true;
       selectBuildingByCode(building.buildingCode);
       focusBuilding(building.location.latitude, building.location.longitude);
@@ -443,6 +445,7 @@ export default function MapViewer({
    */
   const handlePOIPress = useCallback(
     (poi: POI) => {
+      setSelectedBuilding(null);
       setSelectedPOI(poi);
       focusBuilding(poi.geometry.location.lat, poi.geometry.location.lng);
       clearRouteInfo();
