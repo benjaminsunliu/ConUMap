@@ -57,24 +57,14 @@ export default function BuildingSelection({
   const selectedBuildingsRef = useRef(selectedBuildings);
   const selectedBuildingRef = useRef(selectedBuilding);
 
-  useEffect(() => {
-    selectedBuildingsRef.current = selectedBuildings;
-  }, [selectedBuildings]);
-
-  useEffect(() => {
-    if (mode === "browse" && selectedBuilding) {
-      updateQuery("end", selectedBuilding.buildingName);
-      setSelectedBuildings((prev) => ({ ...prev, end: selectedBuilding }));
-    } else if (
-      focusedField &&
-      selectedBuilding &&
-      selectedBuilding.buildingCode !== selectedBuildingRef.current?.buildingCode
-    ) {
-      updateQuery(focusedField, selectedBuilding.buildingName);
-      setSelectedBuildings((prev) => ({ ...prev, [focusedField]: selectedBuilding }));
+  const removeInputFocus = useCallback((type: FieldType) => {
+    if (type === "start") {
+      startInputRef.current?.blur();
+    } else {
+      endInputRef.current?.blur();
     }
-    selectedBuildingRef.current = selectedBuilding;
-  }, [focusedField, mode, selectedBuilding, updateQuery]);
+    setFocusedField(null);
+  }, []);
 
   useEffect(() => {
     if (startOverride !== undefined) updateQuery("start", startOverride ?? "");
@@ -91,15 +81,6 @@ export default function BuildingSelection({
     },
     [updateQuery],
   );
-
-  const removeInputFocus = useCallback((type: FieldType) => {
-    if (type === "start") {
-      startInputRef.current?.blur();
-    } else {
-      endInputRef.current?.blur();
-    }
-    setFocusedField(null);
-  }, []);
 
   const handleSelect = useCallback(
     (building: SearchBuilding, type: FieldType) => {
@@ -134,6 +115,30 @@ export default function BuildingSelection({
     setFocusedField(null);
   }, [onSwap, swapQueries]);
 
+  useEffect(() => {
+    selectedBuildingsRef.current = selectedBuildings;
+  }, [selectedBuildings]);
+useEffect(() => {
+    if (mode === "browse" && selectedBuilding) {
+      updateQuery("end", selectedBuilding.buildingName);
+      setSelectedBuildings((prev) => ({ ...prev, end: selectedBuilding }));
+    } else if (selectedBuilding !== selectedBuildingRef.current) {
+      if (!selectedBuilding || selectedBuilding === null) {
+      if (mode === "browse") {
+          updateQuery("end", "");
+          setSelectedBuildings((prev) => ({ ...prev, end: null }));
+        } else {
+          updateQuery("start", "");
+          setSelectedBuildings((prev) => ({ ...prev, start: null }));
+        }
+      } else if (focusedField) {
+        updateQuery(focusedField, selectedBuilding.buildingName);
+        setSelectedBuildings((prev) => ({ ...prev, [focusedField]: selectedBuilding }));
+      }
+    }
+    selectedBuildingRef.current = selectedBuilding;
+  }, [focusedField, mode, selectedBuilding, updateQuery]);
+
   const renderInput = useCallback(
     (type: FieldType, placeholder: string) => {
       const value = queries[type] || "";
@@ -156,6 +161,7 @@ export default function BuildingSelection({
           )}
           <TextInput
             ref={type === "start" ? startInputRef : endInputRef}
+            key={`${type}-${!!selectedBuildings[type]}`}
             placeholder={placeholder}
             placeholderTextColor={theme.placeholder}
             value={value}
@@ -187,18 +193,7 @@ export default function BuildingSelection({
         </View>
       );
     },
-    [
-      queries,
-      theme.buildingSelection.inputBackground,
-      theme.buildingSelection.magnifierColor,
-      theme.buildingSelection.borderColor,
-      theme.buildingSelection.inputText,
-      theme.buildingSelection.clearButton,
-      theme.placeholder,
-      mode,
-      handleChange,
-      clearField,
-    ],
+    [queries, mode, theme.buildingSelection.inputBackground, theme.buildingSelection.magnifierColor, theme.buildingSelection.borderColor, theme.buildingSelection.inputText, theme.buildingSelection.clearButton, theme.placeholder, selectedBuildings, handleChange, clearField],
   );
 
   const renderResults = useCallback(
