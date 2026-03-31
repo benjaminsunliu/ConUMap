@@ -56,6 +56,7 @@ export const Colors = {
       divider: "#dddddd",
 
       openStatus: "#1e8e3e",
+      closedStatus: "#d32f2f",
       accessibilityIcon: "#1e8e3e",
 
       actionButtonBackground: "#e8f0fe",
@@ -171,6 +172,7 @@ export const Colors = {
       divider: "#dddddd",
 
       openStatus: "#02C39A",
+      closedStatus: "#be5555",
       accessibilityIcon: "#02C39A",
 
       actionButtonBackground: "#C2E8F6",

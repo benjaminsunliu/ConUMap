@@ -2,10 +2,11 @@ import { Colors } from "@/constants/theme";
 import { BuildingInfo } from "@/types/mapTypes";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback, useMemo } from "react";
-import { Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Linking, StyleSheet, Text, View } from "react-native";
 import InfoPopup from "../ui/popup";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { ScrollView } from "react-native-gesture-handler";
+import { ActionButton, ActionIconName } from "./action-button";
 
 interface Props {
   building: BuildingInfo | null;
@@ -35,12 +36,10 @@ const DEFAULT_OPENING_HOURS = [
   "7:00 AM – 9:00 PM",
 ];
 
-type IconName = keyof typeof Ionicons.glyphMap;
-
 interface Action {
   type: string;
   label: string;
-  icon?: IconName;
+  icon?: ActionIconName;
   active?: boolean;
   handler?: () => void;
 }
@@ -206,60 +205,6 @@ const ListItem = ({
     <Text style={{ color: theme.buildingInfoPopup.text }}>{text}</Text>
   </View>
 );
-
-const ActionButton = ({
-  label,
-  icon,
-  onPress,
-  testID,
-  theme,
-  active = true,
-}: {
-  readonly label: string;
-  readonly icon?: IconName;
-  readonly onPress?: () => void;
-  readonly testID: string;
-  readonly theme: typeof Colors.light;
-  readonly active?: boolean;
-}) => {
-  return (
-    <TouchableOpacity
-      style={[
-        {
-          flexDirection: "row",
-          alignItems: "center",
-          paddingHorizontal: 10,
-          borderRadius: 20,
-          height: 40,
-          backgroundColor: theme.buildingInfoPopup.actionButtonBackground,
-        },
-      ]}
-      onPress={active ? onPress : undefined}
-      testID={testID}
-    >
-      <Ionicons
-        name={icon}
-        size={18}
-        color={
-          active
-            ? theme.buildingInfoPopup.actionButtonIcon
-            : theme.buildingInfoPopup.disabledActionButtonColor
-        }
-        style={{ marginRight: 6 }}
-      />
-      <Text
-        style={{
-          color: active
-            ? theme.buildingInfoPopup.actionButtonText
-            : theme.buildingInfoPopup.disabledActionButtonColor,
-          fontWeight: "500",
-        }}
-      >
-        {label}
-      </Text>
-    </TouchableOpacity>
-  );
-};
 
 const makeStyles = (theme: (typeof Colors)["light" | "dark"]) =>
   StyleSheet.create({

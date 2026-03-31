@@ -703,7 +703,7 @@ export default function MapViewer({
   const hasVisiblePopup =
     modalOpen ||
     navigationMode === "directions" ||
-    (navigationMode === "browse" && selectedBuilding != null);
+    (navigationMode === "browse" && (selectedBuilding != null || selectedPOI != null));
 
   return (
     <View style={styles.container}>
@@ -802,6 +802,7 @@ export default function MapViewer({
           const action = event?.nativeEvent?.action;
           if (!action || action === "press") {
             setSelectedBuilding(null);
+            setSelectedPOI(null);
             setNavigationMode("browse");
             setShouldDisplayRoutes(false);
             setRoutePolyline(null);
@@ -991,7 +992,7 @@ export default function MapViewer({
         />
       )}
 
-      {navigationMode === "directions" && selectedPOI && (
+      {navigationMode === "browse" && selectedPOI && (
         <POIInfoPopup poi={selectedPOI} onNavigate={navigateToPOI} />
       )}
 
