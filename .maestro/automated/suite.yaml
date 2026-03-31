@@ -5,6 +5,8 @@ appId: com.anonymous.client
 - runFlow:
     file: ../US2/AT2currentBuilding.yaml
 - runFlow:
+    file: launchApp.yaml
+- runFlow:
     file: ../US2/AT3routeBetweenCampus.yaml
 - runFlow:
     file: ../US2/AT3.1routeBetweenCampus.yaml
