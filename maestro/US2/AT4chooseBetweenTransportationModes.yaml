@@ -66,5 +66,4 @@ appId: host.exp.Exponent
     id: "bicycling-route-0"
 - tapOn:
     id: "bicycling-route-0"
-
 # No shuttle test implemented
