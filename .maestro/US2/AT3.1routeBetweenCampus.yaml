@@ -9,7 +9,10 @@ appId: host.exp.exponent
 - inputText: "Vanier"
 - tapOn:
     id: "end-result-VL"
-- tapOn: "Directions"
+- assertVisible:
+    id: "directions-action-button"
+- tapOn:
+    id: "directions-action-button"
 - tapOn: "Your Location"
 - inputText: "Hall"
 - tapOn:
