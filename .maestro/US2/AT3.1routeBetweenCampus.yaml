@@ -7,11 +7,13 @@ appId: host.exp.exponent
     file: ../openLink.yaml
 - tapOn: "Search building"
 - inputText: "Vanier"
-- tapOn: "VL – Vanier Library Building"
+- tapOn:
+    id: "end-result-VL"
 - tapOn: "Directions"
 - tapOn: "Your Location"
 - inputText: "Hall"
-- tapOn: "H – Henry F. Hall Building"
+- tapOn:
+    id: "end-result-H"
 - assertVisible:
     id: "walking-selector"
 - assertVisible:
