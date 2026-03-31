@@ -1,28 +1,30 @@
 appId: host.exp.Exponent
 ---
-- openLink: exp://192.168.0.110:8081
-- tapOn:
-    point: 15%,85% 
+- openLink: exp://10.0.2.2:8081
 - waitForAnimationToEnd:
-    timeout: 2000
+    timeout: 5000
+
+# Select start location: Henry F. Hall Building
 - assertVisible: "Search building"
 - tapOn: "Search building"
 - inputText: "Henry"
-- waitForAnimationToEnd:
-    timeout: 2000
 - assertVisible: "H – Henry F. Hall Building"
 - tapOn: "H – Henry F. Hall Building"
+
+# Open directions panel
 - assertVisible:
     id: "directions-action-button"
 - tapOn:
     id: "directions-action-button"
+
+# Select intermediate location: Faubourg Ste-Catherine
 - assertVisible: "Your location"
 - tapOn: "Your location"
 - inputText: "FG"
-- waitForAnimationToEnd:
-    timeout: 2000
 - assertVisible: "FG – Faubourg Ste-Catherine Building"
 - tapOn: "FG – Faubourg Ste-Catherine Building"
+
+# Clear and select final destination: Hingston Hall
 - assertVisible:
     id: "clear-end"
 - tapOn:
@@ -30,7 +32,5 @@ appId: host.exp.Exponent
 - assertVisible: "Destination"
 - tapOn: "Destination"
 - inputText: "HA"
-- waitForAnimationToEnd:
-    timeout: 2000
 - assertVisible: "HA – Hingston Hall, wing HA"
 - tapOn: "HA – Hingston Hall, wing HA"

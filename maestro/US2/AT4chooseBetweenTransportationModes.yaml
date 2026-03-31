@@ -1,47 +1,70 @@
 appId: host.exp.Exponent
 ---
-- openLink: exp://192.168.0.110:8081
+- openLink: exp://10.0.2.2:8081
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Select start and destination buildings
 - assertVisible: "Search building"
 - tapOn: "Search building"
 - inputText: "Hall"
-- waitForAnimationToEnd:
-    timeout: 2000
+- assertVisible: "H – Henry F. Hall Building"
 - tapOn: "H – Henry F. Hall Building"
+
+# Open directions panel
 - assertVisible:
     id: "directions-action-button"
 - tapOn:
     id: "directions-action-button"
+
+# Select destination
+- assertVisible: "Your location"
 - tapOn: "Your location"
 - inputText: "Grey Nuns"
-- waitForAnimationToEnd:
-    timeout: 2000
+- assertVisible: "GN – Grey Nuns Building"
 - tapOn: "GN – Grey Nuns Building"
 
+# Test Walking Mode
 - assertVisible:
-    id: "transit-selector"
-- swipe:
-    start: 45%, 74%
-    end: 45%, 40%
-- tapOn:
-    id: "transit-selector"
-- tapOn:
-    id: "transit-route-1"
-- swipe:
-    start: 45%, 40%
-    end: 45%, 74%
-
-- swipe:
-    start: 50%, 50%
-    end: 15%, 12%
-    duration: 2000
-
-- swipe:
-    start: 45%, 74%
-    end: 45%, 40%
-- tapOn:
     id: "walking-selector"
 - tapOn:
-    id: "walking-route-0"
+    id: "walking-selector"
 - swipe:
-    start: 45%, 40%
-    end: 45%, 74%
+    start: 45%, 74%
+    end: 45%, 40%
+- assertVisible:
+    id: "walking-route-0"
+- tapOn:
+    id: "walking-route-0"
+
+# Test Transit Mode
+- assertVisible:
+    id: "transit-selector"
+- tapOn:
+    id: "transit-selector"
+- assertVisible:
+    id: "transit-route-0"
+- tapOn:
+    id: "transit-route-0"
+
+# Test Driving Mode
+- assertVisible:
+    id: "driving-selector"
+- tapOn:
+    id: "driving-selector"
+- assertVisible:
+    id: "driving-route-0"
+- tapOn:
+    id: "driving-route-0"
+
+# Test Bicycling Mode
+- assertVisible:
+    id: "bicycling-selector"
+- tapOn:
+    id: "bicycling-selector"
+- assertVisible:
+    id: "bicycling-route-0"
+- tapOn:
+    id: "bicycling-route-0"
+
+# No shuttle test implemented
