@@ -414,22 +414,31 @@ export default function MapViewer({
       suppressNextMapPress.current = true;
       selectBuildingByCode(building.buildingCode);
       focusBuilding(building.location.latitude, building.location.longitude);
-      setNavigationMode("browse");
-      setShouldDisplayRoutes(false);
-      setRoutePolyline(null);
-      setRouteStops([]);
-      setRouteNodes([]);
-      setNavCoords({ start: null, end: null });
-      setSelectionOverrides({ start: null, end: null });
-
-      requestAnimationFrame(() => {
-        suppressNextMapPress.current = false;
-      });
+      clearRouteInfo();
     },
     [selectBuildingByCode, focusBuilding],
   );
 
-  const handlePOIPress = useCallback((poi: POI) => {}, []);
+  const handlePOIPress = useCallback((poi: POI) => {
+    setSelectedPOI(poi);
+    focusBuilding(poi.geometry.location.lat, poi.geometry.location.lng);
+    clearRouteInfo();
+  }, []);
+
+  const clearRouteInfo = useCallback(() => {
+    setNavigationMode("browse");
+
+    setShouldDisplayRoutes(false);
+    setRoutePolyline(null);
+    setRouteStops([]);
+    setRouteNodes([]);
+    setNavCoords({ start: null, end: null });
+    setSelectionOverrides({ start: null, end: null });
+
+    requestAnimationFrame(() => {
+      suppressNextMapPress.current = false;
+    });
+  }, []);
 
   /**
    * Requests the user's current location, handling permissions and potential errors. If location services are disabled, it opens a modal to inform the user. If permissions are granted, it retrieves the current location and updates the userLocation state, as well as setting the location button state to "on". This function is called when the user presses the location button while location is currently off, allowing them to enable location tracking and center the map on their current position.
@@ -680,7 +689,7 @@ export default function MapViewer({
 
   const renderedPOIMarkers = useMemo(() => {
     return places.map((p) => (
-      <PoiMarker key={p.place_id} poi={p} onPress={() => setSelectedPOI(p)} />
+      <PoiMarker key={p.place_id} poi={p} onPress={() => handlePOIPress(p)} />
     ));
   }, [places]);
 
