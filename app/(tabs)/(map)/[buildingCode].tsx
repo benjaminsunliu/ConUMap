@@ -134,15 +134,6 @@ export default function IndoorMap() {
             }}
           />
           <Button
-            title="Random Checkpoint To Nearest Entry/Exit"
-            onPress={() => {
-              const graph = floorInfo.graphData;
-              const start = getRandomCheckpoint(graph).id;
-              const path = findNearestEntryExitPath(graph, start);
-              setNavigationPath(path || undefined);
-            }}
-          />
-          <Button
             title="Build Hybrid Route Demo"
             onPress={async () => {
               try {
