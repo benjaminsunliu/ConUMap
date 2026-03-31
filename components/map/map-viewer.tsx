@@ -406,25 +406,8 @@ export default function MapViewer({
   ]);
 
   /**
-   * Handles the event when a building is pressed on the map. It updates the selected building, focuses the map on that building, and resets any existing navigation state to switch back to browse mode. The function also sets a flag to suppress the next map press event, preventing unintended deselection of the building when the map is tapped immediately after selecting a building. This ensures a smooth user experience when interacting with buildings on the map.
-   * @param building The BuildingInfo object representing the building that was pressed, which contains its details and location.
+   * Clears all navigation-related state, resetting the map to browse mode. It hides any displayed routes, clears the route polyline, stops, and transition nodes, and resets the navigation coordinates and selection overrides.
    */
-  const handleBuildingPress = useCallback(
-    (building: BuildingInfo) => {
-      suppressNextMapPress.current = true;
-      selectBuildingByCode(building.buildingCode);
-      focusBuilding(building.location.latitude, building.location.longitude);
-      clearRouteInfo();
-    },
-    [selectBuildingByCode, focusBuilding],
-  );
-
-  const handlePOIPress = useCallback((poi: POI) => {
-    setSelectedPOI(poi);
-    focusBuilding(poi.geometry.location.lat, poi.geometry.location.lng);
-    clearRouteInfo();
-  }, []);
-
   const clearRouteInfo = useCallback(() => {
     setNavigationMode("browse");
 
@@ -439,6 +422,33 @@ export default function MapViewer({
       suppressNextMapPress.current = false;
     });
   }, []);
+
+  /**
+   * Handles the event when a building is pressed on the map. It updates the selected building, focuses the map on that building, and resets any existing navigation state to switch back to browse mode. The function also sets a flag to suppress the next map press event, preventing unintended deselection of the building when the map is tapped immediately after selecting a building. This ensures a smooth user experience when interacting with buildings on the map.
+   * @param building The BuildingInfo object representing the building that was pressed, which contains its details and location.
+   */
+  const handleBuildingPress = useCallback(
+    (building: BuildingInfo) => {
+      suppressNextMapPress.current = true;
+      selectBuildingByCode(building.buildingCode);
+      focusBuilding(building.location.latitude, building.location.longitude);
+      clearRouteInfo();
+    },
+    [selectBuildingByCode, focusBuilding, clearRouteInfo],
+  );
+
+  /**
+   * Handles the event when a POI is pressed on the map. It updates the selected POI state, focuses the map on the POI's location, and resets any existing navigation state to switch back to browse mode.
+   * @param poi The POI object representing the point of interest that was pressed
+   */
+  const handlePOIPress = useCallback(
+    (poi: POI) => {
+      setSelectedPOI(poi);
+      focusBuilding(poi.geometry.location.lat, poi.geometry.location.lng);
+      clearRouteInfo();
+    },
+    [focusBuilding, clearRouteInfo],
+  );
 
   /**
    * Requests the user's current location, handling permissions and potential errors. If location services are disabled, it opens a modal to inform the user. If permissions are granted, it retrieves the current location and updates the userLocation state, as well as setting the location button state to "on". This function is called when the user presses the location button while location is currently off, allowing them to enable location tracking and center the map on their current position.
@@ -528,27 +538,30 @@ export default function MapViewer({
     [mapColors],
   );
 
-  const navigate = useCallback((endLabel: string, endCoord: Coordinate) => {
-    const { coord: startCoord, label: startLabel } = resolveStartLocation();
+  const navigate = useCallback(
+    (endLabel: string, endCoord: Coordinate) => {
+      const { coord: startCoord, label: startLabel } = resolveStartLocation();
 
-    if (startCoord && startLabel) {
-      lastStartRef.current = { coord: startCoord, label: startLabel };
-    }
+      if (startCoord && startLabel) {
+        lastStartRef.current = { coord: startCoord, label: startLabel };
+      }
 
-    setSelectionOverrides({
-      start: startLabel,
-      end: endLabel,
-    });
+      setSelectionOverrides({
+        start: startLabel,
+        end: endLabel,
+      });
 
-    lastDestinationRef.current = {
-      coord: endCoord,
-      label: endLabel,
-    };
-    userClearedStart.current = false;
-    setNavCoords({ start: startCoord, end: endCoord });
-    setNavigationMode("directions");
-    setShouldDisplayRoutes(true);
-  }, []);
+      lastDestinationRef.current = {
+        coord: endCoord,
+        label: endLabel,
+      };
+      userClearedStart.current = false;
+      setNavCoords({ start: startCoord, end: endCoord });
+      setNavigationMode("directions");
+      setShouldDisplayRoutes(true);
+    },
+    [resolveStartLocation],
+  );
 
   /**
    * Handles the navigation action when the user chooses to navigate to a selected building. It determines the starting point for navigation based on the user's current location, any buildings they are currently in, or a manually selected start point. It then sets the navigation coordinates and mode to "directions", which triggers the fetching and display of routes from the start location to the selected building. This function is called when the user presses the navigate button in the BuildingInfoPopup, allowing them to easily get directions to the building they are interested in.
@@ -566,8 +579,11 @@ export default function MapViewer({
     }
 
     navigate(selectedBuilding.buildingName, mapBuilding.location);
-  }, [selectedBuilding, resolveStartLocation]);
+  }, [selectedBuilding, navigate]);
 
+  /**
+   * Handles the navigation action when the user chooses to navigate to a selected POI. It sets the navigation coordinates to route from the user's current location  to the POI's location, and switches the navigation mode to "directions" to display the route.
+   */
   const navigateToPOI = useCallback(() => {
     if (!selectedPOI) {
       return;
@@ -577,7 +593,7 @@ export default function MapViewer({
       longitude: selectedPOI.geometry.location.lng,
     };
     navigate(selectedPOI.name, endCoord);
-  }, [selectedPOI]);
+  }, [selectedPOI, navigate]);
 
   const setBuildingAsStart = useCallback(() => {
     if (!selectedBuilding) {
@@ -691,7 +707,7 @@ export default function MapViewer({
     return places.map((p) => (
       <PoiMarker key={p.place_id} poi={p} onPress={() => handlePOIPress(p)} />
     ));
-  }, [places]);
+  }, [handlePOIPress, places]);
 
   const openIndoorNavigation = () => {
     if (!selectedBuilding?.buildingCode) {

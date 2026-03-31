@@ -3,7 +3,7 @@ import { POI } from "@/types/mapTypes";
 import { Linking, StyleSheet, Text, View } from "react-native";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import InfoPopup from "../ui/popup";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { ActionButton, ActionIconName } from "./action-button";
 
 interface Props {
@@ -24,7 +24,7 @@ export function POIInfoPopup({ poi, onNavigate }: Props) {
   const theme = Colors[colorScheme];
   const styles = makeStyles(theme);
 
-  const handleCall = async () => {
+  const handleCall = useCallback(async () => {
     if (!poi?.international_phone_number) return;
     const phoneUrl = `tel:${poi.international_phone_number}`;
     try {
@@ -35,7 +35,7 @@ export function POIInfoPopup({ poi, onNavigate }: Props) {
     } catch (error) {
       console.error("Failed to open phone:", error);
     }
-  };
+  }, [poi?.international_phone_number]);
 
   const ACTIONS: Action[] = useMemo(
     () => [
@@ -52,7 +52,7 @@ export function POIInfoPopup({ poi, onNavigate }: Props) {
         handler: handleCall,
       },
     ],
-    [onNavigate, poi?.international_phone_number],
+    [onNavigate, handleCall],
   );
 
   const header = useMemo(() => {
@@ -110,7 +110,7 @@ export function POIInfoPopup({ poi, onNavigate }: Props) {
         </View>
       </>
     );
-  }, [poi, styles, theme]);
+  }, [poi, ACTIONS, styles, theme]);
 
   return <InfoPopup shouldDisplay={!!poi} header={header} testID="poi-info-popup" />;
 }
