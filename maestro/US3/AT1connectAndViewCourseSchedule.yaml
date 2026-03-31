@@ -1,0 +1,36 @@
+appId: host.exp.Exponent
+---
+# Open the app
+- openLink: exp://10.0.2.2:8081
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Navigate to Calendar tab
+- assertVisible: "Calendar"
+- tapOn: "Calendar"
+
+# Wait for API connection and Concordia login page to load
+# (takes ~10 seconds to connect and redirect to login)
+- waitForAnimationToEnd:
+    timeout: 10000
+
+# Enter credentials (injected via wrapper script)
+- tapOn:
+    id: "userNameInput"
+- inputText: "{{MAESTRO_USERNAME}}"
+
+# Enter password
+- tapOn:
+    id: "passwordInput"
+- inputText: "{{MAESTRO_PASSWORD}}"
+
+# Tap login button
+- tapOn: "Sign in"
+
+# Wait for authentication and redirect to course schedule
+- waitForAnimationToEnd:
+    timeout: 10000
+
+# Verify successful login - should see courses view
+- assertVisible:
+    id: "courses-view"
