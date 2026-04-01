@@ -43,6 +43,7 @@ export interface POI {
   vicinity?: string;
   rating?: number;
   user_ratings_total?: number;
+  international_phone_number?: string;
   types: string[];
 
   geometry: {

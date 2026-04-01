@@ -3,7 +3,7 @@ import { Colors } from "@/constants/theme";
 import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
 import { ColorSchemeName, useColorScheme } from "@/hooks/use-color-scheme";
 import { FieldType, SearchBuilding, TransportationMode } from "@/types/buildingTypes";
-import { BuildingInfo, Campus, Coordinate, CoordinateDelta } from "@/types/mapTypes";
+import { BuildingInfo, Campus, Coordinate, CoordinateDelta, POI } from "@/types/mapTypes";
 import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
 import { decodePolyline } from "@/utils/decodePolyline";
 import { fetchAllDirections } from "@/utils/directions";
@@ -31,6 +31,7 @@ import { CURRENT_LOCATION_CODE } from "@/hooks/use-search-building";
 import PoiMarker from "./poi-marker";
 import { usePoi } from "@/hooks/use-poi";
 import { MIN_RADIUS_METERS, MAX_RADIUS_METERS } from "@/constants/campusCenters";
+import { POIInfoPopup } from "./poi-info-popup";
 
 interface PolylineSegment {
   coordinates: Coordinate[];
@@ -234,6 +235,7 @@ export default function MapViewer({
     autoNavigate?: string;
   }>();
   const places = usePoi(currCampus, radius);
+  const [selectedPOI, setSelectedPOI] = useState<POI | null>(null);
 
   useEffect(() => {
     if (!navCoords.start || !navCoords.end) {
@@ -338,13 +340,14 @@ export default function MapViewer({
 
   /**
    * Animates the map to center on the given building's location, using a tighter zoom level for better focus. The latitude and longitude deltas are adjusted to be no larger than 0.0025 to ensure a close-up view of the building, while still respecting the current zoom level if it's already close enough. This function is used when a building is selected to provide a focused view of that building on the map.
-   * @param building The BuildingInfo object representing the building to focus on, which contains its location and other details.
+   * @param lat The latitude of the building's location to focus on.
+   * @param lng The longitude of the building's location to focus on.
    */
   const focusBuilding = useCallback(
-    (building: BuildingInfo) => {
+    (lat: number, lng: number) => {
       mapViewRef.current?.animateToRegion({
-        latitude: building.location.latitude,
-        longitude: building.location.longitude,
+        latitude: lat,
+        longitude: lng,
         latitudeDelta: Math.min(currentRegion.latitudeDelta, 0.0025),
         longitudeDelta: Math.min(currentRegion.longitudeDelta, 0.0025),
       });
@@ -371,7 +374,7 @@ export default function MapViewer({
     if (!buildingId) return;
     const nextBuilding = selectBuildingByCode(buildingId);
     if (nextBuilding) {
-      focusBuilding(nextBuilding);
+      focusBuilding(nextBuilding.location.latitude, nextBuilding.location.longitude);
 
       if (autoNavigate === "true") {
         const { coord: startCoord, label: startLabel } = resolveStartLocation();
@@ -405,27 +408,50 @@ export default function MapViewer({
   ]);
 
   /**
+   * Clears all navigation-related state, resetting the map to browse mode. It hides any displayed routes, clears the route polyline, stops, and transition nodes, and resets the navigation coordinates and selection overrides.
+   */
+  const clearRouteInfo = useCallback(() => {
+    setNavigationMode("browse");
+
+    setShouldDisplayRoutes(false);
+    setRoutePolyline(null);
+    setRouteStops([]);
+    setRouteNodes([]);
+    setNavCoords({ start: null, end: null });
+    setSelectionOverrides({ start: null, end: null });
+
+    requestAnimationFrame(() => {
+      suppressNextMapPress.current = false;
+    });
+  }, []);
+
+  /**
    * Handles the event when a building is pressed on the map. It updates the selected building, focuses the map on that building, and resets any existing navigation state to switch back to browse mode. The function also sets a flag to suppress the next map press event, preventing unintended deselection of the building when the map is tapped immediately after selecting a building. This ensures a smooth user experience when interacting with buildings on the map.
    * @param building The BuildingInfo object representing the building that was pressed, which contains its details and location.
    */
   const handleBuildingPress = useCallback(
     (building: BuildingInfo) => {
+      setSelectedPOI(null);
       suppressNextMapPress.current = true;
       selectBuildingByCode(building.buildingCode);
-      focusBuilding(building);
-      setNavigationMode("browse");
-      setShouldDisplayRoutes(false);
-      setRoutePolyline(null);
-      setRouteStops([]);
-      setRouteNodes([]);
-      setNavCoords({ start: null, end: null });
-      setSelectionOverrides({ start: null, end: null });
-
-      requestAnimationFrame(() => {
-        suppressNextMapPress.current = false;
-      });
+      focusBuilding(building.location.latitude, building.location.longitude);
+      clearRouteInfo();
     },
-    [selectBuildingByCode, focusBuilding],
+    [selectBuildingByCode, focusBuilding, clearRouteInfo],
+  );
+
+  /**
+   * Handles the event when a POI is pressed on the map. It updates the selected POI state, focuses the map on the POI's location, and resets any existing navigation state to switch back to browse mode.
+   * @param poi The POI object representing the point of interest that was pressed
+   */
+  const handlePOIPress = useCallback(
+    (poi: POI) => {
+      setSelectedBuilding(null);
+      setSelectedPOI(poi);
+      focusBuilding(poi.geometry.location.lat, poi.geometry.location.lng);
+      clearRouteInfo();
+    },
+    [focusBuilding, clearRouteInfo],
   );
 
   /**
@@ -516,6 +542,31 @@ export default function MapViewer({
     [mapColors],
   );
 
+  const navigate = useCallback(
+    (endLabel: string, endCoord: Coordinate) => {
+      const { coord: startCoord, label: startLabel } = resolveStartLocation();
+
+      if (startCoord && startLabel) {
+        lastStartRef.current = { coord: startCoord, label: startLabel };
+      }
+
+      setSelectionOverrides({
+        start: startLabel,
+        end: endLabel,
+      });
+
+      lastDestinationRef.current = {
+        coord: endCoord,
+        label: endLabel,
+      };
+      userClearedStart.current = false;
+      setNavCoords({ start: startCoord, end: endCoord });
+      setNavigationMode("directions");
+      setShouldDisplayRoutes(true);
+    },
+    [resolveStartLocation],
+  );
+
   /**
    * Handles the navigation action when the user chooses to navigate to a selected building. It determines the starting point for navigation based on the user's current location, any buildings they are currently in, or a manually selected start point. It then sets the navigation coordinates and mode to "directions", which triggers the fetching and display of routes from the start location to the selected building. This function is called when the user presses the navigate button in the BuildingInfoPopup, allowing them to easily get directions to the building they are interested in.
    */
@@ -531,26 +582,22 @@ export default function MapViewer({
       return;
     }
 
-    const { coord: startCoord, label: startLabel } = resolveStartLocation();
+    navigate(selectedBuilding.buildingName, mapBuilding.location);
+  }, [selectedBuilding, navigate]);
 
-    if (startCoord && startLabel) {
-      lastStartRef.current = { coord: startCoord, label: startLabel };
+  /**
+   * Handles the navigation action when the user chooses to navigate to a selected POI. It sets the navigation coordinates to route from the user's current location  to the POI's location, and switches the navigation mode to "directions" to display the route.
+   */
+  const navigateToPOI = useCallback(() => {
+    if (!selectedPOI) {
+      return;
     }
-
-    setSelectionOverrides({
-      start: startLabel,
-      end: selectedBuilding.buildingName,
-    });
-
-    lastDestinationRef.current = {
-      coord: mapBuilding.location,
-      label: selectedBuilding.buildingName,
+    const endCoord = {
+      latitude: selectedPOI.geometry.location.lat,
+      longitude: selectedPOI.geometry.location.lng,
     };
-    userClearedStart.current = false;
-    setNavCoords({ start: startCoord, end: mapBuilding.location });
-    setNavigationMode("directions");
-    setShouldDisplayRoutes(true);
-  }, [selectedBuilding, resolveStartLocation]);
+    navigate(selectedPOI.name, endCoord);
+  }, [selectedPOI, navigate]);
 
   const setBuildingAsStart = useCallback(() => {
     if (!selectedBuilding) {
@@ -651,7 +698,7 @@ export default function MapViewer({
       if (selected?.buildingCode && selected.buildingCode !== CURRENT_LOCATION_CODE) {
         const nextBuilding = selectBuildingByCode(selected.buildingCode);
         if (nextBuilding) {
-          focusBuilding(nextBuilding);
+          focusBuilding(nextBuilding.location.latitude, nextBuilding.location.longitude);
         }
       } else {
         setSelectedBuilding(null);
@@ -660,15 +707,11 @@ export default function MapViewer({
     [focusBuilding, selectBuildingByCode],
   );
 
-  const renderPOIMarkers = useMemo(() => {
+  const renderedPOIMarkers = useMemo(() => {
     return places.map((p) => (
-      <PoiMarker
-        key={p.place_id}
-        poi={p}
-        onPress={() => console.log(`Pressed POI: ${p.name}`)}
-      />
+      <PoiMarker key={p.place_id} poi={p} onPress={() => handlePOIPress(p)} />
     ));
-  }, [places]);
+  }, [handlePOIPress, places]);
 
   const openIndoorNavigation = () => {
     if (!selectedBuilding?.buildingCode) {
@@ -680,7 +723,7 @@ export default function MapViewer({
   const hasVisiblePopup =
     modalOpen ||
     navigationMode === "directions" ||
-    (navigationMode === "browse" && selectedBuilding != null);
+    (navigationMode === "browse" && (selectedBuilding != null || selectedPOI != null));
 
   return (
     <View style={styles.container}>
@@ -787,6 +830,7 @@ export default function MapViewer({
           const action = event?.nativeEvent?.action;
           if (!action || action === "press") {
             setSelectedBuilding(null);
+            setSelectedPOI(null);
             setNavigationMode("browse");
             setShouldDisplayRoutes(false);
             setRoutePolyline(null);
@@ -800,7 +844,7 @@ export default function MapViewer({
       >
         {renderedPolygons}
         {renderedMarkers}
-        {renderPOIMarkers}
+        {renderedPOIMarkers}
 
         {routePolyline?.map((segment, index) => {
           const dashedWidth = Platform.OS === "android" ? 6 : 3;
@@ -947,7 +991,7 @@ export default function MapViewer({
         <View style={styles.radiusContainer}>
           <View style={styles.radiusHeader}>
             <Text style={[styles.radiusLabel, { color: mapColors.clusterText }]}>
-              Radius
+              Places within:
             </Text>
             <Text style={[styles.radiusValue, { color: mapColors.clusterText }]}>
               {radius} m
@@ -974,6 +1018,10 @@ export default function MapViewer({
           onSetAsStart={setBuildingAsStart}
           onExploreRooms={openIndoorNavigation}
         />
+      )}
+
+      {navigationMode === "browse" && selectedPOI && (
+        <POIInfoPopup poi={selectedPOI} onNavigate={navigateToPOI} />
       )}
 
       {navigationMode === "directions" && (
