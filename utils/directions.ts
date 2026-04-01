@@ -645,7 +645,7 @@ abstract class GoogleRoutesStrategy implements RouteStrategy {
 
     if (!apiKey) {
       console.warn(
-        "[Routes:${this.travelMode}] EXPO_PUBLIC_GOOGLE_API_KEY is not set – directions will not be available.",
+        `[Routes:${this.travelMode}] EXPO_PUBLIC_GOOGLE_API_KEY is not set – directions will not be available.`,
       );
       return null;
     }

@@ -116,7 +116,9 @@ jobs:
         
       - name: Stream iOS simulator logs
         run: |
-          xcrun simctl spawn booted log stream --style compact > sim.log 2>&1 &
+          xcrun simctl spawn booted log stream \
+            --style compact \
+            --predicate 'process == "client"' > sim.log 2>&1 &
           echo "SIM_LOG_PID=$!" >> $GITHUB_ENV
 
       - name: Run Maestro flow
