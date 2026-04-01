@@ -52,7 +52,9 @@ jobs:
 
       - name: Ensure iOS native project
         run: |
-          npx expo prebuild -p ios --clean --no-install --non-interactive
+          if [ ! -d ios ]; then
+            npx expo prebuild -p ios --clean --no-install --non-interactive
+          fi
 
       - name: Install CocoaPods
         run: |
