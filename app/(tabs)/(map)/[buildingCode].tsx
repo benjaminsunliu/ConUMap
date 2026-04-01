@@ -53,8 +53,8 @@ export default function IndoorMap() {
   const availableFloors: number[] = useMemo(() => {
     return floorInfo?.images
       ? Object.keys(floorInfo.images)
-        .map(Number)
-        .sort((a, b) => a - b)
+          .map(Number)
+          .sort((a, b) => a - b)
       : [];
   }, [floorInfo]);
 
@@ -64,7 +64,8 @@ export default function IndoorMap() {
 
   const defaultFloor = floor || firstFloor;
   const currentFloorIndex = defaultFloor ? availableFloors.indexOf(defaultFloor) : -1;
-  const canGoNext = currentFloorIndex >= 0 && currentFloorIndex < availableFloors.length - 1;
+  const canGoNext =
+    currentFloorIndex >= 0 && currentFloorIndex < availableFloors.length - 1;
   const canGoPrevious = currentFloorIndex > 0;
   const canCreatePath = startRoom.trim().length > 0 && endRoom.trim().length > 0;
 
