@@ -99,7 +99,7 @@ export default function BuildingInfoPopup({
     return (
       <>
         <View style={styles.headerText}>
-          <Text style={styles.title} numberOfLines={1}>
+          <Text style={styles.title}>
             {building?.buildingCode} – {building?.buildingName}
           </Text>
 
@@ -216,6 +216,7 @@ const makeStyles = (theme: (typeof Colors)["light" | "dark"]) =>
       fontWeight: "600",
       color: theme.buildingInfoPopup.title,
       marginBottom: 4,
+      flexShrink: 1,
     },
     line: {
       color: theme.buildingInfoPopup.text,

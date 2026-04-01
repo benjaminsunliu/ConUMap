@@ -61,14 +61,12 @@ export function POIInfoPopup({ poi, onNavigate }: Props) {
     return (
       <>
         <View style={styles.headerText}>
-          <Text style={styles.title} numberOfLines={1}>
-            {poi?.name}
-          </Text>
+          <Text style={styles.title}>{poi?.name}</Text>
 
           <View style={styles.ratingRow}>
             <Text style={styles.rating}>
-              {"⭐"}
               {(poi?.rating ?? 0).toFixed(1)}
+              {"⭐"}
             </Text>
             {poi?.user_ratings_total ? (
               <Text style={styles.reviewCount}>({poi.user_ratings_total})</Text>
@@ -127,6 +125,7 @@ const makeStyles = (theme: (typeof Colors)["light" | "dark"]) =>
       fontWeight: "600",
       color: theme.buildingInfoPopup.title,
       marginBottom: 8,
+      flexShrink: 1,
     },
     ratingRow: {
       flexDirection: "row",
