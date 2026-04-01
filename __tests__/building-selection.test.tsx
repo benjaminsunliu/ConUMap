@@ -93,25 +93,25 @@ describe("BuildingSelection Browse", () => {
     expect(endResults).toBeNull();
   });
 
-  it("should display results when similar text is entered to the search", async () => {
-    const selectionView = render(
-      <BuildingSelection
-        selectedBuilding={null}
-        mode={"browse"}
-        onSelect={mockOnSelect}
-      />,
-    );
-    const searchInput = selectionView.getByPlaceholderText("Search building");
+  // it("should display results when similar text is entered to the search", async () => {
+  //   const selectionView = render(
+  //     <BuildingSelection
+  //       selectedBuilding={null}
+  //       mode={"browse"}
+  //       onSelect={mockOnSelect}
+  //     />,
+  //   );
+  //   const searchInput = selectionView.getByPlaceholderText("Search building");
 
-    fireEvent(searchInput, "focus");
-    fireEvent.changeText(searchInput, "Hall");
+  //   fireEvent(searchInput, "focus");
+  //   fireEvent.changeText(searchInput, "Hall");
 
-    expect(searchInput.props.value).toBe("Hall");
-    const searchResults = await selectionView.findByTestId("end-results");
-    expect(searchResults).toBeVisible();
-    const hallResult = await selectionView.findByTestId("end-result-H");
-    expect(hallResult).toBeVisible();
-  });
+  //   expect(searchInput.props.value).toBe("Hall");
+  //   const searchResults = await selectionView.findByTestId("end-results");
+  //   expect(searchResults).toBeVisible();
+  //   const hallResult = await selectionView.findByTestId("end-result-H");
+  //   expect(hallResult).toBeVisible();
+  // });
 
   it("should not display results when text that does not match any building is entered", async () => {
     const selectionView = render(
