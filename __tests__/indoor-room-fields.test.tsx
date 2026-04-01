@@ -10,6 +10,8 @@ const ROOM_SUGGESTIONS = [
   "MB 1.115",
   "MB 1.130",
   "MB 1.315",
+  "MB 1.410",
+  "MB 1.420",
   "MB 838",
   "MB 838.1",
   "MB S2.210",
@@ -146,6 +148,19 @@ describe("IndoorRoomFields", () => {
 
     expect(screen.getByTestId("indoor-start-room-suggestion-MB-838")).toBeTruthy();
     expect(screen.getByTestId("indoor-start-room-suggestion-MB-838-1")).toBeTruthy();
+  });
+
+  it("renders more than three matching suggestions so the list can scroll", () => {
+    const screen = render(<IndoorRoomFieldsHarness />);
+
+    const startInput = screen.getByTestId("indoor-start-room-input");
+    fireEvent(startInput, "focus");
+    fireEvent.changeText(startInput, "1.");
+
+    expect(screen.getByTestId("indoor-start-room-suggestion-MB-1-115")).toBeTruthy();
+    expect(screen.getByTestId("indoor-start-room-suggestion-MB-1-130")).toBeTruthy();
+    expect(screen.getByTestId("indoor-start-room-suggestion-MB-1-315")).toBeTruthy();
+    expect(screen.getByTestId("indoor-start-room-suggestion-MB-1-410")).toBeTruthy();
   });
 
   it("keeps suggestions hidden when refocusing an unchanged selected room", () => {

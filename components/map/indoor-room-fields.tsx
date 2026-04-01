@@ -13,7 +13,6 @@ import {
 } from "react-native";
 
 type RoomFieldType = "start" | "end";
-const MAX_VISIBLE_SUGGESTIONS = 3;
 
 interface IndoorRoomFieldsProps {
   buildingCode: string;
@@ -82,22 +81,15 @@ export default function IndoorRoomFields({
     [roomSuggestions, endRoom, buildingCode],
   );
   const activeField = focusedField;
-  const activeQuery = activeField === "start" ? startRoom : activeField === "end" ? endRoom : "";
-  const selectedRoomForField = activeField ? selectedRooms[activeField] : "";
-  const activeSuggestions =
-    activeField === "start"
-      ? startSuggestions
-      : activeField === "end"
-        ? endSuggestions
-        : [];
-  const shouldSuppressSelectedRoomSuggestions =
-    !!activeField &&
-    !!activeQuery &&
-    normalizeSearchToken(activeQuery) === normalizeSearchToken(selectedRoomForField);
-  const suggestionField =
-    activeField && activeSuggestions.length > 0 && !shouldSuppressSelectedRoomSuggestions
-      ? activeField
-      : null;
+  const activeQuery = getActiveRoomQuery(activeField, startRoom, endRoom);
+  const selectedRoomForField = getSelectedRoomForField(activeField, selectedRooms);
+  const activeSuggestions = getActiveSuggestions(activeField, startSuggestions, endSuggestions);
+  const suggestionField = getSuggestionField(
+    activeField,
+    activeQuery,
+    selectedRoomForField,
+    activeSuggestions,
+  );
 
   const dismissSuggestions = useCallback(() => {
     clearBlurTimeout();
@@ -105,6 +97,16 @@ export default function IndoorRoomFields({
     startInputRef.current?.blur();
     endInputRef.current?.blur();
     Keyboard.dismiss();
+  }, [clearBlurTimeout]);
+
+  const handleStartFocus = useCallback(() => {
+    clearBlurTimeout();
+    setFocusedField("start");
+  }, [clearBlurTimeout]);
+
+  const handleEndFocus = useCallback(() => {
+    clearBlurTimeout();
+    setFocusedField("end");
   }, [clearBlurTimeout]);
 
   const handleSelectSuggestion = useCallback(
@@ -181,10 +183,7 @@ export default function IndoorRoomFields({
                 autoCapitalize="characters"
                 autoCorrect={false}
                 returnKeyType="next"
-                onFocus={() => {
-                  clearBlurTimeout();
-                  setFocusedField("start");
-                }}
+                onFocus={handleStartFocus}
                 onBlur={() => scheduleBlur("start")}
                 onSubmitEditing={() => endInputRef.current?.focus()}
               />
@@ -219,10 +218,7 @@ export default function IndoorRoomFields({
                 autoCapitalize="characters"
                 autoCorrect={false}
                 returnKeyType="done"
-                onFocus={() => {
-                  clearBlurTimeout();
-                  setFocusedField("end");
-                }}
+                onFocus={handleEndFocus}
                 onBlur={() => scheduleBlur("end")}
                 onSubmitEditing={() => {
                   if (canCreatePath) {
@@ -437,7 +433,6 @@ function filterRoomSuggestions(roomSuggestions: string[], query: string, buildin
         a.firstMatchIndex - b.firstMatchIndex ||
         a.room.localeCompare(b.room, undefined, { numeric: true, sensitivity: "base" }),
     )
-    .slice(0, MAX_VISIBLE_SUGGESTIONS)
     .map((suggestion) => suggestion.room);
 }
 
@@ -465,9 +460,70 @@ function getRoomTokens(room: string, buildingCode: string) {
 }
 
 function normalizeSearchToken(value: string) {
-  return value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+  return value.toUpperCase().replaceAll(/[^A-Z0-9]/g, "");
 }
 
 function formatSuggestionTestId(value: string) {
-  return value.toUpperCase().replace(/[^A-Z0-9]+/g, "-");
+  return value.toUpperCase().replaceAll(/[^A-Z0-9]+/g, "-");
+}
+
+function getActiveRoomQuery(
+  activeField: RoomFieldType | null,
+  startRoom: string,
+  endRoom: string,
+) {
+  if (activeField === "start") {
+    return startRoom;
+  }
+
+  if (activeField === "end") {
+    return endRoom;
+  }
+
+  return "";
+}
+
+function getSelectedRoomForField(
+  activeField: RoomFieldType | null,
+  selectedRooms: Record<RoomFieldType, string>,
+) {
+  if (!activeField) {
+    return "";
+  }
+
+  return selectedRooms[activeField];
+}
+
+function getActiveSuggestions(
+  activeField: RoomFieldType | null,
+  startSuggestions: string[],
+  endSuggestions: string[],
+) {
+  if (activeField === "start") {
+    return startSuggestions;
+  }
+
+  if (activeField === "end") {
+    return endSuggestions;
+  }
+
+  return [];
+}
+
+function getSuggestionField(
+  activeField: RoomFieldType | null,
+  activeQuery: string,
+  selectedRoomForField: string,
+  activeSuggestions: string[],
+) {
+  const shouldSuppressSelectedRoomSuggestions =
+    !!activeField &&
+    !!activeQuery &&
+    normalizeSearchToken(activeQuery) === normalizeSearchToken(selectedRoomForField);
+
+  if (!activeField || activeSuggestions.length === 0 || shouldSuppressSelectedRoomSuggestions) {
+    return null;
+  }
+
+  return activeField;
 }
