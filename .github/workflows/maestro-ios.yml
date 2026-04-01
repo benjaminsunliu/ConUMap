@@ -104,13 +104,6 @@ jobs:
       - name: Install app on simulator
         run: |
           xcrun simctl install "$DEVICE_UDID" "${{ steps.app.outputs.path }}"
-        
-      - name: Stream iOS simulator logs
-        run: |
-          xcrun simctl spawn booted log stream \
-            --style compact \
-            --predicate 'process == "client"' > sim.log 2>&1 &
-          echo "SIM_LOG_PID=$!" >> $GITHUB_ENV
 
       - name: Run Maestro flow
         run: |
@@ -138,20 +131,6 @@ jobs:
           fi
 
           exit $FLOW_EXIT
-
-      - name: Stop simulator logs
-        if: always()
-        run: |
-          if [ -n "$SIM_LOG_PID" ] && kill -0 "$SIM_LOG_PID" 2>/dev/null; then
-            kill "$SIM_LOG_PID" || true
-          fi
-
-      - name: Upload simulator logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-sim-logs
-          path: sim.log
           
       - name: Upload screen recording (mp4)
         if: always()
