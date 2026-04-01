@@ -248,16 +248,7 @@ export default function MapViewer({
 
     (async () => {
       try {
-        console.log("start coords:", navCoords.start);
-        console.log("end coords:", navCoords.end);
         const nextRoutes = await fetchAllDirections(navCoords.start!, navCoords.end!);
-        console.log("nextRoutes:", {
-          walking: nextRoutes.walking ? nextRoutes.walking.length : null,
-          transit: nextRoutes.transit ? nextRoutes.transit.length : null,
-          driving: nextRoutes.driving ? nextRoutes.driving.length : null,
-          bicycling: nextRoutes.bicycling ? nextRoutes.bicycling.length : null,
-          shuttle: nextRoutes.shuttle ? nextRoutes.shuttle.length : null,
-        });
         if (!cancelled) {
           setRoutes(nextRoutes);
         }

@@ -33,6 +33,7 @@ appId: host.exp.exponent
     from:
       id: "routes-info-popup"
     direction: UP
+    duration: 800
 - tapOn:
     id: "transit-route-0"
 - assertVisible:
