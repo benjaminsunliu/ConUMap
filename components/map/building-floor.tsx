@@ -1,3 +1,5 @@
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { BuildingFloorInfo, IndoorNavigationPath } from "@/types/mapTypes";
 import { useMemo, useRef } from "react";
 import { Image, StyleSheet, View } from "react-native";
@@ -14,6 +16,9 @@ export default function BuildingFloor({
   floor,
   navigationPath,
 }: Readonly<BuildingFloorProps>) {
+  const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme];
+  const navigationPathColor = theme.map.navigationPathColor;
   const viewContainerRef = useRef(null);
 
   const imageSize = useMemo(() => {
@@ -56,20 +61,26 @@ export default function BuildingFloor({
     for (let i = 0; i < navigationPath.length - 1; i++) {
       const current = checkpoints[navigationPath[i]];
       const next = checkpoints[navigationPath[i + 1]];
+      if (!current || !next) {
+        continue;
+      }
+      if (current.floor !== floor || next.floor !== floor) {
+        continue;
+      }
       result.push(
         <Line
-          key={current.id + next.id}
+          key={`${current.id}-${next.id}-${floor}`}
           x1={current.x}
           y1={current.y}
           x2={next.x}
           y2={next.y}
-          stroke={"red"}
-          strokeWidth={10}
+          stroke={navigationPathColor}
+          strokeWidth={20}
         />,
       );
     }
     return result;
-  }, [navigationPath, info.graphData.checkpoints]);
+  }, [navigationPath, info.graphData.checkpoints, floor, navigationPathColor]);
 
   return (
     <View style={styles.container} ref={viewContainerRef}>

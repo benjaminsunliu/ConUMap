@@ -1,18 +1,25 @@
 import BuildingFloor from "@/components/map/building-floor";
-import FloorSelector from "@/components/map/floor-selection-menu";
 import MapSettings from "@/components/map/indoor-map-settings";
 import IndoorNavigationControls from "@/components/map/indoor-navigation-controls";
+import IndoorRoomFields from "@/components/map/indoor-room-fields";
 import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
 import {
   BuildingFloorInfo,
+  FloorCheckpoint,
   FloorCheckpointsGraph,
   IndoorNavigationPath,
 } from "@/types/mapTypes";
 import { findIndoorPath } from "@/utils/indoorNavigation";
+import {
+  buildRoomLookup,
+  getRoomSearchTokens,
+  normalizeSearchToken,
+  resolveCanonicalRoom,
+} from "@/utils/roomSearch";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
-import { useMemo, useState } from "react";
-import { Button, StyleSheet, Text, View } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
 
 export default function IndoorMap() {
   const { buildingCode } = useLocalSearchParams<{
@@ -39,26 +46,15 @@ export default function IndoorMap() {
   const [navigationPath, setNavigationPath] = useState<IndoorNavigationPath | undefined>(
     undefined,
   );
+  const [startRoom, setStartRoom] = useState("");
+  const [endRoom, setEndRoom] = useState("");
+  const [routeError, setRouteError] = useState<string | undefined>(undefined);
   const [wheelchairOnly, setWheelchairOnly] = useState(false);
   const [poiFilters, setPoiFilters] = useState({
     bathrooms: false,
     elevators: false,
     washrooms: false,
   });
-
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
-
-  type StepType = "next" | "prev";
-  const handleStep = (step: StepType) => {
-    let newStep;
-    if (step === "next") {
-      newStep = Math.min(currentStepIndex + 1, floorSteps.length - 1);
-    } else {
-      newStep = Math.max(currentStepIndex - 1, 0);
-    }
-    setFloor(floorSteps[newStep]);
-    setCurrentStepIndex(newStep);
-  };
 
   const availableFloors: number[] = useMemo(() => {
     return floorInfo?.images
@@ -67,16 +63,143 @@ export default function IndoorMap() {
           .sort((a, b) => a - b)
       : [];
   }, [floorInfo]);
-  type AvailableFloor = (typeof availableFloors)[number];
-  const floorSteps: AvailableFloor[] = [1, 2];
-  const canGoNext = currentStepIndex < floorSteps.length - 1;
-  const canGoPrevious = currentStepIndex > 0;
 
   const firstFloor = useMemo(() => {
     return availableFloors[0];
   }, [availableFloors]);
 
   const defaultFloor = floor || firstFloor;
+  const currentFloorIndex = defaultFloor ? availableFloors.indexOf(defaultFloor) : -1;
+  const canGoNext =
+    currentFloorIndex >= 0 && currentFloorIndex < availableFloors.length - 1;
+  const canGoPrevious = currentFloorIndex > 0;
+  const roomLookup = useMemo(
+    () => buildRoomLookup(floorInfo?.rooms ?? [], buildingCode),
+    [buildingCode, floorInfo?.rooms],
+  );
+  const validStartRoom = useMemo(
+    () => resolveCanonicalRoom(startRoom, buildingCode, roomLookup),
+    [buildingCode, roomLookup, startRoom],
+  );
+  const validEndRoom = useMemo(
+    () => resolveCanonicalRoom(endRoom, buildingCode, roomLookup),
+    [buildingCode, roomLookup, endRoom],
+  );
+  const canCreatePath = Boolean(validStartRoom && validEndRoom);
+  const inputValidationError = useMemo(() => {
+    const trimmedStartRoom = startRoom.trim();
+    const trimmedEndRoom = endRoom.trim();
+
+    if (!trimmedStartRoom || !trimmedEndRoom) {
+      return undefined;
+    }
+    if (!validStartRoom && !validEndRoom) {
+      return `Start room "${trimmedStartRoom}" and end room "${trimmedEndRoom}" were not found.`;
+    }
+    if (!validStartRoom) {
+      return `Start room "${trimmedStartRoom}" was not found.`;
+    }
+    if (!validEndRoom) {
+      return `End room "${trimmedEndRoom}" was not found.`;
+    }
+
+    return undefined;
+  }, [endRoom, startRoom, validEndRoom, validStartRoom]);
+
+  type FloorDirection = "next" | "prev";
+  const handleFloorNavigation = (direction: FloorDirection) => {
+    if (currentFloorIndex < 0) {
+      return;
+    }
+    const delta = direction === "next" ? 1 : -1;
+    const newFloorIndex = Math.min(
+      Math.max(currentFloorIndex + delta, 0),
+      availableFloors.length - 1,
+    );
+    setFloor(availableFloors[newFloorIndex]);
+  };
+
+  const createPathFromRooms = () => {
+    if (!floorInfo) {
+      return;
+    }
+
+    const trimmedStartRoom = startRoom.trim();
+    const trimmedEndRoom = endRoom.trim();
+    if (!trimmedStartRoom || !trimmedEndRoom) {
+      setRouteError("Enter both a start room and an end room.");
+      setNavigationPath(undefined);
+      return;
+    }
+    const canonicalStartRoom = resolveCanonicalRoom(
+      trimmedStartRoom,
+      buildingCode,
+      roomLookup,
+    );
+    if (!canonicalStartRoom) {
+      setRouteError(`Start room "${trimmedStartRoom}" was not found.`);
+      setNavigationPath(undefined);
+      return;
+    }
+    const canonicalEndRoom = resolveCanonicalRoom(
+      trimmedEndRoom,
+      buildingCode,
+      roomLookup,
+    );
+    if (!canonicalEndRoom) {
+      setRouteError(`End room "${trimmedEndRoom}" was not found.`);
+      setNavigationPath(undefined);
+      return;
+    }
+
+    if (canonicalStartRoom !== startRoom) {
+      setStartRoom(canonicalStartRoom);
+    }
+    if (canonicalEndRoom !== endRoom) {
+      setEndRoom(canonicalEndRoom);
+    }
+
+    const graph = floorInfo.graphData;
+    const sourceCheckpoint = findCheckpointForRoom(
+      graph,
+      canonicalStartRoom,
+      buildingCode,
+    );
+    if (!sourceCheckpoint) {
+      setRouteError(`Start room "${canonicalStartRoom}" was not found.`);
+      setNavigationPath(undefined);
+      return;
+    }
+    const destinationCheckpoint = findCheckpointForRoom(
+      graph,
+      canonicalEndRoom,
+      buildingCode,
+    );
+    if (!destinationCheckpoint) {
+      setRouteError(`End room "${canonicalEndRoom}" was not found.`);
+      setNavigationPath(undefined);
+      return;
+    }
+
+    const path = findIndoorPath(graph, sourceCheckpoint.id, destinationCheckpoint.id);
+    if (!path) {
+      setRouteError("No indoor path was found between those rooms.");
+      setNavigationPath(undefined);
+      return;
+    }
+
+    setRouteError(undefined);
+    setNavigationPath(path);
+    setFloor(sourceCheckpoint.floor);
+  };
+
+  useEffect(() => {
+    if (canCreatePath) {
+      return;
+    }
+    setNavigationPath(undefined);
+    setRouteError(undefined);
+  }, [canCreatePath]);
 
   return (
     <View style={styles.container}>
@@ -84,15 +207,17 @@ export default function IndoorMap() {
       {error ? <Text>Something went wrong</Text> : null}
       {floorInfo && defaultFloor ? (
         <>
-          <FloorSelector
-            buildingName={buildingCode} //TODO temp
-            availableFloors={availableFloors}
-            currentFloor={defaultFloor}
-            onSelectFloor={(floor: number) => {
-              setFloor(floor);
-            }}
+          <IndoorRoomFields
+            buildingCode={buildingCode}
+            startRoom={startRoom}
+            endRoom={endRoom}
+            onChangeStartRoom={setStartRoom}
+            onChangeEndRoom={setEndRoom}
+            roomSuggestions={floorInfo.rooms}
+            canCreatePath={canCreatePath}
+            onCreatePath={createPathFromRooms}
+            routeError={inputValidationError ?? routeError}
           />
-
           <MapSettings
             wheelchairOnly={wheelchairOnly} //TODO temp
             setWheelchairOnly={setWheelchairOnly} //TODO temp
@@ -100,8 +225,9 @@ export default function IndoorMap() {
             setPoiFilters={setPoiFilters} //TODO temp
           />
           <IndoorNavigationControls
-            onNext={() => handleStep("next")}
-            onPrevious={() => handleStep("prev")}
+            onNext={() => handleFloorNavigation("next")}
+            onPrevious={() => handleFloorNavigation("prev")}
+            currentFloor={defaultFloor}
             canGoNext={canGoNext}
             canGoPrevious={canGoPrevious}
           />
@@ -109,16 +235,6 @@ export default function IndoorMap() {
             info={floorInfo}
             navigationPath={navigationPath}
             floor={defaultFloor}
-          />
-          <Button
-            title="Create Random Path"
-            onPress={() => {
-              const graph = floorInfo.graphData;
-              const source = getRandomCheckpointOnFloor(graph, defaultFloor).id;
-              const destination = getRandomCheckpointOnFloor(graph, defaultFloor).id;
-              const path = findIndoorPath(floorInfo.graphData, source, destination);
-              setNavigationPath(path || undefined);
-            }}
           />
         </>
       ) : null}
@@ -132,14 +248,30 @@ const styles = StyleSheet.create({
   },
 });
 
-function getRandomCheckpointOnFloor(graph: FloorCheckpointsGraph, floor: number) {
-  const possibleCheckpoints = Object.values(graph.checkpoints).filter(
-    (checkpoint) => checkpoint.floor === floor,
-  );
-  const r = randomInt(possibleCheckpoints.length);
-  return possibleCheckpoints[r];
+function findCheckpointForRoom(
+  graph: FloorCheckpointsGraph,
+  roomQuery: string,
+  buildingCode: string,
+) {
+  const roomTokens = getRoomSearchTokens(roomQuery, buildingCode);
+  if (roomTokens.length === 0) {
+    return undefined;
+  }
+
+  const checkpoints = Object.values(graph.checkpoints);
+  return checkpoints.find((checkpoint) => {
+    const checkpointTokens = getCheckpointTokens(checkpoint);
+    return roomTokens.some((token) => checkpointTokens.includes(token));
+  });
 }
 
-function randomInt(max: number) {
-  return Math.floor(Math.random() * max);
+function getCheckpointTokens(checkpoint: FloorCheckpoint) {
+  const tokens = [normalizeSearchToken(checkpoint.id)];
+  if (checkpoint.label) {
+    const normalizedLabel = normalizeSearchToken(checkpoint.label);
+    if (normalizedLabel) {
+      tokens.push(normalizedLabel);
+    }
+  }
+  return tokens;
 }

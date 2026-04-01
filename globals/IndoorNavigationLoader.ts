@@ -61,14 +61,26 @@ class IndoorNavigationLoader {
 
     const floorAssetInfo = CODE_TO_FLOOR_ASSET_INFO[buildingCode];
     const json = await this.loadTextFromFile(floorAssetInfo.graphAssetInfo);
-    const object = JSON.parse(json);
+    const object = JSON.parse(json) as RawFloorGraph;
     const graph = this.createGraphFromRawGraph(object);
     const buildingFloorInfo: BuildingFloorInfo = {
       images: floorAssetInfo.images,
       graphData: graph,
       buildingCode,
+      rooms: this.extractRoomSuggestions(object),
     };
     return buildingFloorInfo;
+  }
+
+  private extractRoomSuggestions(rawFloorGraph: RawFloorGraph) {
+    const rooms = rawFloorGraph.rooms ?? [];
+    const normalizedRooms = rooms
+      .filter((room): room is string => typeof room === "string")
+      .map((room) => room.trim())
+      .filter(Boolean);
+    return [...new Set(normalizedRooms)].sort((a, b) =>
+      a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }),
+    );
   }
 
   private createGraphFromRawGraph(rawFloorGraph: RawFloorGraph) {

@@ -7,6 +7,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 interface IndoorNavigationControlsProps {
   onNext: () => void;
   onPrevious: () => void;
+  currentFloor: number;
   canGoNext?: boolean;
   canGoPrevious?: boolean;
 }
@@ -14,12 +15,17 @@ interface IndoorNavigationControlsProps {
 export default function IndoorNavigationControls({
   onNext,
   onPrevious,
+  currentFloor,
   canGoNext = true,
   canGoPrevious = true,
 }: Readonly<IndoorNavigationControlsProps>) {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
   const styles = makeStyles(theme);
+  const formatFloor = (floor: number) => {
+    if (floor < 0) return `B${Math.abs(floor)}`;
+    return `${floor}`;
+  };
 
   return (
     <View style={styles.container}>
@@ -29,15 +35,19 @@ export default function IndoorNavigationControls({
         disabled={!canGoPrevious}
       >
         <Ionicons name="arrow-back" size={22} color={theme.mapSettings.fabIcon} />
-        <Text style={styles.sideText}>Back</Text>
+        <Text style={styles.sideText}>Prev Floor</Text>
       </TouchableOpacity>
+
+      <View style={styles.centerCard}>
+        <Text style={styles.instructionText}>Floor {formatFloor(currentFloor)}</Text>
+      </View>
 
       <TouchableOpacity
         style={[styles.sideButton, !canGoNext && styles.disabled]}
         onPress={onNext}
         disabled={!canGoNext}
       >
-        <Text style={styles.sideText}>Next</Text>
+        <Text style={styles.sideText}>Next Floor</Text>
         <Ionicons name="arrow-forward" size={22} color={theme.mapSettings.fabIcon} />
       </TouchableOpacity>
     </View>

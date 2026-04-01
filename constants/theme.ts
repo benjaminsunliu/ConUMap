@@ -46,6 +46,7 @@ export const Colors = {
       markerBorderSelected: "#200003",
       clusterMarker: "#200003",
       clusterText: white,
+      navigationPathColor: "#216feb",
     },
 
     buildingInfoPopup: {
@@ -112,6 +113,7 @@ export const Colors = {
 
       checkbox: "#2e0306",
       icon: "#5e0e16",
+      backdropColor: "rgba(0,0,0,0.25)",
     },
 
     scheduleViewer: {
@@ -187,6 +189,7 @@ export const Colors = {
       markerBorderSelected: "#330703",
       clusterMarker: "#330703",
       clusterText: white,
+      navigationPathColor: "#216feb",
     },
 
     buildingInfoPopup: {
@@ -252,6 +255,7 @@ export const Colors = {
 
       checkbox: white,
       icon: white,
+      backdropColor: "rgba(0,0,0,0.25)",
     },
 
     scheduleViewer: {
