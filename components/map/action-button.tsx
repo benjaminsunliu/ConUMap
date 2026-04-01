@@ -6,6 +6,7 @@ export type ActionIconName = keyof typeof Ionicons.glyphMap;
 
 interface ActionButtonProps {
   readonly label: string;
+  readonly icon?: ActionIconName;
   readonly onPress?: () => void;
   readonly testID: string;
   readonly theme: typeof Colors.light;
@@ -14,6 +15,7 @@ interface ActionButtonProps {
 
 export function ActionButton({
   label,
+  icon,
   onPress,
   testID,
   theme,
@@ -35,6 +37,7 @@ export function ActionButton({
       testID={testID}
     >
       <Ionicons
+        name={icon ?? "ellipse"}
         size={18}
         color={
           active

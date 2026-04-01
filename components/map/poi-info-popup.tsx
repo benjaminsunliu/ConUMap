@@ -77,7 +77,7 @@ export function POIInfoPopup({ poi, onNavigate }: Props) {
             )}
           </View>
 
-          {poi?.opening_hours?.open_now !== undefined && (
+          {poi?.opening_hours?.open_now && (
             <Text
               style={[
                 styles.openStatus,
