@@ -1,8 +1,6 @@
 appId: host.exp.Exponent
 ---
-- openLink: exp://10.0.2.2:8081
-- waitForAnimationToEnd:
-    timeout: 5000
+- openLink: exp://localhost:8081
 
 # Select start location: Henry F. Hall Building
 - assertVisible: "Search building"
