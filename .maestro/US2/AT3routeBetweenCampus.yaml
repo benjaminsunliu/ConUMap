@@ -16,7 +16,7 @@ appId: host.exp.exponent
 - tapOn: "Your Location"
 - inputText: "Vanier"
 - tapOn:
-    id: "end-result-VL"
+    id: "start-result-VL"
 - assertVisible:
     id: "walking-selector"
 - assertVisible:
