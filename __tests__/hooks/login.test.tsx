@@ -78,63 +78,63 @@ jest.mock("react-native-webview", () => {
 });
 
 describe("Auth Context provide logs in correctly", () => {
-  // it("Should be logged in when the login function is called", async () => {
-  //   function LookAtContext() {
-  //     const { isLoading: logginIn, login } = useLogin();
-  //     const { isLoading: fetchingData, isLoggedIn } = useIsLoggedIn();
-  //     const { isLoading: logginOut, logout } = useLogout();
-  //     if (logginIn || fetchingData || logginOut) {
-  //       return (
-  //         <View>
-  //           <Text>
-  //             Loading... {JSON.stringify({ logginIn, logginOut, fetchingData })}
-  //           </Text>
-  //         </View>
-  //       );
-  //     }
-  //     if (isLoggedIn) {
-  //       return (
-  //         <View>
-  //           <Button title="Logged In" onPress={() => logout()} />
-  //         </View>
-  //       );
-  //     }
-  //     return (
-  //       <View>
-  //         <Button title="Logged Out" onPress={() => login(loggedInStoredData)} />
-  //       </View>
-  //     );
-  //   }
+  it("Should be logged in when the login function is called", async () => {
+    function LookAtContext() {
+      const { isLoading: logginIn, login } = useLogin();
+      const { isLoading: fetchingData, isLoggedIn } = useIsLoggedIn();
+      const { isLoading: logginOut, logout } = useLogout();
+      if (logginIn || fetchingData || logginOut) {
+        return (
+          <View>
+            <Text>
+              Loading... {JSON.stringify({ logginIn, logginOut, fetchingData })}
+            </Text>
+          </View>
+        );
+      }
+      if (isLoggedIn) {
+        return (
+          <View>
+            <Button title="Logged In" onPress={() => logout()} />
+          </View>
+        );
+      }
+      return (
+        <View>
+          <Button title="Logged Out" onPress={() => login(loggedInStoredData)} />
+        </View>
+      );
+    }
 
-  //   const loggedOutCalendar = render(
-  //     <AuthContextProvider>
-  //       <QueryClientProvider client={queryClient}>
-  //         <LookAtContext />
-  //       </QueryClientProvider>
-  //     </AuthContextProvider>,
-  //   );
+    const loggedOutCalendar = render(
+      <AuthContextProvider>
+        <QueryClientProvider client={queryClient}>
+          <LookAtContext />
+        </QueryClientProvider>
+      </AuthContextProvider>,
+    );
 
-  //   // we expect to be logged out
-  //   const loggedOutButton = await loggedOutCalendar.findByText("Logged Out");
+    // we expect to be logged out
+    const loggedOutButton = await loggedOutCalendar.findByText("Logged Out");
 
-  //   // we expect to try to retrieve the data from the store
-  //   expect(getItemAsync as jest.Mock).toHaveBeenCalled();
+    // we expect to try to retrieve the data from the store
+    expect(getItemAsync as jest.Mock).toHaveBeenCalled();
 
-  //   await userEvent.press(loggedOutButton);
-  //   // we expect to be logged in
-  //   const loggedInButton = await loggedOutCalendar.findByText("Logged In");
-  //   // we expect that we set the new login to the store
-  //   expect(setItemAsync as jest.Mock).toHaveBeenCalledWith(
-  //     "savedUser",
-  //     JSON.stringify(loggedInStoredData),
-  //   );
+    await userEvent.press(loggedOutButton);
+    // we expect to be logged in
+    const loggedInButton = await loggedOutCalendar.findByText("Logged In");
+    // we expect that we set the new login to the store
+    expect(setItemAsync as jest.Mock).toHaveBeenCalledWith(
+      "savedUser",
+      JSON.stringify(loggedInStoredData),
+    );
 
-  //   await userEvent.press(loggedInButton);
-  //   // we expect to have deleted the item from the store
-  //   expect(deleteItemAsync as jest.Mock).toHaveBeenCalled();
-  //   // we expect to be logged out
-  //   await loggedOutCalendar.findByText("Logged Out");
-  // });
+    await userEvent.press(loggedInButton);
+    // we expect to have deleted the item from the store
+    expect(deleteItemAsync as jest.Mock).toHaveBeenCalled();
+    // we expect to be logged out
+    await loggedOutCalendar.findByText("Logged Out");
+  });
 
   it("Should inject the js and loggin in when navigating to the right page", async () => {
     const mockedLogin = jest.fn();
