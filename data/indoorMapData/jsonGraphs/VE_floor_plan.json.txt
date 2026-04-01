@@ -24,12 +24,22 @@
       "accessible": true
     },
     {
+      "id": "VE_F1_doorway_257",
+      "type": "doorway",
+      "buildingId": "VE",
+      "floor": 1,
+      "x": 548,
+      "y": 1594,
+      "label": "VE-102",
+      "accessible": true
+    },
+    {
       "id": "VE_F1_stair_landing_24",
       "type": "stair_landing",
       "buildingId": "VE",
       "floor": 1,
-      "x": 548,
-      "y": 1600,
+      "x": 545,
+      "y": 1744,
       "label": "",
       "accessible": false
     },
@@ -604,6 +614,20 @@
       "accessible": true
     },
     {
+      "source": "VE_F1_hallway_waypoint_182",
+      "target": "VE_F1_doorway_257",
+      "type": "door_to_hallway",
+      "weight": 199,
+      "accessible": true
+    },
+    {
+      "source": "VE_F1_doorway_257",
+      "target": "VE_F1_stair_landing_24",
+      "type": "door_to_hallway",
+      "weight": 150,
+      "accessible": true
+    },
+    {
       "source": "VE_F1_doorway_314",
       "target": "VE_F1_doorway_285",
       "type": "hallway",
@@ -998,6 +1022,7 @@
   ],
   "rooms": [
     "VE 101",
+    "VE 102",
     "VE 103",
     "VE 201",
     "VE 202.1",
