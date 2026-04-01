@@ -32,9 +32,8 @@ appId: host.exp.exponent
 - assertVisible:
     id: "routes-info-popup"
 - swipe:
-    from:
-      id: "routes-info-popup"
-    direction: UP
+    start: 45%, 74%
+    end: 45%, 40%
     duration: 800
 - tapOn:
     id: "transit-route-0"
