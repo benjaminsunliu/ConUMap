@@ -20,15 +20,26 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Create .env for Expo
+        run: |
+          cat > .env <<EOF
+          EXPO_PUBLIC_GOOGLE_API_KEY=${{ secrets.API_KEY }}
+          EOF
       
       - name: Verify Google API key exists
         run: |
-          if [ -z "$EXPO_PUBLIC_GOOGLE_API_KEY" ]; then
-            echo "EXPO_PUBLIC_GOOGLE_API_KEY is missing"
+          if [ ! -f .env ]; then
+            echo ".env is missing"
             exit 1
-          else
-            echo "EXPO_PUBLIC_GOOGLE_API_KEY is set"
           fi
+
+          if ! grep -q '^EXPO_PUBLIC_GOOGLE_API_KEY=.' .env; then
+            echo "EXPO_PUBLIC_GOOGLE_API_KEY missing or empty in .env"
+            exit 1
+          fi
+
+          echo ".env created successfully"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -41,9 +52,7 @@ jobs:
 
       - name: Ensure iOS native project
         run: |
-          if [ ! -d ios ]; then
             npx expo prebuild -p ios --clean --no-install --non-interactive
-          fi
 
       - name: Install CocoaPods
         run: |
