@@ -12,7 +12,7 @@ import {
 import { findIndoorPath } from "@/utils/indoorNavigation";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function IndoorMap() {
@@ -67,6 +67,7 @@ export default function IndoorMap() {
   const currentStepIndex = defaultFloor ? floorSteps.indexOf(defaultFloor) : -1;
   const canGoNext = currentStepIndex >= 0 && currentStepIndex < floorSteps.length - 1;
   const canGoPrevious = currentStepIndex > 0;
+  const canCreatePath = startRoom.trim().length > 0 && endRoom.trim().length > 0;
 
   type StepType = "next" | "prev";
   const handleStep = (step: StepType) => {
@@ -120,6 +121,14 @@ export default function IndoorMap() {
     setFloor(sourceCheckpoint.floor);
   };
 
+  useEffect(() => {
+    if (canCreatePath) {
+      return;
+    }
+    setNavigationPath(undefined);
+    setRouteError(undefined);
+  }, [canCreatePath]);
+
   return (
     <View style={styles.container}>
       {isFetching ? <Text>Loading...</Text> : null}
@@ -133,6 +142,7 @@ export default function IndoorMap() {
             onChangeStartRoom={setStartRoom}
             onChangeEndRoom={setEndRoom}
             roomSuggestions={floorInfo.rooms}
+            canCreatePath={canCreatePath}
             onCreatePath={createPathFromRooms}
             routeError={routeError}
           />

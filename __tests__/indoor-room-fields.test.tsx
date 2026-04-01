@@ -34,6 +34,55 @@ function IndoorRoomFieldsHarness() {
 }
 
 describe("IndoorRoomFields", () => {
+  it("disables Navigate when both fields are not filled", () => {
+    const onCreatePath = jest.fn();
+    const screen = render(
+      <IndoorRoomFields
+        buildingCode="MB"
+        startRoom=""
+        endRoom="MB 838"
+        roomSuggestions={ROOM_SUGGESTIONS}
+        canCreatePath={false}
+        onChangeStartRoom={jest.fn()}
+        onChangeEndRoom={jest.fn()}
+        onCreatePath={onCreatePath}
+      />,
+    );
+
+    const navigateButton = screen.getByTestId("indoor-create-path-button");
+    fireEvent.press(navigateButton);
+    expect(onCreatePath).not.toHaveBeenCalled();
+  });
+
+  it("enables Navigate when both fields are filled", () => {
+    const onCreatePath = jest.fn();
+    const screen = render(
+      <IndoorRoomFields
+        buildingCode="MB"
+        startRoom="MB 1.315"
+        endRoom="MB 838"
+        roomSuggestions={ROOM_SUGGESTIONS}
+        canCreatePath
+        onChangeStartRoom={jest.fn()}
+        onChangeEndRoom={jest.fn()}
+        onCreatePath={onCreatePath}
+      />,
+    );
+
+    const navigateButton = screen.getByTestId("indoor-create-path-button");
+    fireEvent.press(navigateButton);
+    expect(onCreatePath).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows no suggestions on focus until the user types", () => {
+    const screen = render(<IndoorRoomFieldsHarness />);
+
+    const startInput = screen.getByTestId("indoor-start-room-input");
+    fireEvent(startInput, "focus");
+
+    expect(screen.queryByTestId("indoor-start-room-suggestions")).toBeNull();
+  });
+
   it("shows start-room suggestions and fills the input when one is selected", () => {
     const screen = render(<IndoorRoomFieldsHarness />);
 

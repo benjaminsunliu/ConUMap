@@ -20,6 +20,7 @@ interface IndoorRoomFieldsProps {
   startRoom: string;
   endRoom: string;
   roomSuggestions?: string[];
+  canCreatePath?: boolean;
   onChangeStartRoom: (value: string) => void;
   onChangeEndRoom: (value: string) => void;
   onCreatePath: () => void;
@@ -31,6 +32,7 @@ export default function IndoorRoomFields({
   startRoom,
   endRoom,
   roomSuggestions = [],
+  canCreatePath = true,
   onChangeStartRoom,
   onChangeEndRoom,
   onCreatePath,
@@ -159,117 +161,127 @@ export default function IndoorRoomFields({
 
       <View style={styles.container}>
         <View style={styles.panel}>
-        <Text style={styles.title}>Indoor Route</Text>
+          <Text style={styles.title}>Indoor Route</Text>
 
-        <View style={styles.fieldsRow}>
-          <View style={styles.field}>
-            <Ionicons
-              name="navigate-outline"
-              size={16}
-              color={theme.floorSelection.chevron}
-            />
-            <TextInput
-              ref={startInputRef}
-              testID="indoor-start-room-input"
-              value={startRoom}
-              onChangeText={handleChangeStart}
-              placeholder={`Start (${buildingCode}820)`}
-              placeholderTextColor={theme.placeholder}
-              style={styles.input}
-              autoCapitalize="characters"
-              autoCorrect={false}
-              returnKeyType="next"
-              onFocus={() => {
-                clearBlurTimeout();
-                setFocusedField("start");
-              }}
-              onBlur={() => scheduleBlur("start")}
-              onSubmitEditing={() => endInputRef.current?.focus()}
-            />
-            {startRoom ? (
-              <TouchableOpacity
-                testID="indoor-clear-start-room"
-                onPress={() => {
-                  onChangeStartRoom("");
-                  setSelectedRooms((prev) => ({ ...prev, start: "" }));
+          <View style={styles.fieldsRow}>
+            <View style={styles.field}>
+              <Ionicons
+                name="navigate-outline"
+                size={16}
+                color={theme.floorSelection.chevron}
+              />
+              <TextInput
+                ref={startInputRef}
+                testID="indoor-start-room-input"
+                value={startRoom}
+                onChangeText={handleChangeStart}
+                placeholder={`Start (${buildingCode}820)`}
+                placeholderTextColor={theme.placeholder}
+                style={styles.input}
+                autoCapitalize="characters"
+                autoCorrect={false}
+                returnKeyType="next"
+                onFocus={() => {
+                  clearBlurTimeout();
+                  setFocusedField("start");
                 }}
-                style={styles.clearFieldButton}
-              >
-                <Text style={styles.clearFieldButtonText}>×</Text>
-              </TouchableOpacity>
-            ) : null}
-          </View>
-
-          <View style={styles.field}>
-            <Ionicons
-              name="flag-outline"
-              size={16}
-              color={theme.floorSelection.chevron}
-            />
-            <TextInput
-              ref={endInputRef}
-              testID="indoor-end-room-input"
-              value={endRoom}
-              onChangeText={handleChangeEnd}
-              placeholder={`End (${buildingCode}838)`}
-              placeholderTextColor={theme.placeholder}
-              style={styles.input}
-              autoCapitalize="characters"
-              autoCorrect={false}
-              returnKeyType="done"
-              onFocus={() => {
-                clearBlurTimeout();
-                setFocusedField("end");
-              }}
-              onBlur={() => scheduleBlur("end")}
-              onSubmitEditing={onCreatePath}
-            />
-            {endRoom ? (
-              <TouchableOpacity
-                testID="indoor-clear-end-room"
-                onPress={() => {
-                  onChangeEndRoom("");
-                  setSelectedRooms((prev) => ({ ...prev, end: "" }));
-                }}
-                style={styles.clearFieldButton}
-              >
-                <Text style={styles.clearFieldButtonText}>×</Text>
-              </TouchableOpacity>
-            ) : null}
-          </View>
-        </View>
-
-        {suggestionField ? (
-          <View
-            style={styles.suggestionsContainer}
-            testID={`indoor-${suggestionField}-room-suggestions`}
-          >
-            <FlatList
-              data={activeSuggestions}
-              keyExtractor={(item) => `${suggestionField}-${item}`}
-              keyboardShouldPersistTaps="handled"
-              renderItem={({ item }) => (
+                onBlur={() => scheduleBlur("start")}
+                onSubmitEditing={() => endInputRef.current?.focus()}
+              />
+              {startRoom ? (
                 <TouchableOpacity
-                  style={[
-                    styles.suggestionItem,
-                    { borderBottomColor: theme.floorSelection.separator },
-                  ]}
-                  onPress={() => handleSelectSuggestion(suggestionField, item)}
-                  testID={`indoor-${suggestionField}-room-suggestion-${formatSuggestionTestId(item)}`}
+                  testID="indoor-clear-start-room"
+                  onPress={() => {
+                    onChangeStartRoom("");
+                    setSelectedRooms((prev) => ({ ...prev, start: "" }));
+                  }}
+                  style={styles.clearFieldButton}
                 >
-                  <Text style={styles.suggestionText}>{item}</Text>
+                  <Text style={styles.clearFieldButtonText}>×</Text>
                 </TouchableOpacity>
-              )}
-            />
+              ) : null}
+            </View>
+
+            <View style={styles.field}>
+              <Ionicons
+                name="flag-outline"
+                size={16}
+                color={theme.floorSelection.chevron}
+              />
+              <TextInput
+                ref={endInputRef}
+                testID="indoor-end-room-input"
+                value={endRoom}
+                onChangeText={handleChangeEnd}
+                placeholder={`End (${buildingCode}838)`}
+                placeholderTextColor={theme.placeholder}
+                style={styles.input}
+                autoCapitalize="characters"
+                autoCorrect={false}
+                returnKeyType="done"
+                onFocus={() => {
+                  clearBlurTimeout();
+                  setFocusedField("end");
+                }}
+                onBlur={() => scheduleBlur("end")}
+                onSubmitEditing={() => {
+                  if (canCreatePath) {
+                    onCreatePath();
+                  }
+                }}
+              />
+              {endRoom ? (
+                <TouchableOpacity
+                  testID="indoor-clear-end-room"
+                  onPress={() => {
+                    onChangeEndRoom("");
+                    setSelectedRooms((prev) => ({ ...prev, end: "" }));
+                  }}
+                  style={styles.clearFieldButton}
+                >
+                  <Text style={styles.clearFieldButtonText}>×</Text>
+                </TouchableOpacity>
+              ) : null}
+            </View>
           </View>
-        ) : null}
 
-        <TouchableOpacity style={styles.routeButton} onPress={onCreatePath} activeOpacity={0.85}>
-          <Text style={styles.routeButtonText}>Navigate</Text>
-          <Ionicons name="arrow-forward" size={16} color={theme.mapSettings.fabBackground} />
-        </TouchableOpacity>
+          {suggestionField ? (
+            <View
+              style={styles.suggestionsContainer}
+              testID={`indoor-${suggestionField}-room-suggestions`}
+            >
+              <FlatList
+                data={activeSuggestions}
+                keyExtractor={(item) => `${suggestionField}-${item}`}
+                keyboardShouldPersistTaps="handled"
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={[
+                      styles.suggestionItem,
+                      { borderBottomColor: theme.floorSelection.separator },
+                    ]}
+                    onPress={() => handleSelectSuggestion(suggestionField, item)}
+                    testID={`indoor-${suggestionField}-room-suggestion-${formatSuggestionTestId(item)}`}
+                  >
+                    <Text style={styles.suggestionText}>{item}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          ) : null}
 
-        {routeError ? <Text style={styles.errorText}>{routeError}</Text> : null}
+          <TouchableOpacity
+            testID="indoor-create-path-button"
+            style={[styles.routeButton, !canCreatePath && styles.routeButtonDisabled]}
+            onPress={onCreatePath}
+            activeOpacity={canCreatePath ? 0.85 : 1}
+            disabled={!canCreatePath}
+          >
+            <Text style={styles.routeButtonText}>Navigate</Text>
+            <Ionicons name="arrow-forward" size={16} color={theme.mapSettings.fabBackground} />
+          </TouchableOpacity>
+
+          {routeError ? <Text style={styles.errorText}>{routeError}</Text> : null}
         </View>
       </View>
     </View>
@@ -368,6 +380,9 @@ const makeStyles = (theme: typeof Colors.light | typeof Colors.dark) =>
       backgroundColor: theme.mapSettings.fabIcon,
       paddingVertical: 7,
     },
+    routeButtonDisabled: {
+      opacity: 0.45,
+    },
     routeButtonText: {
       color: theme.mapSettings.fabBackground,
       fontWeight: "700",
@@ -390,7 +405,7 @@ function filterRoomSuggestions(roomSuggestions: string[], query: string, buildin
 
   const roomQueryTokens = getRoomSearchTokens(query, buildingCode);
   if (roomQueryTokens.length === 0) {
-    return normalizedSuggestions.slice(0, MAX_VISIBLE_SUGGESTIONS);
+    return [];
   }
 
   return normalizedSuggestions
