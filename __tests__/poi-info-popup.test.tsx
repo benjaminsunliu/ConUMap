@@ -69,7 +69,7 @@ describe("poi-info-popup", () => {
     render(<POIInfoPopup poi={mockPOI} />);
 
     expect(screen.getByText("Clinique Chiropratique C3VN")).toBeTruthy();
-    expect(screen.getByText("⭐4.8")).toBeTruthy();
+    expect(screen.getByText("4.8⭐")).toBeTruthy();
     expect(screen.getByText("(192)")).toBeTruthy();
     expect(screen.getByText("Open Now")).toBeTruthy();
     expect(screen.getByText("+1 514-544-2386")).toBeTruthy();
