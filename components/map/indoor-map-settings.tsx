@@ -150,7 +150,7 @@ const makeStyles = (theme: typeof Colors.light | typeof Colors.dark) =>
     },
     backdrop: {
       ...StyleSheet.absoluteFillObject,
-      backgroundColor: "rgba(0,0,0,0.25)",
+      backgroundColor: theme.mapSettings.backdropColor,
     },
 
     fab: {

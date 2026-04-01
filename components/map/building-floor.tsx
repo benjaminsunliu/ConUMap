@@ -1,3 +1,5 @@
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { BuildingFloorInfo, IndoorNavigationPath } from "@/types/mapTypes";
 import { useMemo, useRef } from "react";
 import { Image, StyleSheet, View } from "react-native";
@@ -14,6 +16,8 @@ export default function BuildingFloor({
   floor,
   navigationPath,
 }: Readonly<BuildingFloorProps>) {
+  const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme];
   const viewContainerRef = useRef(null);
 
   const imageSize = useMemo(() => {
@@ -69,7 +73,7 @@ export default function BuildingFloor({
           y1={current.y}
           x2={next.x}
           y2={next.y}
-          stroke={"#216feb"}
+          stroke={theme.map.navigationPathColor}
           strokeWidth={20}
         />,
       );

@@ -53,33 +53,32 @@ export default function IndoorMap() {
   const availableFloors: number[] = useMemo(() => {
     return floorInfo?.images
       ? Object.keys(floorInfo.images)
-          .map(Number)
-          .sort((a, b) => a - b)
+        .map(Number)
+        .sort((a, b) => a - b)
       : [];
   }, [floorInfo]);
-  const floorSteps = availableFloors;
 
   const firstFloor = useMemo(() => {
     return availableFloors[0];
   }, [availableFloors]);
 
   const defaultFloor = floor || firstFloor;
-  const currentStepIndex = defaultFloor ? floorSteps.indexOf(defaultFloor) : -1;
-  const canGoNext = currentStepIndex >= 0 && currentStepIndex < floorSteps.length - 1;
-  const canGoPrevious = currentStepIndex > 0;
+  const currentFloorIndex = defaultFloor ? availableFloors.indexOf(defaultFloor) : -1;
+  const canGoNext = currentFloorIndex >= 0 && currentFloorIndex < availableFloors.length - 1;
+  const canGoPrevious = currentFloorIndex > 0;
   const canCreatePath = startRoom.trim().length > 0 && endRoom.trim().length > 0;
 
-  type StepType = "next" | "prev";
-  const handleStep = (step: StepType) => {
-    if (currentStepIndex < 0) {
+  type FloorDirection = "next" | "prev";
+  const handleFloorNavigation = (direction: FloorDirection) => {
+    if (currentFloorIndex < 0) {
       return;
     }
-    const delta = step === "next" ? 1 : -1;
-    const newStep = Math.min(
-      Math.max(currentStepIndex + delta, 0),
-      floorSteps.length - 1,
+    const delta = direction === "next" ? 1 : -1;
+    const newFloorIndex = Math.min(
+      Math.max(currentFloorIndex + delta, 0),
+      availableFloors.length - 1,
     );
-    setFloor(floorSteps[newStep]);
+    setFloor(availableFloors[newFloorIndex]);
   };
 
   const createPathFromRooms = () => {
@@ -157,8 +156,8 @@ export default function IndoorMap() {
             setPoiFilters={setPoiFilters} //TODO temp
           />
           <IndoorNavigationControls
-            onNext={() => handleStep("next")}
-            onPrevious={() => handleStep("prev")}
+            onNext={() => handleFloorNavigation("next")}
+            onPrevious={() => handleFloorNavigation("prev")}
             currentFloor={defaultFloor}
             canGoNext={canGoNext}
             canGoPrevious={canGoPrevious}
