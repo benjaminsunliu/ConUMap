@@ -80,17 +80,17 @@ export default function BuildingInfoPopup({
         handler: onSetAsStart,
       },
       {
-        label: "Website",
-        icon: "globe-outline",
-        type: "website",
-        handler: openWebsiteURL,
-      },
-      {
         label: "Explore Rooms",
         icon: "business-outline",
         type: "rooms",
         handler: onExploreRooms,
         active: hasIndoorNavigation,
+      },
+      {
+        label: "Website",
+        icon: "globe-outline",
+        type: "website",
+        handler: openWebsiteURL,
       },
     ],
     [onNavigate, onSetAsStart, openWebsiteURL, onExploreRooms, hasIndoorNavigation],
