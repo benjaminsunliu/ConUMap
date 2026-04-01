@@ -1,6 +1,5 @@
 appId: com.anonymous.client
 ---
-
 - runFlow:
     file: launchApp.yaml
 - runFlow:
