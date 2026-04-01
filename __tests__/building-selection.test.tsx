@@ -185,44 +185,44 @@ describe("BuildingSelection Directions", () => {
     expect(mockOnSelect).toHaveBeenCalled();
   });
 
-  // it("should remove display results when a result is pressed, call the onSelect, and set the query correctly", async () => {
-  //   const selectionView = render(
-  //     <BuildingSelection
-  //       selectedBuilding={null}
-  //       mode={"directions"}
-  //       onSelect={mockOnSelect}
-  //     />,
-  //   );
-  //   const startInput = selectionView.getByPlaceholderText("Your location");
+  it("should remove display results when a result is pressed, call the onSelect, and set the query correctly", async () => {
+    const selectionView = render(
+      <BuildingSelection
+        selectedBuilding={null}
+        mode={"directions"}
+        onSelect={mockOnSelect}
+      />,
+    );
+    const startInput = selectionView.getByPlaceholderText("Your location");
 
-  //   fireEvent(startInput, "focus");
-  //   fireEvent.changeText(startInput, "Hall");
+    fireEvent(startInput, "focus");
+    fireEvent.changeText(startInput, "Hall");
 
-  //   const hallResult = await selectionView.findByTestId("start-result-H");
+    const hallResult = await selectionView.findByTestId("start-result-H");
 
-  //   fireEvent.press(hallResult);
+    fireEvent.press(hallResult);
 
-  //   const startResultsAfterPress = await selectionView.queryByTestId("start-results");
-  //   expect(startResultsAfterPress).toBeNull();
-  //   expect(mockOnSelect).toHaveBeenCalledWith(
-  //     {
-  //       start: {
-  //         buildingCode: "H",
-  //         buildingName: "Henry F. Hall Building",
-  //         address: "1455 Blvd. De Maisonneuve Ouest, Montreal, QC H3G 1M8",
-  //         campus: "SGW",
-  //       },
-  //       end: null,
-  //     },
-  //     "start",
-  //   );
-  //   expect(selectionView.getByPlaceholderText("Your location").props.value).toBe(
-  //     "Henry F. Hall Building",
-  //   );
-  //   expect(
-  //     (await selectionView.findByPlaceholderText("Destination")).props.value,
-  //   ).toBeFalsy();
-  // });
+    const startResultsAfterPress = await selectionView.queryByTestId("start-results");
+    expect(startResultsAfterPress).toBeNull();
+    expect(mockOnSelect).toHaveBeenCalledWith(
+      {
+        start: {
+          buildingCode: "H",
+          buildingName: "Henry F. Hall Building",
+          address: "1455 Blvd. De Maisonneuve Ouest, Montreal, QC H3G 1M8",
+          campus: "SGW",
+        },
+        end: null,
+      },
+      "start",
+    );
+    expect(selectionView.getByPlaceholderText("Your location").props.value).toBe(
+      "Henry F. Hall Building",
+    );
+    expect(
+      (await selectionView.findByPlaceholderText("Destination")).props.value,
+    ).toBeFalsy();
+  });
 
   it("should prioritize current buildings when typing in Search building field", async () => {
     const selectionView = render(
