@@ -79,6 +79,7 @@ export type BuildingFloorInfo = {
   images: FloorImages;
   graphData: FloorCheckpointsGraph;
   buildingCode: BuildingCode;
+  rooms?: string[];
 };
 
 export type RawFloorGraph = {
@@ -87,6 +88,7 @@ export type RawFloorGraph = {
   };
   nodes: FloorCheckpoint[];
   edges: FloorCheckpointConnection[];
+  rooms?: string[];
 };
 
 export type FloorCheckpointsGraph = {

@@ -1,0 +1,131 @@
+import IndoorRoomFields from "@/components/map/indoor-room-fields";
+import { fireEvent, render } from "@testing-library/react-native";
+import React, { useState } from "react";
+
+jest.mock("@/hooks/use-color-scheme", () => ({
+  useColorScheme: () => "light",
+}));
+
+const ROOM_SUGGESTIONS = [
+  "MB 1.115",
+  "MB 1.130",
+  "MB 1.315",
+  "MB 838",
+  "MB 838.1",
+  "MB S2.210",
+  "MB S2.245",
+];
+
+function IndoorRoomFieldsHarness() {
+  const [startRoom, setStartRoom] = useState("");
+  const [endRoom, setEndRoom] = useState("");
+
+  return (
+    <IndoorRoomFields
+      buildingCode="MB"
+      startRoom={startRoom}
+      endRoom={endRoom}
+      roomSuggestions={ROOM_SUGGESTIONS}
+      onChangeStartRoom={setStartRoom}
+      onChangeEndRoom={setEndRoom}
+      onCreatePath={jest.fn()}
+    />
+  );
+}
+
+describe("IndoorRoomFields", () => {
+  it("shows start-room suggestions and fills the input when one is selected", () => {
+    const screen = render(<IndoorRoomFieldsHarness />);
+
+    const startInput = screen.getByTestId("indoor-start-room-input");
+    fireEvent(startInput, "focus");
+    fireEvent.changeText(startInput, "1.1");
+
+    expect(screen.getByTestId("indoor-start-room-suggestions")).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId("indoor-start-room-suggestion-MB-1-115"));
+
+    expect(screen.getByTestId("indoor-start-room-input").props.value).toBe("MB 1.115");
+    expect(screen.queryByTestId("indoor-start-room-suggestions")).toBeNull();
+  });
+
+  it("shows end-room suggestions and fills the input when one is selected", () => {
+    const screen = render(<IndoorRoomFieldsHarness />);
+
+    const endInput = screen.getByTestId("indoor-end-room-input");
+    fireEvent(endInput, "focus");
+    fireEvent.changeText(endInput, "S2.24");
+
+    expect(screen.getByTestId("indoor-end-room-suggestions")).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId("indoor-end-room-suggestion-MB-S2-245"));
+
+    expect(screen.getByTestId("indoor-end-room-input").props.value).toBe("MB S2.245");
+    expect(screen.queryByTestId("indoor-end-room-suggestions")).toBeNull();
+  });
+
+  it("hides suggestion list when there are no matches", () => {
+    const screen = render(<IndoorRoomFieldsHarness />);
+
+    const startInput = screen.getByTestId("indoor-start-room-input");
+    fireEvent(startInput, "focus");
+    fireEvent.changeText(startInput, "NO_MATCH_ROOM");
+
+    expect(screen.queryByTestId("indoor-start-room-suggestions")).toBeNull();
+  });
+
+  it("dismisses suggestions when tapping outside the panel", () => {
+    const screen = render(<IndoorRoomFieldsHarness />);
+
+    const startInput = screen.getByTestId("indoor-start-room-input");
+    fireEvent(startInput, "focus");
+    fireEvent.changeText(startInput, "1.");
+
+    expect(screen.getByTestId("indoor-start-room-suggestions")).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId("indoor-room-suggestions-dismiss-overlay"));
+
+    expect(screen.queryByTestId("indoor-start-room-suggestions")).toBeNull();
+  });
+
+  it("shows both exact and variant room suggestions (e.g. 838 and 838.1)", () => {
+    const screen = render(<IndoorRoomFieldsHarness />);
+
+    const startInput = screen.getByTestId("indoor-start-room-input");
+    fireEvent(startInput, "focus");
+    fireEvent.changeText(startInput, "838");
+
+    expect(screen.getByTestId("indoor-start-room-suggestion-MB-838")).toBeTruthy();
+    expect(screen.getByTestId("indoor-start-room-suggestion-MB-838-1")).toBeTruthy();
+  });
+
+  it("keeps suggestions hidden when refocusing an unchanged selected room", () => {
+    const screen = render(<IndoorRoomFieldsHarness />);
+
+    const startInput = screen.getByTestId("indoor-start-room-input");
+    fireEvent(startInput, "focus");
+    fireEvent.changeText(startInput, "1.1");
+
+    fireEvent.press(screen.getByTestId("indoor-start-room-suggestion-MB-1-115"));
+    expect(screen.queryByTestId("indoor-start-room-suggestions")).toBeNull();
+
+    fireEvent(startInput, "focus");
+    expect(screen.queryByTestId("indoor-start-room-suggestions")).toBeNull();
+  });
+
+  it("clears start and end fields with the small clear buttons", () => {
+    const screen = render(<IndoorRoomFieldsHarness />);
+
+    const startInput = screen.getByTestId("indoor-start-room-input");
+    const endInput = screen.getByTestId("indoor-end-room-input");
+
+    fireEvent.changeText(startInput, "MB 1.315");
+    fireEvent.changeText(endInput, "MB S2.245");
+
+    fireEvent.press(screen.getByTestId("indoor-clear-start-room"));
+    fireEvent.press(screen.getByTestId("indoor-clear-end-room"));
+
+    expect(screen.getByTestId("indoor-start-room-input").props.value).toBe("");
+    expect(screen.getByTestId("indoor-end-room-input").props.value).toBe("");
+  });
+});

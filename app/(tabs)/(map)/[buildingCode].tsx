@@ -132,6 +132,7 @@ export default function IndoorMap() {
             endRoom={endRoom}
             onChangeStartRoom={setStartRoom}
             onChangeEndRoom={setEndRoom}
+            roomSuggestions={floorInfo.rooms}
             onCreatePath={createPathFromRooms}
             routeError={routeError}
           />
