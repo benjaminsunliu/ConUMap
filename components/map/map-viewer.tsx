@@ -23,10 +23,11 @@ import MapView, {
 } from "react-native-maps";
 import RoutesInfoPopup from "../navigation/routes-info-popup";
 import BuildingInfoPopup from "./building-info-popup";
-import BuildingSelection, { CURRENT_LOCATION_CODE } from "./building-selection";
+import BuildingSelection from "./building-selection";
 import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
+import { CURRENT_LOCATION_CODE } from "@/hooks/use-search-building";
 import PoiMarker from "./poi-marker";
 import { usePoi } from "@/hooks/use-poi";
 import { MIN_RADIUS_METERS, MAX_RADIUS_METERS } from "@/constants/campusCenters";
@@ -721,6 +722,14 @@ export default function MapViewer({
 
           if (!coord) {
             clearRouteRendering();
+            setRoutePolyline(null);
+            setRoutes({
+              walking: null,
+              transit: null,
+              driving: null,
+              bicycling: null,
+              shuttle: null,
+            });
           }
 
           if (type === "end") {
