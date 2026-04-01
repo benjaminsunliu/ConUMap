@@ -192,4 +192,22 @@ describe("IndoorRoomFields", () => {
     expect(screen.getByTestId("indoor-start-room-input").props.value).toBe("");
     expect(screen.getByTestId("indoor-end-room-input").props.value).toBe("");
   });
+
+  it("keeps invalid room input while typing", () => {
+    const screen = render(<IndoorRoomFieldsHarness />);
+
+    const startInput = screen.getByTestId("indoor-start-room-input");
+    fireEvent.changeText(startInput, "NOT_A_ROOM");
+
+    expect(screen.getByTestId("indoor-start-room-input").props.value).toBe("NOT_A_ROOM");
+  });
+
+  it("allows shorthand input that can match known rooms", () => {
+    const screen = render(<IndoorRoomFieldsHarness />);
+
+    const startInput = screen.getByTestId("indoor-start-room-input");
+    fireEvent.changeText(startInput, "838");
+
+    expect(screen.getByTestId("indoor-start-room-input").props.value).toBe("838");
+  });
 });

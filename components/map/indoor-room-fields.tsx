@@ -1,5 +1,10 @@
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import {
+  getRoomSearchTokens,
+  getRoomTokens,
+  normalizeSearchToken,
+} from "@/utils/roomSearch";
 import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -448,33 +453,6 @@ function filterRoomSuggestions(
         a.room.localeCompare(b.room, undefined, { numeric: true, sensitivity: "base" }),
     )
     .map((suggestion) => suggestion.room);
-}
-
-function getRoomSearchTokens(roomQuery: string, buildingCode: string) {
-  const normalizedRoom = normalizeSearchToken(roomQuery);
-  if (!normalizedRoom) {
-    return [];
-  }
-
-  const normalizedBuildingCode = normalizeSearchToken(buildingCode);
-  const normalizedRoomWithCode = normalizedRoom.startsWith(normalizedBuildingCode)
-    ? normalizedRoom
-    : `${normalizedBuildingCode}${normalizedRoom}`;
-
-  return [...new Set([normalizedRoom, normalizedRoomWithCode])];
-}
-
-function getRoomTokens(room: string, buildingCode: string) {
-  const normalizedRoom = normalizeSearchToken(room);
-  const normalizedBuildingCode = normalizeSearchToken(buildingCode);
-  const withoutBuildingCode = normalizedRoom.startsWith(normalizedBuildingCode)
-    ? normalizedRoom.slice(normalizedBuildingCode.length)
-    : normalizedRoom;
-  return [...new Set([normalizedRoom, withoutBuildingCode].filter(Boolean))];
-}
-
-function normalizeSearchToken(value: string) {
-  return value.toUpperCase().replaceAll(/[^A-Z0-9]/g, "");
 }
 
 function formatSuggestionTestId(value: string) {
