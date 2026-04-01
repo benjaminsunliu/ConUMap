@@ -69,8 +69,8 @@ export default function BuildingFloor({
           y1={current.y}
           x2={next.x}
           y2={next.y}
-          stroke={"red"}
-          strokeWidth={10}
+          stroke={"#216feb"}
+          strokeWidth={20}
         />,
       );
     }
