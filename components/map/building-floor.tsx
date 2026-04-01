@@ -18,6 +18,7 @@ export default function BuildingFloor({
 }: Readonly<BuildingFloorProps>) {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
+  const navigationPathColor = theme.map.navigationPathColor;
   const viewContainerRef = useRef(null);
 
   const imageSize = useMemo(() => {
@@ -73,13 +74,13 @@ export default function BuildingFloor({
           y1={current.y}
           x2={next.x}
           y2={next.y}
-          stroke={theme.map.navigationPathColor}
+          stroke={navigationPathColor}
           strokeWidth={20}
         />,
       );
     }
     return result;
-  }, [navigationPath, info.graphData.checkpoints, floor]);
+  }, [navigationPath, info.graphData.checkpoints, floor, navigationPathColor]);
 
   return (
     <View style={styles.container} ref={viewContainerRef}>
