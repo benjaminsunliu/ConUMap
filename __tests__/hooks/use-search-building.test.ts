@@ -10,14 +10,44 @@ jest.mock("expo-asset", () => ({
 jest.mock("@/data/building-addresses.json", () => [
   {
     buildingCode: "H",
-    buildingName: "Hall Building",
+    buildingName: "Hall",
     address: "1455 De Maisonneuve",
     campus: "SGW",
   },
   {
     buildingCode: "LB",
-    buildingName: "Library Building",
+    buildingName: "Library",
     address: "1400 De Maisonneuve",
+    campus: "SGW",
+  },
+  {
+    buildingCode: "M",
+    buildingName: "M Complex",
+    address: "M Address",
+    campus: "SGW",
+  },
+  {
+    buildingCode: "MB",
+    buildingName: "MB Complex",
+    address: "MB Address",
+    campus: "SGW",
+  },
+  {
+    buildingCode: "V",
+    buildingName: "V Complex",
+    address: "V Address",
+    campus: "SGW",
+  },
+  {
+    buildingCode: "VE",
+    buildingName: "VE Complex",
+    address: "VE Address",
+    campus: "SGW",
+  },
+  {
+    buildingCode: "VL",
+    buildingName: "VL Complex",
+    address: "VL Address",
     campus: "SGW",
   },
 ]);
@@ -54,7 +84,7 @@ describe("useBuildingSearch - Full Coverage Suite", () => {
       jest.advanceTimersByTime(100);
     });
     expect(globalThis.fetch).not.toHaveBeenCalled();
-    // "H" matches "Hall Building" in standard results even if room search is skipped
+    // "H" matches "Hall" in standard results even if room search is skipped
     expect(result.current.results.start).toHaveLength(1);
     expect(result.current.results.start[0].buildingCode).toBe("H");
   });
@@ -195,5 +225,51 @@ describe("useBuildingSearch - Full Coverage Suite", () => {
     });
     expect(result.current.queries.start).toBe("LB");
     expect(result.current.queries.end).toBe("H");
+  });
+
+  it("should prefer the longest matching building code for room suggestions", async () => {
+    (Asset.fromModule as jest.Mock).mockReturnValue({
+      downloadAsync: jest.fn().mockResolvedValue(true),
+      localUri: "mock-uri",
+    });
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: jest
+        .fn()
+        .mockResolvedValue(JSON.stringify({ rooms: ["MB201", "VE101", "VL101"] })),
+    });
+
+    const { result } = renderHook(() => useBuildingSearch({}));
+
+    act(() => {
+      result.current.updateQuery("start", "MB2");
+      jest.advanceTimersByTime(100);
+    });
+    await waitFor(() => {
+      expect(result.current.results.start.some((r) => r.buildingName === "MB201")).toBe(
+        true,
+      );
+    });
+
+    act(() => {
+      result.current.updateQuery("start", "VE1");
+      jest.advanceTimersByTime(100);
+    });
+    await waitFor(() => {
+      expect(result.current.results.start.some((r) => r.buildingName === "VE101")).toBe(
+        true,
+      );
+    });
+
+    act(() => {
+      result.current.updateQuery("start", "VL1");
+      jest.advanceTimersByTime(100);
+    });
+    await waitFor(() => {
+      expect(result.current.results.start.some((r) => r.buildingName === "VL101")).toBe(
+        true,
+      );
+    });
   });
 });

@@ -5,6 +5,17 @@ import { Asset } from "expo-asset";
 
 export const CURRENT_LOCATION_CODE = "CURRENT_LOCATION";
 const buildingAddresses = buildingAddressesRaw as SearchBuilding[];
+const ROOM_SEARCH_ASSET_MAP: Record<string, number> = {
+  CC: require("../data/indoorMapData/jsonGraphs/CC_floor_plan.json.txt"),
+  H: require("../data/indoorMapData/jsonGraphs/H_floor_plan.json.txt"),
+  LB: require("../data/indoorMapData/jsonGraphs/LB_floor_plan.json.txt"),
+  MB: require("../data/indoorMapData/jsonGraphs/MB_floor_plan.json.txt"),
+  VE: require("../data/indoorMapData/jsonGraphs/VE_floor_plan.json.txt"),
+  VL: require("../data/indoorMapData/jsonGraphs/VL_floor_plan.json.txt"),
+};
+const ROOM_SEARCH_BUILDING_CODES = Object.keys(ROOM_SEARCH_ASSET_MAP).sort(
+  (a, b) => b.length - a.length,
+);
 
 const CURRENT_LOCATION_SENTINEL: SearchBuilding = {
   buildingCode: CURRENT_LOCATION_CODE,
@@ -14,16 +25,10 @@ const CURRENT_LOCATION_SENTINEL: SearchBuilding = {
 };
 
 const loadBuildingFile = async (buildingCode: string) => {
-  const assetMap: Record<string, string> = {
-    CC: require("../data/indoorMapData/jsonGraphs/CC_floor_plan.json.txt"),
-    H: require("../data/indoorMapData/jsonGraphs/H_floor_plan.json.txt"),
-    LB: require("../data/indoorMapData/jsonGraphs/LB_floor_plan.json.txt"),
-    MB: require("../data/indoorMapData/jsonGraphs/MB_floor_plan.json.txt"),
-    VE: require("../data/indoorMapData/jsonGraphs/VE_floor_plan.json.txt"),
-    VL: require("../data/indoorMapData/jsonGraphs/VL_floor_plan.json.txt"),
-  };
+  const assetModule = ROOM_SEARCH_ASSET_MAP[buildingCode];
+  if (!assetModule) return {};
 
-  const asset = Asset.fromModule(assetMap[buildingCode]);
+  const asset = Asset.fromModule(assetModule);
   await asset.downloadAsync();
 
   if (!asset.localUri) return [];
@@ -38,6 +43,13 @@ const loadBuildingFile = async (buildingCode: string) => {
     });
   return JSON.parse(content);
 };
+
+const findRoomSearchBuildingCode = (query: string) =>
+  ROOM_SEARCH_BUILDING_CODES.find((code) => {
+    if (!query.startsWith(code)) return false;
+    const nextChar = query.at(code.length);
+    return !nextChar || /[^A-Z]/.test(nextChar);
+  });
 
 export function useBuildingSearch({
   currentBuildingCodes = new Set(),
@@ -72,9 +84,7 @@ export function useBuildingSearch({
       setRoomResults((prev) => ({ ...prev, [type]: [] }));
       return;
     }
-    const buildingCode = buildingAddresses.find((b) =>
-      q.startsWith(b.buildingCode),
-    )?.buildingCode;
+    const buildingCode = findRoomSearchBuildingCode(q);
     if (!buildingCode) {
       setRoomResults((prev) => ({ ...prev, [type]: [] }));
       return;
