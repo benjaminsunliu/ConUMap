@@ -645,7 +645,7 @@ abstract class GoogleRoutesStrategy implements RouteStrategy {
 
     if (!apiKey) {
       console.warn(
-        "EXPO_PUBLIC_GOOGLE_API_KEY is not set – directions will not be available.",
+        "[Routes:${this.travelMode}] EXPO_PUBLIC_GOOGLE_API_KEY is not set – directions will not be available.",
       );
       return null;
     }
@@ -668,13 +668,14 @@ abstract class GoogleRoutesStrategy implements RouteStrategy {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        console.warn(`Routes API HTTP error: ${response.status}`);
+        console.warn(`Routes:${this.travelMode}] API HTTP error: ${response.status}`);
         return null;
       }
 
       const data: RawRoutesResponse = await response.json();
 
       if (!data.routes || data.routes.length === 0) {
+        console.warn(`[Routes:${this.travelMode}] no routes returned`);
         return [];
       }
 
@@ -691,9 +692,9 @@ abstract class GoogleRoutesStrategy implements RouteStrategy {
     } catch (error) {
       clearTimeout(timeoutId);
       if (error instanceof Error && error.name === "AbortError") {
-        console.warn("fetchDirections timed out after 10 s");
+        console.warn(`[Routes:${this.travelMode}] fetchDirections timed out after 10 s`);
       } else {
-        console.error("Failed to fetch directions:", error);
+        console.error(`[Routes:${this.travelMode}] Failed to fetch directions:`, error);
       }
 
       return null;
