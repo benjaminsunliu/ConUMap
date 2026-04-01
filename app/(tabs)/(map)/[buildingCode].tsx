@@ -102,7 +102,11 @@ export default function IndoorMap() {
       setNavigationPath(undefined);
       return;
     }
-    const destinationCheckpoint = findCheckpointForRoom(graph, trimmedEndRoom, buildingCode);
+    const destinationCheckpoint = findCheckpointForRoom(
+      graph,
+      trimmedEndRoom,
+      buildingCode,
+    );
     if (!destinationCheckpoint) {
       setRouteError(`End room "${trimmedEndRoom}" was not found.`);
       setNavigationPath(undefined);

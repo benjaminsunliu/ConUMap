@@ -83,7 +83,11 @@ export default function IndoorRoomFields({
   const activeField = focusedField;
   const activeQuery = getActiveRoomQuery(activeField, startRoom, endRoom);
   const selectedRoomForField = getSelectedRoomForField(activeField, selectedRooms);
-  const activeSuggestions = getActiveSuggestions(activeField, startSuggestions, endSuggestions);
+  const activeSuggestions = getActiveSuggestions(
+    activeField,
+    startSuggestions,
+    endSuggestions,
+  );
   const suggestionField = getSuggestionField(
     activeField,
     activeQuery,
@@ -274,7 +278,11 @@ export default function IndoorRoomFields({
             disabled={!canCreatePath}
           >
             <Text style={styles.routeButtonText}>Navigate</Text>
-            <Ionicons name="arrow-forward" size={16} color={theme.mapSettings.fabBackground} />
+            <Ionicons
+              name="arrow-forward"
+              size={16}
+              color={theme.mapSettings.fabBackground}
+            />
           </TouchableOpacity>
 
           {routeError ? <Text style={styles.errorText}>{routeError}</Text> : null}
@@ -391,10 +399,14 @@ const makeStyles = (theme: typeof Colors.light | typeof Colors.dark) =>
     },
   });
 
-function filterRoomSuggestions(roomSuggestions: string[], query: string, buildingCode: string) {
-  const normalizedSuggestions = [...new Set(roomSuggestions.map((room) => room.trim()))].filter(
-    Boolean,
-  );
+function filterRoomSuggestions(
+  roomSuggestions: string[],
+  query: string,
+  buildingCode: string,
+) {
+  const normalizedSuggestions = [
+    ...new Set(roomSuggestions.map((room) => room.trim())),
+  ].filter(Boolean);
   if (normalizedSuggestions.length === 0) {
     return [];
   }
@@ -425,7 +437,9 @@ function filterRoomSuggestions(roomSuggestions: string[], query: string, buildin
         firstMatchIndex: Math.min(...matchIndexes),
       };
     })
-    .filter((suggestion): suggestion is NonNullable<typeof suggestion> => suggestion !== null)
+    .filter(
+      (suggestion): suggestion is NonNullable<typeof suggestion> => suggestion !== null,
+    )
     .sort(
       (a, b) =>
         Number(b.exactMatch) - Number(a.exactMatch) ||
@@ -521,7 +535,11 @@ function getSuggestionField(
     !!activeQuery &&
     normalizeSearchToken(activeQuery) === normalizeSearchToken(selectedRoomForField);
 
-  if (!activeField || activeSuggestions.length === 0 || shouldSuppressSelectedRoomSuggestions) {
+  if (
+    !activeField ||
+    activeSuggestions.length === 0 ||
+    shouldSuppressSelectedRoomSuggestions
+  ) {
     return null;
   }
 
