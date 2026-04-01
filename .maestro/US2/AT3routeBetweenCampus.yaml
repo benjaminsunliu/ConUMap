@@ -29,6 +29,8 @@ appId: host.exp.exponent
     id: "shuttle-selector"
 - tapOn:
     id: "transit-selector"
+- assertVisible:
+    id: "routes-info-popup"
 - swipe:
     from:
       id: "routes-info-popup"
