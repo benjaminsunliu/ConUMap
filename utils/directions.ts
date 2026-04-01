@@ -668,7 +668,7 @@ abstract class GoogleRoutesStrategy implements RouteStrategy {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        console.warn(`Routes:${this.travelMode}] API HTTP error: ${response.status}`);
+        console.warn(`Routes API HTTP error: ${response.status}`);
         return null;
       }
 
@@ -694,7 +694,7 @@ abstract class GoogleRoutesStrategy implements RouteStrategy {
       if (error instanceof Error && error.name === "AbortError") {
         console.warn(`[Routes:${this.travelMode}] fetchDirections timed out after 10 s`);
       } else {
-        console.error(`[Routes:${this.travelMode}] Failed to fetch directions:`, error);
+        console.error("Failed to fetch directions:", error);
       }
 
       return null;
