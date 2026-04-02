@@ -145,6 +145,7 @@ export default function BuildingInfoPopup({
   }, [
     ACTIONS,
     building,
+    roomContext,
     styles.actionsRow,
     styles.line,
     styles.openStatus,

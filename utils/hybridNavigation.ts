@@ -365,14 +365,14 @@ function rankEntryExitCheckpoints(roomFloor: number, entryPoints: FloorCheckpoin
 
 function getEntryExitOrder(checkpoint: FloorCheckpoint) {
   const sources = [checkpoint.label ?? "", checkpoint.id].join(" ");
-  const explicitEntryExitMatch = sources.match(
-    /(?:ENTRY\s*EXIT|BUILDINGENTRYEXIT)[^0-9]*([0-9]+)/i,
+  const explicitEntryExitMatch = /(?:ENTRY\s*EXIT|BUILDINGENTRYEXIT)\D*(\d+)/i.exec(
+    sources,
   );
   if (explicitEntryExitMatch?.[1]) {
     return Number(explicitEntryExitMatch[1]);
   }
 
-  const lastNumberMatch = sources.match(/([0-9]+)(?!.*[0-9])/);
+  const lastNumberMatch = /(\d+)(?!.*\d)/.exec(sources);
   if (!lastNumberMatch?.[1]) {
     return Number.POSITIVE_INFINITY;
   }

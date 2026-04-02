@@ -1,4 +1,11 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import {
   View,
   TextInput,
@@ -39,6 +46,87 @@ const getSelectionDisplayLabel = (selection: SearchBuilding) => {
 
   return selection.buildingName;
 };
+
+type UpdateQuery = (type: FieldType, value: string) => void;
+type SetSelectedBuildings = Dispatch<SetStateAction<SearchInput>>;
+
+function shouldPreserveRoomSelection(
+  currentSelection: SearchBuilding | null | undefined,
+  selectedBuilding: SearchBuilding,
+) {
+  return Boolean(
+    currentSelection?.isIndoorRoom &&
+    currentSelection.parentBuildingCode === selectedBuilding.buildingCode,
+  );
+}
+
+function getPreservedSelectionLabel(selection: SearchBuilding | null | undefined) {
+  return selection?.roomName ?? selection?.buildingName ?? "";
+}
+
+function syncBrowseSelection({
+  selectedBuilding,
+  previousSelectedBuilding,
+  currentEndSelection,
+  updateQuery,
+  setSelectedBuildings,
+}: {
+  selectedBuilding?: SearchBuilding | null;
+  previousSelectedBuilding?: SearchBuilding | null;
+  currentEndSelection: SearchBuilding | null;
+  updateQuery: UpdateQuery;
+  setSelectedBuildings: SetSelectedBuildings;
+}) {
+  if (selectedBuilding) {
+    if (shouldPreserveRoomSelection(currentEndSelection, selectedBuilding)) {
+      updateQuery("end", getPreservedSelectionLabel(currentEndSelection));
+      return;
+    }
+
+    updateQuery("end", selectedBuilding.buildingName);
+    setSelectedBuildings((prev) => ({ ...prev, end: selectedBuilding }));
+    return;
+  }
+
+  if (selectedBuilding !== previousSelectedBuilding) {
+    updateQuery("end", "");
+    setSelectedBuildings((prev) => ({ ...prev, end: null }));
+  }
+}
+
+function syncFocusedSelection({
+  field,
+  selectedBuilding,
+  currentSelection,
+  updateQuery,
+  setSelectedBuildings,
+}: {
+  field: FieldType | null;
+  selectedBuilding?: SearchBuilding | null;
+  currentSelection: SearchBuilding | null;
+  updateQuery: UpdateQuery;
+  setSelectedBuildings: SetSelectedBuildings;
+}) {
+  if (!field || !selectedBuilding) {
+    return;
+  }
+
+  if (shouldPreserveRoomSelection(currentSelection, selectedBuilding)) {
+    updateQuery(field, getPreservedSelectionLabel(currentSelection));
+    return;
+  }
+
+  updateQuery(field, selectedBuilding.buildingName);
+  setSelectedBuildings((prev) => ({ ...prev, [field]: selectedBuilding }));
+}
+
+function getSearchResultLabel(item: SearchBuilding) {
+  if (item.isIndoorRoom && item.parentBuildingCode) {
+    return `${item.parentBuildingCode} – ${item.roomName ?? item.buildingName}`;
+  }
+
+  return `${item.buildingCode} – ${item.buildingName}`;
+}
 
 export default function BuildingSelection({
   currentBuildingCodes = new Set(),
@@ -146,48 +234,32 @@ export default function BuildingSelection({
     selectedBuildingsRef.current = selectedBuildings;
   }, [selectedBuildings]);
   useEffect(() => {
-    if (mode === "browse" && selectedBuilding) {
-      const currentEndSelection = selectedBuildingsRef.current.end;
-      const shouldPreserveRoomDestination = Boolean(
-        currentEndSelection?.isIndoorRoom &&
-        currentEndSelection.parentBuildingCode === selectedBuilding.buildingCode,
-      );
+    const previousSelectedBuilding = selectedBuildingRef.current;
 
-      if (shouldPreserveRoomDestination) {
-        updateQuery(
-          "end",
-          currentEndSelection?.roomName ?? currentEndSelection?.buildingName ?? "",
-        );
-      } else {
-        updateQuery("end", selectedBuilding.buildingName);
-        setSelectedBuildings((prev) => ({ ...prev, end: selectedBuilding }));
-      }
-    } else if (selectedBuilding !== selectedBuildingRef.current) {
-      if (!selectedBuilding || selectedBuilding === null) {
-        if (mode === "browse") {
-          updateQuery("end", "");
-          setSelectedBuildings((prev) => ({ ...prev, end: null }));
-        }
-      } else if (focusedField) {
-        const currentFocusedSelection = selectedBuildingsRef.current[focusedField];
-        const shouldPreserveFocusedRoom = Boolean(
-          currentFocusedSelection?.isIndoorRoom &&
-          currentFocusedSelection.parentBuildingCode === selectedBuilding.buildingCode,
-        );
-
-        if (shouldPreserveFocusedRoom) {
-          updateQuery(
-            focusedField,
-            currentFocusedSelection?.roomName ??
-              currentFocusedSelection?.buildingName ??
-              "",
-          );
-        } else {
-          updateQuery(focusedField, selectedBuilding.buildingName);
-          setSelectedBuildings((prev) => ({ ...prev, [focusedField]: selectedBuilding }));
-        }
-      }
+    if (mode === "browse") {
+      syncBrowseSelection({
+        selectedBuilding,
+        previousSelectedBuilding,
+        currentEndSelection: selectedBuildingsRef.current.end,
+        updateQuery,
+        setSelectedBuildings,
+      });
+      selectedBuildingRef.current = selectedBuilding;
+      return;
     }
+
+    if (selectedBuilding !== previousSelectedBuilding) {
+      syncFocusedSelection({
+        field: focusedField,
+        selectedBuilding,
+        currentSelection: focusedField
+          ? selectedBuildingsRef.current[focusedField]
+          : null,
+        updateQuery,
+        setSelectedBuildings,
+      });
+    }
+
     selectedBuildingRef.current = selectedBuilding;
   }, [focusedField, mode, selectedBuilding, updateQuery]);
 
@@ -289,7 +361,7 @@ export default function BuildingSelection({
           renderItem={({ item }) => {
             const isSentinel = item.buildingCode === CURRENT_LOCATION_CODE;
             const isCurrent = currentBuildingCodes.has(item.buildingCode);
-            const isRoomResult = Boolean(item.isIndoorRoom && item.parentBuildingCode);
+            const resultLabel = getSearchResultLabel(item);
             return (
               <TouchableOpacity
                 style={[
@@ -310,9 +382,7 @@ export default function BuildingSelection({
                   ) : (
                     <>
                       {isCurrent && "📍 "}
-                      {isRoomResult
-                        ? `${item.parentBuildingCode} – ${item.roomName ?? item.buildingName}`
-                        : `${item.buildingCode} – ${item.buildingName}`}
+                      {resultLabel}
                       {isCurrent && (
                         <Text style={styles.currentLabel}> (Current Building)</Text>
                       )}

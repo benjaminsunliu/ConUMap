@@ -13,6 +13,8 @@ type IndoorStepInstructionOptions = {
   endLabel?: string;
 };
 
+type FloorDirection = "up" | "down";
+
 export function describeIndoorStep({
   graph,
   path,
@@ -96,41 +98,56 @@ function getVerticalInstruction(
   segmentUsesEscalator = false,
 ) {
   const floorDelta = next.floor - current.floor;
-  const hasFloorChange = floorDelta !== 0;
-  const floorDirection = floorDelta > 0 ? "up" : floorDelta < 0 ? "down" : undefined;
+  const floorDirection = getFloorDirection(floorDelta);
   const nextFloorLabel = formatFloor(next.floor);
   const usesEscalator =
     segmentUsesEscalator || current.type === "escalator" || next.type === "escalator";
 
   if (edgeType === "elevator") {
-    if (!floorDirection) {
-      return "Take the elevator.";
-    }
-    return `Take the elevator ${floorDirection} to Floor ${nextFloorLabel}.`;
+    return getVerticalTravelInstruction("elevator", floorDirection, nextFloorLabel);
   }
 
   if (edgeType === "stair") {
-    if (usesEscalator) {
-      if (!floorDirection) {
-        return "Take the escalator.";
-      }
-      return `Take the escalator ${floorDirection} to Floor ${nextFloorLabel}.`;
-    }
-    if (!floorDirection) {
-      return "Take the stairs.";
-    }
-    return `Take the stairs ${floorDirection} to Floor ${nextFloorLabel}.`;
+    return getVerticalTravelInstruction(
+      usesEscalator ? "escalator" : "stairs",
+      floorDirection,
+      nextFloorLabel,
+    );
   }
 
-  if (usesEscalator && hasFloorChange && floorDirection) {
-    return `Take the escalator ${floorDirection} to Floor ${nextFloorLabel}.`;
+  if (usesEscalator && floorDirection) {
+    return getVerticalTravelInstruction("escalator", floorDirection, nextFloorLabel);
   }
 
-  if (hasFloorChange && floorDirection) {
+  if (floorDirection) {
     return `Go ${floorDirection} to Floor ${nextFloorLabel}.`;
   }
 
   return "";
+}
+
+function getFloorDirection(floorDelta: number): FloorDirection | undefined {
+  if (floorDelta > 0) {
+    return "up";
+  }
+
+  if (floorDelta < 0) {
+    return "down";
+  }
+
+  return undefined;
+}
+
+function getVerticalTravelInstruction(
+  travelMethod: "elevator" | "stairs" | "escalator",
+  floorDirection: FloorDirection | undefined,
+  nextFloorLabel: string,
+) {
+  if (!floorDirection) {
+    return `Take the ${travelMethod}.`;
+  }
+
+  return `Take the ${travelMethod} ${floorDirection} to Floor ${nextFloorLabel}.`;
 }
 
 function getSegmentEdgeType(
