@@ -878,6 +878,57 @@ export default function MapViewer({
     [focusBuilding, getSelectedBuildingCode, navigationMode, selectBuildingByCode],
   );
 
+  const resolveIndoorRoomName = useCallback(
+    (selection: SearchBuilding | null | undefined) => {
+      if (!selection) {
+        return null;
+      }
+
+      const roomName = (selection.roomName ?? selection.buildingName ?? "").trim();
+      if (!roomName) {
+        return null;
+      }
+
+      const isRoomSelection = Boolean(
+        selection.isIndoorRoom || selection.parentBuildingCode || selection.roomName,
+      );
+      return isRoomSelection ? roomName : null;
+    },
+    [],
+  );
+
+  const openIndoorNavigationFromRoomSelections = useCallback(
+    (selections: Record<FieldType, SearchBuilding | null>) => {
+      const startSelection = selections.start;
+      const endSelection = selections.end;
+
+      const startRoom = resolveIndoorRoomName(startSelection);
+      const endRoom = resolveIndoorRoomName(endSelection);
+      if (!startRoom || !endRoom) {
+        return false;
+      }
+
+      const startBuildingCode = getSelectedBuildingCode(startSelection);
+      const endBuildingCode = getSelectedBuildingCode(endSelection);
+      if (
+        !startBuildingCode ||
+        !endBuildingCode ||
+        startBuildingCode !== endBuildingCode
+      ) {
+        return false;
+      }
+
+      if (!NavigationLoader.buildingHasNavigationData(startBuildingCode)) {
+        return false;
+      }
+
+      const indoorPath = `/${encodeURIComponent(startBuildingCode)}?indoorStartRoom=${encodeURIComponent(startRoom)}&indoorEndRoom=${encodeURIComponent(endRoom)}`;
+      router.push(indoorPath as any);
+      return true;
+    },
+    [getSelectedBuildingCode, resolveIndoorRoomName],
+  );
+
   const renderedPOIMarkers = useMemo(() => {
     return places.map((p) => (
       <PoiMarker key={p.place_id} poi={p} onPress={() => handlePOIPress(p)} />
@@ -932,6 +983,16 @@ export default function MapViewer({
         ) => {
           try {
             const selected = buildings?.[type] ?? null;
+            const nextSelections = {
+              ...selectedSearchLocations,
+              [type]: selected,
+            };
+            if (
+              navigationMode === "directions" &&
+              openIndoorNavigationFromRoomSelections(nextSelections)
+            ) {
+              return;
+            }
             const coord = resolveSelectionCoordinate(selected);
 
             setSelectedSearchLocations((prev) => ({

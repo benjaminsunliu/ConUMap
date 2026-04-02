@@ -231,8 +231,13 @@ export default function IndoorMap() {
     const graph = floorInfo.graphData;
     const hasCheckpointToRoomParams = Boolean(autoStartCheckpointId && autoEndRoom);
     const hasRoomToCheckpointParams = Boolean(autoStartRoom && autoEndCheckpointId);
+    const hasRoomToRoomParams = Boolean(autoStartRoom && autoEndRoom);
 
-    if (!hasCheckpointToRoomParams && !hasRoomToCheckpointParams) {
+    if (
+      !hasCheckpointToRoomParams &&
+      !hasRoomToCheckpointParams &&
+      !hasRoomToRoomParams
+    ) {
       return;
     }
 
@@ -268,7 +273,7 @@ export default function IndoorMap() {
 
       resolvedStartLabel = sourceCheckpoint.label?.trim() || sourceCheckpoint.id;
       resolvedEndLabel = canonicalEndRoom;
-    } else {
+    } else if (hasRoomToCheckpointParams) {
       const canonicalStartRoom = resolveCanonicalRoom(
         autoStartRoom!,
         buildingCode,
@@ -299,6 +304,45 @@ export default function IndoorMap() {
 
       resolvedStartLabel = canonicalStartRoom;
       resolvedEndLabel = destinationCheckpoint.label?.trim() || destinationCheckpoint.id;
+    } else {
+      const canonicalStartRoom = resolveCanonicalRoom(
+        autoStartRoom!,
+        buildingCode,
+        roomLookup,
+      );
+      if (!canonicalStartRoom) {
+        setRouteError(`Start location "${autoStartRoom}" was not found.`);
+        setNavigationPath(undefined);
+        setHasCheckpointDrivenRoute(false);
+        return;
+      }
+
+      sourceCheckpoint = findCheckpointForRoom(graph, canonicalStartRoom, buildingCode);
+      if (!sourceCheckpoint) {
+        setRouteError(`Start location "${canonicalStartRoom}" was not found.`);
+        setNavigationPath(undefined);
+        setHasCheckpointDrivenRoute(false);
+        return;
+      }
+
+      const canonicalEndRoom = resolveCanonicalRoom(autoEndRoom!, buildingCode, roomLookup);
+      if (!canonicalEndRoom) {
+        setRouteError(`End location "${autoEndRoom}" was not found.`);
+        setNavigationPath(undefined);
+        setHasCheckpointDrivenRoute(false);
+        return;
+      }
+
+      destinationCheckpoint = findCheckpointForRoom(graph, canonicalEndRoom, buildingCode);
+      if (!destinationCheckpoint) {
+        setRouteError(`End location "${canonicalEndRoom}" was not found.`);
+        setNavigationPath(undefined);
+        setHasCheckpointDrivenRoute(false);
+        return;
+      }
+
+      resolvedStartLabel = canonicalStartRoom;
+      resolvedEndLabel = canonicalEndRoom;
     }
 
     const path = findIndoorPath(graph, sourceCheckpoint.id, destinationCheckpoint.id);
@@ -328,7 +372,8 @@ export default function IndoorMap() {
   useEffect(() => {
     const hasStepDrivenParams = Boolean(
       (autoStartCheckpointId && autoEndRoom) ||
-        (autoStartRoom && autoEndCheckpointId),
+        (autoStartRoom && autoEndCheckpointId) ||
+        (autoStartRoom && autoEndRoom),
     );
     if (canCreatePath || hasCheckpointDrivenRoute || hasStepDrivenParams) {
       return;

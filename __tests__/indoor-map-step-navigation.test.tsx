@@ -193,4 +193,78 @@ describe("IndoorMap step-driven navigation", () => {
       ]);
     });
   });
+
+  it("builds an indoor path from room to room from URL params", async () => {
+    (useLocalSearchParams as jest.Mock).mockReturnValue({
+      buildingCode: "H",
+      indoorStartRoom: "H110",
+      indoorEndRoom: "H111",
+    });
+
+    (useQuery as jest.Mock).mockReturnValue({
+      data: {
+        images: { 1: 1, 2: 2 },
+        graphData: {
+          checkpoints: {
+            H110: {
+              id: "H110",
+              type: "doorway",
+              buildingId: "H",
+              floor: 2,
+              x: 200,
+              y: 100,
+              label: "H-110",
+              accessible: true,
+            },
+            H111: {
+              id: "H111",
+              type: "doorway",
+              buildingId: "H",
+              floor: 2,
+              x: 240,
+              y: 100,
+              label: "H-111",
+              accessible: true,
+            },
+          },
+          adjacencySet: {
+            H110: {
+              H111: {
+                source: "H110",
+                target: "H111",
+                type: "hallway",
+                weight: 1,
+                accessible: true,
+              },
+            },
+            H111: {
+              H110: {
+                source: "H111",
+                target: "H110",
+                type: "hallway",
+                weight: 1,
+                accessible: true,
+              },
+            },
+          },
+        },
+        buildingCode: "H",
+        rooms: ["H110", "H111"],
+      },
+      error: null,
+      isFetching: false,
+    });
+
+    render(<IndoorMap />);
+
+    await waitFor(() => {
+      const roomFieldsProps = mockIndoorRoomFields.mock.calls.at(-1)?.[0] as any;
+      expect(roomFieldsProps.startRoom).toBe("H110");
+      expect(roomFieldsProps.endRoom).toBe("H111");
+
+      const floorProps = mockBuildingFloor.mock.calls.at(-1)?.[0] as any;
+      expect(floorProps.floor).toBe(2);
+      expect(floorProps.navigationPath).toEqual(["H110", "H111"]);
+    });
+  });
 });

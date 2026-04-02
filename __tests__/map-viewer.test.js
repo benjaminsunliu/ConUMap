@@ -2933,6 +2933,101 @@ describe("map tab", () => {
       }
     });
 
+    it("opens indoor navigation directly when both directions selections are rooms in the same building", async () => {
+      const React = require("react");
+      fetchAllDirections.mockClear();
+
+      const useBuildingSearchSpy = jest
+        .spyOn(SearchBuildingHook, "useBuildingSearch")
+        .mockImplementation(() => {
+          const [queries, setQueries] = React.useState({ start: "", end: "" });
+          const updateQuery = React.useCallback((type, text) => {
+            const nextValue = text || "";
+            setQueries((prev) =>
+              prev[type] === nextValue
+                ? prev
+                : {
+                    ...prev,
+                    [type]: nextValue,
+                  },
+            );
+          }, []);
+          const swapQueries = React.useCallback(() => {
+            setQueries((prev) => ({
+              start: prev.end,
+              end: prev.start,
+            }));
+          }, []);
+
+          return {
+            queries,
+            updateQuery,
+            swapQueries,
+            results: {
+              start: [
+                {
+                  buildingCode: "VE101",
+                  buildingName: "VE101",
+                  address: "1400 De Maisonneuve Blvd. W.",
+                  campus: "SGW",
+                  parentBuildingCode: "VE",
+                  roomName: "VE101",
+                  isIndoorRoom: true,
+                },
+              ],
+              end: [
+                {
+                  buildingCode: "VE102",
+                  buildingName: "VE102",
+                  address: "1400 De Maisonneuve Blvd. W.",
+                  campus: "SGW",
+                  parentBuildingCode: "VE",
+                  roomName: "VE102",
+                  isIndoorRoom: true,
+                },
+              ],
+            },
+          };
+        });
+
+      try {
+        const mapViewer = render(<MapViewer />);
+
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("marker-RA"));
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("directions-action-button"));
+        });
+
+        const startInput = mapViewer.getByPlaceholderText("Your location");
+        await act(async () => {
+          fireEvent(startInput, "onFocus");
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("start-result-VE101"));
+        });
+        const fetchCallsBeforeEndSelection = fetchAllDirections.mock.calls.length;
+
+        const endInput = mapViewer.getByPlaceholderText("Destination");
+        await act(async () => {
+          fireEvent(endInput, "onFocus");
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("end-result-VE102"));
+        });
+
+        await waitFor(() => {
+          expect(router.push).toHaveBeenCalledWith(
+            expect.stringContaining("/VE?indoorStartRoom=VE101&indoorEndRoom=VE102"),
+          );
+        });
+        expect(fetchAllDirections.mock.calls.length).toBe(fetchCallsBeforeEndSelection);
+      } finally {
+        useBuildingSearchSpy.mockRestore();
+      }
+    });
+
     it("preserves room-based start context after destination selection for indoor-to-outdoor routing", async () => {
       const React = require("react");
       const useBuildingSearchSpy = jest
