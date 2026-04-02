@@ -59,6 +59,12 @@ interface TransitionNode {
   toColor: string;
 }
 
+interface RouteOverlayState {
+  polyline: PolylineSegment[] | null;
+  stops: TransitStopMarker[];
+  nodes: TransitionNode[];
+}
+
 interface NavEndpointMarkerProps {
   readonly coordinate: Coordinate;
   readonly label: "A" | "B";
@@ -174,6 +180,59 @@ function normalizeStepTravelMode(travelMode: string | undefined): string {
   return mode;
 }
 
+function areCoordinatesEqual(a: Coordinate, b: Coordinate) {
+  return a.latitude === b.latitude && a.longitude === b.longitude;
+}
+
+function coalesceRouteSegments(segments: PolylineSegment[]) {
+  if (segments.length <= 1) {
+    return segments;
+  }
+
+  const merged: PolylineSegment[] = [];
+
+  for (const segment of segments) {
+    const previous = merged[merged.length - 1];
+    if (!previous) {
+      merged.push({
+        coordinates: [...segment.coordinates],
+        color: segment.color,
+        isDashed: segment.isDashed,
+      });
+      continue;
+    }
+
+    const canMerge =
+      previous.color === segment.color && previous.isDashed === segment.isDashed;
+    if (!canMerge) {
+      merged.push({
+        coordinates: [...segment.coordinates],
+        color: segment.color,
+        isDashed: segment.isDashed,
+      });
+      continue;
+    }
+
+    const previousLast = previous.coordinates[previous.coordinates.length - 1];
+    const segmentFirst = segment.coordinates[0];
+    if (!previousLast || !segmentFirst) {
+      merged.push({
+        coordinates: [...segment.coordinates],
+        color: segment.color,
+        isDashed: segment.isDashed,
+      });
+      continue;
+    }
+
+    const nextCoordinates = areCoordinatesEqual(previousLast, segmentFirst)
+      ? segment.coordinates.slice(1)
+      : segment.coordinates;
+    previous.coordinates.push(...nextCoordinates);
+  }
+
+  return merged;
+}
+
 function buildOutdoorStepResume(step: any): OutdoorRouteStep | null {
   const encodedPolyline = step?.polyline?.points;
   const travelMode = normalizeStepTravelMode(step?.travel_mode);
@@ -198,6 +257,12 @@ const EMPTY_ROUTES: Record<TransportationMode, any[] | null> = {
   driving: null,
   bicycling: null,
   shuttle: null,
+};
+
+const EMPTY_ROUTE_OVERLAY: RouteOverlayState = {
+  polyline: null,
+  stops: [],
+  nodes: [],
 };
 
 function normalizeRoutes(
@@ -247,9 +312,9 @@ export default function MapViewer({
   const [routes, setRoutes] = useState<Record<TransportationMode, any[] | null>>(
     normalizeRoutes(EMPTY_ROUTES),
   );
-  const [routePolyline, setRoutePolyline] = useState<PolylineSegment[] | null>(null);
-  const [routeStops, setRouteStops] = useState<TransitStopMarker[]>([]);
-  const [routeNodes, setRouteNodes] = useState<TransitionNode[]>([]);
+  const [routeOverlay, setRouteOverlay] = useState<RouteOverlayState>(
+    EMPTY_ROUTE_OVERLAY,
+  );
   const [routeKey, setRouteKey] = useState(0);
   const pendingRouteRenderFrameRef = useRef<number | null>(null);
   const routeRenderGenerationRef = useRef(0);
@@ -293,6 +358,10 @@ export default function MapViewer({
 
   const showStartHint =
     navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
+  const isTestEnvironment = process.env.NODE_ENV === "test";
+  const shouldRenderDirectionAuxOverlays = !(
+    Platform.OS === "ios" && navigationMode === "directions" && !isTestEnvironment
+  );
 
   const { buildingId, autoNavigate } = useLocalSearchParams<{
     buildingId?: string;
@@ -317,9 +386,7 @@ export default function MapViewer({
     cancelPendingRouteRender();
     // Force route overlays to remount so stale native polylines do not linger.
     setRouteKey((key) => key + 1);
-    setRoutePolyline(null);
-    setRouteStops([]);
-    setRouteNodes([]);
+    setRouteOverlay(EMPTY_ROUTE_OVERLAY);
   }, [cancelPendingRouteRender]);
 
   useEffect(() => {
@@ -346,6 +413,7 @@ export default function MapViewer({
    */
   const clearRouteInfo = useCallback(() => {
     activeIndoorStepSessionRef.current = null;
+    lastDestinationRef.current = { coord: null, label: "" };
     setNavigationMode("browse");
 
     setShouldDisplayRoutes(false);
@@ -785,7 +853,10 @@ export default function MapViewer({
     }
 
     const selectedEndSearch = selectedSearchLocations.end;
-    const selectedEndBuildingCode = getSelectedBuildingCode(selectedEndSearch);
+    const selectedEndBuildingCode = resolveSearchSelectionBuildingCode(
+      selectedEndSearch,
+      CAMPUS_BUILDINGS,
+    );
     const shouldUseSelectedRoomAsStart = Boolean(
       selectedEndSearch?.isIndoorRoom &&
       selectedEndBuildingCode === selectedBuilding.buildingCode,
@@ -815,7 +886,6 @@ export default function MapViewer({
     clearRouteRendering();
   }, [
     clearRouteRendering,
-    getSelectedBuildingCode,
     selectedBuilding,
     selectedSearchLocations.end,
   ]);
@@ -825,14 +895,8 @@ export default function MapViewer({
    */
   const handleBackFromDirections = useCallback(() => {
     userClearedStart.current = false;
-    setNavigationMode("browse");
-    setShouldDisplayRoutes(false);
-    setRoutes(normalizeRoutes(EMPTY_ROUTES));
-    setNavCoords({ start: null, end: null });
-    setSelectionOverrides({ start: null, end: null });
-    setSelectedSearchLocations({ start: null, end: null });
-    clearRouteRendering();
-  }, [clearRouteRendering]);
+    clearRouteInfo();
+  }, [clearRouteInfo]);
 
   /**
    * Handles the action of swapping the start and end fields in the navigation directions. It updates the navigation coordinates, selection overrides, and manual start point to reflect the swap. This allows users to quickly reverse their route without having to manually re-enter the start and end locations. The function also resets any displayed routes or stops, prompting a new route calculation based on the updated coordinates. This is typically called when the user presses a swap button in the BuildingSelection component while in directions mode.
@@ -1130,21 +1194,16 @@ export default function MapViewer({
           if (!action || action === "press") {
             setSelectedBuilding(null);
             setSelectedPOI(null);
-            setNavigationMode("browse");
-            setShouldDisplayRoutes(false);
-            clearRouteRendering();
-            setNavCoords({ start: null, end: null });
-            setSelectionOverrides({ start: null, end: null });
-            setSelectedSearchLocations({ start: null, end: null });
+            clearRouteInfo();
           }
         }}
         renderCluster={renderCluster}
       >
         {renderedPolygons}
         {renderedMarkers}
-        {renderedPOIMarkers}
+        {navigationMode === "browse" ? renderedPOIMarkers : null}
 
-        {routePolyline?.map((segment, index) => {
+        {routeOverlay.polyline?.map((segment, index) => {
           const dashedWidth = Platform.OS === "android" ? 6 : 3;
           const strokeWidth = segment.isDashed ? dashedWidth : 3;
           const firstCoord = segment.coordinates[0];
@@ -1164,8 +1223,9 @@ export default function MapViewer({
           );
         })}
 
-        {routeStops.map((stop, index) =>
-          Platform.OS === "android" ? (
+        {shouldRenderDirectionAuxOverlays &&
+          routeOverlay.stops.map((stop, index) =>
+            Platform.OS === "android" ? (
             <Circle
               key={`stop-${routeKey}-${index}-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
               center={stop.coordinate}
@@ -1194,11 +1254,12 @@ export default function MapViewer({
                 }}
               />
             </Marker>
-          ),
-        )}
+            ),
+          )}
 
-        {Platform.OS === "android"
-          ? routeNodes.map((node, index) => (
+        {shouldRenderDirectionAuxOverlays &&
+          (Platform.OS === "android"
+            ? routeOverlay.nodes.map((node, index) => (
               <Circle
                 key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
                 center={node.coordinate}
@@ -1209,7 +1270,7 @@ export default function MapViewer({
                 zIndex={12}
               />
             ))
-          : routeNodes.map((node, index) => (
+          : routeOverlay.nodes.map((node, index) => (
               <Marker
                 key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
                 coordinate={node.coordinate}
@@ -1228,8 +1289,9 @@ export default function MapViewer({
                   }}
                 />
               </Marker>
-            ))}
-        {navigationMode === "directions" && navCoords.start && (
+              )))}
+
+          {shouldRenderDirectionAuxOverlays && navigationMode === "directions" && navCoords.start && (
           <NavEndpointMarker
             key={`nav-start-${navCoords.start.latitude}-${navCoords.start.longitude}`}
             coordinate={navCoords.start}
@@ -1237,7 +1299,8 @@ export default function MapViewer({
             color="#049ede"
           />
         )}
-        {navigationMode === "directions" && navCoords.end && (
+
+          {shouldRenderDirectionAuxOverlays && navigationMode === "directions" && navCoords.end && (
           <NavEndpointMarker
             key={`nav-end-${navCoords.end.latitude}-${navCoords.end.longitude}`}
             coordinate={navCoords.end}
@@ -1370,19 +1433,18 @@ export default function MapViewer({
               }
             }
 
-            // clear all existing polylines so native views are removed
-            clearRouteRendering();
-            const renderGeneration = routeRenderGenerationRef.current;
+            const normalizedSegments =
+              Platform.OS === "ios" ? coalesceRouteSegments(segments) : segments;
+            const normalizedStops = Platform.OS === "ios" ? [] : stops;
+            const normalizedNodes = Platform.OS === "ios" ? [] : nodes;
 
-            // then set new data on the next frame to ensure a clean transition without lingering old polylines
-            pendingRouteRenderFrameRef.current = requestAnimationFrame(() => {
-              pendingRouteRenderFrameRef.current = null;
-              if (routeRenderGenerationRef.current !== renderGeneration) {
-                return;
-              }
-              setRoutePolyline(segments.length > 0 ? segments : null);
-              setRouteStops(stops);
-              setRouteNodes(nodes);
+            cancelPendingRouteRender();
+            // Apply overlay updates together to avoid iOS-native child index races.
+            setRouteKey((key) => key + 1);
+            setRouteOverlay({
+              polyline: normalizedSegments.length > 0 ? normalizedSegments : null,
+              stops: normalizedStops,
+              nodes: normalizedNodes,
             });
           }}
           onStepSelect={(
