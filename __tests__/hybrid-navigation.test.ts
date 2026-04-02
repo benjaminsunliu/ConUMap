@@ -177,11 +177,9 @@ describe("hybridNavigation", () => {
       },
     };
 
-    const result = await enrichRoutesWithIndoorTransitions(
-      routesByMode,
-      selections,
-      [mockBuilding],
-    );
+    const result = await enrichRoutesWithIndoorTransitions(routesByMode, selections, [
+      mockBuilding,
+    ]);
 
     const steps = result.walking?.[0]?.legs?.[0]?.steps ?? [];
 

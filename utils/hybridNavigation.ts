@@ -183,11 +183,7 @@ async function buildIndoorTransitionStep(
     return null;
   }
 
-  const transition = findPreferredFeasibleEntryExit(
-    graph,
-    roomCheckpoint,
-    direction,
-  );
+  const transition = findPreferredFeasibleEntryExit(graph, roomCheckpoint, direction);
   if (!transition) {
     return null;
   }
@@ -343,12 +339,10 @@ function findPreferredFeasibleEntryExit(
   return feasibleCandidates[0];
 }
 
-function rankEntryExitCheckpoints(
-  roomFloor: number,
-  entryPoints: FloorCheckpoint[],
-) {
+function rankEntryExitCheckpoints(roomFloor: number, entryPoints: FloorCheckpoint[]) {
   return [...entryPoints].sort((a, b) => {
-    const floorDistanceDiff = Math.abs(a.floor - roomFloor) - Math.abs(b.floor - roomFloor);
+    const floorDistanceDiff =
+      Math.abs(a.floor - roomFloor) - Math.abs(b.floor - roomFloor);
     if (floorDistanceDiff !== 0) {
       return floorDistanceDiff;
     }
@@ -371,7 +365,9 @@ function rankEntryExitCheckpoints(
 
 function getEntryExitOrder(checkpoint: FloorCheckpoint) {
   const sources = [checkpoint.label ?? "", checkpoint.id].join(" ");
-  const explicitEntryExitMatch = sources.match(/(?:ENTRY\s*EXIT|BUILDINGENTRYEXIT)[^0-9]*([0-9]+)/i);
+  const explicitEntryExitMatch = sources.match(
+    /(?:ENTRY\s*EXIT|BUILDINGENTRYEXIT)[^0-9]*([0-9]+)/i,
+  );
   if (explicitEntryExitMatch?.[1]) {
     return Number(explicitEntryExitMatch[1]);
   }
@@ -411,7 +407,10 @@ function getPathWeight(graph: FloorCheckpointsGraph, path: string[]) {
   return weight;
 }
 
-function inferIndoorBuildingCodeFromRoom(roomCandidate: string, buildings: BuildingInfo[]) {
+function inferIndoorBuildingCodeFromRoom(
+  roomCandidate: string,
+  buildings: BuildingInfo[],
+) {
   const normalizedCandidate = normalizeSearchToken(roomCandidate);
   if (!normalizedCandidate) {
     return undefined;
