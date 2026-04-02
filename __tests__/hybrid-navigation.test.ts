@@ -2,6 +2,8 @@ import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
 import { SearchBuilding, TransportationMode } from "@/types/buildingTypes";
 import { BuildingInfo, FloorCheckpointsGraph } from "@/types/mapTypes";
 import {
+  decodeIndoorStepPayload,
+  encodeIndoorStepPayload,
   enrichRoutesWithIndoorTransitions,
   resolveSearchSelectionBuildingCode,
 } from "@/utils/hybridNavigation";
@@ -137,6 +139,19 @@ describe("hybridNavigation", () => {
     const result = resolveSearchSelectionBuildingCode(roomSelection, [mockBuilding]);
 
     expect(result).toBe("H");
+  });
+
+  it("round-trips indoor payloads and rejects malformed encodings", () => {
+    const payload = {
+      building_code: "H",
+      start_room: "H110",
+      end_checkpoint_id: "H_F1_building_entry_exit_1",
+    };
+
+    expect(decodeIndoorStepPayload(encodeIndoorStepPayload(payload))).toEqual(payload);
+    expect(decodeIndoorStepPayload("not-an-indoor-step")).toBeNull();
+    expect(decodeIndoorStepPayload("__INDOOR_STEP__:")).toBeNull();
+    expect(decodeIndoorStepPayload("__INDOOR_STEP__:%7Bnot-json")).toBeNull();
   });
 
   it("adds indoor transition steps for indoor-to-indoor selections", async () => {
@@ -547,6 +562,155 @@ describe("hybridNavigation", () => {
     );
 
     expect(result).toBe(routesByMode);
+  });
+
+  it("ignores selections that are plain buildings or have blank room labels", async () => {
+    const routesByMode: Record<TransportationMode, any[] | null> = {
+      walking: [{ ...routeTemplate }],
+      transit: null,
+      driving: null,
+      bicycling: null,
+      shuttle: null,
+    };
+
+    const plainBuildingSelection: SearchBuilding = {
+      buildingCode: "H",
+      buildingName: "Henry F. Hall Building",
+      address: "",
+      campus: "SGW",
+    };
+    const blankRoomSelection: SearchBuilding = {
+      buildingCode: "",
+      buildingName: "   ",
+      address: "",
+      campus: "SGW",
+      roomName: "   ",
+      isIndoorRoom: true,
+    };
+
+    expect(
+      resolveSearchSelectionBuildingCode(blankRoomSelection, [mockBuilding]),
+    ).toBeNull();
+
+    const result = await enrichRoutesWithIndoorTransitions(
+      routesByMode,
+      {
+        start: plainBuildingSelection,
+        end: blankRoomSelection,
+      },
+      [mockBuilding],
+    );
+
+    expect(result).toBe(routesByMode);
+  });
+
+  it("leaves routes unchanged when indoor navigation data is unavailable or missing", async () => {
+    jest.spyOn(NavigationLoader, "buildingHasNavigationData").mockReturnValue(false);
+
+    const routesByMode: Record<TransportationMode, any[] | null> = {
+      walking: [{ ...routeTemplate }],
+      transit: null,
+      driving: null,
+      bicycling: null,
+      shuttle: null,
+    };
+
+    const selection: SearchBuilding = {
+      buildingCode: "H101",
+      buildingName: "H101",
+      address: "",
+      campus: "SGW",
+      parentBuildingCode: "H",
+      roomName: "H101",
+      isIndoorRoom: true,
+    };
+
+    const noNavDataResult = await enrichRoutesWithIndoorTransitions(
+      routesByMode,
+      { start: selection, end: null },
+      [mockBuilding],
+    );
+
+    expect(noNavDataResult.walking?.[0]?.legs?.[0]?.steps).toHaveLength(1);
+
+    (NavigationLoader.buildingHasNavigationData as jest.Mock).mockReturnValue(true);
+    jest.spyOn(NavigationLoader, "loadBuildingData").mockResolvedValue(null);
+
+    const missingDataResult = await enrichRoutesWithIndoorTransitions(
+      routesByMode,
+      { start: selection, end: null },
+      [mockBuilding],
+    );
+
+    expect(missingDataResult.walking?.[0]?.legs?.[0]?.steps).toHaveLength(1);
+  });
+
+  it("skips indoor transitions when there are no entry exits or no feasible indoor path", async () => {
+    const routesByMode: Record<TransportationMode, any[] | null> = {
+      walking: [{ ...routeTemplate }],
+      transit: null,
+      driving: null,
+      bicycling: null,
+      shuttle: null,
+    };
+
+    const roomSelection: SearchBuilding = {
+      buildingCode: "H101",
+      buildingName: "H101",
+      address: "",
+      campus: "SGW",
+      parentBuildingCode: "H",
+      roomName: "H101",
+      isIndoorRoom: true,
+    };
+
+    jest.spyOn(NavigationLoader, "buildingHasNavigationData").mockReturnValue(true);
+    jest
+      .spyOn(NavigationLoader, "loadBuildingData")
+      .mockResolvedValueOnce({
+        buildingCode: "H",
+        graphData: {
+          checkpoints: {
+            H101: mockGraph.checkpoints.H101,
+          },
+          adjacencySet: {
+            H101: {},
+          },
+        },
+        images: {},
+        rooms: ["H101"],
+      })
+      .mockResolvedValueOnce({
+        buildingCode: "H",
+        graphData: {
+          checkpoints: {
+            ...mockGraph.checkpoints,
+          },
+          adjacencySet: {
+            H101: {},
+            H_F1_building_entry_exit_1: {},
+            H_F1_building_entry_exit_2: {},
+          },
+        },
+        images: {},
+        rooms: ["H101"],
+      });
+
+    const noEntryResult = await enrichRoutesWithIndoorTransitions(
+      routesByMode,
+      { start: roomSelection, end: null },
+      [mockBuilding],
+    );
+
+    expect(noEntryResult.walking?.[0]?.legs?.[0]?.steps).toHaveLength(1);
+
+    const unreachableEntryResult = await enrichRoutesWithIndoorTransitions(
+      routesByMode,
+      { start: roomSelection, end: null },
+      [mockBuilding],
+    );
+
+    expect(unreachableEntryResult.walking?.[0]?.legs?.[0]?.steps).toHaveLength(1);
   });
 
   it("treats non-array route buckets as unavailable instead of crashing", async () => {

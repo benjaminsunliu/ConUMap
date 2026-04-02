@@ -246,4 +246,311 @@ describe("describeIndoorStep", () => {
 
     expect(instruction).toBe("Arrive at H820.");
   });
+
+  it("returns an empty instruction for empty or invalid path steps", () => {
+    expect(
+      describeIndoorStep({
+        graph,
+        path: [],
+        stepIndex: 0,
+      }),
+    ).toBe("");
+
+    expect(
+      describeIndoorStep({
+        graph,
+        path: ["missing"],
+        stepIndex: 0,
+      }),
+    ).toBe("");
+
+    expect(
+      describeIndoorStep({
+        graph,
+        path: ["A", "missing"],
+        stepIndex: 0,
+      }),
+    ).toBe("");
+  });
+
+  it("describes doorway transitions and the default start instruction", () => {
+    const doorwayGraph: FloorCheckpointsGraph = {
+      ...graph,
+      adjacencySet: {
+        ...graph.adjacencySet,
+        A: {
+          B: {
+            ...graph.adjacencySet.A.B,
+            type: "room_to_door",
+          },
+        },
+        B: {
+          C: {
+            ...graph.adjacencySet.B.C,
+            type: "door_to_hallway",
+          },
+        },
+      },
+    };
+
+    expect(
+      describeIndoorStep({
+        graph: doorwayGraph,
+        path: ["A", "B"],
+        stepIndex: 0,
+      }),
+    ).toBe("Exit the room and continue to the hallway.");
+
+    expect(
+      describeIndoorStep({
+        graph: doorwayGraph,
+        path: ["B", "C"],
+        stepIndex: 0,
+      }),
+    ).toBe("Continue through the doorway.");
+
+    expect(
+      describeIndoorStep({
+        graph,
+        path: ["A", "B"],
+        stepIndex: 0,
+        startLabel: "   ",
+      }),
+    ).toBe("Start and continue straight.");
+  });
+
+  it("handles elevator, stair, escalator, and generic floor-change instructions", () => {
+    const verticalGraph: FloorCheckpointsGraph = {
+      checkpoints: {
+        ...graph.checkpoints,
+        ST1_SAME: {
+          ...graph.checkpoints.ST1,
+          id: "ST1_SAME",
+          floor: 1,
+        },
+        ES2_ESC: {
+          ...graph.checkpoints.ES2,
+          id: "ES2_ESC",
+        },
+        ES1_SAME: {
+          ...graph.checkpoints.ES1,
+          id: "ES1_SAME",
+          floor: 1,
+        },
+        EL1_SAME: {
+          ...graph.checkpoints.EL1,
+          id: "EL1_SAME",
+          floor: 1,
+        },
+        F1: {
+          id: "F1",
+          type: "hallway_waypoint",
+          buildingId: "H",
+          floor: 1,
+          x: 30,
+          y: 200,
+          accessible: true,
+        },
+        B1: {
+          id: "B1",
+          type: "hallway_waypoint",
+          buildingId: "H",
+          floor: -1,
+          x: 30,
+          y: 260,
+          accessible: true,
+        },
+      },
+      adjacencySet: {
+        ...graph.adjacencySet,
+        ST1: {
+          ST1_SAME: {
+            source: "ST1",
+            target: "ST1_SAME",
+            type: "stair",
+            weight: 1,
+            accessible: true,
+          },
+        },
+        ES1: {
+          ES1_SAME: {
+            source: "ES1",
+            target: "ES1_SAME",
+            type: "stair",
+            weight: 1,
+            accessible: true,
+          },
+          ES2_ESC: {
+            source: "ES1",
+            target: "ES2_ESC",
+            type: "escalator",
+            weight: 1,
+            accessible: true,
+          },
+        },
+        EL1: {
+          EL1_SAME: {
+            source: "EL1",
+            target: "EL1_SAME",
+            type: "elevator",
+            weight: 1,
+            accessible: true,
+          },
+        },
+        F1: {
+          B1: {
+            source: "F1",
+            target: "B1",
+            type: "hallway",
+            weight: 1,
+            accessible: true,
+          },
+        },
+        B1: {},
+        ST1_SAME: {},
+        ES1_SAME: {},
+        ES2_ESC: {},
+        EL1_SAME: {},
+      },
+    };
+
+    expect(
+      describeIndoorStep({
+        graph: verticalGraph,
+        path: ["EL1", "EL1_SAME"],
+        stepIndex: 0,
+      }),
+    ).toBe("Take the elevator.");
+
+    expect(
+      describeIndoorStep({
+        graph: verticalGraph,
+        path: ["ST1", "ST1_SAME"],
+        stepIndex: 0,
+      }),
+    ).toBe("Take the stairs.");
+
+    expect(
+      describeIndoorStep({
+        graph: verticalGraph,
+        path: ["ES1", "ES1_SAME"],
+        stepIndex: 0,
+      }),
+    ).toBe("Take the escalator.");
+
+    expect(
+      describeIndoorStep({
+        graph: verticalGraph,
+        path: ["ES1", "ES2_ESC"],
+        stepIndex: 0,
+      }),
+    ).toBe("Take the escalator up to Floor 2.");
+
+    expect(
+      describeIndoorStep({
+        graph: verticalGraph,
+        path: ["F1", "B1"],
+        stepIndex: 0,
+      }),
+    ).toBe("Go down to Floor B1.");
+  });
+
+  it("covers keep, sharp, and turnaround turn instructions", () => {
+    const turningGraph: FloorCheckpointsGraph = {
+      checkpoints: {
+        ...graph.checkpoints,
+        KR: {
+          id: "KR",
+          type: "hallway_waypoint",
+          buildingId: "H",
+          floor: 1,
+          x: 140,
+          y: 30,
+          accessible: true,
+        },
+        SL: {
+          id: "SL",
+          type: "hallway_waypoint",
+          buildingId: "H",
+          floor: 1,
+          x: 40,
+          y: -20,
+          accessible: true,
+        },
+        TURN: {
+          id: "TURN",
+          type: "hallway_waypoint",
+          buildingId: "H",
+          floor: 1,
+          x: 0,
+          y: 0,
+          accessible: true,
+        },
+      },
+      adjacencySet: {
+        ...graph.adjacencySet,
+        B: {
+          ...graph.adjacencySet.B,
+          KR: {
+            source: "B",
+            target: "KR",
+            type: "hallway",
+            weight: 1,
+            accessible: true,
+          },
+          SL: {
+            source: "B",
+            target: "SL",
+            type: "hallway",
+            weight: 1,
+            accessible: true,
+          },
+          TURN: {
+            source: "B",
+            target: "TURN",
+            type: "hallway",
+            weight: 1,
+            accessible: true,
+          },
+        },
+        KR: {},
+        SL: {},
+        TURN: {},
+      },
+    };
+
+    expect(
+      describeIndoorStep({
+        graph: turningGraph,
+        path: ["A", "B", "KR"],
+        stepIndex: 1,
+      }),
+    ).toBe("Keep right.");
+
+    expect(
+      describeIndoorStep({
+        graph: turningGraph,
+        path: ["A", "B", "SL"],
+        stepIndex: 1,
+      }),
+    ).toBe("Make a sharp left.");
+
+    expect(
+      describeIndoorStep({
+        graph: turningGraph,
+        path: ["A", "B", "TURN"],
+        stepIndex: 1,
+      }),
+    ).toBe("Turn around.");
+  });
+
+  it("falls back to the checkpoint id when arriving without a label", () => {
+    const instruction = describeIndoorStep({
+      graph,
+      path: ["A", "B"],
+      stepIndex: 1,
+    });
+
+    expect(instruction).toBe("Arrive at B.");
+  });
 });

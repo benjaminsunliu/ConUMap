@@ -2,6 +2,7 @@ import React from "react";
 import { act, render, waitFor } from "@testing-library/react-native";
 import IndoorMap from "@/app/(tabs)/(map)/[buildingCode]";
 import { OutdoorStepResume } from "@/globals/OutdoorStepResumeStore";
+import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
 import { router, useLocalSearchParams } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 
@@ -36,10 +37,19 @@ jest.mock("@/components/map/indoor-navigation-controls", () => (props: unknown) 
   return null;
 });
 
+const getLatestFloorProps = () => mockBuildingFloor.mock.calls.at(-1)?.[0] as any;
+const getLatestRoomFieldsProps = () => mockIndoorRoomFields.mock.calls.at(-1)?.[0] as any;
+const getLatestControlProps = () =>
+  mockIndoorNavigationControls.mock.calls.at(-1)?.[0] as any;
+
 describe("IndoorMap step-driven navigation", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     OutdoorStepResume.reset();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it("builds an indoor path from entry checkpoint to destination room from URL params", async () => {
@@ -450,6 +460,18 @@ describe("IndoorMap step-driven navigation", () => {
       expect(floorProps.activeStepIndex).toBe(3);
       expect(controlsProps.currentStep).toBe(3);
     });
+
+    await act(async () => {
+      const controlsProps = mockIndoorNavigationControls.mock.calls.at(-1)?.[0] as any;
+      controlsProps.onPrevious();
+    });
+
+    await waitFor(() => {
+      const floorProps = mockBuildingFloor.mock.calls.at(-1)?.[0] as any;
+      const controlsProps = mockIndoorNavigationControls.mock.calls.at(-1)?.[0] as any;
+      expect(floorProps.floor).toBe(1);
+      expect(controlsProps.currentStep).toBe(2);
+    });
   });
 
   it("continues to the saved outdoor step after the final indoor step", async () => {
@@ -550,5 +572,657 @@ describe("IndoorMap step-driven navigation", () => {
       encodedPolyline: "outdoor-step-polyline",
       travelMode: "WALK",
     });
+  });
+
+  it("updates location validation errors as typed room values change", async () => {
+    (useLocalSearchParams as jest.Mock).mockReturnValue({
+      buildingCode: "H",
+    });
+
+    (useQuery as jest.Mock).mockReturnValue({
+      data: {
+        images: { 1: 1 },
+        graphData: {
+          checkpoints: {
+            H110: {
+              id: "H110",
+              type: "doorway",
+              buildingId: "H",
+              floor: 1,
+              x: 100,
+              y: 100,
+              label: "H-110",
+              accessible: true,
+            },
+            H111: {
+              id: "H111",
+              type: "doorway",
+              buildingId: "H",
+              floor: 1,
+              x: 200,
+              y: 100,
+              label: "H-111",
+              accessible: true,
+            },
+          },
+          adjacencySet: {
+            H110: {
+              H111: {
+                source: "H110",
+                target: "H111",
+                type: "hallway",
+                weight: 1,
+                accessible: true,
+              },
+            },
+            H111: {
+              H110: {
+                source: "H111",
+                target: "H110",
+                type: "hallway",
+                weight: 1,
+                accessible: true,
+              },
+            },
+          },
+        },
+        buildingCode: "H",
+        rooms: ["H110", "H111"],
+      },
+      error: null,
+      isFetching: false,
+    });
+
+    render(<IndoorMap />);
+
+    await act(async () => {
+      const roomFieldsProps = getLatestRoomFieldsProps();
+      roomFieldsProps.onChangeStartRoom("Mystery");
+      roomFieldsProps.onChangeEndRoom("Unknown");
+    });
+
+    await waitFor(() => {
+      expect(getLatestRoomFieldsProps().routeError).toBe(
+        'Start location "Mystery" and end location "Unknown" were not found.',
+      );
+    });
+
+    await act(async () => {
+      getLatestRoomFieldsProps().onChangeStartRoom("H110");
+    });
+
+    await waitFor(() => {
+      expect(getLatestRoomFieldsProps().routeError).toBe(
+        'End location "Unknown" was not found.',
+      );
+    });
+
+    await act(async () => {
+      const roomFieldsProps = getLatestRoomFieldsProps();
+      roomFieldsProps.onChangeStartRoom("Mystery");
+      roomFieldsProps.onChangeEndRoom("H111");
+    });
+
+    await waitFor(() => {
+      expect(getLatestRoomFieldsProps().routeError).toBe(
+        'Start location "Mystery" was not found.',
+      );
+    });
+  });
+
+  it("creates a manual room path from normalized location aliases and clears it when inputs become incomplete", async () => {
+    (useLocalSearchParams as jest.Mock).mockReturnValue({
+      buildingCode: "H",
+    });
+
+    (useQuery as jest.Mock).mockReturnValue({
+      data: {
+        images: { 1: 1 },
+        graphData: {
+          checkpoints: {
+            H110: {
+              id: "H110",
+              type: "doorway",
+              buildingId: "H",
+              floor: 1,
+              x: 100,
+              y: 100,
+              label: "H-110",
+              accessible: true,
+            },
+            H111: {
+              id: "H111",
+              type: "doorway",
+              buildingId: "H",
+              floor: 1,
+              x: 200,
+              y: 100,
+              label: "H-111",
+              accessible: true,
+            },
+          },
+          adjacencySet: {
+            H110: {
+              H111: {
+                source: "H110",
+                target: "H111",
+                type: "hallway",
+                weight: 1,
+                accessible: true,
+              },
+            },
+            H111: {
+              H110: {
+                source: "H111",
+                target: "H110",
+                type: "hallway",
+                weight: 1,
+                accessible: true,
+              },
+            },
+          },
+        },
+        buildingCode: "H",
+        rooms: ["H110", "H111"],
+      },
+      error: null,
+      isFetching: false,
+    });
+
+    render(<IndoorMap />);
+
+    await act(async () => {
+      const roomFieldsProps = getLatestRoomFieldsProps();
+      roomFieldsProps.onChangeStartRoom("110");
+      roomFieldsProps.onChangeEndRoom("111");
+    });
+
+    await waitFor(() => {
+      expect(getLatestRoomFieldsProps().canCreatePath).toBe(true);
+    });
+
+    await act(async () => {
+      getLatestRoomFieldsProps().onCreatePath();
+    });
+
+    await waitFor(() => {
+      expect(getLatestRoomFieldsProps().startRoom).toBe("H110");
+      expect(getLatestRoomFieldsProps().endRoom).toBe("H111");
+      expect(getLatestFloorProps().navigationPath).toEqual(["H110", "H111"]);
+      expect(getLatestControlProps().mode).toBe("step");
+    });
+
+    await act(async () => {
+      getLatestRoomFieldsProps().onChangeEndRoom("");
+    });
+
+    await waitFor(() => {
+      expect(getLatestFloorProps().navigationPath).toBeUndefined();
+      expect(getLatestControlProps().mode).toBe("floor");
+      expect(getLatestRoomFieldsProps().routeError).toBeUndefined();
+    });
+  });
+
+  it("shows an error when a manual room path cannot be found", async () => {
+    (useLocalSearchParams as jest.Mock).mockReturnValue({
+      buildingCode: "H",
+    });
+
+    (useQuery as jest.Mock).mockReturnValue({
+      data: {
+        images: { 1: 1 },
+        graphData: {
+          checkpoints: {
+            H110: {
+              id: "H110",
+              type: "doorway",
+              buildingId: "H",
+              floor: 1,
+              x: 100,
+              y: 100,
+              label: "H-110",
+              accessible: true,
+            },
+            H111: {
+              id: "H111",
+              type: "doorway",
+              buildingId: "H",
+              floor: 1,
+              x: 200,
+              y: 100,
+              label: "H-111",
+              accessible: true,
+            },
+          },
+          adjacencySet: {
+            H110: {},
+            H111: {},
+          },
+        },
+        buildingCode: "H",
+        rooms: ["H110", "H111"],
+      },
+      error: null,
+      isFetching: false,
+    });
+
+    render(<IndoorMap />);
+
+    await act(async () => {
+      const roomFieldsProps = getLatestRoomFieldsProps();
+      roomFieldsProps.onChangeStartRoom("110");
+      roomFieldsProps.onChangeEndRoom("111");
+    });
+
+    await act(async () => {
+      getLatestRoomFieldsProps().onCreatePath();
+    });
+
+    await waitFor(() => {
+      expect(getLatestRoomFieldsProps().routeError).toBe(
+        "No indoor path was found between those rooms.",
+      );
+      expect(getLatestFloorProps().navigationPath).toBeUndefined();
+    });
+  });
+
+  it("shows manual create-path errors for missing and unresolved typed locations", async () => {
+    (useLocalSearchParams as jest.Mock).mockReturnValue({
+      buildingCode: "H",
+    });
+
+    (useQuery as jest.Mock).mockReturnValue({
+      data: {
+        images: { 1: 1 },
+        graphData: {
+          checkpoints: {
+            H110: {
+              id: "H110",
+              type: "doorway",
+              buildingId: "H",
+              floor: 1,
+              x: 100,
+              y: 100,
+              label: "H-110",
+              accessible: true,
+            },
+            H111: {
+              id: "H111",
+              type: "doorway",
+              buildingId: "H",
+              floor: 1,
+              x: 200,
+              y: 100,
+              label: "H-111",
+              accessible: true,
+            },
+          },
+          adjacencySet: {
+            H110: {
+              H111: {
+                source: "H110",
+                target: "H111",
+                type: "hallway",
+                weight: 1,
+                accessible: true,
+              },
+            },
+            H111: {
+              H110: {
+                source: "H111",
+                target: "H110",
+                type: "hallway",
+                weight: 1,
+                accessible: true,
+              },
+            },
+          },
+        },
+        buildingCode: "H",
+        rooms: ["H110", "H111"],
+      },
+      error: null,
+      isFetching: false,
+    });
+
+    render(<IndoorMap />);
+
+    await act(async () => {
+      getLatestRoomFieldsProps().onCreatePath();
+    });
+
+    await waitFor(() => {
+      expect(getLatestRoomFieldsProps().routeError).toBe(
+        "Enter both a start location and an end location.",
+      );
+    });
+
+    await act(async () => {
+      const roomFieldsProps = getLatestRoomFieldsProps();
+      roomFieldsProps.onChangeStartRoom("Mystery");
+      roomFieldsProps.onChangeEndRoom("111");
+    });
+
+    await act(async () => {
+      getLatestRoomFieldsProps().onCreatePath();
+    });
+
+    await waitFor(() => {
+      expect(getLatestRoomFieldsProps().routeError).toBe(
+        'Start location "Mystery" was not found.',
+      );
+    });
+
+    await act(async () => {
+      const roomFieldsProps = getLatestRoomFieldsProps();
+      roomFieldsProps.onChangeStartRoom("110");
+      roomFieldsProps.onChangeEndRoom("Unknown");
+    });
+
+    await act(async () => {
+      getLatestRoomFieldsProps().onCreatePath();
+    });
+
+    await waitFor(() => {
+      expect(getLatestRoomFieldsProps().routeError).toBe(
+        'End location "Unknown" was not found.',
+      );
+    });
+  });
+
+  it("shows a lookup error when the canonical manual start location is missing from the graph", async () => {
+    (useLocalSearchParams as jest.Mock).mockReturnValue({
+      buildingCode: "H",
+    });
+
+    (useQuery as jest.Mock).mockReturnValue({
+      data: {
+        images: { 1: 1 },
+        graphData: {
+          checkpoints: {
+            H111: {
+              id: "H111",
+              type: "doorway",
+              buildingId: "H",
+              floor: 1,
+              x: 200,
+              y: 100,
+              label: "H-111",
+              accessible: true,
+            },
+          },
+          adjacencySet: {
+            H111: {},
+          },
+        },
+        buildingCode: "H",
+        rooms: ["H110", "H111"],
+      },
+      error: null,
+      isFetching: false,
+    });
+
+    render(<IndoorMap />);
+
+    await act(async () => {
+      const roomFieldsProps = getLatestRoomFieldsProps();
+      roomFieldsProps.onChangeStartRoom("110");
+      roomFieldsProps.onChangeEndRoom("111");
+    });
+
+    await act(async () => {
+      getLatestRoomFieldsProps().onCreatePath();
+    });
+
+    await waitFor(() => {
+      expect(getLatestRoomFieldsProps().routeError).toBe(
+        'Start location "H110" was not found.',
+      );
+    });
+  });
+
+  it("shows a lookup error when the canonical manual end location is missing from the graph", async () => {
+    (useLocalSearchParams as jest.Mock).mockReturnValue({
+      buildingCode: "H",
+    });
+
+    (useQuery as jest.Mock).mockReturnValue({
+      data: {
+        images: { 1: 1 },
+        graphData: {
+          checkpoints: {
+            H110: {
+              id: "H110",
+              type: "doorway",
+              buildingId: "H",
+              floor: 1,
+              x: 100,
+              y: 100,
+              label: "H-110",
+              accessible: true,
+            },
+          },
+          adjacencySet: {
+            H110: {},
+          },
+        },
+        buildingCode: "H",
+        rooms: ["H110", "H111"],
+      },
+      error: null,
+      isFetching: false,
+    });
+
+    render(<IndoorMap />);
+
+    await act(async () => {
+      const roomFieldsProps = getLatestRoomFieldsProps();
+      roomFieldsProps.onChangeStartRoom("110");
+      roomFieldsProps.onChangeEndRoom("111");
+    });
+
+    await act(async () => {
+      getLatestRoomFieldsProps().onCreatePath();
+    });
+
+    await waitFor(() => {
+      expect(getLatestRoomFieldsProps().routeError).toBe(
+        'End location "H111" was not found.',
+      );
+    });
+  });
+
+  it("navigates between floors when no indoor path is active", async () => {
+    (useLocalSearchParams as jest.Mock).mockReturnValue({
+      buildingCode: "H",
+    });
+
+    (useQuery as jest.Mock).mockReturnValue({
+      data: {
+        images: { 1: 1, 2: 2, 3: 3 },
+        graphData: {
+          checkpoints: {
+            H110: {
+              id: "H110",
+              type: "doorway",
+              buildingId: "H",
+              floor: 1,
+              x: 100,
+              y: 100,
+              accessible: true,
+            },
+          },
+          adjacencySet: {
+            H110: {},
+          },
+        },
+        buildingCode: "H",
+        rooms: ["H110"],
+      },
+      error: null,
+      isFetching: false,
+    });
+
+    render(<IndoorMap />);
+
+    expect(getLatestControlProps().mode).toBe("floor");
+    expect(getLatestFloorProps().floor).toBe(1);
+
+    await act(async () => {
+      getLatestControlProps().onNext();
+    });
+
+    await waitFor(() => {
+      expect(getLatestFloorProps().floor).toBe(2);
+      expect(getLatestControlProps().canGoPrevious).toBe(true);
+    });
+
+    await act(async () => {
+      getLatestControlProps().onNext();
+    });
+
+    await waitFor(() => {
+      expect(getLatestFloorProps().floor).toBe(3);
+      expect(getLatestControlProps().canGoNext).toBe(false);
+    });
+
+    await act(async () => {
+      getLatestControlProps().onPrevious();
+    });
+
+    await waitFor(() => {
+      expect(getLatestFloorProps().floor).toBe(2);
+    });
+  });
+
+  it("reports invalid step-driven entry checkpoint parameters", async () => {
+    (useLocalSearchParams as jest.Mock).mockReturnValue({
+      buildingCode: "H",
+      indoorStartCheckpointId: "missing",
+      indoorEndRoom: "H110",
+    });
+
+    (useQuery as jest.Mock).mockReturnValue({
+      data: {
+        images: { 1: 1 },
+        graphData: {
+          checkpoints: {
+            H110: {
+              id: "H110",
+              type: "doorway",
+              buildingId: "H",
+              floor: 1,
+              x: 100,
+              y: 100,
+              label: "H-110",
+              accessible: true,
+            },
+          },
+          adjacencySet: {
+            H110: {},
+          },
+        },
+        buildingCode: "H",
+        rooms: ["H110"],
+      },
+      error: null,
+      isFetching: false,
+    });
+
+    render(<IndoorMap />);
+
+    await waitFor(() => {
+      expect(getLatestRoomFieldsProps().routeError).toBe(
+        "Could not find the indoor entrance checkpoint for this route.",
+      );
+    });
+  });
+
+  it("reports route transition failures for step-driven room selections", async () => {
+    (useLocalSearchParams as jest.Mock).mockReturnValue({
+      buildingCode: "H",
+      indoorStartRoom: ["H110"],
+      indoorEndRoom: ["H111"],
+    });
+
+    (useQuery as jest.Mock).mockReturnValue({
+      data: {
+        images: { 1: 1 },
+        graphData: {
+          checkpoints: {
+            H110: {
+              id: "H110",
+              type: "doorway",
+              buildingId: "H",
+              floor: 1,
+              x: 100,
+              y: 100,
+              label: "H-110",
+              accessible: true,
+            },
+            H111: {
+              id: "H111",
+              type: "doorway",
+              buildingId: "H",
+              floor: 1,
+              x: 200,
+              y: 100,
+              label: "H-111",
+              accessible: true,
+            },
+          },
+          adjacencySet: {
+            H110: {},
+            H111: {},
+          },
+        },
+        buildingCode: "H",
+        rooms: ["H110", "H111"],
+      },
+      error: null,
+      isFetching: false,
+    });
+
+    render(<IndoorMap />);
+
+    await waitFor(() => {
+      expect(getLatestRoomFieldsProps().routeError).toBe(
+        "No indoor path was found for this transition.",
+      );
+      expect(getLatestFloorProps().navigationPath).toBeUndefined();
+    });
+  });
+
+  it("clears saved resume continuations on unmount and surfaces query loading errors", async () => {
+    const clearContinuationSpy = jest.spyOn(OutdoorStepResume, "clearContinuation");
+    jest.spyOn(NavigationLoader, "loadBuildingData").mockResolvedValue(null);
+
+    (useLocalSearchParams as jest.Mock).mockReturnValue({
+      buildingCode: "H",
+      resumeContinuationId: ["resume-1"],
+    });
+
+    (useQuery as jest.Mock).mockReturnValue({
+      data: {
+        images: { 1: 1 },
+        graphData: {
+          checkpoints: {},
+          adjacencySet: {},
+        },
+        buildingCode: "H",
+        rooms: [],
+      },
+      error: null,
+      isFetching: false,
+    });
+
+    const { unmount } = render(<IndoorMap />);
+
+    const queryOptions = (useQuery as jest.Mock).mock.calls.at(-1)?.[0];
+    await expect(queryOptions.queryFn()).rejects.toThrow("Couldn't load the floor info");
+
+    unmount();
+
+    expect(clearContinuationSpy).toHaveBeenCalledWith("resume-1");
   });
 });
