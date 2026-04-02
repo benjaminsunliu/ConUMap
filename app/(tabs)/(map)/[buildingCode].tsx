@@ -18,13 +18,27 @@ import {
 } from "@/utils/roomSearch";
 import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function IndoorMap() {
-  const { buildingCode } = useLocalSearchParams<{
+  const {
+    buildingCode,
+    indoorStartCheckpointId,
+    indoorEndRoom,
+    indoorStartRoom,
+    indoorEndCheckpointId,
+  } = useLocalSearchParams<{
     buildingCode: string;
+    indoorStartCheckpointId?: string;
+    indoorEndRoom?: string;
+    indoorStartRoom?: string;
+    indoorEndCheckpointId?: string;
   }>();
+  const autoStartCheckpointId = normalizeParam(indoorStartCheckpointId);
+  const autoEndRoom = normalizeParam(indoorEndRoom);
+  const autoStartRoom = normalizeParam(indoorStartRoom);
+  const autoEndCheckpointId = normalizeParam(indoorEndCheckpointId);
 
   const {
     data: floorInfo,
@@ -49,6 +63,7 @@ export default function IndoorMap() {
   const [startRoom, setStartRoom] = useState("");
   const [endRoom, setEndRoom] = useState("");
   const [routeError, setRouteError] = useState<string | undefined>(undefined);
+  const [hasCheckpointDrivenRoute, setHasCheckpointDrivenRoute] = useState(false);
   const [wheelchairOnly, setWheelchairOnly] = useState(false);
   const [poiFilters, setPoiFilters] = useState({
     bathrooms: false,
@@ -67,6 +82,10 @@ export default function IndoorMap() {
   const firstFloor = useMemo(() => {
     return availableFloors[0];
   }, [availableFloors]);
+  const roomAndEntrySuggestions = useMemo(
+    () => buildIndoorLocationSuggestions(floorInfo),
+    [floorInfo],
+  );
 
   const defaultFloor = floor || firstFloor;
   const currentFloorIndex = defaultFloor ? availableFloors.indexOf(defaultFloor) : -1;
@@ -74,8 +93,8 @@ export default function IndoorMap() {
     currentFloorIndex >= 0 && currentFloorIndex < availableFloors.length - 1;
   const canGoPrevious = currentFloorIndex > 0;
   const roomLookup = useMemo(
-    () => buildRoomLookup(floorInfo?.rooms ?? [], buildingCode),
-    [buildingCode, floorInfo?.rooms],
+    () => buildRoomLookup(roomAndEntrySuggestions, buildingCode),
+    [buildingCode, roomAndEntrySuggestions],
   );
   const validStartRoom = useMemo(
     () => resolveCanonicalRoom(startRoom, buildingCode, roomLookup),
@@ -94,13 +113,13 @@ export default function IndoorMap() {
       return undefined;
     }
     if (!validStartRoom && !validEndRoom) {
-      return `Start room "${trimmedStartRoom}" and end room "${trimmedEndRoom}" were not found.`;
+      return `Start location "${trimmedStartRoom}" and end location "${trimmedEndRoom}" were not found.`;
     }
     if (!validStartRoom) {
-      return `Start room "${trimmedStartRoom}" was not found.`;
+      return `Start location "${trimmedStartRoom}" was not found.`;
     }
     if (!validEndRoom) {
-      return `End room "${trimmedEndRoom}" was not found.`;
+      return `End location "${trimmedEndRoom}" was not found.`;
     }
 
     return undefined;
@@ -119,7 +138,8 @@ export default function IndoorMap() {
     setFloor(availableFloors[newFloorIndex]);
   };
 
-  const createPathFromRooms = () => {
+  const createPathFromRooms = useCallback(() => {
+    setHasCheckpointDrivenRoute(false);
     if (!floorInfo) {
       return;
     }
@@ -127,7 +147,7 @@ export default function IndoorMap() {
     const trimmedStartRoom = startRoom.trim();
     const trimmedEndRoom = endRoom.trim();
     if (!trimmedStartRoom || !trimmedEndRoom) {
-      setRouteError("Enter both a start room and an end room.");
+      setRouteError("Enter both a start location and an end location.");
       setNavigationPath(undefined);
       return;
     }
@@ -137,7 +157,7 @@ export default function IndoorMap() {
       roomLookup,
     );
     if (!canonicalStartRoom) {
-      setRouteError(`Start room "${trimmedStartRoom}" was not found.`);
+      setRouteError(`Start location "${trimmedStartRoom}" was not found.`);
       setNavigationPath(undefined);
       return;
     }
@@ -147,7 +167,7 @@ export default function IndoorMap() {
       roomLookup,
     );
     if (!canonicalEndRoom) {
-      setRouteError(`End room "${trimmedEndRoom}" was not found.`);
+      setRouteError(`End location "${trimmedEndRoom}" was not found.`);
       setNavigationPath(undefined);
       return;
     }
@@ -166,7 +186,7 @@ export default function IndoorMap() {
       buildingCode,
     );
     if (!sourceCheckpoint) {
-      setRouteError(`Start room "${canonicalStartRoom}" was not found.`);
+      setRouteError(`Start location "${canonicalStartRoom}" was not found.`);
       setNavigationPath(undefined);
       return;
     }
@@ -176,7 +196,7 @@ export default function IndoorMap() {
       buildingCode,
     );
     if (!destinationCheckpoint) {
-      setRouteError(`End room "${canonicalEndRoom}" was not found.`);
+      setRouteError(`End location "${canonicalEndRoom}" was not found.`);
       setNavigationPath(undefined);
       return;
     }
@@ -191,15 +211,138 @@ export default function IndoorMap() {
     setRouteError(undefined);
     setNavigationPath(path);
     setFloor(sourceCheckpoint.floor);
-  };
+  }, [buildingCode, endRoom, floorInfo, roomLookup, startRoom]);
+
+  const handleChangeStartRoom = useCallback((room: string) => {
+    setHasCheckpointDrivenRoute(false);
+    setStartRoom(room);
+  }, []);
+
+  const handleChangeEndRoom = useCallback((room: string) => {
+    setHasCheckpointDrivenRoute(false);
+    setEndRoom(room);
+  }, []);
 
   useEffect(() => {
-    if (canCreatePath) {
+    if (!floorInfo) {
+      return;
+    }
+
+    const graph = floorInfo.graphData;
+    const hasCheckpointToRoomParams = Boolean(autoStartCheckpointId && autoEndRoom);
+    const hasRoomToCheckpointParams = Boolean(autoStartRoom && autoEndCheckpointId);
+
+    if (!hasCheckpointToRoomParams && !hasRoomToCheckpointParams) {
+      return;
+    }
+
+    let sourceCheckpoint: FloorCheckpoint | undefined;
+    let destinationCheckpoint: FloorCheckpoint | undefined;
+    let resolvedStartLabel = "";
+    let resolvedEndLabel = "";
+
+    if (hasCheckpointToRoomParams) {
+      sourceCheckpoint = graph.checkpoints[autoStartCheckpointId!];
+      if (!sourceCheckpoint) {
+        setRouteError("Could not find the indoor entrance checkpoint for this route.");
+        setNavigationPath(undefined);
+        setHasCheckpointDrivenRoute(false);
+        return;
+      }
+
+      const canonicalEndRoom = resolveCanonicalRoom(autoEndRoom!, buildingCode, roomLookup);
+      if (!canonicalEndRoom) {
+        setRouteError(`End location "${autoEndRoom}" was not found.`);
+        setNavigationPath(undefined);
+        setHasCheckpointDrivenRoute(false);
+        return;
+      }
+
+      destinationCheckpoint = findCheckpointForRoom(graph, canonicalEndRoom, buildingCode);
+      if (!destinationCheckpoint) {
+        setRouteError(`End location "${canonicalEndRoom}" was not found.`);
+        setNavigationPath(undefined);
+        setHasCheckpointDrivenRoute(false);
+        return;
+      }
+
+      resolvedStartLabel = sourceCheckpoint.label?.trim() || sourceCheckpoint.id;
+      resolvedEndLabel = canonicalEndRoom;
+    } else {
+      const canonicalStartRoom = resolveCanonicalRoom(
+        autoStartRoom!,
+        buildingCode,
+        roomLookup,
+      );
+      if (!canonicalStartRoom) {
+        setRouteError(`Start location "${autoStartRoom}" was not found.`);
+        setNavigationPath(undefined);
+        setHasCheckpointDrivenRoute(false);
+        return;
+      }
+
+      sourceCheckpoint = findCheckpointForRoom(graph, canonicalStartRoom, buildingCode);
+      if (!sourceCheckpoint) {
+        setRouteError(`Start location "${canonicalStartRoom}" was not found.`);
+        setNavigationPath(undefined);
+        setHasCheckpointDrivenRoute(false);
+        return;
+      }
+
+      destinationCheckpoint = graph.checkpoints[autoEndCheckpointId!];
+      if (!destinationCheckpoint) {
+        setRouteError("Could not find the indoor exit checkpoint for this route.");
+        setNavigationPath(undefined);
+        setHasCheckpointDrivenRoute(false);
+        return;
+      }
+
+      resolvedStartLabel = canonicalStartRoom;
+      resolvedEndLabel = destinationCheckpoint.label?.trim() || destinationCheckpoint.id;
+    }
+
+    const path = findIndoorPath(graph, sourceCheckpoint.id, destinationCheckpoint.id);
+    if (!path) {
+      setRouteError("No indoor path was found for this transition.");
+      setNavigationPath(undefined);
+      setHasCheckpointDrivenRoute(false);
+      return;
+    }
+
+    setStartRoom(resolvedStartLabel);
+    setEndRoom(resolvedEndLabel);
+    setRouteError(undefined);
+    setNavigationPath(path);
+    setFloor(sourceCheckpoint.floor);
+    setHasCheckpointDrivenRoute(true);
+  }, [
+    autoEndRoom,
+    autoEndCheckpointId,
+    autoStartCheckpointId,
+    autoStartRoom,
+    buildingCode,
+    floorInfo,
+    roomLookup,
+  ]);
+
+  useEffect(() => {
+    const hasStepDrivenParams = Boolean(
+      (autoStartCheckpointId && autoEndRoom) ||
+        (autoStartRoom && autoEndCheckpointId),
+    );
+    if (canCreatePath || hasCheckpointDrivenRoute || hasStepDrivenParams) {
       return;
     }
     setNavigationPath(undefined);
     setRouteError(undefined);
-  }, [canCreatePath]);
+  }, [
+    autoEndRoom,
+    autoEndCheckpointId,
+    autoStartCheckpointId,
+    autoStartRoom,
+    canCreatePath,
+    hasCheckpointDrivenRoute,
+  ]);
 
   return (
     <View style={styles.container}>
@@ -211,9 +354,9 @@ export default function IndoorMap() {
             buildingCode={buildingCode}
             startRoom={startRoom}
             endRoom={endRoom}
-            onChangeStartRoom={setStartRoom}
-            onChangeEndRoom={setEndRoom}
-            roomSuggestions={floorInfo.rooms}
+            onChangeStartRoom={handleChangeStartRoom}
+            onChangeEndRoom={handleChangeEndRoom}
+            roomSuggestions={roomAndEntrySuggestions}
             canCreatePath={canCreatePath}
             onCreatePath={createPathFromRooms}
             routeError={inputValidationError ?? routeError}
@@ -248,6 +391,13 @@ const styles = StyleSheet.create({
   },
 });
 
+function normalizeParam(value: string | string[] | undefined) {
+  if (Array.isArray(value)) {
+    return value[0];
+  }
+  return value;
+}
+
 function findCheckpointForRoom(
   graph: FloorCheckpointsGraph,
   roomQuery: string,
@@ -274,4 +424,23 @@ function getCheckpointTokens(checkpoint: FloorCheckpoint) {
     }
   }
   return tokens;
+}
+
+function buildIndoorLocationSuggestions(floorInfo: BuildingFloorInfo | undefined) {
+  if (!floorInfo) {
+    return [];
+  }
+
+  const roomSuggestions = (floorInfo.rooms ?? []).map((room) => room.trim()).filter(Boolean);
+  const entryExitSuggestions = Object.values(floorInfo.graphData.checkpoints)
+    .filter((checkpoint) => checkpoint.type === "building_entry_exit")
+    .flatMap((checkpoint) => {
+      const label = checkpoint.label?.trim();
+      if (label && label !== checkpoint.id) {
+        return [label, checkpoint.id];
+      }
+      return [checkpoint.id];
+    });
+
+  return [...new Set([...roomSuggestions, ...entryExitSuggestions])];
 }

@@ -5,6 +5,7 @@ import MapViewer from "../components/map/map-viewer";
 import { Colors } from "@/constants/theme";
 import { CAMPUS_BUILDINGS } from "../constants/map";
 import { fetchAllDirections } from "@/utils/directions";
+import * as SearchBuildingHook from "@/hooks/use-search-building";
 import { useLocalSearchParams, router } from "expo-router";
 const mockAnimateToRegion = jest.fn();
 jest.mock("react-native-map-clustering", () => {
@@ -52,6 +53,7 @@ jest.mock("@/utils/decodePolyline", () => ({
 jest.mock("expo-router", () => ({
   router: {
     setParams: jest.fn(),
+    push: jest.fn(),
   },
   useLocalSearchParams: jest.fn(() => ({})),
 }));
@@ -113,6 +115,7 @@ beforeEach(() => {
   mockAnimateToRegion.mockClear();
   useLocalSearchParams.mockReturnValue({});
   router.setParams.mockClear();
+  router.push.mockClear();
 });
 
 describe("map tab", () => {
@@ -1103,6 +1106,369 @@ describe("map tab", () => {
     expect(mapViewer.getAllByTestId("polyline").length).toBeGreaterThan(0);
   });
 
+  it("keeps only the latest route polyline when selecting routes before the next frame", async () => {
+    const { fetchAllDirections } = require("@/utils/directions");
+    const { decodePolyline } = require("@/utils/decodePolyline");
+
+    const originalRaf = global.requestAnimationFrame;
+    const originalCancelRaf = global.cancelAnimationFrame;
+    const queuedFrames = new Map();
+    let nextFrameId = 1;
+
+    global.requestAnimationFrame = jest.fn((callback) => {
+      const frameId = nextFrameId++;
+      queuedFrames.set(frameId, callback);
+      return frameId;
+    });
+    global.cancelAnimationFrame = jest.fn((frameId) => {
+      queuedFrames.delete(frameId);
+    });
+
+    try {
+      const routeA = {
+        summary: "",
+        overview_polyline: { points: "route-a-overview" },
+        legs: [
+          {
+            distance: { text: "200 m", value: 200 },
+            duration: { text: "3 mins", value: 180 },
+            steps: [
+              {
+                distance: { text: "200 m", value: 200 },
+                duration: { text: "3 mins", value: 180 },
+                html_instructions: "Route A",
+                maneuver: "",
+                polyline: { points: "route-a-step" },
+                travel_mode: "WALKING",
+              },
+            ],
+          },
+        ],
+      };
+      const routeB = {
+        summary: "",
+        overview_polyline: { points: "route-b-overview" },
+        legs: [
+          {
+            distance: { text: "250 m", value: 250 },
+            duration: { text: "4 mins", value: 240 },
+            steps: [
+              {
+                distance: { text: "250 m", value: 250 },
+                duration: { text: "4 mins", value: 240 },
+                html_instructions: "Route B",
+                maneuver: "",
+                polyline: { points: "route-b-step" },
+                travel_mode: "WALKING",
+              },
+            ],
+          },
+        ],
+      };
+
+      fetchAllDirections.mockResolvedValueOnce({
+        walking: [routeA, routeB],
+        transit: [],
+        driving: [],
+        bicycling: [],
+        shuttle: [],
+      });
+
+      const routeACoords = [
+        { latitude: 45.495, longitude: -73.579 },
+        { latitude: 45.496, longitude: -73.578 },
+      ];
+      const routeBCoords = [
+        { latitude: 45.497, longitude: -73.577 },
+        { latitude: 45.498, longitude: -73.576 },
+      ];
+      decodePolyline.mockReturnValueOnce(routeACoords).mockReturnValueOnce(routeBCoords);
+
+      const mapViewer = render(<MapViewer />);
+      const mapView = mapViewer.getByTestId("map-view");
+
+      fireEvent(mapView, "onUserLocationChange", {
+        nativeEvent: { coordinate: { latitude: 45.495, longitude: -73.579 } },
+      });
+      await act(async () => {
+        fireEvent.press(mapViewer.getAllByTestId("polygon")[0]);
+      });
+      await act(async () => {
+        fireEvent.press(mapViewer.getByTestId("directions-action-button"));
+      });
+      await act(async () => {});
+
+      const routesPopup = mapViewer.getByTestId("routes-info-popup");
+      await act(async () => {
+        routesPopup.props.onResponderGrant({}, {});
+        routesPopup.props.onResponderMove({}, { dy: -300 });
+        routesPopup.props.onResponderRelease({}, { dy: -300, vy: -1 });
+      });
+
+      await act(async () => {
+        fireEvent.press(mapViewer.getByTestId("walking-route-0"));
+      });
+      await act(async () => {
+        fireEvent.press(mapViewer.getByTestId("back-to-routes-button"));
+      });
+      await act(async () => {
+        fireEvent.press(mapViewer.getByTestId("walking-route-1"));
+      });
+
+      // Frames are queued and have not run yet.
+      expect(mapViewer.queryAllByTestId("polyline")).toHaveLength(0);
+
+      const pendingCallbacks = [...queuedFrames.values()];
+      queuedFrames.clear();
+      await act(async () => {
+        pendingCallbacks.forEach((callback) => callback(0));
+      });
+
+      const polylines = mapViewer.getAllByTestId("polyline");
+      expect(polylines).toHaveLength(1);
+      expect(polylines[0].props.coordinates).toEqual(routeBCoords);
+      expect(global.cancelAnimationFrame).toHaveBeenCalled();
+    } finally {
+      global.requestAnimationFrame = originalRaf;
+      global.cancelAnimationFrame = originalCancelRaf;
+    }
+  });
+
+  it("replaces walking polyline with transit polyline when switching modes and selecting a transit route", async () => {
+    const { fetchAllDirections } = require("@/utils/directions");
+    const { decodePolyline } = require("@/utils/decodePolyline");
+
+    fetchAllDirections.mockResolvedValueOnce({
+      walking: [
+        {
+          summary: "",
+          overview_polyline: { points: "walk-overview" },
+          legs: [
+            {
+              distance: { text: "200 m", value: 200 },
+              duration: { text: "3 mins", value: 180 },
+              steps: [
+                {
+                  distance: { text: "200 m", value: 200 },
+                  duration: { text: "3 mins", value: 180 },
+                  html_instructions: "Walk route",
+                  maneuver: "",
+                  polyline: { points: "walk-step" },
+                  travel_mode: "WALKING",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      transit: [
+        {
+          summary: "",
+          overview_polyline: { points: "transit-overview" },
+          legs: [
+            {
+              distance: { text: "2 km", value: 2000 },
+              duration: { text: "20 mins", value: 1200 },
+              steps: [
+                {
+                  distance: { text: "100 m", value: 100 },
+                  duration: { text: "2 mins", value: 120 },
+                  html_instructions: "Walk to stop",
+                  maneuver: "",
+                  polyline: { points: "transit-walk-step" },
+                  travel_mode: "WALKING",
+                },
+                {
+                  distance: { text: "2 km", value: 2000 },
+                  duration: { text: "20 mins", value: 1200 },
+                  html_instructions: "Take bus",
+                  maneuver: "",
+                  polyline: { points: "transit-step" },
+                  travel_mode: "TRANSIT",
+                  transit_details: {
+                    line: { vehicle_type: "BUS" },
+                    departure_stop: { name: "A", location: { lat: 45.495, lng: -73.579 } },
+                    arrival_stop: { name: "B", location: { lat: 45.5, lng: -73.57 } },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      driving: [],
+      bicycling: [],
+      shuttle: [],
+    });
+
+    const walkingCoords = [
+      { latitude: 45.495, longitude: -73.579 },
+      { latitude: 45.496, longitude: -73.578 },
+    ];
+    const transitCoords = [
+      { latitude: 45.497, longitude: -73.577 },
+      { latitude: 45.498, longitude: -73.576 },
+    ];
+    const transitWalkCoords = [
+      { latitude: 45.496, longitude: -73.578 },
+      { latitude: 45.497, longitude: -73.577 },
+    ];
+    decodePolyline.mockImplementation((encoded) => {
+      if (encoded === "walk-step") {
+        return walkingCoords;
+      }
+      if (encoded === "transit-walk-step") {
+        return transitWalkCoords;
+      }
+      if (encoded === "transit-step") {
+        return transitCoords;
+      }
+      return [];
+    });
+
+    const mapViewer = render(<MapViewer />);
+    const mapView = mapViewer.getByTestId("map-view");
+
+    fireEvent(mapView, "onUserLocationChange", {
+      nativeEvent: { coordinate: { latitude: 45.495, longitude: -73.579 } },
+    });
+    await act(async () => {
+      fireEvent.press(mapViewer.getAllByTestId("polygon")[0]);
+    });
+    await act(async () => {
+      fireEvent.press(mapViewer.getByTestId("directions-action-button"));
+    });
+    await act(async () => {});
+
+    const routesPopup = mapViewer.getByTestId("routes-info-popup");
+    await act(async () => {
+      routesPopup.props.onResponderGrant({}, {});
+      routesPopup.props.onResponderMove({}, { dy: -300 });
+      routesPopup.props.onResponderRelease({}, { dy: -300, vy: -1 });
+    });
+
+    await act(async () => {
+      fireEvent.press(mapViewer.getByTestId("walking-route-0"));
+    });
+    await act(async () => {});
+    expect(mapViewer.getAllByTestId("polyline")).toHaveLength(1);
+    expect(mapViewer.getAllByTestId("polyline")[0].props.coordinates).toEqual(
+      walkingCoords,
+    );
+
+    await act(async () => {
+      fireEvent.press(mapViewer.getByTestId("transit-selector"));
+    });
+    await act(async () => {
+      fireEvent.press(mapViewer.getByTestId("transit-route-0"));
+    });
+    await act(async () => {});
+
+    expect(mapViewer.getAllByTestId("polyline")).toHaveLength(1);
+    expect(mapViewer.getAllByTestId("polyline")[0].props.coordinates).toEqual(
+      transitCoords,
+    );
+    expect(decodePolyline).not.toHaveBeenCalledWith("transit-walk-step");
+  });
+
+  it("clears the currently rendered polyline when switching transportation mode tabs", async () => {
+    const { fetchAllDirections } = require("@/utils/directions");
+    const { decodePolyline } = require("@/utils/decodePolyline");
+
+    fetchAllDirections.mockResolvedValueOnce({
+      walking: [
+        {
+          summary: "",
+          overview_polyline: { points: "walk-overview" },
+          legs: [
+            {
+              distance: { text: "200 m", value: 200 },
+              duration: { text: "3 mins", value: 180 },
+              steps: [
+                {
+                  distance: { text: "200 m", value: 200 },
+                  duration: { text: "3 mins", value: 180 },
+                  html_instructions: "Walk route",
+                  maneuver: "",
+                  polyline: { points: "walk-step" },
+                  travel_mode: "WALKING",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      transit: [
+        {
+          summary: "",
+          overview_polyline: { points: "transit-overview" },
+          legs: [
+            {
+              distance: { text: "2 km", value: 2000 },
+              duration: { text: "20 mins", value: 1200 },
+              steps: [
+                {
+                  distance: { text: "2 km", value: 2000 },
+                  duration: { text: "20 mins", value: 1200 },
+                  html_instructions: "Take bus",
+                  maneuver: "",
+                  polyline: { points: "transit-step" },
+                  travel_mode: "TRANSIT",
+                  transit_details: {
+                    line: { vehicle_type: "BUS" },
+                    departure_stop: { name: "A", location: { lat: 45.495, lng: -73.579 } },
+                    arrival_stop: { name: "B", location: { lat: 45.5, lng: -73.57 } },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      driving: [],
+      bicycling: [],
+      shuttle: [],
+    });
+
+    decodePolyline.mockReturnValueOnce([
+      { latitude: 45.495, longitude: -73.579 },
+      { latitude: 45.496, longitude: -73.578 },
+    ]);
+
+    const mapViewer = render(<MapViewer />);
+    const mapView = mapViewer.getByTestId("map-view");
+
+    fireEvent(mapView, "onUserLocationChange", {
+      nativeEvent: { coordinate: { latitude: 45.495, longitude: -73.579 } },
+    });
+    await act(async () => {
+      fireEvent.press(mapViewer.getAllByTestId("polygon")[0]);
+    });
+    await act(async () => {
+      fireEvent.press(mapViewer.getByTestId("directions-action-button"));
+    });
+    await act(async () => {});
+
+    const routesPopup = mapViewer.getByTestId("routes-info-popup");
+    await act(async () => {
+      routesPopup.props.onResponderGrant({}, {});
+      routesPopup.props.onResponderMove({}, { dy: -300 });
+      routesPopup.props.onResponderRelease({}, { dy: -300, vy: -1 });
+    });
+
+    await act(async () => {
+      fireEvent.press(mapViewer.getByTestId("walking-route-0"));
+    });
+    await act(async () => {});
+    expect(mapViewer.getAllByTestId("polyline")).toHaveLength(1);
+
+    await act(async () => {
+      fireEvent.press(mapViewer.getByTestId("transit-selector"));
+    });
+
+    expect(mapViewer.queryAllByTestId("polyline")).toHaveLength(0);
+  });
+
   it("onRouteSelect does NOT create a node when consecutive steps share the same color", async () => {
     const { fetchAllDirections } = require("@/utils/directions");
     const { decodePolyline } = require("@/utils/decodePolyline");
@@ -1414,6 +1780,168 @@ describe("map tab", () => {
     expect(mockAnimateToRegion).toHaveBeenCalled();
   });
 
+  it("opens indoor map with entrance checkpoint and destination room when an indoor step is pressed", async () => {
+    const { fetchAllDirections } = require("@/utils/directions");
+    const { encodeIndoorStepPayload } = require("@/utils/hybridNavigation");
+
+    const indoorPayload = encodeIndoorStepPayload({
+      building_code: "H",
+      start_checkpoint_id: "H_F2_building_entry_exit_15",
+      end_room: "H110",
+    });
+
+    fetchAllDirections.mockResolvedValueOnce({
+      walking: [
+        {
+          summary: "",
+          overview_polyline: { points: "poly" },
+          legs: [
+            {
+              distance: { text: "200 m", value: 200 },
+              duration: { text: "3 mins", value: 180 },
+              departure_time: undefined,
+              arrival_time: undefined,
+              steps: [
+                {
+                  distance: { text: "12 indoor checkpoints", value: 12 },
+                  duration: { text: "Indoor segment", value: 0 },
+                  html_instructions:
+                    "Enter H via H2 Entry Exit 3 and continue indoors to room H110.",
+                  maneuver: "",
+                  polyline: { points: indoorPayload },
+                  travel_mode: "INDOOR",
+                  indoor_details: {
+                    building_code: "H",
+                    start_checkpoint_id: "H_F2_building_entry_exit_15",
+                    end_room: "H110",
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      transit: [],
+      driving: [],
+      bicycling: [],
+      shuttle: [],
+    });
+
+    const mapViewer = render(<MapViewer />);
+    const mapView = mapViewer.getByTestId("map-view");
+    fireEvent(mapView, "onUserLocationChange", {
+      nativeEvent: { coordinate: { latitude: 45.495, longitude: -73.579 } },
+    });
+
+    await act(async () => {
+      fireEvent.press(mapViewer.getAllByTestId("polygon")[0]);
+    });
+    await act(async () => {
+      fireEvent.press(mapViewer.getByTestId("directions-action-button"));
+    });
+    await act(async () => {});
+
+    const routesPopup = mapViewer.getByTestId("routes-info-popup");
+    await act(async () => {
+      routesPopup.props.onResponderGrant({}, {});
+      routesPopup.props.onResponderMove({}, { dy: -300 });
+      routesPopup.props.onResponderRelease({}, { dy: -300, vy: -1 });
+    });
+    await act(async () => {
+      fireEvent.press(mapViewer.getByTestId("walking-route-0"));
+    });
+    await act(async () => {
+      fireEvent.press(mapViewer.getByTestId("walking-step-0"));
+    });
+
+    expect(router.push).toHaveBeenCalledWith(
+      expect.stringContaining(
+        "/H?indoorStartCheckpointId=H_F2_building_entry_exit_15&indoorEndRoom=H110",
+      ),
+    );
+  });
+
+  it("opens indoor map with room and destination entry checkpoint when an indoor step is pressed", async () => {
+    const { fetchAllDirections } = require("@/utils/directions");
+    const { encodeIndoorStepPayload } = require("@/utils/hybridNavigation");
+
+    const indoorPayload = encodeIndoorStepPayload({
+      building_code: "H",
+      start_room: "H110",
+      end_checkpoint_id: "H_F2_building_entry_exit_15",
+    });
+
+    fetchAllDirections.mockResolvedValueOnce({
+      walking: [
+        {
+          summary: "",
+          overview_polyline: { points: "poly" },
+          legs: [
+            {
+              distance: { text: "200 m", value: 200 },
+              duration: { text: "3 mins", value: 180 },
+              departure_time: undefined,
+              arrival_time: undefined,
+              steps: [
+                {
+                  distance: { text: "12 indoor checkpoints", value: 12 },
+                  duration: { text: "Indoor segment", value: 0 },
+                  html_instructions:
+                    "Navigate indoors from room H110 to H2 Entry Exit 3 in H.",
+                  maneuver: "",
+                  polyline: { points: indoorPayload },
+                  travel_mode: "INDOOR",
+                  indoor_details: {
+                    building_code: "H",
+                    start_room: "H110",
+                    end_checkpoint_id: "H_F2_building_entry_exit_15",
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      transit: [],
+      driving: [],
+      bicycling: [],
+      shuttle: [],
+    });
+
+    const mapViewer = render(<MapViewer />);
+    const mapView = mapViewer.getByTestId("map-view");
+    fireEvent(mapView, "onUserLocationChange", {
+      nativeEvent: { coordinate: { latitude: 45.495, longitude: -73.579 } },
+    });
+
+    await act(async () => {
+      fireEvent.press(mapViewer.getAllByTestId("polygon")[0]);
+    });
+    await act(async () => {
+      fireEvent.press(mapViewer.getByTestId("directions-action-button"));
+    });
+    await act(async () => {});
+
+    const routesPopup = mapViewer.getByTestId("routes-info-popup");
+    await act(async () => {
+      routesPopup.props.onResponderGrant({}, {});
+      routesPopup.props.onResponderMove({}, { dy: -300 });
+      routesPopup.props.onResponderRelease({}, { dy: -300, vy: -1 });
+    });
+    await act(async () => {
+      fireEvent.press(mapViewer.getByTestId("walking-route-0"));
+    });
+    await act(async () => {
+      fireEvent.press(mapViewer.getByTestId("walking-step-0"));
+    });
+
+    expect(router.push).toHaveBeenCalledWith(
+      expect.stringContaining(
+        "/H?indoorStartRoom=H110&indoorEndCheckpointId=H_F2_building_entry_exit_15",
+      ),
+    );
+  });
+
   it("polylineColor returns #480efa for SUBWAY vehicle type", async () => {
     const { fetchAllDirections } = require("@/utils/directions");
     const { decodePolyline } = require("@/utils/decodePolyline");
@@ -1707,7 +2235,7 @@ describe("map tab", () => {
     expect(polygons[0].props.fillColor).toBe(Colors.light.map.currentBuildingColor);
   });
 
-  it("onRouteSelect creates a transition node when consecutive steps have different colors", async () => {
+  it("onRouteSelect creates a transition node when consecutive transit steps have different colors", async () => {
     const { fetchAllDirections } = require("@/utils/directions");
     const { decodePolyline } = require("@/utils/decodePolyline");
 
@@ -1723,20 +2251,10 @@ describe("map tab", () => {
               departure_time: undefined,
               arrival_time: undefined,
               steps: [
-                // Walking step
+                // First transit step (bus)
                 {
                   distance: { text: "100 m", value: 100 },
                   duration: { text: "1 min", value: 60 },
-                  html_instructions: "Walk to stop",
-                  maneuver: "",
-                  polyline: { points: "walkPoly" },
-                  travel_mode: "WALKING",
-                  transit_details: undefined,
-                },
-                // Bus step - different color triggers a node
-                {
-                  distance: { text: "1 km", value: 1000 },
-                  duration: { text: "10 mins", value: 600 },
                   html_instructions: "Take bus",
                   maneuver: "",
                   polyline: { points: "busPoly" },
@@ -1745,10 +2263,30 @@ describe("map tab", () => {
                     line: { vehicle_type: "BUS" },
                     departure_stop: {
                       name: "Stop A",
-                      location: { lat: 45.496, lng: -73.578 },
+                      location: { lat: 45.495, lng: -73.579 },
                     },
                     arrival_stop: {
                       name: "Stop B",
+                      location: { lat: 45.496, lng: -73.578 },
+                    },
+                  },
+                },
+                // Second transit step (subway) - different color triggers a node
+                {
+                  distance: { text: "1 km", value: 1000 },
+                  duration: { text: "10 mins", value: 600 },
+                  html_instructions: "Take subway",
+                  maneuver: "",
+                  polyline: { points: "subwayPoly" },
+                  travel_mode: "TRANSIT",
+                  transit_details: {
+                    line: { vehicle_type: "SUBWAY" },
+                    departure_stop: {
+                      name: "Station B",
+                      location: { lat: 45.496, lng: -73.578 },
+                    },
+                    arrival_stop: {
+                      name: "Station C",
                       location: { lat: 45.5, lng: -73.57 },
                     },
                   },
@@ -1764,12 +2302,12 @@ describe("map tab", () => {
       shuttle: [],
     });
 
-    // walking step coords
+    // bus step coords
     decodePolyline.mockReturnValueOnce([
       { latitude: 45.495, longitude: -73.579 },
       { latitude: 45.496, longitude: -73.578 },
     ]);
-    // bus step coords
+    // subway step coords
     decodePolyline.mockReturnValueOnce([
       { latitude: 45.496, longitude: -73.578 },
       { latitude: 45.5, longitude: -73.57 },
@@ -1802,7 +2340,7 @@ describe("map tab", () => {
       fireEvent.press(mapViewer.getByTestId("transit-route-0"));
     });
 
-    // 2 polylines (walk + bus), and on iOS a Marker node should be rendered
+    // 2 transit polylines (bus + subway), and on iOS a Marker node should be rendered
     expect(mapViewer.getAllByTestId("polyline").length).toBe(2);
   });
 
@@ -1936,15 +2474,6 @@ describe("map tab", () => {
                   {
                     distance: { text: "100 m", value: 100 },
                     duration: { text: "1 min", value: 60 },
-                    html_instructions: "Walk to stop",
-                    maneuver: "",
-                    polyline: { points: "walkPoly" },
-                    travel_mode: "WALKING",
-                    transit_details: undefined,
-                  },
-                  {
-                    distance: { text: "1 km", value: 1000 },
-                    duration: { text: "10 mins", value: 600 },
                     html_instructions: "Take bus",
                     maneuver: "",
                     polyline: { points: "busPoly" },
@@ -1953,10 +2482,29 @@ describe("map tab", () => {
                       line: { vehicle_type: "BUS" },
                       departure_stop: {
                         name: "Stop A",
-                        location: { lat: 45.496, lng: -73.578 },
+                        location: { lat: 45.495, lng: -73.579 },
                       },
                       arrival_stop: {
                         name: "Stop B",
+                        location: { lat: 45.496, lng: -73.578 },
+                      },
+                    },
+                  },
+                  {
+                    distance: { text: "1 km", value: 1000 },
+                    duration: { text: "10 mins", value: 600 },
+                    html_instructions: "Take subway",
+                    maneuver: "",
+                    polyline: { points: "subwayPoly" },
+                    travel_mode: "TRANSIT",
+                    transit_details: {
+                      line: { vehicle_type: "SUBWAY" },
+                      departure_stop: {
+                        name: "Station B",
+                        location: { lat: 45.496, lng: -73.578 },
+                      },
+                      arrival_stop: {
+                        name: "Station C",
                         location: { lat: 45.5, lng: -73.57 },
                       },
                     },
@@ -2309,6 +2857,333 @@ describe("map tab", () => {
       // Start field should still be auto-filled with VE
       const startInputAgain = mapViewer.getByPlaceholderText("Your location");
       expect(startInputAgain.props.value).toBe("VE");
+    });
+
+    it("keeps room label when setting start from a room info popup", async () => {
+      const React = require("react");
+      const useBuildingSearchSpy = jest
+        .spyOn(SearchBuildingHook, "useBuildingSearch")
+        .mockImplementation(() => {
+          const [queries, setQueries] = React.useState({ start: "", end: "" });
+          const updateQuery = React.useCallback((type, text) => {
+            const nextValue = text || "";
+            setQueries((prev) =>
+              prev[type] === nextValue
+                ? prev
+                : {
+                    ...prev,
+                    [type]: nextValue,
+                  },
+            );
+          }, []);
+          const swapQueries = React.useCallback(() => {
+            setQueries((prev) => ({
+              start: prev.end,
+              end: prev.start,
+            }));
+          }, []);
+
+          return {
+            queries,
+            updateQuery,
+            swapQueries,
+            results: {
+              start: [],
+              end: [
+                {
+                  buildingCode: "VE101",
+                  buildingName: "VE101",
+                  address: "1400 De Maisonneuve Blvd. W.",
+                  campus: "SGW",
+                  parentBuildingCode: "VE",
+                  roomName: "VE101",
+                  isIndoorRoom: true,
+                },
+              ],
+            },
+          };
+        });
+
+      try {
+        const mapViewer = render(<MapViewer />);
+
+        const endInput = mapViewer.getByPlaceholderText("Search building");
+        await act(async () => {
+          fireEvent(endInput, "onFocus");
+        });
+
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("end-result-VE101"));
+        });
+
+        await waitFor(() => {
+          expect(mapViewer.getByText("VE – Room VE101")).toBeTruthy();
+        });
+
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("start-action-button"));
+        });
+
+        await waitFor(() => {
+          const startInput = mapViewer.getByPlaceholderText("Your location");
+          expect(startInput.props.value).toBe("VE101");
+        });
+      } finally {
+        useBuildingSearchSpy.mockRestore();
+      }
+    });
+
+    it("preserves room-based start context after destination selection for indoor-to-outdoor routing", async () => {
+      const React = require("react");
+      const useBuildingSearchSpy = jest
+        .spyOn(SearchBuildingHook, "useBuildingSearch")
+        .mockImplementation(() => {
+          const [queries, setQueries] = React.useState({ start: "", end: "" });
+          const updateQuery = React.useCallback((type, text) => {
+            const nextValue = text || "";
+            setQueries((prev) =>
+              prev[type] === nextValue
+                ? prev
+                : {
+                    ...prev,
+                    [type]: nextValue,
+                  },
+            );
+          }, []);
+          const swapQueries = React.useCallback(() => {
+            setQueries((prev) => ({
+              start: prev.end,
+              end: prev.start,
+            }));
+          }, []);
+
+          return {
+            queries,
+            updateQuery,
+            swapQueries,
+            results: {
+              start: [],
+              end: [
+                {
+                  buildingCode: "VE101",
+                  buildingName: "VE101",
+                  address: "1400 De Maisonneuve Blvd. W.",
+                  campus: "SGW",
+                  parentBuildingCode: "VE",
+                  roomName: "VE101",
+                  isIndoorRoom: true,
+                },
+                {
+                  buildingCode: "AB",
+                  buildingName: "AB",
+                  address: "Mock Address",
+                  campus: "SGW",
+                },
+              ],
+            },
+          };
+        });
+
+      const hybridNavigation = require("@/utils/hybridNavigation");
+      const enrichSpy = jest
+        .spyOn(hybridNavigation, "enrichRoutesWithIndoorTransitions")
+        .mockImplementation(async (routes) => routes);
+
+      fetchAllDirections.mockResolvedValue({
+        walking: [
+          {
+            summary: "",
+            overview_polyline: { points: "poly" },
+            legs: [
+              {
+                distance: { text: "100 m", value: 100 },
+                duration: { text: "2 mins", value: 120 },
+                steps: [
+                  {
+                    distance: { text: "100 m", value: 100 },
+                    duration: { text: "2 mins", value: 120 },
+                    html_instructions: "Head north",
+                    polyline: { points: "abcd" },
+                    travel_mode: "WALK",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        transit: [],
+        driving: [],
+        bicycling: [],
+        shuttle: [],
+      });
+
+      try {
+        const mapViewer = render(<MapViewer />);
+
+        const endInputBrowse = mapViewer.getByPlaceholderText("Search building");
+        await act(async () => {
+          fireEvent(endInputBrowse, "onFocus");
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("end-result-VE101"));
+        });
+
+        await waitFor(() => {
+          expect(mapViewer.getByText("VE – Room VE101")).toBeTruthy();
+        });
+
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("start-action-button"));
+        });
+
+        const endInputDirections = mapViewer.getByPlaceholderText("Destination");
+        await act(async () => {
+          fireEvent(endInputDirections, "onFocus");
+          fireEvent.changeText(endInputDirections, "AB");
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("end-result-AB"));
+        });
+
+        await waitFor(() => {
+          expect(enrichSpy).toHaveBeenCalled();
+        });
+
+        const selections = enrichSpy.mock.calls.at(-1)?.[1];
+        expect(selections?.start).toMatchObject({
+          roomName: "VE101",
+          parentBuildingCode: "VE",
+          isIndoorRoom: true,
+        });
+      } finally {
+        enrichSpy.mockRestore();
+        useBuildingSearchSpy.mockRestore();
+      }
+    });
+
+    it("reuses saved room-start context when routing again from browse mode", async () => {
+      const React = require("react");
+      const useBuildingSearchSpy = jest
+        .spyOn(SearchBuildingHook, "useBuildingSearch")
+        .mockImplementation(() => {
+          const [queries, setQueries] = React.useState({ start: "", end: "" });
+          const updateQuery = React.useCallback((type, text) => {
+            const nextValue = text || "";
+            setQueries((prev) =>
+              prev[type] === nextValue
+                ? prev
+                : {
+                    ...prev,
+                    [type]: nextValue,
+                  },
+            );
+          }, []);
+          const swapQueries = React.useCallback(() => {
+            setQueries((prev) => ({
+              start: prev.end,
+              end: prev.start,
+            }));
+          }, []);
+
+          return {
+            queries,
+            updateQuery,
+            swapQueries,
+            results: {
+              start: [],
+              end: [
+                {
+                  buildingCode: "VE101",
+                  buildingName: "VE101",
+                  address: "1400 De Maisonneuve Blvd. W.",
+                  campus: "SGW",
+                  parentBuildingCode: "VE",
+                  roomName: "VE101",
+                  isIndoorRoom: true,
+                },
+              ],
+            },
+          };
+        });
+
+      const hybridNavigation = require("@/utils/hybridNavigation");
+      const enrichSpy = jest
+        .spyOn(hybridNavigation, "enrichRoutesWithIndoorTransitions")
+        .mockImplementation(async (routes) => routes);
+
+      fetchAllDirections.mockResolvedValue({
+        walking: [
+          {
+            summary: "",
+            overview_polyline: { points: "poly" },
+            legs: [
+              {
+                distance: { text: "100 m", value: 100 },
+                duration: { text: "2 mins", value: 120 },
+                steps: [
+                  {
+                    distance: { text: "100 m", value: 100 },
+                    duration: { text: "2 mins", value: 120 },
+                    html_instructions: "Head north",
+                    polyline: { points: "abcd" },
+                    travel_mode: "WALK",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        transit: [],
+        driving: [],
+        bicycling: [],
+        shuttle: [],
+      });
+
+      try {
+        const mapViewer = render(<MapViewer />);
+
+        const endInputBrowse = mapViewer.getByPlaceholderText("Search building");
+        await act(async () => {
+          fireEvent(endInputBrowse, "onFocus");
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("end-result-VE101"));
+        });
+
+        await waitFor(() => {
+          expect(mapViewer.getByText("VE – Room VE101")).toBeTruthy();
+        });
+
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("start-action-button"));
+        });
+
+        const mapView = mapViewer.getByTestId("map-view");
+        await act(async () => {
+          fireEvent(mapView, "press", { nativeEvent: { action: "press" } });
+        });
+
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("marker-AB"));
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("directions-action-button"));
+        });
+
+        await waitFor(() => {
+          expect(enrichSpy).toHaveBeenCalled();
+        });
+
+        const selections = enrichSpy.mock.calls.at(-1)?.[1];
+        expect(selections?.start).toMatchObject({
+          roomName: "VE101",
+          parentBuildingCode: "VE",
+          isIndoorRoom: true,
+        });
+      } finally {
+        enrichSpy.mockRestore();
+        useBuildingSearchSpy.mockRestore();
+      }
     });
   });
 });

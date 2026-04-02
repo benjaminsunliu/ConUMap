@@ -195,7 +195,7 @@ describe("RoutesInfoPopup component", () => {
     });
     const route0 = routesView.getByTestId("walking-route-0");
     fireEvent.press(route0);
-    expect(mockOnSelect).toHaveBeenCalledWith(mockRoutes.walking[0]);
+    expect(mockOnSelect).toHaveBeenCalledWith(mockRoutes.walking[0], "walking");
   });
 
   it("should not render if there are no available transportation modes", async () => {
@@ -214,6 +214,26 @@ describe("RoutesInfoPopup component", () => {
     );
     const popup = routesView.queryByTestId("routes-info-popup");
     expect(popup).toBeNull();
+  });
+
+  it("should not crash when routes is undefined", () => {
+    const routesView = render(
+      <RoutesInfoPopup routes={undefined} isOpen={true} onRouteSelect={mockOnSelect} />,
+    );
+    const popup = routesView.queryByTestId("routes-info-popup");
+    expect(popup).toBeNull();
+  });
+
+  it("should not crash when routes is partially defined", () => {
+    const routesView = render(
+      <RoutesInfoPopup
+        routes={{ walking: mockRoutes.walking } as any}
+        isOpen={true}
+        onRouteSelect={mockOnSelect}
+      />,
+    );
+    expect(routesView.getByTestId("routes-info-popup")).toBeTruthy();
+    expect(routesView.getByTestId("walking-selector")).toBeTruthy();
   });
 
   it("should enter step detail view when a route is pressed", async () => {

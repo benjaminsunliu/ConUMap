@@ -14,6 +14,9 @@ interface Props {
   onNavigate?: () => void;
   onSetAsStart?: () => void;
   onExploreRooms?: () => void;
+  roomContext?: {
+    roomName: string;
+  };
 }
 
 const WEEKDAYS = [
@@ -50,6 +53,7 @@ export default function BuildingInfoPopup({
   onNavigate,
   onSetAsStart,
   onExploreRooms,
+  roomContext,
 }: Readonly<Props>) {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
@@ -67,7 +71,7 @@ export default function BuildingInfoPopup({
   const ACTIONS: Action[] = useMemo(
     () => [
       {
-        label: "Directions",
+        label: roomContext ? "Directions to Room" : "Directions",
         icon: "navigate-outline",
         type: "directions",
         handler: onNavigate,
@@ -79,7 +83,7 @@ export default function BuildingInfoPopup({
         handler: onSetAsStart,
       },
       {
-        label: "Explore Rooms",
+        label: roomContext ? "Open Indoor Map" : "Explore Rooms",
         icon: "business-outline",
         type: "rooms",
         handler: onExploreRooms,
@@ -92,7 +96,14 @@ export default function BuildingInfoPopup({
         handler: openWebsiteURL,
       },
     ],
-    [onNavigate, onSetAsStart, openWebsiteURL, onExploreRooms, hasIndoorNavigation],
+    [
+      roomContext,
+      onNavigate,
+      onSetAsStart,
+      openWebsiteURL,
+      onExploreRooms,
+      hasIndoorNavigation,
+    ],
   );
 
   const header = useMemo(() => {
@@ -100,11 +111,15 @@ export default function BuildingInfoPopup({
       <>
         <View style={styles.headerText}>
           <Text style={styles.title}>
-            {building?.buildingCode} – {building?.buildingName}
+            {roomContext
+              ? `${building?.buildingCode} – Room ${roomContext.roomName}`
+              : `${building?.buildingCode} – ${building?.buildingName}`}
           </Text>
 
           <Text style={styles.line}>
-            {building?.campus} Campus | {building?.address}
+            {roomContext
+              ? `${building?.buildingName} | ${building?.campus} Campus | ${building?.address}`
+              : `${building?.campus} Campus | ${building?.address}`}
           </Text>
 
           <Text style={styles.openStatus}>Today: {DEFAULT_OPENING_HOURS[todayIdx]}</Text>

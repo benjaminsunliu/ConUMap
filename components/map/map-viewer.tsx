@@ -7,6 +7,11 @@ import { BuildingInfo, Campus, Coordinate, CoordinateDelta, POI } from "@/types/
 import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
 import { decodePolyline } from "@/utils/decodePolyline";
 import { fetchAllDirections } from "@/utils/directions";
+import {
+  decodeIndoorStepPayload,
+  enrichRoutesWithIndoorTransitions,
+  resolveSearchSelectionBuildingCode,
+} from "@/utils/hybridNavigation";
 import * as LocationPermissions from "expo-location";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -150,9 +155,67 @@ function polylineColor(travelMode: string, vehicleType?: string): string {
   return "#1a73e8";
 }
 
+function normalizeStepTravelMode(travelMode: string | undefined): string {
+  const mode = (travelMode ?? "WALK").toUpperCase();
+
+  if (mode === "WALKING") {
+    return "WALK";
+  }
+  if (mode === "DRIVE") {
+    return "DRIVING";
+  }
+  if (mode === "BICYCLE") {
+    return "BICYCLING";
+  }
+
+  return mode;
+}
+
+function shouldRenderStepForMode(
+  stepTravelMode: string | undefined,
+  selectedMode: TransportationMode,
+): boolean {
+  const normalizedStepMode = normalizeStepTravelMode(stepTravelMode);
+
+  switch (selectedMode) {
+    case "walking":
+      return normalizedStepMode === "WALK";
+    case "transit":
+      return normalizedStepMode === "TRANSIT";
+    case "driving":
+      return normalizedStepMode === "DRIVING";
+    case "bicycling":
+      return normalizedStepMode === "BICYCLING";
+    case "shuttle":
+      return normalizedStepMode === "SHUTTLE";
+    default:
+      return false;
+  }
+}
+
 interface Props {
   readonly userLocationDelta?: CoordinateDelta;
   readonly initialRegion?: Region;
+}
+
+const EMPTY_ROUTES: Record<TransportationMode, any[] | null> = {
+  walking: null,
+  transit: null,
+  driving: null,
+  bicycling: null,
+  shuttle: null,
+};
+
+function normalizeRoutes(
+  routes: Partial<Record<TransportationMode, any[] | null>> | null | undefined,
+): Record<TransportationMode, any[] | null> {
+  return {
+    walking: Array.isArray(routes?.walking) ? routes.walking : null,
+    transit: Array.isArray(routes?.transit) ? routes.transit : null,
+    driving: Array.isArray(routes?.driving) ? routes.driving : null,
+    bicycling: Array.isArray(routes?.bicycling) ? routes.bicycling : null,
+    shuttle: Array.isArray(routes?.shuttle) ? routes.shuttle : null,
+  };
 }
 
 interface Cluster {
@@ -187,17 +250,15 @@ export default function MapViewer({
   const [navigationMode, setNavigationMode] = useState<"browse" | "directions">("browse");
   const [shouldDisplayRoutes, setShouldDisplayRoutes] = useState(false);
 
-  const [routes, setRoutes] = useState<Record<TransportationMode, any[] | null>>({
-    walking: null,
-    transit: null,
-    driving: null,
-    bicycling: null,
-    shuttle: null,
-  });
+  const [routes, setRoutes] = useState<Record<TransportationMode, any[] | null>>(
+    normalizeRoutes(EMPTY_ROUTES),
+  );
   const [routePolyline, setRoutePolyline] = useState<PolylineSegment[] | null>(null);
   const [routeStops, setRouteStops] = useState<TransitStopMarker[]>([]);
   const [routeNodes, setRouteNodes] = useState<TransitionNode[]>([]);
   const [routeKey, setRouteKey] = useState(0);
+  const pendingRouteRenderFrameRef = useRef<number | null>(null);
+  const routeRenderGenerationRef = useRef(0);
   const [navCoords, setNavCoords] = useState<{
     start: Coordinate | null;
     end: Coordinate | null;
@@ -209,6 +270,12 @@ export default function MapViewer({
     start: string | null;
     end: string | null;
   }>({
+    start: null,
+    end: null,
+  });
+  const [selectedSearchLocations, setSelectedSearchLocations] = useState<
+    Record<FieldType, SearchBuilding | null>
+  >({
     start: null,
     end: null,
   });
@@ -225,6 +292,7 @@ export default function MapViewer({
     coord: null,
     label: "",
   });
+  const lastManualStartSelectionRef = useRef<SearchBuilding | null>(null);
 
   const showStartHint =
     navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
@@ -237,26 +305,64 @@ export default function MapViewer({
   const places = usePoi(currCampus, radius);
   const [selectedPOI, setSelectedPOI] = useState<POI | null>(null);
 
+  const cancelPendingRouteRender = useCallback(() => {
+    routeRenderGenerationRef.current += 1;
+    if (
+      pendingRouteRenderFrameRef.current != null &&
+      typeof cancelAnimationFrame === "function"
+    ) {
+      cancelAnimationFrame(pendingRouteRenderFrameRef.current);
+    }
+    pendingRouteRenderFrameRef.current = null;
+  }, []);
+
+  const clearRouteRendering = useCallback(() => {
+    cancelPendingRouteRender();
+    setRoutePolyline(null);
+    setRouteStops([]);
+    setRouteNodes([]);
+  }, [cancelPendingRouteRender]);
+
   useEffect(() => {
-    if (!navCoords.start || !navCoords.end) {
+    return () => {
+      cancelPendingRouteRender();
+    };
+  }, [cancelPendingRouteRender]);
+
+  useEffect(() => {
+    const routeStart = navCoords.start;
+    const routeEnd = navCoords.end;
+    if (!routeStart || !routeEnd) {
       return;
     }
 
     let cancelled = false;
-    setRoutePolyline(null);
-    setRouteStops([]);
-    setRouteNodes([]);
+    clearRouteRendering();
     setShouldDisplayRoutes(true);
+
+    const startSelection = selectedSearchLocations.start;
+    const endSelection = selectedSearchLocations.end;
 
     (async () => {
       try {
-        const nextRoutes = await fetchAllDirections(navCoords.start!, navCoords.end!);
+        const fetchedRoutes = normalizeRoutes(
+          await fetchAllDirections(routeStart, routeEnd),
+        );
+        const nextRoutes = await enrichRoutesWithIndoorTransitions(
+          fetchedRoutes,
+          {
+            start: startSelection,
+            end: endSelection,
+          },
+          CAMPUS_BUILDINGS,
+        );
         if (!cancelled) {
-          setRoutes(nextRoutes);
+          setRoutes(normalizeRoutes(nextRoutes));
         }
       } catch (error) {
         if (!cancelled) {
           console.error("Failed to fetch directions:", error);
+          setRoutes(normalizeRoutes(EMPTY_ROUTES));
         }
       }
     })();
@@ -264,7 +370,13 @@ export default function MapViewer({
     return () => {
       cancelled = true;
     };
-  }, [navCoords.start, navCoords.end]);
+  }, [
+    navCoords.start,
+    navCoords.end,
+    selectedSearchLocations.start,
+    selectedSearchLocations.end,
+    clearRouteRendering,
+  ]);
 
   const inBuildingCodes = useMemo(() => {
     const codes = new Set<string>();
@@ -392,6 +504,7 @@ export default function MapViewer({
           label: nextBuilding.buildingName,
         };
         userClearedStart.current = false;
+        setSelectedSearchLocations({ start: null, end: null });
         setNavCoords({ start: startCoord, end: nextBuilding.location });
         setNavigationMode("directions");
         setShouldDisplayRoutes(true);
@@ -414,16 +527,16 @@ export default function MapViewer({
     setNavigationMode("browse");
 
     setShouldDisplayRoutes(false);
-    setRoutePolyline(null);
-    setRouteStops([]);
-    setRouteNodes([]);
+    setRoutes(normalizeRoutes(EMPTY_ROUTES));
+    clearRouteRendering();
     setNavCoords({ start: null, end: null });
     setSelectionOverrides({ start: null, end: null });
+    setSelectedSearchLocations({ start: null, end: null });
 
     requestAnimationFrame(() => {
       suppressNextMapPress.current = false;
     });
-  }, []);
+  }, [clearRouteRendering]);
 
   /**
    * Handles the event when a building is pressed on the map. It updates the selected building, focuses the map on that building, and resets any existing navigation state to switch back to browse mode. The function also sets a flag to suppress the next map press event, preventing unintended deselection of the building when the map is tapped immediately after selecting a building. This ensures a smooth user experience when interacting with buildings on the map.
@@ -543,8 +656,14 @@ export default function MapViewer({
   );
 
   const navigate = useCallback(
-    (endLabel: string, endCoord: Coordinate) => {
+    (
+      endLabel: string,
+      endCoord: Coordinate,
+      selectionContext?: Partial<Record<FieldType, SearchBuilding | null>>,
+    ) => {
       const { coord: startCoord, label: startLabel } = resolveStartLocation();
+      const startSelection =
+        selectionContext?.start ?? lastManualStartSelectionRef.current ?? null;
 
       if (startCoord && startLabel) {
         lastStartRef.current = { coord: startCoord, label: startLabel };
@@ -560,6 +679,10 @@ export default function MapViewer({
         label: endLabel,
       };
       userClearedStart.current = false;
+      setSelectedSearchLocations({
+        start: startSelection,
+        end: selectionContext?.end ?? null,
+      });
       setNavCoords({ start: startCoord, end: endCoord });
       setNavigationMode("directions");
       setShouldDisplayRoutes(true);
@@ -582,8 +705,22 @@ export default function MapViewer({
       return;
     }
 
-    navigate(selectedBuilding.buildingName, mapBuilding.location);
-  }, [selectedBuilding, navigate]);
+    const selectedEndSearch = selectedSearchLocations.end;
+    const selectedEndBuildingCode = resolveSearchSelectionBuildingCode(
+      selectedEndSearch,
+      CAMPUS_BUILDINGS,
+    );
+    const isRoomDestination =
+      selectedEndSearch?.isIndoorRoom &&
+      selectedEndBuildingCode === selectedBuilding.buildingCode;
+    const destinationLabel = isRoomDestination
+      ? selectedEndSearch.roomName ?? selectedEndSearch.buildingName
+      : selectedBuilding.buildingName;
+
+    navigate(destinationLabel, mapBuilding.location, {
+      end: isRoomDestination ? selectedEndSearch : null,
+    });
+  }, [selectedBuilding, selectedSearchLocations.end, navigate]);
 
   /**
    * Handles the navigation action when the user chooses to navigate to a selected POI. It sets the navigation coordinates to route from the user's current location  to the POI's location, and switches the navigation mode to "directions" to display the route.
@@ -611,24 +748,39 @@ export default function MapViewer({
       return;
     }
 
+    const selectedEndSearch = selectedSearchLocations.end;
+    const selectedEndBuildingCode = getSelectedBuildingCode(selectedEndSearch);
+    const shouldUseSelectedRoomAsStart = Boolean(
+      selectedEndSearch?.isIndoorRoom &&
+        selectedEndBuildingCode === selectedBuilding.buildingCode,
+    );
+    const startSelection = shouldUseSelectedRoomAsStart ? selectedEndSearch : null;
+    const startLabel =
+      startSelection?.roomName ?? startSelection?.buildingName ?? selectedBuilding.buildingName;
+
     const lastDest = lastDestinationRef.current;
     lastStartRef.current = {
       coord: mapBuilding.location,
-      label: selectedBuilding.buildingName,
+      label: startLabel,
     };
     lastManualStartRef.current = {
       coord: mapBuilding.location,
-      label: selectedBuilding.buildingName,
+      label: startLabel,
     };
+    lastManualStartSelectionRef.current = startSelection;
     userClearedStart.current = false;
     setNavigationMode("directions");
     setShouldDisplayRoutes(lastDest.coord != null);
-    setSelectionOverrides({ start: selectedBuilding.buildingName, end: lastDest.label });
+    setSelectionOverrides({ start: startLabel, end: lastDest.label });
+    setSelectedSearchLocations({ start: startSelection, end: null });
     setNavCoords({ start: mapBuilding.location, end: lastDest.coord });
-    setRoutePolyline(null);
-    setRouteStops([]);
-    setRouteNodes([]);
-  }, [selectedBuilding]);
+    clearRouteRendering();
+  }, [
+    clearRouteRendering,
+    getSelectedBuildingCode,
+    selectedBuilding,
+    selectedSearchLocations.end,
+  ]);
 
   /**
    * Handles the action of going back from the directions view to the browse mode. It resets all navigation-related state, including the navigation mode, route display, navigation coordinates, selection overrides, and any displayed routes or stops. This function is called when the user presses the back button in the RoutesInfoPopup, allowing them to exit the directions view and return to browsing the map without any active navigation routes displayed.
@@ -637,12 +789,12 @@ export default function MapViewer({
     userClearedStart.current = false;
     setNavigationMode("browse");
     setShouldDisplayRoutes(false);
+    setRoutes(normalizeRoutes(EMPTY_ROUTES));
     setNavCoords({ start: null, end: null });
     setSelectionOverrides({ start: null, end: null });
-    setRoutePolyline(null);
-    setRouteStops([]);
-    setRouteNodes([]);
-  }, []);
+    setSelectedSearchLocations({ start: null, end: null });
+    clearRouteRendering();
+  }, [clearRouteRendering]);
 
   /**
    * Handles the action of swapping the start and end fields in the navigation directions. It updates the navigation coordinates, selection overrides, and manual start point to reflect the swap. This allows users to quickly reverse their route without having to manually re-enter the start and end locations. The function also resets any displayed routes or stops, prompting a new route calculation based on the updated coordinates. This is typically called when the user presses a swap button in the BuildingSelection component while in directions mode.
@@ -654,49 +806,68 @@ export default function MapViewer({
 
     // Swap the coordinates
     setNavCoords({ start: currentEnd, end: currentStart });
+    setSelectedSearchLocations((prev) => ({ start: prev.end, end: prev.start }));
     setSelectionOverrides((prev) => ({ start: prev.end, end: prev.start }));
-    setRoutePolyline(null);
-    setRouteStops([]);
-    setRouteNodes([]);
-  }, [navCoords.start, navCoords.end]);
+    clearRouteRendering();
+  }, [clearRouteRendering, navCoords.start, navCoords.end]);
 
-  const clearRouteRendering = useCallback(() => {
-    setRoutePolyline(null);
-    setRouteStops([]);
-    setRouteNodes([]);
-  }, []);
+  const getSelectedBuildingCode = useCallback(
+    (selected: SearchBuilding | null | undefined) => {
+      if (!selected || selected.buildingCode === CURRENT_LOCATION_CODE) {
+        return null;
+      }
+
+      return resolveSearchSelectionBuildingCode(selected, CAMPUS_BUILDINGS);
+    },
+    [],
+  );
 
   const resolveSelectionCoordinate = useCallback(
-    (selectedCode?: string) => {
-      if (selectedCode === CURRENT_LOCATION_CODE) {
+    (selected: SearchBuilding | null | undefined) => {
+      if (selected?.buildingCode === CURRENT_LOCATION_CODE) {
         return userLocation;
       }
+
+      const selectedCode = getSelectedBuildingCode(selected);
       if (!selectedCode) {
         return null;
       }
 
-      const building = CAMPUS_BUILDINGS.find((b) => b.buildingCode === selectedCode);
+      const building = CAMPUS_BUILDINGS.find((candidate) => {
+        return candidate.buildingCode === selectedCode;
+      });
       return building?.location ?? null;
     },
-    [userLocation],
+    [getSelectedBuildingCode, userLocation],
   );
 
-  const handleStartSelection = useCallback((coord: Coordinate | null, label: string) => {
-    userClearedStart.current = !coord;
-    if (coord) {
-      lastStartRef.current = { coord, label };
-      lastManualStartRef.current = { coord, label };
-    }
-  }, []);
+  const handleStartSelection = useCallback(
+    (coord: Coordinate | null, label: string, selection: SearchBuilding | null) => {
+      userClearedStart.current = !coord;
+      if (coord) {
+        lastStartRef.current = { coord, label };
+        lastManualStartRef.current = { coord, label };
+        lastManualStartSelectionRef.current = selection;
+      } else {
+        lastManualStartSelectionRef.current = null;
+      }
+    },
+    [],
+  );
 
   const handleEndSelection = useCallback(
     (selected: SearchBuilding | null, coord: Coordinate | null) => {
-      if (coord) {
-        lastDestinationRef.current = { coord, label: selected?.buildingName ?? "" };
+      if (navigationMode === "directions") {
+        if (coord) {
+          lastDestinationRef.current = { coord, label: selected?.buildingName ?? "" };
+        } else {
+          lastDestinationRef.current = { coord: null, label: "" };
+        }
       }
 
-      if (selected?.buildingCode && selected.buildingCode !== CURRENT_LOCATION_CODE) {
-        const nextBuilding = selectBuildingByCode(selected.buildingCode);
+      const selectedBuildingCode = getSelectedBuildingCode(selected);
+      if (selectedBuildingCode) {
+        const nextBuilding = selectBuildingByCode(selectedBuildingCode);
         if (nextBuilding) {
           focusBuilding(nextBuilding.location.latitude, nextBuilding.location.longitude);
         }
@@ -704,7 +875,7 @@ export default function MapViewer({
         setSelectedBuilding(null);
       }
     },
-    [focusBuilding, selectBuildingByCode],
+    [focusBuilding, getSelectedBuildingCode, navigationMode, selectBuildingByCode],
   );
 
   const renderedPOIMarkers = useMemo(() => {
@@ -712,6 +883,25 @@ export default function MapViewer({
       <PoiMarker key={p.place_id} poi={p} onPress={() => handlePOIPress(p)} />
     ));
   }, [handlePOIPress, places]);
+
+  const selectedRoomContext = useMemo(() => {
+    if (!selectedBuilding) {
+      return undefined;
+    }
+
+    const selectedEndSearch = selectedSearchLocations.end;
+    const selectedEndBuildingCode = getSelectedBuildingCode(selectedEndSearch);
+    const isRoomDestination =
+      selectedEndSearch?.isIndoorRoom &&
+      selectedEndBuildingCode === selectedBuilding.buildingCode;
+    if (!isRoomDestination) {
+      return undefined;
+    }
+
+    return {
+      roomName: selectedEndSearch.roomName ?? selectedEndSearch.buildingName,
+    };
+  }, [selectedBuilding, selectedSearchLocations.end, getSelectedBuildingCode]);
 
   const openIndoorNavigation = () => {
     if (!selectedBuilding?.buildingCode) {
@@ -740,34 +930,36 @@ export default function MapViewer({
           buildings: Record<FieldType, SearchBuilding | null>,
           type: FieldType,
         ) => {
-          const selected = buildings[type];
-          const selectedCode = selected?.buildingCode;
-          const coord = resolveSelectionCoordinate(selectedCode);
+          try {
+            const selected = buildings?.[type] ?? null;
+            const coord = resolveSelectionCoordinate(selected);
 
-          setNavCoords((prev) => ({ ...prev, [type]: coord }));
-          setSelectionOverrides((prev) => ({
-            ...prev,
-            [type]: selected?.buildingName ?? null,
-          }));
+            setSelectedSearchLocations((prev) => ({
+              ...prev,
+              [type]: selected,
+            }));
+            setNavCoords((prev) => ({ ...prev, [type]: coord }));
+            setSelectionOverrides((prev) => ({
+              ...prev,
+              [type]: selected?.buildingName ?? null,
+            }));
 
-          if (type === "start") {
-            handleStartSelection(coord, selected?.buildingName ?? "");
-          }
+            if (type === "start") {
+              handleStartSelection(coord, selected?.buildingName ?? "", selected);
+            }
 
-          if (!coord) {
+            if (!coord) {
+              clearRouteRendering();
+              setRoutes(normalizeRoutes(EMPTY_ROUTES));
+            }
+
+            if (type === "end") {
+              handleEndSelection(selected, coord);
+            }
+          } catch (error) {
+            console.error("Failed to apply building selection:", error);
             clearRouteRendering();
-            setRoutePolyline(null);
-            setRoutes({
-              walking: null,
-              transit: null,
-              driving: null,
-              bicycling: null,
-              shuttle: null,
-            });
-          }
-
-          if (type === "end") {
-            handleEndSelection(selected, coord);
+            setRoutes(normalizeRoutes(EMPTY_ROUTES));
           }
         }}
       />
@@ -833,11 +1025,10 @@ export default function MapViewer({
             setSelectedPOI(null);
             setNavigationMode("browse");
             setShouldDisplayRoutes(false);
-            setRoutePolyline(null);
-            setRouteStops([]);
-            setRouteNodes([]);
+            clearRouteRendering();
             setNavCoords({ start: null, end: null });
             setSelectionOverrides({ start: null, end: null });
+            setSelectedSearchLocations({ start: null, end: null });
           }
         }}
         renderCluster={renderCluster}
@@ -1017,6 +1208,7 @@ export default function MapViewer({
           onNavigate={navigateToBuilding}
           onSetAsStart={setBuildingAsStart}
           onExploreRooms={openIndoorNavigation}
+          roomContext={selectedRoomContext}
         />
       )}
 
@@ -1029,15 +1221,29 @@ export default function MapViewer({
           routes={routes}
           isOpen={shouldDisplayRoutes}
           onBack={handleBackFromDirections}
-          onRouteSelect={(route: any) => {
+          onModeChange={() => {
+            setRouteKey((k) => k + 1);
+            clearRouteRendering();
+          }}
+          onRouteSelect={(route: any, selectedMode: TransportationMode) => {
             // Build new route data synchronously before touching state
             const segments: PolylineSegment[] = [];
             const stops: TransitStopMarker[] = [];
             const nodes: TransitionNode[] = [];
             const allSteps = (route?.legs ?? []).flatMap((leg: any) => leg?.steps ?? []);
+            const routeSteps = allSteps.filter(
+              (step: any) => normalizeStepTravelMode(step?.travel_mode) !== "INDOOR",
+            );
+            const modeMatchedSteps = routeSteps.filter((step: any) =>
+              shouldRenderStepForMode(step?.travel_mode, selectedMode),
+            );
+            const stepsToRender =
+              modeMatchedSteps.length > 0 ? modeMatchedSteps : routeSteps;
 
-            for (let index = 0; index < allSteps.length; index++) {
-              const step = allSteps[index];
+            for (let index = 0; index < stepsToRender.length; index++) {
+              const step = stepsToRender[index];
+              const mode = normalizeStepTravelMode(step.travel_mode);
+
               const encoded = step?.polyline?.points;
               if (!encoded) {
                 continue;
@@ -1048,16 +1254,14 @@ export default function MapViewer({
                 continue;
               }
 
-              const mode = step.travel_mode ?? "WALK";
               const vehicleType = step.transit_details?.line?.vehicle_type;
               const color = polylineColor(mode, vehicleType);
-              const isWalking =
-                mode.toUpperCase() === "WALK" || mode.toUpperCase() === "WALKING";
+              const isWalking = mode === "WALK";
 
               segments.push({ coordinates: coords, color, isDashed: isWalking });
               stops.push(...collectStopsFromStep(step, color));
 
-              const nextStep = allSteps[index + 1];
+              const nextStep = stepsToRender[index + 1];
               if (nextStep) {
                 const node = getTransitionNode(coords, color, nextStep);
                 if (node) nodes.push(node);
@@ -1065,19 +1269,45 @@ export default function MapViewer({
             }
 
             // clear all existing polylines so native views are removed
+            cancelPendingRouteRender();
+            const renderGeneration = routeRenderGenerationRef.current;
             setRouteKey((k) => k + 1);
             setRoutePolyline(null);
             setRouteStops([]);
             setRouteNodes([]);
 
             // then set new data on the next frame to ensure a clean transition without lingering old polylines
-            requestAnimationFrame(() => {
+            pendingRouteRenderFrameRef.current = requestAnimationFrame(() => {
+              pendingRouteRenderFrameRef.current = null;
+              if (routeRenderGenerationRef.current !== renderGeneration) {
+                return;
+              }
               setRoutePolyline(segments.length > 0 ? segments : null);
               setRouteStops(stops);
               setRouteNodes(nodes);
             });
           }}
-          onStepSelect={(encoded: string) => {
+          onStepSelect={(encoded: string, travelMode: string) => {
+            if ((travelMode ?? "").toUpperCase() === "INDOOR") {
+              const indoorDetails = decodeIndoorStepPayload(encoded);
+              if (
+                indoorDetails?.building_code &&
+                indoorDetails?.start_checkpoint_id &&
+                indoorDetails?.end_room
+              ) {
+                const indoorPath = `/${encodeURIComponent(indoorDetails.building_code)}?indoorStartCheckpointId=${encodeURIComponent(indoorDetails.start_checkpoint_id)}&indoorEndRoom=${encodeURIComponent(indoorDetails.end_room)}`;
+                router.push(indoorPath as any);
+              } else if (
+                indoorDetails?.building_code &&
+                indoorDetails?.start_room &&
+                indoorDetails?.end_checkpoint_id
+              ) {
+                const indoorPath = `/${encodeURIComponent(indoorDetails.building_code)}?indoorStartRoom=${encodeURIComponent(indoorDetails.start_room)}&indoorEndCheckpointId=${encodeURIComponent(indoorDetails.end_checkpoint_id)}`;
+                router.push(indoorPath as any);
+              }
+              return;
+            }
+
             const coords = decodePolyline(encoded);
             if (coords.length >= 2) {
               const mid = coords[Math.floor(coords.length / 2)];

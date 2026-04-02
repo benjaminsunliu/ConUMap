@@ -114,6 +114,9 @@ export function useBuildingSearch({
           buildingCode: roomStr,
           address: targetBuilding.address || "",
           campus: targetBuilding.campus || "",
+          parentBuildingCode: targetBuilding.buildingCode,
+          roomName: roomStr,
+          isIndoorRoom: true,
         }));
 
       setRoomResults((prev) => ({ ...prev, [type]: matchedRooms }));
