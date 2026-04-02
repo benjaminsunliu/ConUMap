@@ -27,6 +27,19 @@ interface Props {
   readonly startHint?: string | null;
 }
 
+const getSelectionDisplayLabel = (selection: SearchBuilding) => {
+  if (selection.buildingCode === CURRENT_LOCATION_CODE) {
+    return "Current Location";
+  }
+
+  const roomLabel = (selection.roomName ?? "").trim();
+  if (selection.isIndoorRoom && roomLabel) {
+    return roomLabel;
+  }
+
+  return selection.buildingName;
+};
+
 export default function BuildingSelection({
   currentBuildingCodes = new Set(),
   hasUserLocation = false,
@@ -56,6 +69,10 @@ export default function BuildingSelection({
   const endInputRef = useRef<TextInput>(null);
   const selectedBuildingsRef = useRef(selectedBuildings);
   const selectedBuildingRef = useRef(selectedBuilding);
+  const suppressSelectionChangeRef = useRef<Record<FieldType, boolean>>({
+    start: false,
+    end: false,
+  });
 
   const removeInputFocus = useCallback((type: FieldType) => {
     if (type === "start") {
@@ -76,6 +93,10 @@ export default function BuildingSelection({
 
   const handleChange = useCallback(
     (text: string, type: FieldType) => {
+      if (suppressSelectionChangeRef.current[type]) {
+        suppressSelectionChangeRef.current[type] = false;
+        return;
+      }
       updateQuery(type, text);
       setSelectedBuildings((prev) => ({ ...prev, [type]: null }));
     },
@@ -84,7 +105,8 @@ export default function BuildingSelection({
 
   const handleSelect = useCallback(
     (building: SearchBuilding, type: FieldType) => {
-      updateQuery(type, building.buildingName);
+      suppressSelectionChangeRef.current[type] = true;
+      updateQuery(type, getSelectionDisplayLabel(building));
       const updated = { ...selectedBuildingsRef.current, [type]: building };
       setSelectedBuildings(updated);
       onSelect(updated, type);
@@ -95,6 +117,7 @@ export default function BuildingSelection({
 
   const clearField = useCallback(
     (type: FieldType) => {
+      suppressSelectionChangeRef.current[type] = false;
       updateQuery(type, "");
       const updated = { ...selectedBuildingsRef.current, [type]: null };
       setSelectedBuildings(updated);
@@ -105,6 +128,10 @@ export default function BuildingSelection({
   );
 
   const swapFields = useCallback(() => {
+    suppressSelectionChangeRef.current = {
+      start: false,
+      end: false,
+    };
     swapQueries();
     const swapped = {
       start: selectedBuildingsRef.current.end,
@@ -123,7 +150,7 @@ export default function BuildingSelection({
       const currentEndSelection = selectedBuildingsRef.current.end;
       const shouldPreserveRoomDestination = Boolean(
         currentEndSelection?.isIndoorRoom &&
-          currentEndSelection.parentBuildingCode === selectedBuilding.buildingCode,
+        currentEndSelection.parentBuildingCode === selectedBuilding.buildingCode,
       );
 
       if (shouldPreserveRoomDestination) {
@@ -145,7 +172,7 @@ export default function BuildingSelection({
         const currentFocusedSelection = selectedBuildingsRef.current[focusedField];
         const shouldPreserveFocusedRoom = Boolean(
           currentFocusedSelection?.isIndoorRoom &&
-            currentFocusedSelection.parentBuildingCode === selectedBuilding.buildingCode,
+          currentFocusedSelection.parentBuildingCode === selectedBuilding.buildingCode,
         );
 
         if (shouldPreserveFocusedRoom) {
@@ -190,7 +217,10 @@ export default function BuildingSelection({
             placeholder={placeholder}
             placeholderTextColor={theme.placeholder}
             value={value}
-            onFocus={() => setFocusedField(type)}
+            onFocus={() => {
+              suppressSelectionChangeRef.current[type] = false;
+              setFocusedField(type);
+            }}
             onBlur={() => setFocusedField((prev) => (prev === type ? null : prev))}
             onChangeText={(text) => handleChange(text, type)}
             textAlign="left"

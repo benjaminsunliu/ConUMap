@@ -1,6 +1,7 @@
 import { CAMPUS_BUILDINGS } from "@/constants/map";
 import { Colors } from "@/constants/theme";
 import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
+import { OutdoorRouteStep, OutdoorStepResume } from "@/globals/OutdoorStepResumeStore";
 import { ColorSchemeName, useColorScheme } from "@/hooks/use-color-scheme";
 import { FieldType, SearchBuilding, TransportationMode } from "@/types/buildingTypes";
 import { BuildingInfo, Campus, Coordinate, CoordinateDelta, POI } from "@/types/mapTypes";
@@ -13,7 +14,7 @@ import {
   resolveSearchSelectionBuildingCode,
 } from "@/utils/hybridNavigation";
 import * as LocationPermissions from "expo-location";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Slider from "@react-native-community/slider";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
@@ -26,7 +27,9 @@ import MapView, {
   Polyline,
   Region,
 } from "react-native-maps";
-import RoutesInfoPopup from "../navigation/routes-info-popup";
+import RoutesInfoPopup, {
+  RouteStepSelectionContext,
+} from "../navigation/routes-info-popup";
 import BuildingInfoPopup from "./building-info-popup";
 import BuildingSelection from "./building-selection";
 import CampusToggle from "./campus-toggle";
@@ -171,26 +174,17 @@ function normalizeStepTravelMode(travelMode: string | undefined): string {
   return mode;
 }
 
-function shouldRenderStepForMode(
-  stepTravelMode: string | undefined,
-  selectedMode: TransportationMode,
-): boolean {
-  const normalizedStepMode = normalizeStepTravelMode(stepTravelMode);
-
-  switch (selectedMode) {
-    case "walking":
-      return normalizedStepMode === "WALK";
-    case "transit":
-      return normalizedStepMode === "TRANSIT";
-    case "driving":
-      return normalizedStepMode === "DRIVING";
-    case "bicycling":
-      return normalizedStepMode === "BICYCLING";
-    case "shuttle":
-      return normalizedStepMode === "SHUTTLE";
-    default:
-      return false;
+function buildOutdoorStepResume(step: any): OutdoorRouteStep | null {
+  const encodedPolyline = step?.polyline?.points;
+  const travelMode = normalizeStepTravelMode(step?.travel_mode);
+  if (!encodedPolyline || travelMode === "INDOOR") {
+    return null;
   }
+
+  return {
+    encodedPolyline,
+    travelMode,
+  };
 }
 
 interface Props {
@@ -318,6 +312,8 @@ export default function MapViewer({
 
   const clearRouteRendering = useCallback(() => {
     cancelPendingRouteRender();
+    // Force route overlays to remount so stale native polylines do not linger.
+    setRouteKey((key) => key + 1);
     setRoutePolyline(null);
     setRouteStops([]);
     setRouteNodes([]);
@@ -328,6 +324,30 @@ export default function MapViewer({
       cancelPendingRouteRender();
     };
   }, [cancelPendingRouteRender]);
+
+  const focusRouteStep = useCallback((encoded: string) => {
+    const coords = decodePolyline(encoded);
+    if (coords.length >= 2) {
+      const mid = coords[Math.floor(coords.length / 2)];
+      mapViewRef.current?.animateToRegion({
+        latitude: mid.latitude,
+        longitude: mid.longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      });
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      const pendingStep = OutdoorStepResume.consumePendingStep();
+      if (!pendingStep) {
+        return;
+      }
+
+      focusRouteStep(pendingStep.encodedPolyline);
+    }, [focusRouteStep]),
+  );
 
   useEffect(() => {
     const routeStart = navCoords.start;
@@ -714,7 +734,7 @@ export default function MapViewer({
       selectedEndSearch?.isIndoorRoom &&
       selectedEndBuildingCode === selectedBuilding.buildingCode;
     const destinationLabel = isRoomDestination
-      ? selectedEndSearch.roomName ?? selectedEndSearch.buildingName
+      ? (selectedEndSearch.roomName ?? selectedEndSearch.buildingName)
       : selectedBuilding.buildingName;
 
     navigate(destinationLabel, mapBuilding.location, {
@@ -752,11 +772,13 @@ export default function MapViewer({
     const selectedEndBuildingCode = getSelectedBuildingCode(selectedEndSearch);
     const shouldUseSelectedRoomAsStart = Boolean(
       selectedEndSearch?.isIndoorRoom &&
-        selectedEndBuildingCode === selectedBuilding.buildingCode,
+      selectedEndBuildingCode === selectedBuilding.buildingCode,
     );
     const startSelection = shouldUseSelectedRoomAsStart ? selectedEndSearch : null;
     const startLabel =
-      startSelection?.roomName ?? startSelection?.buildingName ?? selectedBuilding.buildingName;
+      startSelection?.roomName ??
+      startSelection?.buildingName ??
+      selectedBuilding.buildingName;
 
     const lastDest = lastDestinationRef.current;
     lastStartRef.current = {
@@ -1283,10 +1305,9 @@ export default function MapViewer({
           isOpen={shouldDisplayRoutes}
           onBack={handleBackFromDirections}
           onModeChange={() => {
-            setRouteKey((k) => k + 1);
             clearRouteRendering();
           }}
-          onRouteSelect={(route: any, selectedMode: TransportationMode) => {
+          onRouteSelect={(route: any, _selectedMode: TransportationMode) => {
             // Build new route data synchronously before touching state
             const segments: PolylineSegment[] = [];
             const stops: TransitStopMarker[] = [];
@@ -1295,11 +1316,7 @@ export default function MapViewer({
             const routeSteps = allSteps.filter(
               (step: any) => normalizeStepTravelMode(step?.travel_mode) !== "INDOOR",
             );
-            const modeMatchedSteps = routeSteps.filter((step: any) =>
-              shouldRenderStepForMode(step?.travel_mode, selectedMode),
-            );
-            const stepsToRender =
-              modeMatchedSteps.length > 0 ? modeMatchedSteps : routeSteps;
+            const stepsToRender = routeSteps;
 
             for (let index = 0; index < stepsToRender.length; index++) {
               const step = stepsToRender[index];
@@ -1330,12 +1347,8 @@ export default function MapViewer({
             }
 
             // clear all existing polylines so native views are removed
-            cancelPendingRouteRender();
+            clearRouteRendering();
             const renderGeneration = routeRenderGenerationRef.current;
-            setRouteKey((k) => k + 1);
-            setRoutePolyline(null);
-            setRouteStops([]);
-            setRouteNodes([]);
 
             // then set new data on the next frame to ensure a clean transition without lingering old polylines
             pendingRouteRenderFrameRef.current = requestAnimationFrame(() => {
@@ -1348,37 +1361,49 @@ export default function MapViewer({
               setRouteNodes(nodes);
             });
           }}
-          onStepSelect={(encoded: string, travelMode: string) => {
+          onStepSelect={(
+            encoded: string,
+            travelMode: string,
+            _vehicleType: string | undefined,
+            context?: RouteStepSelectionContext,
+          ) => {
             if ((travelMode ?? "").toUpperCase() === "INDOOR") {
               const indoorDetails = decodeIndoorStepPayload(encoded);
+              const outdoorResumeStep = buildOutdoorStepResume(context?.nextStep);
+              const resumeContinuationId = outdoorResumeStep
+                ? OutdoorStepResume.saveContinuation(outdoorResumeStep)
+                : null;
+
+              let indoorPath: string | null = null;
               if (
                 indoorDetails?.building_code &&
                 indoorDetails?.start_checkpoint_id &&
                 indoorDetails?.end_room
               ) {
-                const indoorPath = `/${encodeURIComponent(indoorDetails.building_code)}?indoorStartCheckpointId=${encodeURIComponent(indoorDetails.start_checkpoint_id)}&indoorEndRoom=${encodeURIComponent(indoorDetails.end_room)}`;
-                router.push(indoorPath as any);
+                indoorPath = `/${encodeURIComponent(indoorDetails.building_code)}?indoorStartCheckpointId=${encodeURIComponent(indoorDetails.start_checkpoint_id)}&indoorEndRoom=${encodeURIComponent(indoorDetails.end_room)}`;
               } else if (
                 indoorDetails?.building_code &&
                 indoorDetails?.start_room &&
                 indoorDetails?.end_checkpoint_id
               ) {
-                const indoorPath = `/${encodeURIComponent(indoorDetails.building_code)}?indoorStartRoom=${encodeURIComponent(indoorDetails.start_room)}&indoorEndCheckpointId=${encodeURIComponent(indoorDetails.end_checkpoint_id)}`;
-                router.push(indoorPath as any);
+                indoorPath = `/${encodeURIComponent(indoorDetails.building_code)}?indoorStartRoom=${encodeURIComponent(indoorDetails.start_room)}&indoorEndCheckpointId=${encodeURIComponent(indoorDetails.end_checkpoint_id)}`;
               }
+
+              if (!indoorPath) {
+                if (resumeContinuationId) {
+                  OutdoorStepResume.clearContinuation(resumeContinuationId);
+                }
+                return;
+              }
+
+              if (resumeContinuationId) {
+                indoorPath = `${indoorPath}&resumeContinuationId=${encodeURIComponent(resumeContinuationId)}`;
+              }
+              router.push(indoorPath as any);
               return;
             }
 
-            const coords = decodePolyline(encoded);
-            if (coords.length >= 2) {
-              const mid = coords[Math.floor(coords.length / 2)];
-              mapViewRef.current?.animateToRegion({
-                latitude: mid.latitude,
-                longitude: mid.longitude,
-                latitudeDelta: 0.005,
-                longitudeDelta: 0.005,
-              });
-            }
+            focusRouteStep(encoded);
           }}
         />
       )}

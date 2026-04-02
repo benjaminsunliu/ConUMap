@@ -4,6 +4,7 @@ import * as LocationPermissions from "expo-location";
 import MapViewer from "../components/map/map-viewer";
 import { Colors } from "@/constants/theme";
 import { CAMPUS_BUILDINGS } from "../constants/map";
+import { OutdoorStepResume } from "@/globals/OutdoorStepResumeStore";
 import { fetchAllDirections } from "@/utils/directions";
 import * as SearchBuildingHook from "@/hooks/use-search-building";
 import { useLocalSearchParams, router } from "expo-router";
@@ -51,9 +52,14 @@ jest.mock("@/utils/decodePolyline", () => ({
 }));
 
 jest.mock("expo-router", () => ({
+  useFocusEffect: (effect) => {
+    const React = require("react");
+    React.useEffect(effect, [effect]);
+  },
   router: {
     setParams: jest.fn(),
     push: jest.fn(),
+    back: jest.fn(),
   },
   useLocalSearchParams: jest.fn(() => ({})),
 }));
@@ -113,9 +119,11 @@ jest.mock("@/constants/map", () => {
 
 beforeEach(() => {
   mockAnimateToRegion.mockClear();
+  OutdoorStepResume.reset();
   useLocalSearchParams.mockReturnValue({});
   router.setParams.mockClear();
   router.push.mockClear();
+  router.back.mockClear();
 });
 
 describe("map tab", () => {
@@ -1287,7 +1295,10 @@ describe("map tab", () => {
                   travel_mode: "TRANSIT",
                   transit_details: {
                     line: { vehicle_type: "BUS" },
-                    departure_stop: { name: "A", location: { lat: 45.495, lng: -73.579 } },
+                    departure_stop: {
+                      name: "A",
+                      location: { lat: 45.495, lng: -73.579 },
+                    },
                     arrival_stop: { name: "B", location: { lat: 45.5, lng: -73.57 } },
                   },
                 },
@@ -1364,11 +1375,11 @@ describe("map tab", () => {
     });
     await act(async () => {});
 
-    expect(mapViewer.getAllByTestId("polyline")).toHaveLength(1);
-    expect(mapViewer.getAllByTestId("polyline")[0].props.coordinates).toEqual(
-      transitCoords,
-    );
-    expect(decodePolyline).not.toHaveBeenCalledWith("transit-walk-step");
+    const renderedPolylines = mapViewer.getAllByTestId("polyline");
+    expect(renderedPolylines).toHaveLength(2);
+    expect(renderedPolylines[0].props.coordinates).toEqual(transitWalkCoords);
+    expect(renderedPolylines[1].props.coordinates).toEqual(transitCoords);
+    expect(renderedPolylines[0].props.coordinates).not.toEqual(walkingCoords);
   });
 
   it("clears the currently rendered polyline when switching transportation mode tabs", async () => {
@@ -1416,7 +1427,10 @@ describe("map tab", () => {
                   travel_mode: "TRANSIT",
                   transit_details: {
                     line: { vehicle_type: "BUS" },
-                    departure_stop: { name: "A", location: { lat: 45.495, lng: -73.579 } },
+                    departure_stop: {
+                      name: "A",
+                      location: { lat: 45.495, lng: -73.579 },
+                    },
                     arrival_stop: { name: "B", location: { lat: 45.5, lng: -73.57 } },
                   },
                 },
@@ -1940,6 +1954,93 @@ describe("map tab", () => {
         "/H?indoorStartRoom=H110&indoorEndCheckpointId=H_F2_building_entry_exit_15",
       ),
     );
+  });
+
+  it("stores the next outdoor step when opening an indoor-to-outdoor segment", async () => {
+    const { fetchAllDirections } = require("@/utils/directions");
+    const { encodeIndoorStepPayload } = require("@/utils/hybridNavigation");
+
+    const indoorPayload = encodeIndoorStepPayload({
+      building_code: "H",
+      start_room: "H110",
+      end_checkpoint_id: "H_F2_building_entry_exit_15",
+    });
+
+    fetchAllDirections.mockResolvedValueOnce({
+      walking: [
+        {
+          summary: "",
+          overview_polyline: { points: "poly" },
+          legs: [
+            {
+              distance: { text: "240 m", value: 240 },
+              duration: { text: "4 mins", value: 240 },
+              departure_time: undefined,
+              arrival_time: undefined,
+              steps: [
+                {
+                  distance: { text: "12 indoor checkpoints", value: 12 },
+                  duration: { text: "Indoor segment", value: 0 },
+                  html_instructions:
+                    "Navigate indoors from room H110 to H2 Entry Exit 3 in H.",
+                  maneuver: "",
+                  polyline: { points: indoorPayload },
+                  travel_mode: "INDOOR",
+                },
+                {
+                  distance: { text: "50 m", value: 50 },
+                  duration: { text: "1 min", value: 60 },
+                  html_instructions: "Head east on De Maisonneuve.",
+                  maneuver: "straight",
+                  polyline: { points: "outdoor-step-polyline" },
+                  travel_mode: "WALKING",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      transit: [],
+      driving: [],
+      bicycling: [],
+      shuttle: [],
+    });
+
+    const mapViewer = render(<MapViewer />);
+    const mapView = mapViewer.getByTestId("map-view");
+    fireEvent(mapView, "onUserLocationChange", {
+      nativeEvent: { coordinate: { latitude: 45.495, longitude: -73.579 } },
+    });
+
+    await act(async () => {
+      fireEvent.press(mapViewer.getAllByTestId("polygon")[0]);
+    });
+    await act(async () => {
+      fireEvent.press(mapViewer.getByTestId("directions-action-button"));
+    });
+    await act(async () => {});
+
+    const routesPopup = mapViewer.getByTestId("routes-info-popup");
+    await act(async () => {
+      routesPopup.props.onResponderGrant({}, {});
+      routesPopup.props.onResponderMove({}, { dy: -300 });
+      routesPopup.props.onResponderRelease({}, { dy: -300, vy: -1 });
+    });
+    await act(async () => {
+      fireEvent.press(mapViewer.getByTestId("walking-route-0"));
+    });
+    await act(async () => {
+      fireEvent.press(mapViewer.getByTestId("walking-step-0"));
+    });
+
+    const pushedPath = router.push.mock.calls.at(-1)?.[0];
+    expect(pushedPath).toEqual(
+      expect.stringContaining("resumeContinuationId=outdoor-step-0"),
+    );
+    expect(OutdoorStepResume.getContinuation("outdoor-step-0")).toEqual({
+      encodedPolyline: "outdoor-step-polyline",
+      travelMode: "WALK",
+    });
   });
 
   it("polylineColor returns #480efa for SUBWAY vehicle type", async () => {

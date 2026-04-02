@@ -224,6 +224,34 @@ describe("BuildingSelection Directions", () => {
     ).toBeFalsy();
   });
 
+  it("keeps the selected label when a delayed text update arrives after choosing a suggestion", async () => {
+    const selectionView = render(
+      <BuildingSelection
+        selectedBuilding={null}
+        mode={"directions"}
+        onSelect={mockOnSelect}
+      />,
+    );
+    const startInput = selectionView.getByPlaceholderText("Your location");
+
+    fireEvent(startInput, "focus");
+    fireEvent.changeText(startInput, "Ha");
+
+    const hallResult = await selectionView.findByTestId("start-result-H");
+    fireEvent.press(hallResult);
+
+    expect(selectionView.getByPlaceholderText("Your location").props.value).toBe(
+      "Henry F. Hall Building",
+    );
+
+    // Simulate a delayed native onChangeText event with stale typed text.
+    fireEvent.changeText(startInput, "Ha");
+
+    expect(selectionView.getByPlaceholderText("Your location").props.value).toBe(
+      "Henry F. Hall Building",
+    );
+  });
+
   it("should prioritize current buildings when typing in Search building field", async () => {
     const selectionView = render(
       <BuildingSelection

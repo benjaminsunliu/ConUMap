@@ -3,6 +3,7 @@ import MapSettings from "@/components/map/indoor-map-settings";
 import IndoorNavigationControls from "@/components/map/indoor-navigation-controls";
 import IndoorRoomFields from "@/components/map/indoor-room-fields";
 import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
+import { OutdoorStepResume } from "@/globals/OutdoorStepResumeStore";
 import {
   BuildingFloorInfo,
   FloorCheckpoint,
@@ -10,6 +11,7 @@ import {
   IndoorNavigationPath,
 } from "@/types/mapTypes";
 import { findIndoorPath } from "@/utils/indoorNavigation";
+import { describeIndoorStep } from "@/utils/indoorStepInstructions";
 import {
   buildRoomLookup,
   getRoomSearchTokens,
@@ -17,7 +19,7 @@ import {
   resolveCanonicalRoom,
 } from "@/utils/roomSearch";
 import { useQuery } from "@tanstack/react-query";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -28,17 +30,20 @@ export default function IndoorMap() {
     indoorEndRoom,
     indoorStartRoom,
     indoorEndCheckpointId,
+    resumeContinuationId,
   } = useLocalSearchParams<{
     buildingCode: string;
     indoorStartCheckpointId?: string;
     indoorEndRoom?: string;
     indoorStartRoom?: string;
     indoorEndCheckpointId?: string;
+    resumeContinuationId?: string;
   }>();
   const autoStartCheckpointId = normalizeParam(indoorStartCheckpointId);
   const autoEndRoom = normalizeParam(indoorEndRoom);
   const autoStartRoom = normalizeParam(indoorStartRoom);
   const autoEndCheckpointId = normalizeParam(indoorEndCheckpointId);
+  const autoResumeContinuationId = normalizeParam(resumeContinuationId);
 
   const {
     data: floorInfo,
@@ -60,6 +65,7 @@ export default function IndoorMap() {
   const [navigationPath, setNavigationPath] = useState<IndoorNavigationPath | undefined>(
     undefined,
   );
+  const [currentPathStepIndex, setCurrentPathStepIndex] = useState(0);
   const [startRoom, setStartRoom] = useState("");
   const [endRoom, setEndRoom] = useState("");
   const [routeError, setRouteError] = useState<string | undefined>(undefined);
@@ -89,9 +95,75 @@ export default function IndoorMap() {
 
   const defaultFloor = floor || firstFloor;
   const currentFloorIndex = defaultFloor ? availableFloors.indexOf(defaultFloor) : -1;
-  const canGoNext =
+  const canGoNextFloor =
     currentFloorIndex >= 0 && currentFloorIndex < availableFloors.length - 1;
-  const canGoPrevious = currentFloorIndex > 0;
+  const canGoPreviousFloor = currentFloorIndex > 0;
+  const outdoorStepResume = useMemo(
+    () =>
+      autoResumeContinuationId
+        ? OutdoorStepResume.getContinuation(autoResumeContinuationId)
+        : null,
+    [autoResumeContinuationId],
+  );
+  const stepStopIndices = useMemo(() => {
+    if (!floorInfo || !navigationPath || navigationPath.length === 0) {
+      return [];
+    }
+    return buildIndoorStepStops(floorInfo.graphData, navigationPath);
+  }, [floorInfo, navigationPath]);
+  const hasStepNavigation = stepStopIndices.length > 0;
+  const totalPathSteps = stepStopIndices.length;
+  const boundedStepPointer = hasStepNavigation
+    ? Math.min(currentPathStepIndex, totalPathSteps - 1)
+    : 0;
+  const activePathCheckpointIndex = hasStepNavigation
+    ? stepStopIndices[boundedStepPointer]
+    : 0;
+  const nextPathCheckpointIndex =
+    hasStepNavigation && boundedStepPointer < totalPathSteps - 1
+      ? stepStopIndices[boundedStepPointer + 1]
+      : undefined;
+  const isOnLastIndoorStep =
+    hasStepNavigation && boundedStepPointer >= totalPathSteps - 1;
+  const canGoNextStep =
+    hasStepNavigation &&
+    (boundedStepPointer < totalPathSteps - 1 || Boolean(outdoorStepResume));
+  const canGoPreviousStep = hasStepNavigation && boundedStepPointer > 0;
+  const currentStepInstruction = useMemo(() => {
+    if (
+      !floorInfo ||
+      !navigationPath ||
+      navigationPath.length === 0 ||
+      !hasStepNavigation
+    ) {
+      return undefined;
+    }
+
+    const instruction = describeIndoorStep({
+      graph: floorInfo.graphData,
+      path: navigationPath,
+      stepIndex: activePathCheckpointIndex,
+      nextStepIndex: nextPathCheckpointIndex,
+      startLabel: startRoom,
+      endLabel: endRoom,
+    });
+
+    if (instruction && isOnLastIndoorStep && outdoorStepResume) {
+      return `${instruction} Continue to the outdoor route on the next step.`;
+    }
+
+    return instruction || undefined;
+  }, [
+    floorInfo,
+    navigationPath,
+    hasStepNavigation,
+    activePathCheckpointIndex,
+    nextPathCheckpointIndex,
+    startRoom,
+    endRoom,
+    isOnLastIndoorStep,
+    outdoorStepResume,
+  ]);
   const roomLookup = useMemo(
     () => buildRoomLookup(roomAndEntrySuggestions, buildingCode),
     [buildingCode, roomAndEntrySuggestions],
@@ -125,8 +197,8 @@ export default function IndoorMap() {
     return undefined;
   }, [endRoom, startRoom, validEndRoom, validStartRoom]);
 
-  type FloorDirection = "next" | "prev";
-  const handleFloorNavigation = (direction: FloorDirection) => {
+  type NavigationDirection = "next" | "prev";
+  const handleFloorNavigation = (direction: NavigationDirection) => {
     if (currentFloorIndex < 0) {
       return;
     }
@@ -136,6 +208,41 @@ export default function IndoorMap() {
       availableFloors.length - 1,
     );
     setFloor(availableFloors[newFloorIndex]);
+  };
+  const handleStepNavigation = (direction: NavigationDirection) => {
+    if (!hasStepNavigation || !navigationPath || !floorInfo) {
+      return;
+    }
+
+    if (direction === "next" && isOnLastIndoorStep) {
+      if (outdoorStepResume) {
+        OutdoorStepResume.setPendingStep(outdoorStepResume);
+        if (autoResumeContinuationId) {
+          OutdoorStepResume.clearContinuation(autoResumeContinuationId);
+        }
+        router.back();
+      }
+      return;
+    }
+
+    const delta = direction === "next" ? 1 : -1;
+    const nextStepPointer = Math.min(
+      Math.max(boundedStepPointer + delta, 0),
+      totalPathSteps - 1,
+    );
+    if (nextStepPointer === boundedStepPointer) {
+      return;
+    }
+
+    const nextPathIndex = stepStopIndices[nextStepPointer];
+    const nextStepCheckpoint =
+      floorInfo.graphData.checkpoints[navigationPath[nextPathIndex]];
+    if (!nextStepCheckpoint) {
+      return;
+    }
+
+    setCurrentPathStepIndex(nextStepPointer);
+    setFloor(nextStepCheckpoint.floor);
   };
 
   const createPathFromRooms = useCallback(() => {
@@ -255,7 +362,11 @@ export default function IndoorMap() {
         return;
       }
 
-      const canonicalEndRoom = resolveCanonicalRoom(autoEndRoom!, buildingCode, roomLookup);
+      const canonicalEndRoom = resolveCanonicalRoom(
+        autoEndRoom!,
+        buildingCode,
+        roomLookup,
+      );
       if (!canonicalEndRoom) {
         setRouteError(`End location "${autoEndRoom}" was not found.`);
         setNavigationPath(undefined);
@@ -263,7 +374,11 @@ export default function IndoorMap() {
         return;
       }
 
-      destinationCheckpoint = findCheckpointForRoom(graph, canonicalEndRoom, buildingCode);
+      destinationCheckpoint = findCheckpointForRoom(
+        graph,
+        canonicalEndRoom,
+        buildingCode,
+      );
       if (!destinationCheckpoint) {
         setRouteError(`End location "${canonicalEndRoom}" was not found.`);
         setNavigationPath(undefined);
@@ -325,7 +440,11 @@ export default function IndoorMap() {
         return;
       }
 
-      const canonicalEndRoom = resolveCanonicalRoom(autoEndRoom!, buildingCode, roomLookup);
+      const canonicalEndRoom = resolveCanonicalRoom(
+        autoEndRoom!,
+        buildingCode,
+        roomLookup,
+      );
       if (!canonicalEndRoom) {
         setRouteError(`End location "${autoEndRoom}" was not found.`);
         setNavigationPath(undefined);
@@ -333,7 +452,11 @@ export default function IndoorMap() {
         return;
       }
 
-      destinationCheckpoint = findCheckpointForRoom(graph, canonicalEndRoom, buildingCode);
+      destinationCheckpoint = findCheckpointForRoom(
+        graph,
+        canonicalEndRoom,
+        buildingCode,
+      );
       if (!destinationCheckpoint) {
         setRouteError(`End location "${canonicalEndRoom}" was not found.`);
         setNavigationPath(undefined);
@@ -370,10 +493,37 @@ export default function IndoorMap() {
   ]);
 
   useEffect(() => {
+    return () => {
+      if (autoResumeContinuationId) {
+        OutdoorStepResume.clearContinuation(autoResumeContinuationId);
+      }
+    };
+  }, [autoResumeContinuationId]);
+
+  useEffect(() => {
+    if (
+      !navigationPath ||
+      navigationPath.length === 0 ||
+      !floorInfo ||
+      stepStopIndices.length === 0
+    ) {
+      setCurrentPathStepIndex(0);
+      return;
+    }
+
+    setCurrentPathStepIndex(0);
+    const firstCheckpoint =
+      floorInfo.graphData.checkpoints[navigationPath[stepStopIndices[0]]];
+    if (firstCheckpoint) {
+      setFloor(firstCheckpoint.floor);
+    }
+  }, [floorInfo, navigationPath, stepStopIndices]);
+
+  useEffect(() => {
     const hasStepDrivenParams = Boolean(
       (autoStartCheckpointId && autoEndRoom) ||
-        (autoStartRoom && autoEndCheckpointId) ||
-        (autoStartRoom && autoEndRoom),
+      (autoStartRoom && autoEndCheckpointId) ||
+      (autoStartRoom && autoEndRoom),
     );
     if (canCreatePath || hasCheckpointDrivenRoute || hasStepDrivenParams) {
       return;
@@ -413,16 +563,34 @@ export default function IndoorMap() {
             setPoiFilters={setPoiFilters} //TODO temp
           />
           <IndoorNavigationControls
-            onNext={() => handleFloorNavigation("next")}
-            onPrevious={() => handleFloorNavigation("prev")}
+            onNext={() => {
+              if (hasStepNavigation) {
+                handleStepNavigation("next");
+                return;
+              }
+              handleFloorNavigation("next");
+            }}
+            onPrevious={() => {
+              if (hasStepNavigation) {
+                handleStepNavigation("prev");
+                return;
+              }
+              handleFloorNavigation("prev");
+            }}
             currentFloor={defaultFloor}
-            canGoNext={canGoNext}
-            canGoPrevious={canGoPrevious}
+            canGoNext={hasStepNavigation ? canGoNextStep : canGoNextFloor}
+            canGoPrevious={hasStepNavigation ? canGoPreviousStep : canGoPreviousFloor}
+            mode={hasStepNavigation ? "step" : "floor"}
+            currentStep={boundedStepPointer + 1}
+            totalSteps={Math.max(totalPathSteps, 1)}
+            stepInstruction={currentStepInstruction}
           />
           <BuildingFloor
             info={floorInfo}
             navigationPath={navigationPath}
             floor={defaultFloor}
+            isStepMode={hasStepNavigation}
+            activeStepIndex={activePathCheckpointIndex}
           />
         </>
       ) : null}
@@ -476,7 +644,9 @@ function buildIndoorLocationSuggestions(floorInfo: BuildingFloorInfo | undefined
     return [];
   }
 
-  const roomSuggestions = (floorInfo.rooms ?? []).map((room) => room.trim()).filter(Boolean);
+  const roomSuggestions = (floorInfo.rooms ?? [])
+    .map((room) => room.trim())
+    .filter(Boolean);
   const entryExitSuggestions = Object.values(floorInfo.graphData.checkpoints)
     .filter((checkpoint) => checkpoint.type === "building_entry_exit")
     .flatMap((checkpoint) => {
@@ -488,4 +658,79 @@ function buildIndoorLocationSuggestions(floorInfo: BuildingFloorInfo | undefined
     });
 
   return [...new Set([...roomSuggestions, ...entryExitSuggestions])];
+}
+
+const VERTICAL_EDGE_TYPES = new Set(["stair", "elevator", "escalator"]);
+const VERTICAL_NODE_TYPES = new Set(["stair_landing", "elevator_door", "escalator"]);
+
+function buildIndoorStepStops(graph: FloorCheckpointsGraph, path: IndoorNavigationPath) {
+  if (!Array.isArray(path) || path.length === 0) {
+    return [];
+  }
+
+  const checkpoints = graph.checkpoints;
+  const stops = [0];
+  let currentIndex = 0;
+
+  while (currentIndex < path.length - 1) {
+    let nextStopIndex = currentIndex + 1;
+    const currentCheckpoint = checkpoints[path[currentIndex]];
+    const immediateNextCheckpoint = checkpoints[path[currentIndex + 1]];
+    const immediateEdge = currentCheckpoint
+      ? graph.adjacencySet[currentCheckpoint.id]?.[path[currentIndex + 1]]
+      : undefined;
+
+    if (
+      currentCheckpoint &&
+      immediateNextCheckpoint &&
+      isVerticalTraversalEdge(
+        immediateEdge?.type,
+        currentCheckpoint,
+        immediateNextCheckpoint,
+      )
+    ) {
+      while (nextStopIndex < path.length - 1) {
+        const from = checkpoints[path[nextStopIndex]];
+        const to = checkpoints[path[nextStopIndex + 1]];
+        const edgeType = from
+          ? graph.adjacencySet[from.id]?.[path[nextStopIndex + 1]]?.type
+          : "";
+        if (!from || !to || !isVerticalTraversalEdge(edgeType, from, to)) {
+          break;
+        }
+        nextStopIndex += 1;
+      }
+    }
+
+    if (stops[stops.length - 1] !== nextStopIndex) {
+      stops.push(nextStopIndex);
+    }
+    currentIndex = nextStopIndex;
+  }
+
+  const destinationIndex = path.length - 1;
+  if (stops[stops.length - 1] !== destinationIndex) {
+    stops.push(destinationIndex);
+  }
+
+  return stops;
+}
+
+function isVerticalTraversalEdge(
+  edgeType: string | undefined,
+  currentCheckpoint: FloorCheckpoint,
+  nextCheckpoint: FloorCheckpoint,
+) {
+  if (currentCheckpoint.floor === nextCheckpoint.floor) {
+    return false;
+  }
+
+  if (edgeType && VERTICAL_EDGE_TYPES.has(edgeType)) {
+    return true;
+  }
+
+  return (
+    VERTICAL_NODE_TYPES.has(currentCheckpoint.type) ||
+    VERTICAL_NODE_TYPES.has(nextCheckpoint.type)
+  );
 }

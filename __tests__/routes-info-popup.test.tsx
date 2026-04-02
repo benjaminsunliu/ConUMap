@@ -160,6 +160,30 @@ describe("RoutesInfoPopup component", () => {
     expect(route0).toBeVisible();
   });
 
+  it("should notify mode changes when a different transport tab is selected", async () => {
+    const mockOnModeChange = jest.fn();
+    const routesView = render(
+      <RoutesInfoPopup
+        routes={mockRoutes}
+        isOpen={true}
+        onRouteSelect={mockOnSelect}
+        onModeChange={mockOnModeChange}
+      />,
+    );
+    const popup = routesView.getByTestId("routes-info-popup");
+    await act(async () => {
+      popup.props.onResponderGrant({}, {});
+      popup.props.onResponderMove({}, { dy: -300 });
+      popup.props.onResponderRelease({}, { dy: -300, vy: -1 });
+    });
+
+    await act(async () => {
+      fireEvent.press(routesView.getByTestId("transit-selector"));
+    });
+
+    expect(mockOnModeChange).toHaveBeenCalledWith("transit");
+  });
+
   it("should display no routes found message if there are no routes for a transportation mode", async () => {
     const routesView = render(
       <RoutesInfoPopup
@@ -307,6 +331,11 @@ describe("RoutesInfoPopup component", () => {
       expect.any(String), // encoded polyline
       expect.any(String), // travel mode
       undefined, // no vehicle type for walking steps
+      expect.objectContaining({
+        mode: "walking",
+        route: mockRoutes.walking[0],
+        stepIndex: 0,
+      }),
     );
   });
 

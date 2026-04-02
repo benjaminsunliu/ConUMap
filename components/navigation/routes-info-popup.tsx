@@ -9,6 +9,14 @@ import ShuttleIconDark from "@/assets/images/shuttle-icon-dark.png";
 import ShuttleIconLight from "@/assets/images/shuttle-icon-light.png";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
+export interface RouteStepSelectionContext {
+  readonly mode: TransportationMode;
+  readonly route: any;
+  readonly step: any;
+  readonly nextStep: any;
+  readonly stepIndex: number;
+}
+
 interface Props {
   readonly routes?: Record<TransportationMode, any[] | null>;
   readonly isOpen: boolean;
@@ -18,6 +26,7 @@ interface Props {
     encodedPolyline: string,
     travelMode: string,
     vehicleType?: string,
+    context?: RouteStepSelectionContext,
   ) => void;
   readonly onBack?: () => void;
 }
@@ -173,11 +182,16 @@ export default function RoutesInfoPopup({
           testID="navigation-mode-selector"
           accessibilityLabel="navigation-mode-selector"
           onPress={(value: number) => {
-            setTabIndex(value);
+            if (value === tabIndex) {
+              return;
+            }
+
             const mode = availableTransports[value];
+            setSelectedRoute(null);
             if (mode && onModeChange) {
               onModeChange(mode);
             }
+            setTabIndex(value);
           }}
         />
       </>
@@ -249,13 +263,19 @@ export default function RoutesInfoPopup({
               step={step}
               onPress={() => {
                 const encoded = step?.polyline?.points;
-                const isIndoorStep =
-                  (step?.travel_mode ?? "").toUpperCase() === "INDOOR";
+                const isIndoorStep = (step?.travel_mode ?? "").toUpperCase() === "INDOOR";
                 if ((encoded || isIndoorStep) && onStepSelect) {
                   onStepSelect(
                     encoded ?? "",
                     step?.travel_mode ?? "WALK",
                     step?.transit_details?.line?.vehicle_type,
+                    {
+                      mode: currentMode,
+                      route: selectedRoute,
+                      step,
+                      nextStep: selectedRoute?.legs?.[0]?.steps?.[index + 1],
+                      stepIndex: index,
+                    },
                   );
                 }
               }}
