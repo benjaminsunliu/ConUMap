@@ -16,7 +16,6 @@ import {
 import * as LocationPermissions from "expo-location";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Slider from "@react-native-community/slider";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
 import MapView, {
@@ -35,10 +34,10 @@ import BuildingSelection from "./building-selection";
 import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
+import OutdoorMapSettings from "./outdoor-map-settings";
 import { CURRENT_LOCATION_CODE } from "@/hooks/use-search-building";
 import PoiMarker from "./poi-marker";
 import { usePoi } from "@/hooks/use-poi";
-import { MIN_RADIUS_METERS, MAX_RADIUS_METERS } from "@/constants/campusCenters";
 import { POIInfoPopup } from "./poi-info-popup";
 
 interface PolylineSegment {
@@ -70,6 +69,16 @@ interface NavEndpointMarkerProps {
   readonly label: "A" | "B";
   readonly color: string;
 }
+
+type PoiTypeFilters = {
+  restaurant: boolean;
+  cafe: boolean;
+  library: boolean;
+  gym: boolean;
+  park: boolean;
+  shopping_mall: boolean;
+  supermarket: boolean;
+};
 
 function NavEndpointMarker({ coordinate, label, color }: NavEndpointMarkerProps) {
   return (
@@ -299,6 +308,7 @@ export default function MapViewer({
 
   const [currCampus, setCurrCampus] = useState<Campus>("SGW");
   const [radius, setRadius] = useState(1000);
+  const [searchFieldFocused, setSearchFieldFocused] = useState(false);
 
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
@@ -369,6 +379,15 @@ export default function MapViewer({
     autoNavigate?: string;
   }>();
   const places = usePoi(currCampus, radius);
+  const [poiFilters, setPoiFilters] = useState<PoiTypeFilters>({
+    restaurant: true,
+    cafe: true,
+    library: true,
+    gym: true,
+    park: true,
+    shopping_mall: true,
+    supermarket: true,
+  });
   const [selectedPOI, setSelectedPOI] = useState<POI | null>(null);
 
   const cancelPendingRouteRender = useCallback(() => {
@@ -1039,11 +1058,39 @@ export default function MapViewer({
     ],
   );
 
+  const filteredPlaces = useMemo(() => {
+    const enabledTypes = Object.entries(poiFilters)
+      .filter(([, isEnabled]) => isEnabled)
+      .map(([type]) => type);
+
+    if (enabledTypes.length === 0) {
+      return [];
+    }
+
+    return places.filter((poi) =>
+      poi.types?.some((type) => enabledTypes.includes(type as keyof PoiTypeFilters)),
+    );
+  }, [places, poiFilters]);
+
+  useEffect(() => {
+    if (!selectedPOI) {
+      return;
+    }
+
+    const shouldKeepSelected = filteredPlaces.some(
+      (poi) => poi.place_id === selectedPOI.place_id,
+    );
+
+    if (!shouldKeepSelected) {
+      setSelectedPOI(null);
+    }
+  }, [filteredPlaces, selectedPOI]);
+
   const renderedPOIMarkers = useMemo(() => {
-    return places.map((p) => (
+    return filteredPlaces.map((p) => (
       <PoiMarker key={p.place_id} poi={p} onPress={() => handlePOIPress(p)} />
     ));
-  }, [handlePOIPress, places]);
+  }, [filteredPlaces, handlePOIPress]);
 
   const selectedRoomContext = useMemo(() => {
     if (!selectedBuilding) {
@@ -1086,6 +1133,7 @@ export default function MapViewer({
         startOverride={selectionOverrides.start}
         endOverride={selectionOverrides.end}
         startHint={showStartHint ? "Please select a start location" : null}
+        onFocusChange={setSearchFieldFocused}
         onSwap={handleSwapFields}
         onSelect={(
           buildings: Record<FieldType, SearchBuilding | null>,
@@ -1348,26 +1396,14 @@ export default function MapViewer({
 
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
 
-      {!hasVisiblePopup && (
-        <View style={styles.radiusContainer}>
-          <View style={styles.radiusHeader}>
-            <Text style={[styles.radiusLabel, { color: mapColors.clusterText }]}>
-              Places within:
-            </Text>
-            <Text style={[styles.radiusValue, { color: mapColors.clusterText }]}>
-              {radius} m
-            </Text>
-          </View>
-          <Slider
-            testID="radius-slider"
-            value={radius}
-            minimumValue={MIN_RADIUS_METERS}
-            maximumValue={MAX_RADIUS_METERS}
-            step={10}
-            onSlidingComplete={(value) => setRadius(Math.round(value))}
-          />
-        </View>
-      )}
+      <OutdoorMapSettings
+        radius={radius}
+        setRadius={setRadius}
+        poiFilters={poiFilters}
+        setPoiFilters={setPoiFilters}
+        hasVisiblePopup={hasVisiblePopup}
+        searchFieldFocused={searchFieldFocused}
+      />
 
       {navigationMode === "browse" && selectedBuilding && (
         <BuildingInfoPopup

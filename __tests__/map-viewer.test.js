@@ -151,7 +151,13 @@ describe("map tab", () => {
   it("updates radius when slider interaction completes", () => {
     const mapViewer = render(<MapViewer />);
 
-    expect(mapViewer.getByText("1000 m")).toBeTruthy();
+    const settingsButton = mapViewer.getByTestId("outdoor-settings-button");
+    act(() => {
+      fireEvent.press(settingsButton);
+    });
+
+    expect(mapViewer.getByTestId("outdoor-settings-panel")).toBeTruthy();
+    expect(mapViewer.getAllByText("1000 m").length).toBeGreaterThan(0);
 
     const slider = mapViewer.getByTestId("radius-slider");
     act(() => {
