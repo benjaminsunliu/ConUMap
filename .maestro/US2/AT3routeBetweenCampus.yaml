@@ -1,13 +1,22 @@
-appId: host.exp.Exponent
+appId: host.exp.exponent
 ---
-- openLink: exp://10.0.2.2:8081
+- runFlow:
+    when:
+      notVisible:
+        id: "building-selection"
+    file: ../openLink.yaml
 - tapOn: "Search building"
 - inputText: "Hall"
-- tapOn: "H – Henry F. Hall Building"
-- tapOn: "Directions"
+- tapOn:
+    id: "end-result-H"
+- assertVisible:
+    id: "directions-action-button"
+- tapOn:
+    id: "directions-action-button"
 - tapOn: "Your Location"
 - inputText: "Vanier"
-- tapOn: "VL – Vanier Library Building"
+- tapOn:
+    id: "start-result-VL"
 - assertVisible:
     id: "walking-selector"
 - assertVisible:
@@ -20,10 +29,12 @@ appId: host.exp.Exponent
     id: "shuttle-selector"
 - tapOn:
     id: "transit-selector"
+- assertVisible:
+    id: "routes-info-popup"
 - swipe:
-    from:
-      id: "routes-info-popup"
-    direction: UP
+    start: 45%, 74%
+    end: 45%, 40%
+    duration: 800
 - tapOn:
     id: "transit-route-0"
 - assertVisible:
