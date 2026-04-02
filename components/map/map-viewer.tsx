@@ -253,6 +253,9 @@ export default function MapViewer({
   const [routeKey, setRouteKey] = useState(0);
   const pendingRouteRenderFrameRef = useRef<number | null>(null);
   const routeRenderGenerationRef = useRef(0);
+  const activeIndoorStepSessionRef = useRef<{
+    resumeContinuationId: string | null;
+  } | null>(null);
   const [navCoords, setNavCoords] = useState<{
     start: Coordinate | null;
     end: Coordinate | null;
@@ -338,15 +341,46 @@ export default function MapViewer({
     }
   }, []);
 
+  /**
+   * Clears all navigation-related state, resetting the map to browse mode. It hides any displayed routes, clears the route polyline, stops, and transition nodes, and resets the navigation coordinates and selection overrides.
+   */
+  const clearRouteInfo = useCallback(() => {
+    activeIndoorStepSessionRef.current = null;
+    setNavigationMode("browse");
+
+    setShouldDisplayRoutes(false);
+    setRoutes(normalizeRoutes(EMPTY_ROUTES));
+    clearRouteRendering();
+    setNavCoords({ start: null, end: null });
+    setSelectionOverrides({ start: null, end: null });
+    setSelectedSearchLocations({ start: null, end: null });
+
+    requestAnimationFrame(() => {
+      suppressNextMapPress.current = false;
+    });
+  }, [clearRouteRendering]);
+
   useFocusEffect(
     useCallback(() => {
       const pendingStep = OutdoorStepResume.consumePendingStep();
       if (!pendingStep) {
+        const activeIndoorStepSession = activeIndoorStepSessionRef.current;
+        if (!activeIndoorStepSession) {
+          return;
+        }
+
+        if (activeIndoorStepSession.resumeContinuationId) {
+          OutdoorStepResume.clearContinuation(
+            activeIndoorStepSession.resumeContinuationId,
+          );
+        }
+        clearRouteInfo();
         return;
       }
 
+      activeIndoorStepSessionRef.current = null;
       focusRouteStep(pendingStep.encodedPolyline);
-    }, [focusRouteStep]),
+    }, [clearRouteInfo, focusRouteStep]),
   );
 
   useEffect(() => {
@@ -539,24 +573,6 @@ export default function MapViewer({
     focusBuilding,
     resolveStartLocation,
   ]);
-
-  /**
-   * Clears all navigation-related state, resetting the map to browse mode. It hides any displayed routes, clears the route polyline, stops, and transition nodes, and resets the navigation coordinates and selection overrides.
-   */
-  const clearRouteInfo = useCallback(() => {
-    setNavigationMode("browse");
-
-    setShouldDisplayRoutes(false);
-    setRoutes(normalizeRoutes(EMPTY_ROUTES));
-    clearRouteRendering();
-    setNavCoords({ start: null, end: null });
-    setSelectionOverrides({ start: null, end: null });
-    setSelectedSearchLocations({ start: null, end: null });
-
-    requestAnimationFrame(() => {
-      suppressNextMapPress.current = false;
-    });
-  }, [clearRouteRendering]);
 
   /**
    * Handles the event when a building is pressed on the map. It updates the selected building, focuses the map on that building, and resets any existing navigation state to switch back to browse mode. The function also sets a flag to suppress the next map press event, preventing unintended deselection of the building when the map is tapped immediately after selecting a building. This ensures a smooth user experience when interacting with buildings on the map.
@@ -945,10 +961,18 @@ export default function MapViewer({
       }
 
       const indoorPath = `/${encodeURIComponent(startBuildingCode)}?indoorStartRoom=${encodeURIComponent(startRoom)}&indoorEndRoom=${encodeURIComponent(endRoom)}`;
+      userClearedStart.current = false;
+      selectBuildingByCode(startBuildingCode);
+      clearRouteInfo();
       router.push(indoorPath as any);
       return true;
     },
-    [getSelectedBuildingCode, resolveIndoorRoomName],
+    [
+      clearRouteInfo,
+      getSelectedBuildingCode,
+      resolveIndoorRoomName,
+      selectBuildingByCode,
+    ],
   );
 
   const renderedPOIMarkers = useMemo(() => {
@@ -1399,6 +1423,9 @@ export default function MapViewer({
               if (resumeContinuationId) {
                 indoorPath = `${indoorPath}&resumeContinuationId=${encodeURIComponent(resumeContinuationId)}`;
               }
+              activeIndoorStepSessionRef.current = {
+                resumeContinuationId,
+              };
               router.push(indoorPath as any);
               return;
             }

@@ -9,6 +9,8 @@ import { fetchAllDirections } from "@/utils/directions";
 import * as SearchBuildingHook from "@/hooks/use-search-building";
 import { useLocalSearchParams, router } from "expo-router";
 const mockAnimateToRegion = jest.fn();
+let latestFocusEffect = null;
+
 jest.mock("react-native-map-clustering", () => {
   const React = require("react");
   const { forwardRef, useImperativeHandle } = React;
@@ -54,6 +56,7 @@ jest.mock("@/utils/decodePolyline", () => ({
 jest.mock("expo-router", () => ({
   useFocusEffect: (effect) => {
     const React = require("react");
+    latestFocusEffect = effect;
     React.useEffect(effect, [effect]);
   },
   router: {
@@ -120,6 +123,7 @@ jest.mock("@/constants/map", () => {
 beforeEach(() => {
   mockAnimateToRegion.mockClear();
   OutdoorStepResume.reset();
+  latestFocusEffect = null;
   useLocalSearchParams.mockReturnValue({});
   router.setParams.mockClear();
   router.push.mockClear();
@@ -2043,6 +2047,108 @@ describe("map tab", () => {
     });
   });
 
+  it("clears shuttle indoor-step navigation when returning without a pending resume step", async () => {
+    const { fetchAllDirections } = require("@/utils/directions");
+    const { encodeIndoorStepPayload } = require("@/utils/hybridNavigation");
+
+    const indoorPayload = encodeIndoorStepPayload({
+      building_code: "H",
+      start_room: "H110",
+      end_checkpoint_id: "H_F2_building_entry_exit_15",
+    });
+
+    fetchAllDirections.mockResolvedValueOnce({
+      walking: null,
+      transit: null,
+      driving: null,
+      bicycling: null,
+      shuttle: [
+        {
+          summary: "Concordia Shuttle",
+          overview_polyline: { points: "poly" },
+          legs: [
+            {
+              distance: { text: "5 km", value: 5000 },
+              duration: { text: "25 mins", value: 1500 },
+              steps: [
+                {
+                  distance: { text: "12 indoor checkpoints", value: 12 },
+                  duration: { text: "Indoor segment", value: 0 },
+                  html_instructions:
+                    "Navigate indoors from room H110 to H2 Entry Exit 3 in H.",
+                  maneuver: "",
+                  polyline: { points: indoorPayload },
+                  travel_mode: "INDOOR",
+                },
+                {
+                  distance: { text: "4 km", value: 4000 },
+                  duration: { text: "20 mins", value: 1200 },
+                  html_instructions: "Take the Concordia Shuttle from SGW to Loyola",
+                  maneuver: "",
+                  polyline: { points: "outdoor-shuttle-step-polyline" },
+                  travel_mode: "SHUTTLE",
+                  transit_details: {
+                    line: {
+                      name: "Concordia Shuttle",
+                      short_name: "Shuttle",
+                      vehicle_type: "BUS",
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    const mapViewer = render(<MapViewer />);
+    const mapView = mapViewer.getByTestId("map-view");
+    fireEvent(mapView, "onUserLocationChange", {
+      nativeEvent: { coordinate: { latitude: 45.495, longitude: -73.579 } },
+    });
+
+    await act(async () => {
+      fireEvent.press(mapViewer.getAllByTestId("polygon")[0]);
+    });
+    await act(async () => {
+      fireEvent.press(mapViewer.getByTestId("directions-action-button"));
+    });
+    await act(async () => {});
+
+    const routesPopup = mapViewer.getByTestId("routes-info-popup");
+    await act(async () => {
+      routesPopup.props.onResponderGrant({}, {});
+      routesPopup.props.onResponderMove({}, { dy: -300 });
+      routesPopup.props.onResponderRelease({}, { dy: -300, vy: -1 });
+    });
+    await act(async () => {
+      fireEvent.press(mapViewer.getByTestId("shuttle-route-0"));
+    });
+    await act(async () => {
+      fireEvent.press(mapViewer.getByTestId("shuttle-step-0"));
+    });
+
+    expect(router.push).toHaveBeenCalledWith(
+      expect.stringContaining("resumeContinuationId=outdoor-step-0"),
+    );
+    expect(OutdoorStepResume.getContinuation("outdoor-step-0")).toEqual({
+      encodedPolyline: "outdoor-shuttle-step-polyline",
+      travelMode: "SHUTTLE",
+    });
+
+    await act(async () => {
+      latestFocusEffect?.();
+    });
+
+    await waitFor(() => {
+      expect(mapViewer.queryByTestId("routes-info-popup")).toBeNull();
+      expect(mapViewer.getByPlaceholderText("Search building")).toBeTruthy();
+      expect(mapViewer.queryByPlaceholderText("Your location")).toBeNull();
+    });
+    expect(OutdoorStepResume.getContinuation("outdoor-step-0")).toBeNull();
+  });
+
   it("polylineColor returns #480efa for SUBWAY vehicle type", async () => {
     const { fetchAllDirections } = require("@/utils/directions");
     const { decodePolyline } = require("@/utils/decodePolyline");
@@ -3124,6 +3230,146 @@ describe("map tab", () => {
           );
         });
         expect(fetchAllDirections.mock.calls.length).toBe(fetchCallsBeforeEndSelection);
+      } finally {
+        useBuildingSearchSpy.mockRestore();
+      }
+    });
+
+    it("resets to the selected building after opening a same-building indoor room route", async () => {
+      const React = require("react");
+      fetchAllDirections.mockClear();
+
+      const useBuildingSearchSpy = jest
+        .spyOn(SearchBuildingHook, "useBuildingSearch")
+        .mockImplementation(() => {
+          const [queries, setQueries] = React.useState({ start: "", end: "" });
+          const updateQuery = React.useCallback((type, text) => {
+            const nextValue = text || "";
+            setQueries((prev) =>
+              prev[type] === nextValue
+                ? prev
+                : {
+                    ...prev,
+                    [type]: nextValue,
+                  },
+            );
+          }, []);
+          const swapQueries = React.useCallback(() => {
+            setQueries((prev) => ({
+              start: prev.end,
+              end: prev.start,
+            }));
+          }, []);
+
+          return {
+            queries,
+            updateQuery,
+            swapQueries,
+            results: {
+              start: [
+                {
+                  buildingCode: "VE101",
+                  buildingName: "VE101",
+                  address: "1400 De Maisonneuve Blvd. W.",
+                  campus: "SGW",
+                  parentBuildingCode: "VE",
+                  roomName: "VE101",
+                  isIndoorRoom: true,
+                },
+                {
+                  buildingCode: "VE201",
+                  buildingName: "VE201",
+                  address: "1400 De Maisonneuve Blvd. W.",
+                  campus: "SGW",
+                  parentBuildingCode: "VE",
+                  roomName: "VE201",
+                  isIndoorRoom: true,
+                },
+              ],
+              end: [
+                {
+                  buildingCode: "VE102",
+                  buildingName: "VE102",
+                  address: "1400 De Maisonneuve Blvd. W.",
+                  campus: "SGW",
+                  parentBuildingCode: "VE",
+                  roomName: "VE102",
+                  isIndoorRoom: true,
+                },
+                {
+                  buildingCode: "VE202",
+                  buildingName: "VE202",
+                  address: "1400 De Maisonneuve Blvd. W.",
+                  campus: "SGW",
+                  parentBuildingCode: "VE",
+                  roomName: "VE202",
+                  isIndoorRoom: true,
+                },
+              ],
+            },
+          };
+        });
+
+      try {
+        const mapViewer = render(<MapViewer />);
+
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("marker-RA"));
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("directions-action-button"));
+        });
+
+        const startInput = mapViewer.getByPlaceholderText("Your location");
+        await act(async () => {
+          fireEvent(startInput, "onFocus");
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("start-result-VE101"));
+        });
+
+        const endInput = mapViewer.getByPlaceholderText("Destination");
+        await act(async () => {
+          fireEvent(endInput, "onFocus");
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("end-result-VE102"));
+        });
+
+        await waitFor(() => {
+          expect(router.push).toHaveBeenCalledWith(
+            expect.stringContaining("/VE?indoorStartRoom=VE101&indoorEndRoom=VE102"),
+          );
+        });
+
+        await waitFor(() => {
+          expect(mapViewer.getByTestId("building-info-popup")).toBeTruthy();
+          expect(mapViewer.getByPlaceholderText("Search building")).toBeTruthy();
+          expect(mapViewer.queryByPlaceholderText("Your location")).toBeNull();
+        });
+
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("directions-action-button"));
+        });
+        await act(async () => {
+          fireEvent(mapViewer.getByPlaceholderText("Your location"), "onFocus");
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("start-result-VE201"));
+        });
+        await act(async () => {
+          fireEvent(mapViewer.getByPlaceholderText("Destination"), "onFocus");
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("end-result-VE202"));
+        });
+
+        await waitFor(() => {
+          expect(router.push).toHaveBeenCalledWith(
+            expect.stringContaining("/VE?indoorStartRoom=VE201&indoorEndRoom=VE202"),
+          );
+        });
+        expect(router.push).toHaveBeenCalledTimes(2);
       } finally {
         useBuildingSearchSpy.mockRestore();
       }
