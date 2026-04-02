@@ -1,5 +1,6 @@
-# Pre-test setup script for AT1connectAndViewCourseSchedule
+# Pre-test setup script for `AT1connectAndViewCourseSchedule.yaml` (US3-AT1)
 # Usage: .\maestro\US3\pre-US3-AT1.ps1
+# IMPORTANTLY, run this from the root of the repository to ensure it finds the .env file.
 
 Write-Host "Loading environment variables from .env..." -ForegroundColor Cyan
 
@@ -22,4 +23,4 @@ foreach ($line in $envContent) {
 }
 
 Write-Host "`nDone! Now run:" -ForegroundColor Green
-Write-Host "maestro test maestro/US3/AT1connectAndViewCourseSchedule.yaml" -ForegroundColor Yellow
+Write-Host "maestro test .maestro/US3/AT1connectAndViewCourseSchedule.yaml" -ForegroundColor Yellow
