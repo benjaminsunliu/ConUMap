@@ -1,7 +1,7 @@
 appId: host.exp.Exponent
 ---
 # Open the app
-- openLink: exp://10.0.2.2:8081
+- openLink: exp://localhost:8081
 
 # Navigate to Calendar tab
 - assertVisible: Calendar
