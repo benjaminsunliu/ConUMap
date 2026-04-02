@@ -1,7 +1,11 @@
 import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
 import { SearchBuilding, TransportationMode } from "@/types/buildingTypes";
 import { BuildingInfo, FloorCheckpoint, FloorCheckpointsGraph } from "@/types/mapTypes";
-import { NormalizedRoute, NormalizedStep } from "@/utils/directions";
+import type {
+  NormalizedIndoorDetails,
+  NormalizedRoute,
+  NormalizedStep,
+} from "@/utils/directions";
 import { findIndoorPath } from "@/utils/indoorNavigation";
 import { getRoomSearchTokens, normalizeSearchToken } from "@/utils/roomSearch";
 
@@ -23,13 +27,7 @@ export type RoutesByTransportationMode = Record<
 const INDOOR_TRAVEL_MODE = "INDOOR";
 const INDOOR_STEP_PAYLOAD_PREFIX = "__INDOOR_STEP__:";
 
-export type IndoorStepPayload = {
-  building_code: string;
-  start_checkpoint_id?: string;
-  end_checkpoint_id?: string;
-  start_room?: string;
-  end_room?: string;
-};
+export type IndoorStepPayload = NormalizedIndoorDetails;
 
 export function encodeIndoorStepPayload(payload: IndoorStepPayload) {
   return `${INDOOR_STEP_PAYLOAD_PREFIX}${encodeURIComponent(JSON.stringify(payload))}`;
