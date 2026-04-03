@@ -52,7 +52,13 @@ export default function OutdoorMapSettings({
   const poiTypeItems: {
     key: keyof OutdoorMapSettingsProps["poiFilters"];
     label: string;
-    icon: "restaurant-outline" | "cafe-outline" | "library-outline" | "barbell-outline" | "leaf-outline" | "cart-outline";
+    icon:
+      | "restaurant-outline"
+      | "cafe-outline"
+      | "library-outline"
+      | "barbell-outline"
+      | "leaf-outline"
+      | "cart-outline";
   }[] = [
     { key: "restaurant", label: "Restaurants", icon: "restaurant-outline" },
     { key: "cafe", label: "Cafes", icon: "cafe-outline" },
@@ -72,11 +78,37 @@ export default function OutdoorMapSettings({
       <View style={styles.container}>
         <TouchableOpacity
           testID="outdoor-settings-button"
-          style={styles.fab}
+          style={[
+            styles.fab,
+            open
+              ? {
+                  backgroundColor: theme.mapSettings.icon,
+                  borderColor: theme.mapSettings.icon,
+                }
+              : null,
+          ]}
           onPress={() => setOpen((prev) => !prev)}
           activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="POI filters"
         >
-          <Ionicons name="settings-outline" size={18} color={theme.mapSettings.fabIcon} />
+          <Ionicons
+            name="pin"
+            size={18}
+            color={open ? theme.mapSettings.panelBackground : theme.mapSettings.fabIcon}
+          />
+          <Text
+            style={[
+              styles.fabLabel,
+              {
+                color: open
+                  ? theme.mapSettings.panelBackground
+                  : theme.mapSettings.fabIcon,
+              },
+            ]}
+          >
+            POIs
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -92,11 +124,7 @@ export default function OutdoorMapSettings({
 
             <View style={styles.rangeContainer}>
               <View style={styles.rangeHeader}>
-                <Ionicons
-                  name="radio-outline"
-                  size={18}
-                  color={theme.mapSettings.icon}
-                />
+                <Ionicons name="radio-outline" size={18} color={theme.mapSettings.icon} />
                 <Text style={styles.label}> Search Radius </Text>
                 <Text style={[styles.radiusValue, { color: theme.mapSettings.text }]}>
                   {displayRadius} m
@@ -138,11 +166,7 @@ export default function OutdoorMapSettings({
                 style={styles.checkboxRow}
                 onPress={() => togglePOIType(item.key)}
               >
-                <Ionicons
-                  name={item.icon}
-                  size={18}
-                  color={theme.mapSettings.icon}
-                />
+                <Ionicons name={item.icon} size={18} color={theme.mapSettings.icon} />
 
                 <Text style={styles.label}> {item.label} </Text>
 
@@ -164,7 +188,7 @@ const makeStyles = (theme: typeof Colors.light | typeof Colors.dark) =>
   StyleSheet.create({
     container: {
       position: "absolute",
-      top: "7%",
+      top: "10%",
       right: 16,
       zIndex: 20,
       alignItems: "flex-end",
@@ -182,10 +206,30 @@ const makeStyles = (theme: typeof Colors.light | typeof Colors.dark) =>
 
     fab: {
       backgroundColor: theme.mapSettings.fabBackground,
-      padding: 8,
-      borderRadius: 30,
-      elevation: 4,
+      minHeight: 42,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 21,
+      borderWidth: 1,
+      borderColor: theme.mapSettings.icon,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      elevation: 6,
       marginTop: 4,
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+      shadowOpacity: 0.18,
+      shadowRadius: 8,
+    },
+
+    fabLabel: {
+      fontSize: 13,
+      fontWeight: "700",
+      letterSpacing: 0.2,
     },
 
     panel: {

@@ -77,8 +77,9 @@ describe("OutdoorMapSettings", () => {
   });
 
   it("renders only the FAB initially", () => {
-    const { queryByText } = render(<OutdoorMapSettings {...defaultProps} />);
+    const { getByText, queryByText } = render(<OutdoorMapSettings {...defaultProps} />);
 
+    expect(getByText("POIs")).toBeTruthy();
     expect(queryByText("POI Settings")).toBeNull();
   });
 
@@ -115,10 +116,7 @@ describe("OutdoorMapSettings", () => {
 
   it("hides itself when a popup is visible", () => {
     const { queryByTestId } = render(
-      <OutdoorMapSettings
-        {...defaultProps}
-        hasVisiblePopup
-      />,
+      <OutdoorMapSettings {...defaultProps} hasVisiblePopup />,
     );
 
     expect(queryByTestId("outdoor-settings-button")).toBeNull();
@@ -126,10 +124,7 @@ describe("OutdoorMapSettings", () => {
 
   it("hides itself when the search field is focused", () => {
     const { queryByTestId } = render(
-      <OutdoorMapSettings
-        {...defaultProps}
-        searchFieldFocused
-      />,
+      <OutdoorMapSettings {...defaultProps} searchFieldFocused />,
     );
 
     expect(queryByTestId("outdoor-settings-button")).toBeNull();
