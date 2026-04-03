@@ -135,14 +135,19 @@ function collectStopsFromStep(step: any, color: string): TransitStopMarker[] {
  */
 function getTransitionNode(
   coords: Coordinate[],
+  currentMode: string,
   color: string,
   nextStep: any,
 ): TransitionNode | null {
-  const nextMode = nextStep.travel_mode ?? "WALK";
+  const normalizedCurrentMode = normalizeStepTravelMode(currentMode);
+  const nextMode = normalizeStepTravelMode(nextStep.travel_mode);
   const nextVehicleType = nextStep.transit_details?.line?.vehicle_type;
   const nextColor = polylineColor(nextMode, nextVehicleType);
 
-  if (nextColor === color) {
+  const hasModeChanged = normalizedCurrentMode !== nextMode;
+  const hasColorChanged = nextColor !== color;
+
+  if (!hasModeChanged && !hasColorChanged) {
     return null;
   }
   const junction = coords.at(-1);
@@ -374,10 +379,11 @@ export default function MapViewer({
     !isTestEnvironment
   );
 
-  const { buildingId, autoNavigate } = useLocalSearchParams<{
+  const { buildingId, autoNavigate, destinationRoom } = useLocalSearchParams<{
     buildingId?: string;
     buildingName?: string;
     autoNavigate?: string;
+    destinationRoom?: string;
   }>();
   const places = usePoi(currCampus, radius);
   const [poiFilters, setPoiFilters] = useState<PoiTypeFilters>({
@@ -462,13 +468,13 @@ export default function MapViewer({
             activeIndoorStepSession.resumeContinuationId,
           );
         }
-        clearRouteInfo();
+        activeIndoorStepSessionRef.current = null;
         return;
       }
 
       activeIndoorStepSessionRef.current = null;
       focusRouteStep(pendingStep.encodedPolyline);
-    }, [clearRouteInfo, focusRouteStep]),
+    }, [focusRouteStep]),
   );
 
   useEffect(() => {
@@ -631,6 +637,20 @@ export default function MapViewer({
       focusBuilding(nextBuilding.location.latitude, nextBuilding.location.longitude);
 
       if (autoNavigate === "true") {
+        const trimmedDestinationRoom = destinationRoom?.trim() ?? "";
+        const destinationSelection: SearchBuilding | null = trimmedDestinationRoom
+          ? {
+              buildingCode: trimmedDestinationRoom,
+              buildingName: trimmedDestinationRoom,
+              address: nextBuilding.address,
+              campus: nextBuilding.campus,
+              parentBuildingCode: nextBuilding.buildingCode,
+              roomName: trimmedDestinationRoom,
+              isIndoorRoom: true,
+            }
+          : null;
+        const destinationLabel =
+          destinationSelection?.roomName ?? nextBuilding.buildingName;
         const { coord: startCoord, label: startLabel } = resolveStartLocation();
 
         if (startCoord && startLabel) {
@@ -639,24 +659,30 @@ export default function MapViewer({
 
         setSelectionOverrides({
           start: startLabel,
-          end: nextBuilding.buildingName,
+          end: destinationLabel,
         });
         lastDestinationRef.current = {
           coord: nextBuilding.location,
-          label: nextBuilding.buildingName,
+          label: destinationLabel,
         };
         userClearedStart.current = false;
-        setSelectedSearchLocations({ start: null, end: null });
+        setSelectedSearchLocations({ start: null, end: destinationSelection });
         setNavCoords({ start: startCoord, end: nextBuilding.location });
         setNavigationMode("directions");
         setShouldDisplayRoutes(true);
       }
     }
     // Ensures that buildingId is undefined after
-    router.setParams({ buildingId: "", buildingName: "", autoNavigate: "" });
+    router.setParams({
+      buildingId: "",
+      buildingName: "",
+      autoNavigate: "",
+      destinationRoom: "",
+    });
   }, [
     buildingId,
     autoNavigate,
+    destinationRoom,
     selectBuildingByCode,
     focusBuilding,
     resolveStartLocation,
@@ -1465,7 +1491,7 @@ export default function MapViewer({
 
               const nextStep = stepsToRender[index + 1];
               if (nextStep) {
-                const node = getTransitionNode(coords, color, nextStep);
+                const node = getTransitionNode(coords, mode, color, nextStep);
                 if (node) nodes.push(node);
               }
             }
