@@ -322,9 +322,8 @@ export default function MapViewer({
   const [routes, setRoutes] = useState<Record<TransportationMode, any[] | null>>(
     normalizeRoutes(EMPTY_ROUTES),
   );
-  const [routeOverlay, setRouteOverlay] = useState<RouteOverlayState>(
-    EMPTY_ROUTE_OVERLAY,
-  );
+  const [routeOverlay, setRouteOverlay] =
+    useState<RouteOverlayState>(EMPTY_ROUTE_OVERLAY);
   const [routeKey, setRouteKey] = useState(0);
   const pendingRouteRenderFrameRef = useRef<number | null>(null);
   const routeRenderGenerationRef = useRef(0);
@@ -370,7 +369,9 @@ export default function MapViewer({
     navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
   const isTestEnvironment = process.env.NODE_ENV === "test";
   const shouldRenderDirectionAuxOverlays = !(
-    Platform.OS === "ios" && navigationMode === "directions" && !isTestEnvironment
+    Platform.OS === "ios" &&
+    navigationMode === "directions" &&
+    !isTestEnvironment
   );
 
   const { buildingId, autoNavigate } = useLocalSearchParams<{
@@ -903,11 +904,7 @@ export default function MapViewer({
     setSelectedSearchLocations({ start: startSelection, end: null });
     setNavCoords({ start: mapBuilding.location, end: lastDest.coord });
     clearRouteRendering();
-  }, [
-    clearRouteRendering,
-    selectedBuilding,
-    selectedSearchLocations.end,
-  ]);
+  }, [clearRouteRendering, selectedBuilding, selectedSearchLocations.end]);
 
   /**
    * Handles the action of going back from the directions view to the browse mode. It resets all navigation-related state, including the navigation mode, route display, navigation coordinates, selection overrides, and any displayed routes or stops. This function is called when the user presses the back button in the RoutesInfoPopup, allowing them to exit the directions view and return to browsing the map without any active navigation routes displayed.
@@ -1274,88 +1271,92 @@ export default function MapViewer({
         {shouldRenderDirectionAuxOverlays &&
           routeOverlay.stops.map((stop, index) =>
             Platform.OS === "android" ? (
-            <Circle
-              key={`stop-${routeKey}-${index}-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
-              center={stop.coordinate}
-              radius={5}
-              fillColor="#fff"
-              strokeColor={stop.color}
-              strokeWidth={2}
-              zIndex={11}
-            />
-          ) : (
-            <Marker
-              key={`stop-${routeKey}-${index}-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
-              coordinate={stop.coordinate}
-              anchor={{ x: 0.5, y: 0.5 }}
-              zIndex={11}
-            >
-              <View
-                collapsable={false}
-                style={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: 5,
-                  backgroundColor: "#fff",
-                  borderWidth: 2,
-                  borderColor: stop.color,
-                }}
+              <Circle
+                key={`stop-${routeKey}-${index}-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
+                center={stop.coordinate}
+                radius={5}
+                fillColor="#fff"
+                strokeColor={stop.color}
+                strokeWidth={2}
+                zIndex={11}
               />
-            </Marker>
+            ) : (
+              <Marker
+                key={`stop-${routeKey}-${index}-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
+                coordinate={stop.coordinate}
+                anchor={{ x: 0.5, y: 0.5 }}
+                zIndex={11}
+              >
+                <View
+                  collapsable={false}
+                  style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: 5,
+                    backgroundColor: "#fff",
+                    borderWidth: 2,
+                    borderColor: stop.color,
+                  }}
+                />
+              </Marker>
             ),
           )}
 
         {shouldRenderDirectionAuxOverlays &&
           (Platform.OS === "android"
             ? routeOverlay.nodes.map((node, index) => (
-              <Circle
-                key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
-                center={node.coordinate}
-                radius={7}
-                fillColor={node.toColor}
-                strokeColor="#fff"
-                strokeWidth={3}
-                zIndex={12}
-              />
-            ))
-          : routeOverlay.nodes.map((node, index) => (
-              <Marker
-                key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
-                coordinate={node.coordinate}
-                anchor={{ x: 0.5, y: 0.5 }}
-                zIndex={12}
-              >
-                <View
-                  collapsable={false}
-                  style={{
-                    width: 18,
-                    height: 18,
-                    borderRadius: 9,
-                    backgroundColor: node.toColor,
-                    borderWidth: 3,
-                    borderColor: "#fff",
-                  }}
+                <Circle
+                  key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
+                  center={node.coordinate}
+                  radius={7}
+                  fillColor={node.toColor}
+                  strokeColor="#fff"
+                  strokeWidth={3}
+                  zIndex={12}
                 />
-              </Marker>
+              ))
+            : routeOverlay.nodes.map((node, index) => (
+                <Marker
+                  key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
+                  coordinate={node.coordinate}
+                  anchor={{ x: 0.5, y: 0.5 }}
+                  zIndex={12}
+                >
+                  <View
+                    collapsable={false}
+                    style={{
+                      width: 18,
+                      height: 18,
+                      borderRadius: 9,
+                      backgroundColor: node.toColor,
+                      borderWidth: 3,
+                      borderColor: "#fff",
+                    }}
+                  />
+                </Marker>
               )))}
 
-          {shouldRenderDirectionAuxOverlays && navigationMode === "directions" && navCoords.start && (
-          <NavEndpointMarker
-            key={`nav-start-${navCoords.start.latitude}-${navCoords.start.longitude}`}
-            coordinate={navCoords.start}
-            label="A"
-            color="#049ede"
-          />
-        )}
+        {shouldRenderDirectionAuxOverlays &&
+          navigationMode === "directions" &&
+          navCoords.start && (
+            <NavEndpointMarker
+              key={`nav-start-${navCoords.start.latitude}-${navCoords.start.longitude}`}
+              coordinate={navCoords.start}
+              label="A"
+              color="#049ede"
+            />
+          )}
 
-          {shouldRenderDirectionAuxOverlays && navigationMode === "directions" && navCoords.end && (
-          <NavEndpointMarker
-            key={`nav-end-${navCoords.end.latitude}-${navCoords.end.longitude}`}
-            coordinate={navCoords.end}
-            label="B"
-            color="#049ede"
-          />
-        )}
+        {shouldRenderDirectionAuxOverlays &&
+          navigationMode === "directions" &&
+          navCoords.end && (
+            <NavEndpointMarker
+              key={`nav-end-${navCoords.end.latitude}-${navCoords.end.longitude}`}
+              coordinate={navCoords.end}
+              label="B"
+              color="#049ede"
+            />
+          )}
       </MapViewCluster>
 
       {__DEV__ && Platform.OS === "android" && (
