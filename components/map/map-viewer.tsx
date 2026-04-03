@@ -1678,33 +1678,6 @@ function getPolygonColor(
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { width: "100%", flex: 1 },
-  radiusContainer: {
-    position: "absolute",
-    left: "30%",
-    right: "25%",
-    bottom: 42,
-    zIndex: 15,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingTop: 8,
-    paddingBottom: 4,
-    backgroundColor: "#3a0b09", //UI changes on the POI slider container colour
-  },
-  radiusHeader: {
-    flexDirection: "row",
-    alignItems: "center" as const,
-    justifyContent: "space-between" as const,
-  },
-  radiusLabel: {
-    color: "#000",
-    fontSize: 12,
-    fontWeight: "700" as const,
-  },
-  radiusValue: {
-    color: "#000",
-    fontSize: 12,
-    fontWeight: "700" as const,
-  },
   marker: {
     paddingHorizontal: 5,
     paddingVertical: 4,
