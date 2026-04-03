@@ -157,7 +157,7 @@ describe("map tab", () => {
     });
 
     expect(mapViewer.getByTestId("outdoor-settings-panel")).toBeTruthy();
-    expect(mapViewer.getAllByText("1000 m").length).toBeGreaterThan(0);
+    expect(mapViewer.getAllByText("0 m").length).toBeGreaterThan(0);
 
     const slider = mapViewer.getByTestId("radius-slider");
     act(() => {

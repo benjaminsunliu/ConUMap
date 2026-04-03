@@ -307,7 +307,7 @@ export default function MapViewer({
   const suppressNextMapPress = useRef(false);
 
   const [currCampus, setCurrCampus] = useState<Campus>("SGW");
-  const [radius, setRadius] = useState(1000);
+  const [radius, setRadius] = useState(0);
   const [searchFieldFocused, setSearchFieldFocused] = useState(false);
 
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
