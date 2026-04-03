@@ -6,7 +6,7 @@ import type {
   NormalizedRoute,
   NormalizedStep,
 } from "@/utils/directions";
-import { findIndoorPath } from "@/utils/indoorNavigation";
+import { findIndoorPath, type IndoorPathOptions } from "@/utils/indoorNavigation";
 import { getRoomSearchTokens, normalizeSearchToken } from "@/utils/roomSearch";
 
 type IndoorSelections = {
@@ -76,6 +76,7 @@ export async function enrichRoutesWithIndoorTransitions(
   routes: RoutesByTransportationMode,
   selections: IndoorSelections,
   buildings: BuildingInfo[],
+  options: IndoorPathOptions = {},
 ): Promise<RoutesByTransportationMode> {
   const startIndoorSelection = toIndoorRoomSelection(selections.start, buildings);
   const endIndoorSelection = toIndoorRoomSelection(selections.end, buildings);
@@ -101,6 +102,7 @@ export async function enrichRoutesWithIndoorTransitions(
             route,
             startIndoorSelection,
             endIndoorSelection,
+            options,
           ),
         ),
       );
@@ -116,14 +118,15 @@ async function enrichSingleRouteWithIndoorTransitions(
   route: NormalizedRoute,
   startIndoorSelection: IndoorRoomSelection | null,
   endIndoorSelection: IndoorRoomSelection | null,
+  options: IndoorPathOptions,
 ) {
   if (!route || !Array.isArray(route.legs)) {
     return route;
   }
 
   const [startIndoorStep, endIndoorStep] = await Promise.all([
-    buildIndoorTransitionStep(startIndoorSelection, "start"),
-    buildIndoorTransitionStep(endIndoorSelection, "end"),
+    buildIndoorTransitionStep(startIndoorSelection, "start", options),
+    buildIndoorTransitionStep(endIndoorSelection, "end", options),
   ]);
 
   if (!startIndoorStep && !endIndoorStep) {
@@ -157,6 +160,7 @@ async function enrichSingleRouteWithIndoorTransitions(
 async function buildIndoorTransitionStep(
   selection: IndoorRoomSelection | null,
   direction: "start" | "end",
+  options: IndoorPathOptions,
 ) {
   if (!selection) {
     return null;
@@ -181,7 +185,12 @@ async function buildIndoorTransitionStep(
     return null;
   }
 
-  const transition = findPreferredFeasibleEntryExit(graph, roomCheckpoint, direction);
+  const transition = findPreferredFeasibleEntryExit(
+    graph,
+    roomCheckpoint,
+    direction,
+    options,
+  );
   if (!transition) {
     return null;
   }
@@ -294,6 +303,7 @@ function findPreferredFeasibleEntryExit(
   graph: FloorCheckpointsGraph,
   roomCheckpoint: FloorCheckpoint,
   direction: "start" | "end",
+  options: IndoorPathOptions,
 ) {
   const entryPoints = Object.values(graph.checkpoints).filter(
     (checkpoint) => checkpoint.type === "building_entry_exit",
@@ -314,8 +324,8 @@ function findPreferredFeasibleEntryExit(
   for (const [rank, entryPoint] of orderedEntryPoints.entries()) {
     const path =
       direction === "start"
-        ? findIndoorPath(graph, roomCheckpoint.id, entryPoint.id)
-        : findIndoorPath(graph, entryPoint.id, roomCheckpoint.id);
+        ? findIndoorPath(graph, roomCheckpoint.id, entryPoint.id, options)
+        : findIndoorPath(graph, entryPoint.id, roomCheckpoint.id, options);
 
     if (path) {
       feasibleCandidates.push({

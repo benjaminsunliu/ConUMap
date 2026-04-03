@@ -4,6 +4,12 @@ import BuildingSelection from "@/components/map/building-selection";
 
 const mockAnimateToRegion = jest.fn();
 
+jest.mock("expo-secure-store", () => ({
+  getItemAsync: jest.fn().mockResolvedValue(null),
+  setItemAsync: jest.fn(),
+  deleteItemAsync: jest.fn(),
+}));
+
 jest.mock("react-native-map-clustering", () => {
   const React = require("react");
   const { forwardRef, useImperativeHandle } = React;

@@ -770,7 +770,7 @@
       "floor": 8,
       "x": 707,
       "y": 538,
-      "label": "H-802",
+      "label": "Bathroom",
       "accessible": true,
       "metadata": {
         "POI": "Unisex Bathroom"
@@ -1652,7 +1652,7 @@
       "floor": 9,
       "x": 1257,
       "y": 1432,
-      "label": "H-902",
+      "label": "Bathroom",
       "accessible": true,
       "metadata": {
         "POI": "Women's Bathroom"
@@ -1695,7 +1695,7 @@
       "floor": 9,
       "x": 729,
       "y": 1394,
-      "label": "H-910",
+      "label": "Bathroom",
       "accessible": true,
       "metadata": {
         "POI": "Men's Bathroom"
@@ -2805,8 +2805,8 @@
       "type": "hallway_waypoint",
       "buildingId": "H",
       "floor": 9,
-      "x": 1055,
-      "y": 1211,
+      "x": 974,
+      "y": 1206,
       "label": "",
       "accessible": true
     },

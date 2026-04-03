@@ -111,7 +111,9 @@ export default function RoutesInfoPopup({
         return `${mode}:empty`;
       }
 
-      return `${mode}:${modeRoutes.length}:${getRouteKey(modeRoutes[0], mode, 0)}`;
+      return `${mode}:${modeRoutes
+        .map((route, index) => getRouteKey(route, mode, index))
+        .join("|")}`;
     })
     .join("|");
 
