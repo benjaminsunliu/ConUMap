@@ -4137,7 +4137,7 @@
       "x": 630,
       "y": 598,
       "label": "Bathroom",
-      "accessible": true
+      "accessible": true,
       "metadata": {
         "POI": "Bathroom"
       }
