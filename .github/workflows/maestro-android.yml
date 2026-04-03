@@ -25,6 +25,7 @@ jobs:
       ANDROID_AVD_HOME: /mnt/avd
       ANDROID_OS_IMAGE: system-images;android-32;google_apis;x86_64
       ANDROID_PLATFORM: platforms;android-36
+      APP_ID: com.anonymous.client
 
     steps:
       - name: Enable KVM group perms
@@ -107,16 +108,27 @@ jobs:
         run: |
           echo "sdk.dir=$ANDROID_HOME" > android/local.properties
           cat android/local.properties
-      - name: Build Android debug APK
+      - name: Build Android release APK
         working-directory: android
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleDebug \
+          ./gradlew assembleRelease \
             -PreactNativeArchitectures=x86_64 \
             --stacktrace \
+            --info \
             --console=plain \
             --no-daemon \
             --max-workers=2
+      - name: Locate built APK
+        id: app
+        run: |
+          APK_PATH="$(find android/app/build/outputs/apk/release -type f -name '*release*.apk' ! -name '*unsigned*' | head -1)"
+          if [ -z "$APK_PATH" ]; then
+            echo "Signed release APK not found" >&2
+            find android/app/build/outputs/apk/release -type f -name "*.apk" -print || true
+            exit 1
+          fi
+          echo "path=$APK_PATH" >> "$GITHUB_OUTPUT"
       - name: Create AVD
         run: |
           export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$PATH"
@@ -165,43 +177,77 @@ jobs:
             fi
             sleep 2
           done
-          adb wait-for-device
-          adb shell 'while [[ "$(getprop sys.boot_completed | tr -d "\r")" != "1" ]]; do sleep 1; done;' && echo "Emulator booted"
+          DEVICE_SERIAL="$(adb devices | awk '/emulator-.*device$/ { print $1; exit }')"
+          if [ -z "$DEVICE_SERIAL" ]; then
+            echo "Failed to resolve Android emulator serial" >&2
+            adb devices
+            exit 1
+          fi
+          echo "ANDROID_DEVICE_SERIAL=$DEVICE_SERIAL" >> "$GITHUB_ENV"
+          adb -s "$DEVICE_SERIAL" wait-for-device
+          adb -s "$DEVICE_SERIAL" shell 'while [[ "$(getprop sys.boot_completed | tr -d "\r")" != "1" ]]; do sleep 1; done;' && echo "Emulator booted"
           while true; do
-            adb shell service list | grep 'package' && echo 'service "package" is active!' && break
+            adb -s "$DEVICE_SERIAL" shell service list | grep 'package' && echo 'service "package" is active!' && break
             echo 'waiting for service "package" to start'
             sleep 1
           done
-          adb shell settings put global window_animation_scale 0 || true
-          adb shell settings put global transition_animation_scale 0 || true
-          adb shell settings put global animator_duration_scale 0 || true
+          adb -s "$DEVICE_SERIAL" shell settings put global window_animation_scale 0 || true
+          adb -s "$DEVICE_SERIAL" shell settings put global transition_animation_scale 0 || true
+          adb -s "$DEVICE_SERIAL" shell settings put global animator_duration_scale 0 || true
       - name: Install app
         run: |
-          adb install -r android/app/build/outputs/apk/debug/*.apk
+          adb -s "$ANDROID_DEVICE_SERIAL" install -r "${{ steps.app.outputs.path }}"
       - name: Start screen recording of AVD
         run: |
-          adb shell screenrecord /sdcard/screenrecord.mp4 &
+          adb -s "$ANDROID_DEVICE_SERIAL" shell screenrecord /sdcard/screenrecord.mp4 &
           echo $! > ~/screenrecord.pid
-      - name: Run tests
+      - name: Run Maestro flow
         timeout-minutes: 20
         run: |
-          mkdir -p .maestro/output
-          maestro test .maestro/automated/suite.yaml \
-            --format junit \
-            --output .maestro/output/results.xml
+          export PATH="$HOME/.maestro/bin:$PATH"
+          export MAESTRO_DRIVER_STARTUP_TIMEOUT=600000
+          mkdir -p .maestro/output .maestro/debug .maestro/artifacts
+
+          adb -s "$ANDROID_DEVICE_SERIAL" logcat -c || true
+
+          set +e
+          maestro --verbose --device "$ANDROID_DEVICE_SERIAL" test .maestro/automated/suite.yaml \
+            --format html-detailed \
+            --output .maestro/output/report.html \
+            --debug-output .maestro/debug \
+            --test-output-dir .maestro/artifacts \
+            2>&1 | tee .maestro/output/maestro-console.log
+          FLOW_EXIT=${PIPESTATUS[0]}
+          set -e
+
+          adb -s "$ANDROID_DEVICE_SERIAL" logcat -d > .maestro/output/logcat.txt || true
+          adb -s "$ANDROID_DEVICE_SERIAL" shell dumpsys window | grep -E 'mCurrentFocus|mFocusedApp' > .maestro/output/window-focus.txt || true
+          adb -s "$ANDROID_DEVICE_SERIAL" shell dumpsys activity activities | head -400 > .maestro/output/activity-dumpsys.txt || true
+          adb -s "$ANDROID_DEVICE_SERIAL" shell dumpsys package "$APP_ID" | head -250 > .maestro/output/package-dumpsys.txt || true
+
+          exit $FLOW_EXIT
       - name: Stop screen recording of AVD
-        if: success() || failure()
+        if: always()
         run: |
           kill -SIGINT "$(cat ~/screenrecord.pid)" || echo "failed to kill screenrecord"
           sleep 5
-          adb pull /sdcard/screenrecord.mp4 ~/screenrecord.mp4 || true
+          adb -s "$ANDROID_DEVICE_SERIAL" pull /sdcard/screenrecord.mp4 ~/screenrecord.mp4 || true
+      - name: Upload Maestro HTML report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: maestro-android-report
+          path: .maestro/output/report.html
+          if-no-files-found: ignore
       - name: Upload Maestro artifacts
         uses: actions/upload-artifact@v4
-        if: success() || failure()
+        if: always()
         with:
           name: maestro-android-artifacts
           path: |
-            .maestro/output/
+            .maestro/output/**
+            .maestro/debug/**
+            .maestro/artifacts/**
             ~/.maestro
             ~/emulator_stdout.log
             ~/emulator_stderr.log
