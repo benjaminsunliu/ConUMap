@@ -6,16 +6,9 @@ import {
 } from "@/types/mapTypes";
 
 describe("findPathFromRoomToRoom (Undirected Graph)", () => {
-  type TestEdge = [
-    string,
-    string,
-    number,
-    Partial<FloorCheckpointConnection>?,
-  ];
+  type TestEdge = [string, string, number, Partial<FloorCheckpointConnection>?];
 
-  const buildUndirectedGraph = (
-    edges: TestEdge[],
-  ): FloorCheckpointsGraph => {
+  const buildUndirectedGraph = (edges: TestEdge[]): FloorCheckpointsGraph => {
     const adjacencySet: FloorCheckpointAdjancencySet = {};
     const defaultEdge: FloorCheckpointConnection = {
       accessible: true,
@@ -115,11 +108,7 @@ describe("findPathFromRoomToRoom (Undirected Graph)", () => {
       ["Detour", "End", 2],
     ]);
 
-    expect(findIndoorPath(graph, "Start", "End")).toEqual([
-      "Start",
-      "Shortcut",
-      "End",
-    ]);
+    expect(findIndoorPath(graph, "Start", "End")).toEqual(["Start", "Shortcut", "End"]);
     expect(
       findIndoorPath(graph, "Start", "End", {
         accessibleOnly: true,

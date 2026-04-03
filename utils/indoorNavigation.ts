@@ -76,10 +76,7 @@ export function findIndoorPath(
   return getPathFromDistanceInfo(shortestDistance, destination);
 }
 
-function shouldSkipEdge(
-  edge: FloorCheckpointConnection,
-  options: IndoorPathOptions,
-) {
+function shouldSkipEdge(edge: FloorCheckpointConnection, options: IndoorPathOptions) {
   if (!options.accessibleOnly) {
     return false;
   }

@@ -50,10 +50,7 @@ class IndoorMapSettingsStore {
       wheelchairOnly,
     };
     this.hasLoaded = true;
-    return SecureStore.setItemAsync(
-      indoorMapSettingsKey,
-      JSON.stringify(this.settings),
-    );
+    return SecureStore.setItemAsync(indoorMapSettingsKey, JSON.stringify(this.settings));
   }
 
   public reset() {

@@ -203,11 +203,7 @@ describe("IndoorMap wheelchair routing", () => {
     });
 
     await waitFor(() => {
-      expect(getLatestFloorProps().navigationPath).toEqual([
-        "H110",
-        "Shortcut",
-        "H210",
-      ]);
+      expect(getLatestFloorProps().navigationPath).toEqual(["H110", "Shortcut", "H210"]);
     });
 
     await act(async () => {
@@ -216,11 +212,7 @@ describe("IndoorMap wheelchair routing", () => {
 
     await waitFor(() => {
       expect(getLatestMapSettingsProps().wheelchairOnly).toBe(true);
-      expect(getLatestFloorProps().navigationPath).toEqual([
-        "H110",
-        "Detour",
-        "H210",
-      ]);
+      expect(getLatestFloorProps().navigationPath).toEqual(["H110", "Detour", "H210"]);
     });
   });
 
