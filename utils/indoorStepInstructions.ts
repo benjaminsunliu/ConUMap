@@ -215,7 +215,9 @@ function getSegmentEdgeType(
   return undefined;
 }
 
-function normalizeIndoorEdgeType(edgeType: string | undefined): IndoorEdgeType | undefined {
+function normalizeIndoorEdgeType(
+  edgeType: string | undefined,
+): IndoorEdgeType | undefined {
   switch (edgeType) {
     case INDOOR_EDGE_TYPES.DOOR_TO_HALLWAY:
     case INDOOR_EDGE_TYPES.ELEVATOR:
