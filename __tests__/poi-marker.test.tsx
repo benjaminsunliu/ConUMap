@@ -47,10 +47,13 @@ describe("poi-marker", () => {
     const poi = makePoi(["restaurant"]);
     const { getByTestId } = render(<PoiMarker poi={poi} />);
 
-    expect(getByTestId("poi-marker-root").props.coordinate).toEqual({
+    const marker = getByTestId("poi-marker-root");
+
+    expect(marker.props.coordinate).toEqual({
       latitude: 45.495,
       longitude: -73.579,
     });
+    expect(marker.props.zIndex).toBe(3);
   });
 
   it.each([
@@ -127,6 +130,7 @@ describe("poi-marker", () => {
       const markerBody = getByTestId("poi-marker-body");
       expect(markerBody.props.style).toEqual(
         expect.arrayContaining([
+          expect.objectContaining({ width: 24, height: 24 }),
           expect.objectContaining({ backgroundColor: expectedColor }),
         ]),
       );
@@ -143,6 +147,7 @@ describe("poi-marker", () => {
     const markerBody = getByTestId("poi-marker-body");
     expect(markerBody.props.style).toEqual(
       expect.arrayContaining([
+        expect.objectContaining({ width: 24, height: 24 }),
         expect.objectContaining({ backgroundColor: PoiMarkerColors.cafe }),
       ]),
     );

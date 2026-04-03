@@ -1269,8 +1269,8 @@ export default function MapViewer({
         renderCluster={renderCluster}
       >
         {renderedPolygons}
-        {renderedMarkers}
         {navigationMode === "browse" ? renderedPOIMarkers : null}
+        {renderedMarkers}
 
         {routeOverlay.polyline?.map((segment, index) => {
           const dashedWidth = Platform.OS === "android" ? 6 : 3;
@@ -1607,6 +1607,7 @@ function renderBuildings(
         key={building.buildingCode}
         coordinate={building.location}
         onPress={() => onPress(building)}
+        zIndex={4}
       >
         <View
           testID={
