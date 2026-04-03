@@ -1090,9 +1090,7 @@ export default function MapViewer({
       return [];
     }
 
-    return places.filter((poi) =>
-      poi.types?.some((type) => enabledTypes.includes(type as keyof PoiTypeFilters)),
-    );
+    return places.filter((poi) => poi.types?.some((type) => enabledTypes.includes(type)));
   }, [places, poiFilters]);
 
   useEffect(() => {
