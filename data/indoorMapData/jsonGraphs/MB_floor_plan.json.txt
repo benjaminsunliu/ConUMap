@@ -123,7 +123,7 @@
       "label": "Women's Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Women's bathroom"
+        "POI": "Bathroom"
       }
     },
     {
@@ -136,7 +136,7 @@
       "label": "Individual Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Individual bathroom"
+        "POI": "Bathroom"
       }
     },
     {
@@ -149,7 +149,7 @@
       "label": "Men's Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Men's bathroom"
+        "POI": "Bathroom"
       }
     },
     {

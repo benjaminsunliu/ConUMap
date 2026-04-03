@@ -400,10 +400,10 @@
       "floor": 1,
       "x": 3521,
       "y": 421,
-      "label": "Individual Bathroom",
+      "label": "Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Individual Bathroom"
+        "POI": "Bathroom"
       }
     },
     {
@@ -413,8 +413,11 @@
       "floor": 1,
       "x": 3387,
       "y": 350,
-      "label": "Women's Bathroom",
+      "label": "Bathroom",
       "accessible": true
+      "metadata": {
+        "POI": "Bathroom"
+      }
     },
     {
       "id": "CC_1_poi_3",
@@ -423,8 +426,11 @@
       "floor": 1,
       "x": 613,
       "y": 384,
-      "label": "Men's Bathroom",
+      "label": "Bathroom",
       "accessible": true
+      "metadata": {
+        "POI": "Bathroom"
+      }
     }
   ],
   "edges": [

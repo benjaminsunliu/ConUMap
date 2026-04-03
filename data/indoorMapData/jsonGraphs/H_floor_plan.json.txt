@@ -770,10 +770,10 @@
       "floor": 8,
       "x": 707,
       "y": 538,
-      "label": "H-802",
+      "label": "Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Unisex Bathroom"
+        "POI": "Bathroom"
       }
     },
     {
@@ -786,7 +786,7 @@
       "label": "Water_Fountain_1",
       "accessible": true,
       "metadata": {
-        "POI": "Water Fountain"
+        "POI": "Water fountain"
       }
     },
     {
@@ -796,10 +796,10 @@
       "floor": 8,
       "x": 1273,
       "y": 521,
-      "label": "H-810",
+      "label": "Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Unisex Bathroom"
+        "POI": "Bathroom"
       }
     },
     {
@@ -809,10 +809,10 @@
       "floor": 8,
       "x": 630,
       "y": 1640,
-      "label": "Water Fountain 2",
+      "label": "Water fountain 2",
       "accessible": true,
       "metadata": {
-        "POI": "Water Fountain"
+        "POI": "Water fountain"
       }
     },
     {
@@ -1652,10 +1652,10 @@
       "floor": 9,
       "x": 1257,
       "y": 1432,
-      "label": "H-902",
+      "label": "Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Women's Bathroom"
+        "POI": "Bathroom"
       }
     },
     {
@@ -1695,10 +1695,10 @@
       "floor": 9,
       "x": 729,
       "y": 1394,
-      "label": "H-910",
+      "label": "Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Men's Bathroom"
+        "POI": "Bathroom"
       }
     },
     {
@@ -2588,10 +2588,10 @@
       "floor": 9,
       "x": 466,
       "y": 630,
-      "label": "Water Fountain",
+      "label": "Water fountain",
       "accessible": true,
       "metadata": {
-        "POI": "Water Fountain"
+        "POI": "Water fountain"
       }
     },
     {
@@ -2601,10 +2601,10 @@
       "floor": 9,
       "x": 1714,
       "y": 1272,
-      "label": "Water Fountain",
+      "label": "Water fountain",
       "accessible": true,
       "metadata": {
-        "POI": "Water Fountain"
+        "POI": "Water fountain"
       }
     },
     {
@@ -2614,10 +2614,10 @@
       "floor": 9,
       "x": 702,
       "y": 1529,
-      "label": "Water Fountain",
+      "label": "Water fountain",
       "accessible": true,
       "metadata": {
-        "POI": "Water Fountain"
+        "POI": "Water fountain"
       }
     },
     {
@@ -3097,10 +3097,10 @@
       "floor": 1,
       "x": 868,
       "y": 1321,
-      "label": "Unisex Bathroom",
+      "label": "Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Unisex Bathroom"
+        "POI": "Bathroom"
       }
     },
     {
@@ -3730,10 +3730,10 @@
       "floor": 1,
       "x": 1073,
       "y": 1322,
-      "label": "Water Fountain",
+      "label": "Water fountain",
       "accessible": true,
       "metadata": {
-        "POI": "Water Fountain"
+        "POI": "Water fountain"
       }
     },
     {
@@ -4138,6 +4138,9 @@
       "y": 598,
       "label": "Bathroom",
       "accessible": true
+      "metadata": {
+        "POI": "Bathroom"
+      }
     },
     {
       "id": "H2_poi_bathroom",
@@ -4159,10 +4162,10 @@
       "floor": 2,
       "x": 537,
       "y": 829,
-      "label": "Water Fountain",
+      "label": "Water fountain",
       "accessible": true,
       "metadata": {
-        "POI": "Water Fountain"
+        "POI": "Water fountain"
       }
     },
     {

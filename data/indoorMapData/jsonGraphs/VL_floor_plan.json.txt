@@ -443,7 +443,7 @@
       "label": "Women's Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Women's Bathroom"
+        "POI": "Bathroom"
       }
     },
     {
@@ -456,7 +456,7 @@
       "label": "Men's Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Men's Bathroom"
+        "POI": "Bathroom"
       }
     },
     {
@@ -468,6 +468,9 @@
       "y": 1519,
       "label": "Women's Bathroom",
       "accessible": true
+      "metadata": {
+        "POI": "Bathroom"
+      }
     },
     {
       "id": "VL1_poi_4",
@@ -479,7 +482,7 @@
       "label": "Men's Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Men's Bathroom"
+        "POI": "Bathroom"
       }
     },
     {
@@ -1035,7 +1038,7 @@
       "label": "Women's Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Women's bathroom"
+        "POI": "Bathroom"
       }
     },
     {
@@ -1048,7 +1051,7 @@
       "label": "Men's Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Men's Bathroom"
+        "POI": "Bathroom"
       }
     },
     {
