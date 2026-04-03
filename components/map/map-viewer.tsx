@@ -954,13 +954,48 @@ export default function MapViewer({
     // Capture current values before swapping
     const currentStart = navCoords.start;
     const currentEnd = navCoords.end;
+    const currentStartSelection = selectedSearchLocations.start;
+    const currentEndSelection = selectedSearchLocations.end;
+    const currentStartLabel = selectionOverrides.start;
+    const currentEndLabel = selectionOverrides.end;
+
+    setRoutes(normalizeRoutes(EMPTY_ROUTES));
+    setShouldDisplayRoutes(false);
+
+    if (currentEnd && currentEndLabel) {
+      lastStartRef.current = { coord: currentEnd, label: currentEndLabel };
+      lastManualStartRef.current = { coord: currentEnd, label: currentEndLabel };
+    } else {
+      lastManualStartRef.current = { coord: null, label: "" };
+    }
+    lastManualStartSelectionRef.current = currentEndSelection;
+    userClearedStart.current = !currentEnd;
+    if (currentStart && currentStartLabel) {
+      lastDestinationRef.current = { coord: currentStart, label: currentStartLabel };
+    } else {
+      lastDestinationRef.current = { coord: null, label: "" };
+    }
 
     // Swap the coordinates
     setNavCoords({ start: currentEnd, end: currentStart });
-    setSelectedSearchLocations((prev) => ({ start: prev.end, end: prev.start }));
-    setSelectionOverrides((prev) => ({ start: prev.end, end: prev.start }));
+    setSelectedSearchLocations({
+      start: currentEndSelection,
+      end: currentStartSelection,
+    });
+    setSelectionOverrides({
+      start: currentEndLabel,
+      end: currentStartLabel,
+    });
     clearRouteRendering();
-  }, [clearRouteRendering, navCoords.start, navCoords.end]);
+  }, [
+    clearRouteRendering,
+    navCoords.start,
+    navCoords.end,
+    selectedSearchLocations.start,
+    selectedSearchLocations.end,
+    selectionOverrides.start,
+    selectionOverrides.end,
+  ]);
 
   const getSelectedBuildingCode = useCallback(
     (selected: SearchBuilding | null | undefined) => {

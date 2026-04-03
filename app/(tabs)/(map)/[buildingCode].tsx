@@ -360,7 +360,9 @@ export default function IndoorMap() {
 
   const handleSetWheelchairOnly = useCallback((value: boolean) => {
     setWheelchairOnly(value);
-    void IndoorMapSettings.setWheelchairOnly(value);
+    void IndoorMapSettings.setWheelchairOnly(value).catch(() => {
+      // Keep the in-memory setting if persistence is unavailable.
+    });
   }, []);
 
   useEffect(() => {
