@@ -1,10 +1,12 @@
 import React from "react";
 import { act, render, waitFor } from "@testing-library/react-native";
 import IndoorMap from "@/app/(tabs)/(map)/[buildingCode]";
+import { IndoorMapSettings } from "@/globals/IndoorMapSettingsStore";
 import { OutdoorStepResume } from "@/globals/OutdoorStepResumeStore";
 import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
 import { router, useLocalSearchParams } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
+import * as SecureStore from "expo-secure-store";
 
 const mockBuildingFloor = jest.fn((_: any) => null);
 const mockIndoorRoomFields = jest.fn((_: any) => null);
@@ -20,6 +22,20 @@ jest.mock("expo-router", () => ({
 jest.mock("@tanstack/react-query", () => ({
   useQuery: jest.fn(),
 }));
+
+jest.mock("expo-secure-store", () => {
+  const storage = new Map<string, string>();
+  return {
+    deleteItemAsync: jest.fn(async (key: string) => {
+      storage.delete(key);
+    }),
+    getItemAsync: jest.fn(async (key: string) => storage.get(key) ?? null),
+    setItemAsync: jest.fn(async (key: string, value: string) => {
+      storage.set(key, value);
+    }),
+    __reset: () => storage.clear(),
+  };
+});
 
 jest.mock("@/components/map/building-floor", () => (props: unknown) => {
   mockBuildingFloor(props);
@@ -45,6 +61,8 @@ const getLatestControlProps = () =>
 describe("IndoorMap step-driven navigation", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    IndoorMapSettings.reset();
+    (SecureStore as any).__reset();
     OutdoorStepResume.reset();
   });
 

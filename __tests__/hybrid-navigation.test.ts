@@ -546,6 +546,193 @@ describe("hybridNavigation", () => {
     expect(steps[0].html_instructions).toContain("Short Lower-Floor Entrance");
   });
 
+  it("prefers an accessible elevator entry over a shorter stair entry when accessibility is enabled", async () => {
+    const graphWithAccessibleEntryChoice: FloorCheckpointsGraph = {
+      checkpoints: {
+        LB301: {
+          id: "LB301",
+          type: "doorway",
+          buildingId: "LB",
+          floor: 3,
+          x: 500,
+          y: 500,
+          label: "LB-301",
+          accessible: true,
+        },
+        LB_F2_stair_entry: {
+          id: "LB_F2_stair_entry",
+          type: "building_entry_exit",
+          buildingId: "LB",
+          floor: 2,
+          x: 100,
+          y: 100,
+          label: "LB Stair Entry",
+          accessible: false,
+        },
+        LB_F2_elevator_entry: {
+          id: "LB_F2_elevator_entry",
+          type: "building_entry_exit",
+          buildingId: "LB",
+          floor: 2,
+          x: 900,
+          y: 900,
+          label: "LB Elevator Entry",
+          accessible: true,
+        },
+        LB_F2_hall_stair: {
+          id: "LB_F2_hall_stair",
+          type: "hallway",
+          buildingId: "LB",
+          floor: 2,
+          x: 400,
+          y: 400,
+          accessible: true,
+        },
+        LB_F2_hall_elevator: {
+          id: "LB_F2_hall_elevator",
+          type: "hallway",
+          buildingId: "LB",
+          floor: 2,
+          x: 600,
+          y: 600,
+          accessible: true,
+        },
+      },
+      adjacencySet: {
+        LB301: {
+          LB_F2_hall_stair: {
+            source: "LB301",
+            target: "LB_F2_hall_stair",
+            type: "stair",
+            weight: 1,
+            accessible: true,
+          },
+          LB_F2_hall_elevator: {
+            source: "LB301",
+            target: "LB_F2_hall_elevator",
+            type: "elevator",
+            weight: 3,
+            accessible: true,
+          },
+        },
+        LB_F2_hall_stair: {
+          LB301: {
+            source: "LB_F2_hall_stair",
+            target: "LB301",
+            type: "stair",
+            weight: 1,
+            accessible: true,
+          },
+          LB_F2_stair_entry: {
+            source: "LB_F2_hall_stair",
+            target: "LB_F2_stair_entry",
+            type: "hallway",
+            weight: 1,
+            accessible: true,
+          },
+        },
+        LB_F2_hall_elevator: {
+          LB301: {
+            source: "LB_F2_hall_elevator",
+            target: "LB301",
+            type: "elevator",
+            weight: 3,
+            accessible: true,
+          },
+          LB_F2_elevator_entry: {
+            source: "LB_F2_hall_elevator",
+            target: "LB_F2_elevator_entry",
+            type: "hallway",
+            weight: 1,
+            accessible: true,
+          },
+        },
+        LB_F2_stair_entry: {
+          LB_F2_hall_stair: {
+            source: "LB_F2_stair_entry",
+            target: "LB_F2_hall_stair",
+            type: "hallway",
+            weight: 1,
+            accessible: true,
+          },
+        },
+        LB_F2_elevator_entry: {
+          LB_F2_hall_elevator: {
+            source: "LB_F2_elevator_entry",
+            target: "LB_F2_hall_elevator",
+            type: "hallway",
+            weight: 1,
+            accessible: true,
+          },
+        },
+      },
+    };
+
+    jest.spyOn(NavigationLoader, "buildingHasNavigationData").mockReturnValue(true);
+    jest.spyOn(NavigationLoader, "loadBuildingData").mockResolvedValue({
+      buildingCode: "LB",
+      graphData: graphWithAccessibleEntryChoice,
+      images: {},
+      rooms: ["LB301"],
+    });
+
+    const lbBuilding: BuildingInfo = {
+      ...mockBuilding,
+      buildingCode: "LB",
+      buildingName: "J.W. McConnell Building",
+    };
+
+    const routesByMode: Record<TransportationMode, any[] | null> = {
+      walking: [{ ...routeTemplate }],
+      transit: null,
+      driving: null,
+      bicycling: null,
+      shuttle: null,
+    };
+
+    const selections = {
+      start: {
+        buildingCode: "LB301",
+        buildingName: "LB301",
+        address: "",
+        campus: "SGW",
+        parentBuildingCode: "LB",
+        roomName: "LB301",
+        isIndoorRoom: true,
+      },
+      end: {
+        buildingCode: "LB301",
+        buildingName: "LB301",
+        address: "",
+        campus: "SGW",
+        parentBuildingCode: "LB",
+        roomName: "LB301",
+        isIndoorRoom: true,
+      },
+    };
+
+    const defaultResult = await enrichRoutesWithIndoorTransitions(
+      routesByMode,
+      selections,
+      [lbBuilding],
+    );
+
+    const defaultSteps = defaultResult.walking?.[0]?.legs?.[0]?.steps ?? [];
+    expect(defaultSteps[0].html_instructions).toContain("LB Stair Entry");
+    expect(defaultSteps[2].html_instructions).toContain("LB Stair Entry");
+
+    const accessibleResult = await enrichRoutesWithIndoorTransitions(
+      routesByMode,
+      selections,
+      [lbBuilding],
+      { accessibleOnly: true },
+    );
+
+    const accessibleSteps = accessibleResult.walking?.[0]?.legs?.[0]?.steps ?? [];
+    expect(accessibleSteps[0].html_instructions).toContain("LB Elevator Entry");
+    expect(accessibleSteps[2].html_instructions).toContain("LB Elevator Entry");
+  });
+
   it("returns original routes when there are no room selections", async () => {
     const routesByMode: Record<TransportationMode, any[] | null> = {
       walking: [{ ...routeTemplate }],

@@ -3,6 +3,7 @@ import MapSettings from "@/components/map/indoor-map-settings";
 import IndoorNavigationControls from "@/components/map/indoor-navigation-controls";
 import IndoorRoomFields from "@/components/map/indoor-room-fields";
 import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
+import { IndoorMapSettings } from "@/globals/IndoorMapSettingsStore";
 import { OutdoorStepResume } from "@/globals/OutdoorStepResumeStore";
 import {
   BuildingFloorInfo,
@@ -20,7 +21,7 @@ import {
 } from "@/utils/roomSearch";
 import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function IndoorMap() {
@@ -70,12 +71,16 @@ export default function IndoorMap() {
   const [endRoom, setEndRoom] = useState("");
   const [routeError, setRouteError] = useState<string | undefined>(undefined);
   const [hasCheckpointDrivenRoute, setHasCheckpointDrivenRoute] = useState(false);
-  const [wheelchairOnly, setWheelchairOnly] = useState(false);
+  const [hasManualRouteAttempted, setHasManualRouteAttempted] = useState(false);
+  const [wheelchairOnly, setWheelchairOnly] = useState(
+    () => IndoorMapSettings.getCachedSettings().wheelchairOnly,
+  );
   const [poiFilters, setPoiFilters] = useState({
     bathrooms: false,
     elevators: false,
     washrooms: false,
   });
+  const previousWheelchairOnly = useRef(wheelchairOnly);
 
   const availableFloors: number[] = useMemo(() => {
     return floorInfo?.images
@@ -177,6 +182,16 @@ export default function IndoorMap() {
     [buildingCode, roomLookup, endRoom],
   );
   const canCreatePath = Boolean(validStartRoom && validEndRoom);
+  const noPathErrorMessage = useMemo(() => {
+    return wheelchairOnly
+      ? "No wheelchair-accessible indoor path was found between those rooms."
+      : "No indoor path was found between those rooms.";
+  }, [wheelchairOnly]);
+  const transitionPathErrorMessage = useMemo(() => {
+    return wheelchairOnly
+      ? "No wheelchair-accessible indoor path was found for this transition."
+      : "No indoor path was found for this transition.";
+  }, [wheelchairOnly]);
   const inputValidationError = useMemo(() => {
     const trimmedStartRoom = startRoom.trim();
     const trimmedEndRoom = endRoom.trim();
@@ -247,6 +262,7 @@ export default function IndoorMap() {
 
   const createPathFromRooms = useCallback(() => {
     setHasCheckpointDrivenRoute(false);
+    setHasManualRouteAttempted(true);
     if (!floorInfo) {
       return;
     }
@@ -308,9 +324,11 @@ export default function IndoorMap() {
       return;
     }
 
-    const path = findIndoorPath(graph, sourceCheckpoint.id, destinationCheckpoint.id);
+    const path = findIndoorPath(graph, sourceCheckpoint.id, destinationCheckpoint.id, {
+      accessibleOnly: wheelchairOnly,
+    });
     if (!path) {
-      setRouteError("No indoor path was found between those rooms.");
+      setRouteError(noPathErrorMessage);
       setNavigationPath(undefined);
       return;
     }
@@ -318,16 +336,52 @@ export default function IndoorMap() {
     setRouteError(undefined);
     setNavigationPath(path);
     setFloor(sourceCheckpoint.floor);
-  }, [buildingCode, endRoom, floorInfo, roomLookup, startRoom]);
+  }, [
+    buildingCode,
+    endRoom,
+    floorInfo,
+    noPathErrorMessage,
+    roomLookup,
+    startRoom,
+    wheelchairOnly,
+  ]);
 
   const handleChangeStartRoom = useCallback((room: string) => {
     setHasCheckpointDrivenRoute(false);
+    setHasManualRouteAttempted(false);
     setStartRoom(room);
   }, []);
 
   const handleChangeEndRoom = useCallback((room: string) => {
     setHasCheckpointDrivenRoute(false);
+    setHasManualRouteAttempted(false);
     setEndRoom(room);
+  }, []);
+
+  const handleSetWheelchairOnly = useCallback((value: boolean) => {
+    setWheelchairOnly(value);
+    void IndoorMapSettings.setWheelchairOnly(value).catch(() => {
+      // Keep the in-memory setting if persistence is unavailable.
+    });
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    IndoorMapSettings.getSettings()
+      .then((settings) => {
+        if (!isMounted) {
+          return;
+        }
+        setWheelchairOnly(settings.wheelchairOnly);
+      })
+      .catch(() => {
+        // Keep the in-memory default if persisted settings cannot be loaded.
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -468,9 +522,11 @@ export default function IndoorMap() {
       resolvedEndLabel = canonicalEndRoom;
     }
 
-    const path = findIndoorPath(graph, sourceCheckpoint.id, destinationCheckpoint.id);
+    const path = findIndoorPath(graph, sourceCheckpoint.id, destinationCheckpoint.id, {
+      accessibleOnly: wheelchairOnly,
+    });
     if (!path) {
-      setRouteError("No indoor path was found for this transition.");
+      setRouteError(transitionPathErrorMessage);
       setNavigationPath(undefined);
       setHasCheckpointDrivenRoute(false);
       return;
@@ -490,6 +546,34 @@ export default function IndoorMap() {
     buildingCode,
     floorInfo,
     roomLookup,
+    transitionPathErrorMessage,
+    wheelchairOnly,
+  ]);
+
+  useEffect(() => {
+    if (previousWheelchairOnly.current === wheelchairOnly) {
+      return;
+    }
+
+    previousWheelchairOnly.current = wheelchairOnly;
+
+    if (
+      hasCheckpointDrivenRoute ||
+      !hasManualRouteAttempted ||
+      !validStartRoom ||
+      !validEndRoom
+    ) {
+      return;
+    }
+
+    createPathFromRooms();
+  }, [
+    createPathFromRooms,
+    hasCheckpointDrivenRoute,
+    hasManualRouteAttempted,
+    validEndRoom,
+    validStartRoom,
+    wheelchairOnly,
   ]);
 
   useEffect(() => {
@@ -558,7 +642,7 @@ export default function IndoorMap() {
           />
           <MapSettings
             wheelchairOnly={wheelchairOnly} //TODO temp
-            setWheelchairOnly={setWheelchairOnly} //TODO temp
+            setWheelchairOnly={handleSetWheelchairOnly} //TODO temp
             poiFilters={poiFilters} //TODO temp
             setPoiFilters={setPoiFilters} //TODO temp
           />

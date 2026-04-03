@@ -2805,8 +2805,8 @@
       "type": "hallway_waypoint",
       "buildingId": "H",
       "floor": 9,
-      "x": 1055,
-      "y": 1211,
+      "x": 974,
+      "y": 1206,
       "label": "",
       "accessible": true
     },

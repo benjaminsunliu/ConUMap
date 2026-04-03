@@ -11,6 +11,12 @@ import { useLocalSearchParams, router } from "expo-router";
 const mockAnimateToRegion = jest.fn();
 let latestFocusEffect = null;
 
+jest.mock("expo-secure-store", () => ({
+  getItemAsync: jest.fn().mockResolvedValue(null),
+  setItemAsync: jest.fn(),
+  deleteItemAsync: jest.fn(),
+}));
+
 jest.mock("react-native-map-clustering", () => {
   const React = require("react");
   const { forwardRef, useImperativeHandle } = React;
@@ -3785,6 +3791,608 @@ describe("map tab", () => {
         const selections = enrichSpy.mock.calls.at(-1)?.[1];
         expect(selections?.start).toMatchObject({
           roomName: "VE101",
+          parentBuildingCode: "VE",
+          isIndoorRoom: true,
+        });
+      } finally {
+        enrichSpy.mockRestore();
+        useBuildingSearchSpy.mockRestore();
+      }
+    });
+
+    it("preserves the new room destination when routing again from browse mode with a saved room start", async () => {
+      const React = require("react");
+      const useBuildingSearchSpy = jest
+        .spyOn(SearchBuildingHook, "useBuildingSearch")
+        .mockImplementation(() => {
+          const [queries, setQueries] = React.useState({ start: "", end: "" });
+          const updateQuery = React.useCallback((type, text) => {
+            const nextValue = text || "";
+            setQueries((prev) =>
+              prev[type] === nextValue
+                ? prev
+                : {
+                    ...prev,
+                    [type]: nextValue,
+                  },
+            );
+          }, []);
+          const swapQueries = React.useCallback(() => {
+            setQueries((prev) => ({
+              start: prev.end,
+              end: prev.start,
+            }));
+          }, []);
+
+          return {
+            queries,
+            updateQuery,
+            swapQueries,
+            results: {
+              start: [],
+              end: [
+                {
+                  buildingCode: "VE101",
+                  buildingName: "VE101",
+                  address: "1400 De Maisonneuve Blvd. W.",
+                  campus: "SGW",
+                  parentBuildingCode: "VE",
+                  roomName: "VE101",
+                  isIndoorRoom: true,
+                },
+                {
+                  buildingCode: "LB101",
+                  buildingName: "LB101",
+                  address: "1400 René-Lévesque Blvd. W.",
+                  campus: "SGW",
+                  parentBuildingCode: "LB",
+                  roomName: "LB101",
+                  isIndoorRoom: true,
+                },
+              ],
+            },
+          };
+        });
+
+      const hybridNavigation = require("@/utils/hybridNavigation");
+      const baseRoutes = {
+        walking: [
+          {
+            summary: "Fast route",
+            overview_polyline: { points: "fast-overview" },
+            legs: [
+              {
+                distance: { text: "100 m", value: 100 },
+                duration: { text: "2 mins", value: 120 },
+                steps: [
+                  {
+                    distance: { text: "100 m", value: 100 },
+                    duration: { text: "2 mins", value: 120 },
+                    html_instructions: "Take the fast path",
+                    polyline: { points: "fast-step" },
+                    travel_mode: "WALK",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        transit: [],
+        driving: [],
+        bicycling: [],
+        shuttle: [],
+      };
+
+      fetchAllDirections.mockResolvedValue(baseRoutes);
+
+      const enrichSpy = jest
+        .spyOn(hybridNavigation, "enrichRoutesWithIndoorTransitions")
+        .mockImplementation(async (routes, selections) => {
+          if (
+            selections?.start?.roomName !== "VE101" ||
+            selections?.end?.roomName !== "LB101"
+          ) {
+            return routes;
+          }
+
+          const walkingRoute = routes.walking?.[0];
+          if (!walkingRoute) {
+            return routes;
+          }
+
+          return {
+            ...routes,
+            walking: [
+              {
+                ...walkingRoute,
+                legs: walkingRoute.legs.map((leg, index) =>
+                  index === 0
+                    ? {
+                        ...leg,
+                        steps: [
+                          ...leg.steps,
+                          {
+                            distance: { text: "8 indoor checkpoints", value: 8 },
+                            duration: { text: "Indoor segment", value: 0 },
+                            html_instructions:
+                              "Enter LB via LB Entry Exit 1 and continue indoors to room LB101.",
+                            maneuver: "",
+                            polyline: { points: "indoor-step" },
+                            travel_mode: "INDOOR",
+                          },
+                        ],
+                      }
+                    : leg,
+                ),
+              },
+            ],
+          };
+        });
+
+      try {
+        const mapViewer = render(<MapViewer />);
+        const mapView = mapViewer.getByTestId("map-view");
+
+        const browseInput = mapViewer.getByPlaceholderText("Search building");
+        await act(async () => {
+          fireEvent(browseInput, "onFocus");
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("end-result-VE101"));
+        });
+
+        await waitFor(() => {
+          expect(mapViewer.getByText("VE – Room VE101")).toBeTruthy();
+        });
+
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("start-action-button"));
+        });
+
+        await act(async () => {
+          fireEvent(mapView, "press", { nativeEvent: { action: "press" } });
+        });
+
+        const newDestinationInput = mapViewer.getByPlaceholderText("Search building");
+        await act(async () => {
+          fireEvent(newDestinationInput, "onFocus");
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("end-result-LB101"));
+        });
+
+        await waitFor(() => {
+          expect(mapViewer.getByText("LB – Room LB101")).toBeTruthy();
+        });
+
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("directions-action-button"));
+        });
+
+        await waitFor(() => {
+          expect(enrichSpy).toHaveBeenCalled();
+        });
+
+        const selections = enrichSpy.mock.calls.at(-1)?.[1];
+        expect(selections?.start).toMatchObject({
+          roomName: "VE101",
+          parentBuildingCode: "VE",
+          isIndoorRoom: true,
+        });
+        expect(selections?.end).toMatchObject({
+          roomName: "LB101",
+          parentBuildingCode: "LB",
+          isIndoorRoom: true,
+        });
+
+        await waitFor(() => {
+          expect(mapViewer.getByTestId("routes-info-popup")).toBeTruthy();
+        });
+
+        const routesPopup = mapViewer.getByTestId("routes-info-popup");
+        await act(async () => {
+          routesPopup.props.onResponderGrant({}, {});
+          routesPopup.props.onResponderMove({}, { dy: -300 });
+          routesPopup.props.onResponderRelease({}, { dy: -300, vy: -1 });
+        });
+
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("walking-route-0"));
+        });
+
+        await waitFor(() => {
+          expect(
+            mapViewer.getByText(
+              "Enter LB via LB Entry Exit 1 and continue indoors to room LB101.",
+            ),
+          ).toBeTruthy();
+        });
+      } finally {
+        enrichSpy.mockRestore();
+        useBuildingSearchSpy.mockRestore();
+      }
+    });
+
+    it("refreshes selected route details after swapping directions so new indoor steps appear", async () => {
+      const React = require("react");
+      const useBuildingSearchSpy = jest
+        .spyOn(SearchBuildingHook, "useBuildingSearch")
+        .mockImplementation(() => {
+          const [queries, setQueries] = React.useState({ start: "", end: "" });
+          const updateQuery = React.useCallback((type, text) => {
+            const nextValue = text || "";
+            setQueries((prev) =>
+              prev[type] === nextValue
+                ? prev
+                : {
+                    ...prev,
+                    [type]: nextValue,
+                  },
+            );
+          }, []);
+          const swapQueries = React.useCallback(() => {
+            setQueries((prev) => ({
+              start: prev.end,
+              end: prev.start,
+            }));
+          }, []);
+
+          return {
+            queries,
+            updateQuery,
+            swapQueries,
+            results: {
+              start: [],
+              end: [
+                {
+                  buildingCode: "VE101",
+                  buildingName: "VE101",
+                  address: "1400 De Maisonneuve Blvd. W.",
+                  campus: "SGW",
+                  parentBuildingCode: "VE",
+                  roomName: "VE101",
+                  isIndoorRoom: true,
+                },
+              ],
+            },
+          };
+        });
+
+      const hybridNavigation = require("@/utils/hybridNavigation");
+      const baseRoutes = {
+        walking: [
+          {
+            summary: "Fast route",
+            overview_polyline: { points: "fast-overview" },
+            legs: [
+              {
+                distance: { text: "100 m", value: 100 },
+                duration: { text: "2 mins", value: 120 },
+                steps: [
+                  {
+                    distance: { text: "100 m", value: 100 },
+                    duration: { text: "2 mins", value: 120 },
+                    html_instructions: "Take the fast path",
+                    polyline: { points: "fast-step" },
+                    travel_mode: "WALK",
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            summary: "Scenic route",
+            overview_polyline: { points: "scenic-overview" },
+            legs: [
+              {
+                distance: { text: "140 m", value: 140 },
+                duration: { text: "3 mins", value: 180 },
+                steps: [
+                  {
+                    distance: { text: "140 m", value: 140 },
+                    duration: { text: "3 mins", value: 180 },
+                    html_instructions: "Walk along the courtyard",
+                    polyline: { points: "scenic-step" },
+                    travel_mode: "WALK",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        transit: [],
+        driving: [],
+        bicycling: [],
+        shuttle: [],
+      };
+
+      fetchAllDirections.mockResolvedValue(baseRoutes);
+
+      const enrichSpy = jest
+        .spyOn(hybridNavigation, "enrichRoutesWithIndoorTransitions")
+        .mockImplementation(async (routes) => {
+          const walkingRoutes = routes.walking ?? [];
+          const scenicRoute = walkingRoutes[1];
+
+          if (enrichSpy.mock.calls.length === 1 || !scenicRoute) {
+            return routes;
+          }
+
+          return {
+            ...routes,
+            walking: [
+              walkingRoutes[0],
+              {
+                ...scenicRoute,
+                legs: scenicRoute.legs.map((leg, index) =>
+                  index === 0
+                    ? {
+                        ...leg,
+                        steps: [
+                          ...leg.steps,
+                          {
+                            distance: { text: "8 indoor checkpoints", value: 8 },
+                            duration: { text: "Indoor segment", value: 0 },
+                            html_instructions:
+                              "Enter VE via Room Entrance and continue indoors to room VE101.",
+                            maneuver: "",
+                            polyline: { points: "indoor-step" },
+                            travel_mode: "INDOOR",
+                          },
+                        ],
+                      }
+                    : leg,
+                ),
+              },
+            ],
+          };
+        });
+
+      try {
+        const mapViewer = render(<MapViewer />);
+        const mapView = mapViewer.getByTestId("map-view");
+
+        fireEvent(mapView, "onUserLocationChange", {
+          nativeEvent: { coordinate: { latitude: 45.495, longitude: -73.579 } },
+        });
+
+        const searchInput = mapViewer.getByPlaceholderText("Search building");
+        await act(async () => {
+          fireEvent(searchInput, "onFocus");
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("end-result-VE101"));
+        });
+
+        await waitFor(() => {
+          expect(mapViewer.getByText("VE – Room VE101")).toBeTruthy();
+        });
+
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("directions-action-button"));
+        });
+
+        await waitFor(() => {
+          expect(mapViewer.getByTestId("routes-info-popup")).toBeTruthy();
+        });
+
+        const firstPopup = mapViewer.getByTestId("routes-info-popup");
+        await act(async () => {
+          firstPopup.props.onResponderGrant({}, {});
+          firstPopup.props.onResponderMove({}, { dy: -300 });
+          firstPopup.props.onResponderRelease({}, { dy: -300, vy: -1 });
+        });
+
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("walking-route-1"));
+        });
+
+        expect(
+          mapViewer.queryByText(
+            "Enter VE via Room Entrance and continue indoors to room VE101.",
+          ),
+        ).toBeNull();
+
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("swap-fields"));
+        });
+
+        await waitFor(() => {
+          expect(mapViewer.queryByText("Back to routes")).toBeNull();
+        });
+
+        await waitFor(() => {
+          expect(mapViewer.getByTestId("routes-info-popup")).toBeTruthy();
+        });
+
+        const secondPopup = mapViewer.getByTestId("routes-info-popup");
+        await act(async () => {
+          secondPopup.props.onResponderGrant({}, {});
+          secondPopup.props.onResponderMove({}, { dy: -300 });
+          secondPopup.props.onResponderRelease({}, { dy: -300, vy: -1 });
+        });
+
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("walking-route-1"));
+        });
+
+        await waitFor(() => {
+          expect(
+            mapViewer.getByText(
+              "Enter VE via Room Entrance and continue indoors to room VE101.",
+            ),
+          ).toBeTruthy();
+        });
+      } finally {
+        enrichSpy.mockRestore();
+        useBuildingSearchSpy.mockRestore();
+      }
+    });
+
+    it("reuses the swapped room as the saved start when routing again from browse mode", async () => {
+      const React = require("react");
+      const useBuildingSearchSpy = jest
+        .spyOn(SearchBuildingHook, "useBuildingSearch")
+        .mockImplementation(() => {
+          const [queries, setQueries] = React.useState({ start: "", end: "" });
+          const updateQuery = React.useCallback((type, text) => {
+            const nextValue = text || "";
+            setQueries((prev) =>
+              prev[type] === nextValue
+                ? prev
+                : {
+                    ...prev,
+                    [type]: nextValue,
+                  },
+            );
+          }, []);
+          const swapQueries = React.useCallback(() => {
+            setQueries((prev) => ({
+              start: prev.end,
+              end: prev.start,
+            }));
+          }, []);
+
+          return {
+            queries,
+            updateQuery,
+            swapQueries,
+            results: {
+              start: [],
+              end: [
+                {
+                  buildingCode: "VE101",
+                  buildingName: "VE101",
+                  address: "1400 De Maisonneuve Blvd. W.",
+                  campus: "SGW",
+                  parentBuildingCode: "VE",
+                  roomName: "VE101",
+                  isIndoorRoom: true,
+                },
+                {
+                  buildingCode: "LB101",
+                  buildingName: "LB101",
+                  address: "1400 René-Lévesque Blvd. W.",
+                  campus: "SGW",
+                  parentBuildingCode: "LB",
+                  roomName: "LB101",
+                  isIndoorRoom: true,
+                },
+                {
+                  buildingCode: "VE201",
+                  buildingName: "VE201",
+                  address: "1400 De Maisonneuve Blvd. W.",
+                  campus: "SGW",
+                  parentBuildingCode: "VE",
+                  roomName: "VE201",
+                  isIndoorRoom: true,
+                },
+              ],
+            },
+          };
+        });
+
+      const hybridNavigation = require("@/utils/hybridNavigation");
+      const enrichSpy = jest
+        .spyOn(hybridNavigation, "enrichRoutesWithIndoorTransitions")
+        .mockImplementation(async (routes) => routes);
+
+      fetchAllDirections.mockResolvedValue({
+        walking: [
+          {
+            summary: "",
+            overview_polyline: { points: "poly" },
+            legs: [
+              {
+                distance: { text: "100 m", value: 100 },
+                duration: { text: "2 mins", value: 120 },
+                steps: [
+                  {
+                    distance: { text: "100 m", value: 100 },
+                    duration: { text: "2 mins", value: 120 },
+                    html_instructions: "Head north",
+                    polyline: { points: "abcd" },
+                    travel_mode: "WALK",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        transit: [],
+        driving: [],
+        bicycling: [],
+        shuttle: [],
+      });
+
+      try {
+        const mapViewer = render(<MapViewer />);
+        const mapView = mapViewer.getByTestId("map-view");
+
+        const browseInput = mapViewer.getByPlaceholderText("Search building");
+        await act(async () => {
+          fireEvent(browseInput, "onFocus");
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("end-result-VE101"));
+        });
+
+        await waitFor(() => {
+          expect(mapViewer.getByText("VE – Room VE101")).toBeTruthy();
+        });
+
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("start-action-button"));
+        });
+
+        const destinationInput = mapViewer.getByPlaceholderText("Destination");
+        await act(async () => {
+          fireEvent(destinationInput, "onFocus");
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("end-result-LB101"));
+        });
+
+        await waitFor(() => {
+          expect(enrichSpy).toHaveBeenCalled();
+        });
+
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("swap-fields"));
+        });
+
+        await act(async () => {
+          fireEvent(mapView, "press", { nativeEvent: { action: "press" } });
+        });
+
+        const nextBrowseInput = mapViewer.getByPlaceholderText("Search building");
+        await act(async () => {
+          fireEvent(nextBrowseInput, "onFocus");
+        });
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("end-result-VE201"));
+        });
+
+        await waitFor(() => {
+          expect(mapViewer.getByText("VE – Room VE201")).toBeTruthy();
+        });
+
+        await act(async () => {
+          fireEvent.press(mapViewer.getByTestId("directions-action-button"));
+        });
+
+        await waitFor(() => {
+          expect(enrichSpy.mock.calls.length).toBeGreaterThan(1);
+        });
+
+        const selections = enrichSpy.mock.calls.at(-1)?.[1];
+        expect(selections?.start).toMatchObject({
+          roomName: "LB101",
+          parentBuildingCode: "LB",
+          isIndoorRoom: true,
+        });
+        expect(selections?.end).toMatchObject({
+          roomName: "VE201",
           parentBuildingCode: "VE",
           isIndoorRoom: true,
         });

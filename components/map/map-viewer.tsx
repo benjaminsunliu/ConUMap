@@ -1,6 +1,7 @@
 import { CAMPUS_BUILDINGS } from "@/constants/map";
 import { Colors } from "@/constants/theme";
 import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
+import { IndoorMapSettings } from "@/globals/IndoorMapSettingsStore";
 import { OutdoorRouteStep, OutdoorStepResume } from "@/globals/OutdoorStepResumeStore";
 import { ColorSchemeName, useColorScheme } from "@/hooks/use-color-scheme";
 import { FieldType, SearchBuilding, TransportationMode } from "@/types/buildingTypes";
@@ -496,6 +497,9 @@ export default function MapViewer({
         const fetchedRoutes = normalizeRoutes(
           await fetchAllDirections(routeStart, routeEnd),
         );
+        const indoorSettings = await IndoorMapSettings.getSettings().catch(() =>
+          IndoorMapSettings.getCachedSettings(),
+        );
         const nextRoutes = await enrichRoutesWithIndoorTransitions(
           fetchedRoutes,
           {
@@ -503,6 +507,9 @@ export default function MapViewer({
             end: endSelection,
           },
           CAMPUS_BUILDINGS,
+          {
+            accessibleOnly: indoorSettings.wheelchairOnly,
+          },
         );
         if (!cancelled) {
           setRoutes(normalizeRoutes(nextRoutes));
@@ -947,13 +954,48 @@ export default function MapViewer({
     // Capture current values before swapping
     const currentStart = navCoords.start;
     const currentEnd = navCoords.end;
+    const currentStartSelection = selectedSearchLocations.start;
+    const currentEndSelection = selectedSearchLocations.end;
+    const currentStartLabel = selectionOverrides.start;
+    const currentEndLabel = selectionOverrides.end;
+
+    setRoutes(normalizeRoutes(EMPTY_ROUTES));
+    setShouldDisplayRoutes(false);
+
+    if (currentEnd && currentEndLabel) {
+      lastStartRef.current = { coord: currentEnd, label: currentEndLabel };
+      lastManualStartRef.current = { coord: currentEnd, label: currentEndLabel };
+    } else {
+      lastManualStartRef.current = { coord: null, label: "" };
+    }
+    lastManualStartSelectionRef.current = currentEndSelection;
+    userClearedStart.current = !currentEnd;
+    if (currentStart && currentStartLabel) {
+      lastDestinationRef.current = { coord: currentStart, label: currentStartLabel };
+    } else {
+      lastDestinationRef.current = { coord: null, label: "" };
+    }
 
     // Swap the coordinates
     setNavCoords({ start: currentEnd, end: currentStart });
-    setSelectedSearchLocations((prev) => ({ start: prev.end, end: prev.start }));
-    setSelectionOverrides((prev) => ({ start: prev.end, end: prev.start }));
+    setSelectedSearchLocations({
+      start: currentEndSelection,
+      end: currentStartSelection,
+    });
+    setSelectionOverrides({
+      start: currentEndLabel,
+      end: currentStartLabel,
+    });
     clearRouteRendering();
-  }, [clearRouteRendering, navCoords.start, navCoords.end]);
+  }, [
+    clearRouteRendering,
+    navCoords.start,
+    navCoords.end,
+    selectedSearchLocations.start,
+    selectedSearchLocations.end,
+    selectionOverrides.start,
+    selectionOverrides.end,
+  ]);
 
   const getSelectedBuildingCode = useCallback(
     (selected: SearchBuilding | null | undefined) => {
