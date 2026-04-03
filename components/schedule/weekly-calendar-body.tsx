@@ -16,6 +16,7 @@ import { Colors } from "@/constants/theme";
 import { ClassSchedule } from "@/hooks/use-calendar";
 import { DayOfWeek } from "@/types/dayOfWeek";
 import { router } from "expo-router";
+import { buildClassMapNavigationParams } from "@/utils/classMapDestination";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const HOURS = Array.from(
@@ -119,11 +120,12 @@ export default function WeeklyCalendarBody({
     date.getMonth() === today.getMonth() &&
     date.getFullYear() === today.getFullYear();
 
-  function handleNextClassPress() {
+  async function handleNextClassPress() {
     if (!nextClass) return;
+    const params = await buildClassMapNavigationParams(nextClass);
     router.navigate({
       pathname: "/",
-      params: { buildingId: nextClass.CU_BLDG, autoNavigate: "true" },
+      params,
     });
   }
 

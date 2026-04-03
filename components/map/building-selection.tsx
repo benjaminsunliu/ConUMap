@@ -1,4 +1,11 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import {
   View,
   TextInput,
@@ -22,9 +29,104 @@ interface Props {
   readonly selectedBuilding?: SearchBuilding | null;
   readonly onSelect: (buildings: SearchInput, type: FieldType) => void;
   readonly onSwap?: () => void;
+  readonly onFocusChange?: (isFocused: boolean) => void;
   readonly startOverride?: string | null;
   readonly endOverride?: string | null;
   readonly startHint?: string | null;
+}
+
+const getSelectionDisplayLabel = (selection: SearchBuilding) => {
+  if (selection.buildingCode === CURRENT_LOCATION_CODE) {
+    return "Current Location";
+  }
+
+  const roomLabel = (selection.roomName ?? "").trim();
+  if (selection.isIndoorRoom && roomLabel) {
+    return roomLabel;
+  }
+
+  return selection.buildingName;
+};
+
+type UpdateQuery = (type: FieldType, value: string) => void;
+type SetSelectedBuildings = Dispatch<SetStateAction<SearchInput>>;
+
+function shouldPreserveRoomSelection(
+  currentSelection: SearchBuilding | null | undefined,
+  selectedBuilding: SearchBuilding,
+) {
+  return Boolean(
+    currentSelection?.isIndoorRoom &&
+    currentSelection.parentBuildingCode === selectedBuilding.buildingCode,
+  );
+}
+
+function getPreservedSelectionLabel(selection: SearchBuilding | null | undefined) {
+  return selection?.roomName ?? selection?.buildingName ?? "";
+}
+
+function syncBrowseSelection({
+  selectedBuilding,
+  previousSelectedBuilding,
+  currentEndSelection,
+  updateQuery,
+  setSelectedBuildings,
+}: {
+  selectedBuilding?: SearchBuilding | null;
+  previousSelectedBuilding?: SearchBuilding | null;
+  currentEndSelection: SearchBuilding | null;
+  updateQuery: UpdateQuery;
+  setSelectedBuildings: SetSelectedBuildings;
+}) {
+  if (selectedBuilding) {
+    if (shouldPreserveRoomSelection(currentEndSelection, selectedBuilding)) {
+      updateQuery("end", getPreservedSelectionLabel(currentEndSelection));
+      return;
+    }
+
+    updateQuery("end", selectedBuilding.buildingName);
+    setSelectedBuildings((prev) => ({ ...prev, end: selectedBuilding }));
+    return;
+  }
+
+  if (selectedBuilding !== previousSelectedBuilding) {
+    updateQuery("end", "");
+    setSelectedBuildings((prev) => ({ ...prev, end: null }));
+  }
+}
+
+function syncFocusedSelection({
+  field,
+  selectedBuilding,
+  currentSelection,
+  updateQuery,
+  setSelectedBuildings,
+}: {
+  field: FieldType | null;
+  selectedBuilding?: SearchBuilding | null;
+  currentSelection: SearchBuilding | null;
+  updateQuery: UpdateQuery;
+  setSelectedBuildings: SetSelectedBuildings;
+}) {
+  if (!field || !selectedBuilding) {
+    return;
+  }
+
+  if (shouldPreserveRoomSelection(currentSelection, selectedBuilding)) {
+    updateQuery(field, getPreservedSelectionLabel(currentSelection));
+    return;
+  }
+
+  updateQuery(field, selectedBuilding.buildingName);
+  setSelectedBuildings((prev) => ({ ...prev, [field]: selectedBuilding }));
+}
+
+function getSearchResultLabel(item: SearchBuilding) {
+  if (item.isIndoorRoom && item.parentBuildingCode) {
+    return `${item.parentBuildingCode} – ${item.roomName ?? item.buildingName}`;
+  }
+
+  return `${item.buildingCode} – ${item.buildingName}`;
 }
 
 export default function BuildingSelection({
@@ -34,6 +136,7 @@ export default function BuildingSelection({
   selectedBuilding,
   onSelect,
   onSwap,
+  onFocusChange,
   startOverride,
   endOverride,
   startHint,
@@ -56,6 +159,10 @@ export default function BuildingSelection({
   const endInputRef = useRef<TextInput>(null);
   const selectedBuildingsRef = useRef(selectedBuildings);
   const selectedBuildingRef = useRef(selectedBuilding);
+  const suppressSelectionChangeRef = useRef<Record<FieldType, boolean>>({
+    start: false,
+    end: false,
+  });
 
   const removeInputFocus = useCallback((type: FieldType) => {
     if (type === "start") {
@@ -76,6 +183,10 @@ export default function BuildingSelection({
 
   const handleChange = useCallback(
     (text: string, type: FieldType) => {
+      if (suppressSelectionChangeRef.current[type]) {
+        suppressSelectionChangeRef.current[type] = false;
+        return;
+      }
       updateQuery(type, text);
       setSelectedBuildings((prev) => ({ ...prev, [type]: null }));
     },
@@ -84,7 +195,8 @@ export default function BuildingSelection({
 
   const handleSelect = useCallback(
     (building: SearchBuilding, type: FieldType) => {
-      updateQuery(type, building.buildingName);
+      suppressSelectionChangeRef.current[type] = true;
+      updateQuery(type, getSelectionDisplayLabel(building));
       const updated = { ...selectedBuildingsRef.current, [type]: building };
       setSelectedBuildings(updated);
       onSelect(updated, type);
@@ -95,6 +207,7 @@ export default function BuildingSelection({
 
   const clearField = useCallback(
     (type: FieldType) => {
+      suppressSelectionChangeRef.current[type] = false;
       updateQuery(type, "");
       const updated = { ...selectedBuildingsRef.current, [type]: null };
       setSelectedBuildings(updated);
@@ -105,6 +218,10 @@ export default function BuildingSelection({
   );
 
   const swapFields = useCallback(() => {
+    suppressSelectionChangeRef.current = {
+      start: false,
+      end: false,
+    };
     swapQueries();
     const swapped = {
       start: selectedBuildingsRef.current.end,
@@ -119,25 +236,38 @@ export default function BuildingSelection({
     selectedBuildingsRef.current = selectedBuildings;
   }, [selectedBuildings]);
   useEffect(() => {
-    if (mode === "browse" && selectedBuilding) {
-      updateQuery("end", selectedBuilding.buildingName);
-      setSelectedBuildings((prev) => ({ ...prev, end: selectedBuilding }));
-    } else if (selectedBuilding !== selectedBuildingRef.current) {
-      if (!selectedBuilding || selectedBuilding === null) {
-        if (mode === "browse") {
-          updateQuery("end", "");
-          setSelectedBuildings((prev) => ({ ...prev, end: null }));
-        } else {
-          updateQuery("start", "");
-          setSelectedBuildings((prev) => ({ ...prev, start: null }));
-        }
-      } else if (focusedField) {
-        updateQuery(focusedField, selectedBuilding.buildingName);
-        setSelectedBuildings((prev) => ({ ...prev, [focusedField]: selectedBuilding }));
-      }
+    const previousSelectedBuilding = selectedBuildingRef.current;
+
+    if (mode === "browse") {
+      syncBrowseSelection({
+        selectedBuilding,
+        previousSelectedBuilding,
+        currentEndSelection: selectedBuildingsRef.current.end,
+        updateQuery,
+        setSelectedBuildings,
+      });
+      selectedBuildingRef.current = selectedBuilding;
+      return;
     }
+
+    if (selectedBuilding !== previousSelectedBuilding) {
+      syncFocusedSelection({
+        field: focusedField,
+        selectedBuilding,
+        currentSelection: focusedField
+          ? selectedBuildingsRef.current[focusedField]
+          : null,
+        updateQuery,
+        setSelectedBuildings,
+      });
+    }
+
     selectedBuildingRef.current = selectedBuilding;
   }, [focusedField, mode, selectedBuilding, updateQuery]);
+
+  useEffect(() => {
+    onFocusChange?.(focusedField !== null);
+  }, [focusedField, onFocusChange]);
 
   const renderInput = useCallback(
     (type: FieldType, placeholder: string) => {
@@ -165,7 +295,10 @@ export default function BuildingSelection({
             placeholder={placeholder}
             placeholderTextColor={theme.placeholder}
             value={value}
-            onFocus={() => setFocusedField(type)}
+            onFocus={() => {
+              suppressSelectionChangeRef.current[type] = false;
+              setFocusedField(type);
+            }}
             onBlur={() => setFocusedField((prev) => (prev === type ? null : prev))}
             onChangeText={(text) => handleChange(text, type)}
             textAlign="left"
@@ -234,6 +367,7 @@ export default function BuildingSelection({
           renderItem={({ item }) => {
             const isSentinel = item.buildingCode === CURRENT_LOCATION_CODE;
             const isCurrent = currentBuildingCodes.has(item.buildingCode);
+            const resultLabel = getSearchResultLabel(item);
             return (
               <TouchableOpacity
                 style={[
@@ -254,7 +388,7 @@ export default function BuildingSelection({
                   ) : (
                     <>
                       {isCurrent && "📍 "}
-                      {item.buildingCode} – {item.buildingName}
+                      {resultLabel}
                       {isCurrent && (
                         <Text style={styles.currentLabel}> (Current Building)</Text>
                       )}
