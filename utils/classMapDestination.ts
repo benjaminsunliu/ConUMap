@@ -1,12 +1,11 @@
 import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
 import { ClassSchedule } from "@/hooks/use-calendar";
-import { BuildingCode } from "@/types/mapTypes";
 import { buildRoomLookup, resolveCanonicalRoom } from "@/utils/roomSearch";
 
 type ClassLocationFields = Pick<ClassSchedule, "CU_BLDG" | "ROOM">;
 
 export async function resolveSupportedClassRoom({ CU_BLDG, ROOM }: ClassLocationFields) {
-  const buildingCode = CU_BLDG.trim().toUpperCase() as BuildingCode;
+  const buildingCode = CU_BLDG.trim().toUpperCase();
   const roomQuery = ROOM.trim();
 
   if (!buildingCode || !roomQuery) {
