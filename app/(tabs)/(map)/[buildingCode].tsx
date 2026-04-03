@@ -152,7 +152,7 @@ export default function IndoorMap() {
       return `${instruction} Continue to the outdoor route on the next step.`;
     }
 
-    return instruction || undefined;
+    return instruction;
   }, [
     floorInfo,
     navigationPath,

@@ -247,14 +247,14 @@ describe("describeIndoorStep", () => {
     expect(instruction).toBe("Arrive at H820.");
   });
 
-  it("returns an empty instruction for empty or invalid path steps", () => {
+  it("returns undefined for empty or invalid path steps", () => {
     expect(
       describeIndoorStep({
         graph,
         path: [],
         stepIndex: 0,
       }),
-    ).toBe("");
+    ).toBeUndefined();
 
     expect(
       describeIndoorStep({
@@ -262,7 +262,7 @@ describe("describeIndoorStep", () => {
         path: ["missing"],
         stepIndex: 0,
       }),
-    ).toBe("");
+    ).toBeUndefined();
 
     expect(
       describeIndoorStep({
@@ -270,7 +270,7 @@ describe("describeIndoorStep", () => {
         path: ["A", "missing"],
         stepIndex: 0,
       }),
-    ).toBe("");
+    ).toBeUndefined();
   });
 
   it("describes doorway transitions and the default start instruction", () => {

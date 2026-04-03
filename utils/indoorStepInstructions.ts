@@ -14,7 +14,25 @@ type IndoorStepInstructionOptions = {
 };
 
 type FloorDirection = "up" | "down";
+const INDOOR_EDGE_TYPES = {
+  DOOR_TO_HALLWAY: "door_to_hallway",
+  ELEVATOR: "elevator",
+  ESCALATOR: "escalator",
+  ROOM_TO_DOOR: "room_to_door",
+  STAIR: "stair",
+} as const;
 
+type IndoorEdgeType = (typeof INDOOR_EDGE_TYPES)[keyof typeof INDOOR_EDGE_TYPES];
+
+const TURN_ANGLE_THRESHOLDS = {
+  CONTINUE_STRAIGHT: 20,
+  KEEP_TURN: 55,
+  STANDARD_TURN: 140,
+  SHARP_TURN: 170,
+} as const;
+
+// Returns undefined when there is no reliable user-facing instruction for the
+// current graph/path state.
 export function describeIndoorStep({
   graph,
   path,
@@ -22,15 +40,15 @@ export function describeIndoorStep({
   nextStepIndex,
   startLabel,
   endLabel,
-}: IndoorStepInstructionOptions) {
+}: IndoorStepInstructionOptions): string | undefined {
   if (!Array.isArray(path) || path.length === 0) {
-    return "";
+    return undefined;
   }
 
   const boundedStepIndex = Math.min(Math.max(stepIndex, 0), path.length - 1);
   const current = graph.checkpoints[path[boundedStepIndex]];
   if (!current) {
-    return "";
+    return undefined;
   }
 
   if (boundedStepIndex >= path.length - 1) {
@@ -46,7 +64,7 @@ export function describeIndoorStep({
   );
   const next = graph.checkpoints[path[boundedNextStepIndex]];
   if (!next) {
-    return "";
+    return undefined;
   }
   const previous =
     boundedStepIndex > 0 ? graph.checkpoints[path[boundedStepIndex - 1]] : undefined;
@@ -73,10 +91,10 @@ export function describeIndoorStep({
     return verticalInstruction;
   }
 
-  if (edgeType === "room_to_door") {
+  if (edgeType === INDOOR_EDGE_TYPES.ROOM_TO_DOOR) {
     return "Exit the room and continue to the hallway.";
   }
-  if (edgeType === "door_to_hallway") {
+  if (edgeType === INDOOR_EDGE_TYPES.DOOR_TO_HALLWAY) {
     return "Continue through the doorway.";
   }
 
@@ -94,25 +112,31 @@ export function describeIndoorStep({
 function getVerticalInstruction(
   current: FloorCheckpoint,
   next: FloorCheckpoint,
-  edgeType: string,
+  edgeType: IndoorEdgeType | undefined,
   segmentUsesEscalator = false,
-) {
+): string | undefined {
   const floorDelta = next.floor - current.floor;
   const floorDirection = getFloorDirection(floorDelta);
   const nextFloorLabel = formatFloor(next.floor);
   const usesEscalator =
-    segmentUsesEscalator || current.type === "escalator" || next.type === "escalator";
+    segmentUsesEscalator ||
+    current.type === INDOOR_EDGE_TYPES.ESCALATOR ||
+    next.type === INDOOR_EDGE_TYPES.ESCALATOR;
 
-  if (edgeType === "elevator") {
+  if (edgeType === INDOOR_EDGE_TYPES.ELEVATOR) {
     return getVerticalTravelInstruction("elevator", floorDirection, nextFloorLabel);
   }
 
-  if (edgeType === "stair") {
+  if (edgeType === INDOOR_EDGE_TYPES.STAIR) {
     return getVerticalTravelInstruction(
       usesEscalator ? "escalator" : "stairs",
       floorDirection,
       nextFloorLabel,
     );
+  }
+
+  if (edgeType === INDOOR_EDGE_TYPES.ESCALATOR) {
+    return getVerticalTravelInstruction("escalator", floorDirection, nextFloorLabel);
   }
 
   if (usesEscalator && floorDirection) {
@@ -123,7 +147,7 @@ function getVerticalInstruction(
     return `Go ${floorDirection} to Floor ${nextFloorLabel}.`;
   }
 
-  return "";
+  return undefined;
 }
 
 function getFloorDirection(floorDelta: number): FloorDirection | undefined {
@@ -155,37 +179,53 @@ function getSegmentEdgeType(
   path: IndoorNavigationPath,
   startIndex: number,
   endIndex: number,
-) {
+): IndoorEdgeType | undefined {
   if (endIndex <= startIndex) {
-    return "";
+    return undefined;
   }
 
-  const edgeTypes = new Set<string>();
+  const edgeTypes = new Set<IndoorEdgeType>();
   for (let i = startIndex; i < endIndex; i++) {
     const from = graph.checkpoints[path[i]];
     const to = graph.checkpoints[path[i + 1]];
     if (!from || !to) {
       continue;
     }
-    const edgeType = graph.adjacencySet[from.id]?.[to.id]?.type;
+    const edgeType = normalizeIndoorEdgeType(graph.adjacencySet[from.id]?.[to.id]?.type);
     if (edgeType) {
       edgeTypes.add(edgeType);
     }
   }
 
-  if (edgeTypes.has("elevator")) {
-    return "elevator";
+  if (edgeTypes.has(INDOOR_EDGE_TYPES.ELEVATOR)) {
+    return INDOOR_EDGE_TYPES.ELEVATOR;
   }
-  if (edgeTypes.has("stair")) {
-    return "stair";
+  if (edgeTypes.has(INDOOR_EDGE_TYPES.STAIR)) {
+    return INDOOR_EDGE_TYPES.STAIR;
   }
-  if (edgeTypes.has("escalator")) {
-    return "escalator";
+  if (edgeTypes.has(INDOOR_EDGE_TYPES.ESCALATOR)) {
+    return INDOOR_EDGE_TYPES.ESCALATOR;
   }
-  if (edgeTypes.size > 0) {
-    return [...edgeTypes][0];
+  if (edgeTypes.has(INDOOR_EDGE_TYPES.ROOM_TO_DOOR)) {
+    return INDOOR_EDGE_TYPES.ROOM_TO_DOOR;
   }
-  return "";
+  if (edgeTypes.has(INDOOR_EDGE_TYPES.DOOR_TO_HALLWAY)) {
+    return INDOOR_EDGE_TYPES.DOOR_TO_HALLWAY;
+  }
+  return undefined;
+}
+
+function normalizeIndoorEdgeType(edgeType: string | undefined): IndoorEdgeType | undefined {
+  switch (edgeType) {
+    case INDOOR_EDGE_TYPES.DOOR_TO_HALLWAY:
+    case INDOOR_EDGE_TYPES.ELEVATOR:
+    case INDOOR_EDGE_TYPES.ESCALATOR:
+    case INDOOR_EDGE_TYPES.ROOM_TO_DOOR:
+    case INDOOR_EDGE_TYPES.STAIR:
+      return edgeType;
+    default:
+      return undefined;
+  }
 }
 
 function segmentUsesEscalator(
@@ -196,7 +236,7 @@ function segmentUsesEscalator(
 ) {
   for (let i = startIndex; i <= endIndex; i++) {
     const checkpoint = graph.checkpoints[path[i]];
-    if (checkpoint?.type === "escalator") {
+    if (checkpoint?.type === INDOOR_EDGE_TYPES.ESCALATOR) {
       return true;
     }
   }
@@ -231,16 +271,16 @@ function getTurnInstruction(
   const absAngleDegrees = Math.abs(signedAngleDegrees);
   const isLeftTurn = signedAngleDegrees > 0;
 
-  if (absAngleDegrees < 20) {
+  if (absAngleDegrees < TURN_ANGLE_THRESHOLDS.CONTINUE_STRAIGHT) {
     return "Continue straight.";
   }
-  if (absAngleDegrees < 55) {
+  if (absAngleDegrees < TURN_ANGLE_THRESHOLDS.KEEP_TURN) {
     return isLeftTurn ? "Keep left." : "Keep right.";
   }
-  if (absAngleDegrees < 140) {
+  if (absAngleDegrees < TURN_ANGLE_THRESHOLDS.STANDARD_TURN) {
     return isLeftTurn ? "Turn left." : "Turn right.";
   }
-  if (absAngleDegrees < 170) {
+  if (absAngleDegrees < TURN_ANGLE_THRESHOLDS.SHARP_TURN) {
     return isLeftTurn ? "Make a sharp left." : "Make a sharp right.";
   }
   return "Turn around.";
