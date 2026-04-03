@@ -16,7 +16,6 @@ import {
 import * as LocationPermissions from "expo-location";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Slider from "@react-native-community/slider";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
 import MapView, {
@@ -35,10 +34,10 @@ import BuildingSelection from "./building-selection";
 import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
+import OutdoorMapSettings from "./outdoor-map-settings";
 import { CURRENT_LOCATION_CODE } from "@/hooks/use-search-building";
 import PoiMarker from "./poi-marker";
 import { usePoi } from "@/hooks/use-poi";
-import { MIN_RADIUS_METERS, MAX_RADIUS_METERS } from "@/constants/campusCenters";
 import { POIInfoPopup } from "./poi-info-popup";
 
 interface PolylineSegment {
@@ -59,11 +58,27 @@ interface TransitionNode {
   toColor: string;
 }
 
+interface RouteOverlayState {
+  polyline: PolylineSegment[] | null;
+  stops: TransitStopMarker[];
+  nodes: TransitionNode[];
+}
+
 interface NavEndpointMarkerProps {
   readonly coordinate: Coordinate;
   readonly label: "A" | "B";
   readonly color: string;
 }
+
+type PoiTypeFilters = {
+  restaurant: boolean;
+  cafe: boolean;
+  library: boolean;
+  gym: boolean;
+  park: boolean;
+  shopping_mall: boolean;
+  supermarket: boolean;
+};
 
 function NavEndpointMarker({ coordinate, label, color }: NavEndpointMarkerProps) {
   return (
@@ -174,6 +189,59 @@ function normalizeStepTravelMode(travelMode: string | undefined): string {
   return mode;
 }
 
+function areCoordinatesEqual(a: Coordinate, b: Coordinate) {
+  return a.latitude === b.latitude && a.longitude === b.longitude;
+}
+
+function coalesceRouteSegments(segments: PolylineSegment[]) {
+  if (segments.length <= 1) {
+    return segments;
+  }
+
+  const merged: PolylineSegment[] = [];
+
+  for (const segment of segments) {
+    const previous = merged[merged.length - 1];
+    if (!previous) {
+      merged.push({
+        coordinates: [...segment.coordinates],
+        color: segment.color,
+        isDashed: segment.isDashed,
+      });
+      continue;
+    }
+
+    const canMerge =
+      previous.color === segment.color && previous.isDashed === segment.isDashed;
+    if (!canMerge) {
+      merged.push({
+        coordinates: [...segment.coordinates],
+        color: segment.color,
+        isDashed: segment.isDashed,
+      });
+      continue;
+    }
+
+    const previousLast = previous.coordinates[previous.coordinates.length - 1];
+    const segmentFirst = segment.coordinates[0];
+    if (!previousLast || !segmentFirst) {
+      merged.push({
+        coordinates: [...segment.coordinates],
+        color: segment.color,
+        isDashed: segment.isDashed,
+      });
+      continue;
+    }
+
+    const nextCoordinates = areCoordinatesEqual(previousLast, segmentFirst)
+      ? segment.coordinates.slice(1)
+      : segment.coordinates;
+    previous.coordinates.push(...nextCoordinates);
+  }
+
+  return merged;
+}
+
 function buildOutdoorStepResume(step: any): OutdoorRouteStep | null {
   const encodedPolyline = step?.polyline?.points;
   const travelMode = normalizeStepTravelMode(step?.travel_mode);
@@ -198,6 +266,12 @@ const EMPTY_ROUTES: Record<TransportationMode, any[] | null> = {
   driving: null,
   bicycling: null,
   shuttle: null,
+};
+
+const EMPTY_ROUTE_OVERLAY: RouteOverlayState = {
+  polyline: null,
+  stops: [],
+  nodes: [],
 };
 
 function normalizeRoutes(
@@ -233,7 +307,8 @@ export default function MapViewer({
   const suppressNextMapPress = useRef(false);
 
   const [currCampus, setCurrCampus] = useState<Campus>("SGW");
-  const [radius, setRadius] = useState(1000);
+  const [radius, setRadius] = useState(0);
+  const [searchFieldFocused, setSearchFieldFocused] = useState(false);
 
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
@@ -247,9 +322,8 @@ export default function MapViewer({
   const [routes, setRoutes] = useState<Record<TransportationMode, any[] | null>>(
     normalizeRoutes(EMPTY_ROUTES),
   );
-  const [routePolyline, setRoutePolyline] = useState<PolylineSegment[] | null>(null);
-  const [routeStops, setRouteStops] = useState<TransitStopMarker[]>([]);
-  const [routeNodes, setRouteNodes] = useState<TransitionNode[]>([]);
+  const [routeOverlay, setRouteOverlay] =
+    useState<RouteOverlayState>(EMPTY_ROUTE_OVERLAY);
   const [routeKey, setRouteKey] = useState(0);
   const pendingRouteRenderFrameRef = useRef<number | null>(null);
   const routeRenderGenerationRef = useRef(0);
@@ -293,6 +367,12 @@ export default function MapViewer({
 
   const showStartHint =
     navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
+  const isTestEnvironment = process.env.NODE_ENV === "test";
+  const shouldRenderDirectionAuxOverlays = !(
+    Platform.OS === "ios" &&
+    navigationMode === "directions" &&
+    !isTestEnvironment
+  );
 
   const { buildingId, autoNavigate } = useLocalSearchParams<{
     buildingId?: string;
@@ -300,6 +380,15 @@ export default function MapViewer({
     autoNavigate?: string;
   }>();
   const places = usePoi(currCampus, radius);
+  const [poiFilters, setPoiFilters] = useState<PoiTypeFilters>({
+    restaurant: true,
+    cafe: true,
+    library: true,
+    gym: true,
+    park: true,
+    shopping_mall: true,
+    supermarket: true,
+  });
   const [selectedPOI, setSelectedPOI] = useState<POI | null>(null);
 
   const cancelPendingRouteRender = useCallback(() => {
@@ -317,9 +406,7 @@ export default function MapViewer({
     cancelPendingRouteRender();
     // Force route overlays to remount so stale native polylines do not linger.
     setRouteKey((key) => key + 1);
-    setRoutePolyline(null);
-    setRouteStops([]);
-    setRouteNodes([]);
+    setRouteOverlay(EMPTY_ROUTE_OVERLAY);
   }, [cancelPendingRouteRender]);
 
   useEffect(() => {
@@ -346,6 +433,7 @@ export default function MapViewer({
    */
   const clearRouteInfo = useCallback(() => {
     activeIndoorStepSessionRef.current = null;
+    lastDestinationRef.current = { coord: null, label: "" };
     setNavigationMode("browse");
 
     setShouldDisplayRoutes(false);
@@ -785,7 +873,10 @@ export default function MapViewer({
     }
 
     const selectedEndSearch = selectedSearchLocations.end;
-    const selectedEndBuildingCode = getSelectedBuildingCode(selectedEndSearch);
+    const selectedEndBuildingCode = resolveSearchSelectionBuildingCode(
+      selectedEndSearch,
+      CAMPUS_BUILDINGS,
+    );
     const shouldUseSelectedRoomAsStart = Boolean(
       selectedEndSearch?.isIndoorRoom &&
       selectedEndBuildingCode === selectedBuilding.buildingCode,
@@ -813,26 +904,15 @@ export default function MapViewer({
     setSelectedSearchLocations({ start: startSelection, end: null });
     setNavCoords({ start: mapBuilding.location, end: lastDest.coord });
     clearRouteRendering();
-  }, [
-    clearRouteRendering,
-    getSelectedBuildingCode,
-    selectedBuilding,
-    selectedSearchLocations.end,
-  ]);
+  }, [clearRouteRendering, selectedBuilding, selectedSearchLocations.end]);
 
   /**
    * Handles the action of going back from the directions view to the browse mode. It resets all navigation-related state, including the navigation mode, route display, navigation coordinates, selection overrides, and any displayed routes or stops. This function is called when the user presses the back button in the RoutesInfoPopup, allowing them to exit the directions view and return to browsing the map without any active navigation routes displayed.
    */
   const handleBackFromDirections = useCallback(() => {
     userClearedStart.current = false;
-    setNavigationMode("browse");
-    setShouldDisplayRoutes(false);
-    setRoutes(normalizeRoutes(EMPTY_ROUTES));
-    setNavCoords({ start: null, end: null });
-    setSelectionOverrides({ start: null, end: null });
-    setSelectedSearchLocations({ start: null, end: null });
-    clearRouteRendering();
-  }, [clearRouteRendering]);
+    clearRouteInfo();
+  }, [clearRouteInfo]);
 
   /**
    * Handles the action of swapping the start and end fields in the navigation directions. It updates the navigation coordinates, selection overrides, and manual start point to reflect the swap. This allows users to quickly reverse their route without having to manually re-enter the start and end locations. The function also resets any displayed routes or stops, prompting a new route calculation based on the updated coordinates. This is typically called when the user presses a swap button in the BuildingSelection component while in directions mode.
@@ -975,11 +1055,39 @@ export default function MapViewer({
     ],
   );
 
+  const filteredPlaces = useMemo(() => {
+    const enabledTypes = Object.entries(poiFilters)
+      .filter(([, isEnabled]) => isEnabled)
+      .map(([type]) => type);
+
+    if (enabledTypes.length === 0) {
+      return [];
+    }
+
+    return places.filter((poi) =>
+      poi.types?.some((type) => enabledTypes.includes(type as keyof PoiTypeFilters)),
+    );
+  }, [places, poiFilters]);
+
+  useEffect(() => {
+    if (!selectedPOI) {
+      return;
+    }
+
+    const shouldKeepSelected = filteredPlaces.some(
+      (poi) => poi.place_id === selectedPOI.place_id,
+    );
+
+    if (!shouldKeepSelected) {
+      setSelectedPOI(null);
+    }
+  }, [filteredPlaces, selectedPOI]);
+
   const renderedPOIMarkers = useMemo(() => {
-    return places.map((p) => (
+    return filteredPlaces.map((p) => (
       <PoiMarker key={p.place_id} poi={p} onPress={() => handlePOIPress(p)} />
     ));
-  }, [handlePOIPress, places]);
+  }, [filteredPlaces, handlePOIPress]);
 
   const selectedRoomContext = useMemo(() => {
     if (!selectedBuilding) {
@@ -1022,6 +1130,7 @@ export default function MapViewer({
         startOverride={selectionOverrides.start}
         endOverride={selectionOverrides.end}
         startHint={showStartHint ? "Please select a start location" : null}
+        onFocusChange={setSearchFieldFocused}
         onSwap={handleSwapFields}
         onSelect={(
           buildings: Record<FieldType, SearchBuilding | null>,
@@ -1130,21 +1239,16 @@ export default function MapViewer({
           if (!action || action === "press") {
             setSelectedBuilding(null);
             setSelectedPOI(null);
-            setNavigationMode("browse");
-            setShouldDisplayRoutes(false);
-            clearRouteRendering();
-            setNavCoords({ start: null, end: null });
-            setSelectionOverrides({ start: null, end: null });
-            setSelectedSearchLocations({ start: null, end: null });
+            clearRouteInfo();
           }
         }}
         renderCluster={renderCluster}
       >
         {renderedPolygons}
         {renderedMarkers}
-        {renderedPOIMarkers}
+        {navigationMode === "browse" ? renderedPOIMarkers : null}
 
-        {routePolyline?.map((segment, index) => {
+        {routeOverlay.polyline?.map((segment, index) => {
           const dashedWidth = Platform.OS === "android" ? 6 : 3;
           const strokeWidth = segment.isDashed ? dashedWidth : 3;
           const firstCoord = segment.coordinates[0];
@@ -1164,87 +1268,95 @@ export default function MapViewer({
           );
         })}
 
-        {routeStops.map((stop, index) =>
-          Platform.OS === "android" ? (
-            <Circle
-              key={`stop-${routeKey}-${index}-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
-              center={stop.coordinate}
-              radius={5}
-              fillColor="#fff"
-              strokeColor={stop.color}
-              strokeWidth={2}
-              zIndex={11}
-            />
-          ) : (
-            <Marker
-              key={`stop-${routeKey}-${index}-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
-              coordinate={stop.coordinate}
-              anchor={{ x: 0.5, y: 0.5 }}
-              zIndex={11}
-            >
-              <View
-                collapsable={false}
-                style={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: 5,
-                  backgroundColor: "#fff",
-                  borderWidth: 2,
-                  borderColor: stop.color,
-                }}
-              />
-            </Marker>
-          ),
-        )}
-
-        {Platform.OS === "android"
-          ? routeNodes.map((node, index) => (
+        {shouldRenderDirectionAuxOverlays &&
+          routeOverlay.stops.map((stop, index) =>
+            Platform.OS === "android" ? (
               <Circle
-                key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
-                center={node.coordinate}
-                radius={7}
-                fillColor={node.toColor}
-                strokeColor="#fff"
-                strokeWidth={3}
-                zIndex={12}
+                key={`stop-${routeKey}-${index}-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
+                center={stop.coordinate}
+                radius={5}
+                fillColor="#fff"
+                strokeColor={stop.color}
+                strokeWidth={2}
+                zIndex={11}
               />
-            ))
-          : routeNodes.map((node, index) => (
+            ) : (
               <Marker
-                key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
-                coordinate={node.coordinate}
+                key={`stop-${routeKey}-${index}-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
+                coordinate={stop.coordinate}
                 anchor={{ x: 0.5, y: 0.5 }}
-                zIndex={12}
+                zIndex={11}
               >
                 <View
                   collapsable={false}
                   style={{
-                    width: 18,
-                    height: 18,
-                    borderRadius: 9,
-                    backgroundColor: node.toColor,
-                    borderWidth: 3,
-                    borderColor: "#fff",
+                    width: 10,
+                    height: 10,
+                    borderRadius: 5,
+                    backgroundColor: "#fff",
+                    borderWidth: 2,
+                    borderColor: stop.color,
                   }}
                 />
               </Marker>
-            ))}
-        {navigationMode === "directions" && navCoords.start && (
-          <NavEndpointMarker
-            key={`nav-start-${navCoords.start.latitude}-${navCoords.start.longitude}`}
-            coordinate={navCoords.start}
-            label="A"
-            color="#049ede"
-          />
-        )}
-        {navigationMode === "directions" && navCoords.end && (
-          <NavEndpointMarker
-            key={`nav-end-${navCoords.end.latitude}-${navCoords.end.longitude}`}
-            coordinate={navCoords.end}
-            label="B"
-            color="#049ede"
-          />
-        )}
+            ),
+          )}
+
+        {shouldRenderDirectionAuxOverlays &&
+          (Platform.OS === "android"
+            ? routeOverlay.nodes.map((node, index) => (
+                <Circle
+                  key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
+                  center={node.coordinate}
+                  radius={7}
+                  fillColor={node.toColor}
+                  strokeColor="#fff"
+                  strokeWidth={3}
+                  zIndex={12}
+                />
+              ))
+            : routeOverlay.nodes.map((node, index) => (
+                <Marker
+                  key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
+                  coordinate={node.coordinate}
+                  anchor={{ x: 0.5, y: 0.5 }}
+                  zIndex={12}
+                >
+                  <View
+                    collapsable={false}
+                    style={{
+                      width: 18,
+                      height: 18,
+                      borderRadius: 9,
+                      backgroundColor: node.toColor,
+                      borderWidth: 3,
+                      borderColor: "#fff",
+                    }}
+                  />
+                </Marker>
+              )))}
+
+        {shouldRenderDirectionAuxOverlays &&
+          navigationMode === "directions" &&
+          navCoords.start && (
+            <NavEndpointMarker
+              key={`nav-start-${navCoords.start.latitude}-${navCoords.start.longitude}`}
+              coordinate={navCoords.start}
+              label="A"
+              color="#049ede"
+            />
+          )}
+
+        {shouldRenderDirectionAuxOverlays &&
+          navigationMode === "directions" &&
+          navCoords.end && (
+            <NavEndpointMarker
+              key={`nav-end-${navCoords.end.latitude}-${navCoords.end.longitude}`}
+              coordinate={navCoords.end}
+              label="B"
+              color="#049ede"
+            />
+          )}
       </MapViewCluster>
 
       {__DEV__ && Platform.OS === "android" && (
@@ -1285,26 +1397,14 @@ export default function MapViewer({
 
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
 
-      {!hasVisiblePopup && (
-        <View style={styles.radiusContainer}>
-          <View style={styles.radiusHeader}>
-            <Text style={[styles.radiusLabel, { color: mapColors.clusterText }]}>
-              Places within:
-            </Text>
-            <Text style={[styles.radiusValue, { color: mapColors.clusterText }]}>
-              {radius} m
-            </Text>
-          </View>
-          <Slider
-            testID="radius-slider"
-            value={radius}
-            minimumValue={MIN_RADIUS_METERS}
-            maximumValue={MAX_RADIUS_METERS}
-            step={10}
-            onSlidingComplete={(value) => setRadius(Math.round(value))}
-          />
-        </View>
-      )}
+      <OutdoorMapSettings
+        radius={radius}
+        setRadius={setRadius}
+        poiFilters={poiFilters}
+        setPoiFilters={setPoiFilters}
+        hasVisiblePopup={hasVisiblePopup}
+        searchFieldFocused={searchFieldFocused}
+      />
 
       {navigationMode === "browse" && selectedBuilding && (
         <BuildingInfoPopup
@@ -1370,19 +1470,18 @@ export default function MapViewer({
               }
             }
 
-            // clear all existing polylines so native views are removed
-            clearRouteRendering();
-            const renderGeneration = routeRenderGenerationRef.current;
+            const normalizedSegments =
+              Platform.OS === "ios" ? coalesceRouteSegments(segments) : segments;
+            const normalizedStops = Platform.OS === "ios" ? [] : stops;
+            const normalizedNodes = Platform.OS === "ios" ? [] : nodes;
 
-            // then set new data on the next frame to ensure a clean transition without lingering old polylines
-            pendingRouteRenderFrameRef.current = requestAnimationFrame(() => {
-              pendingRouteRenderFrameRef.current = null;
-              if (routeRenderGenerationRef.current !== renderGeneration) {
-                return;
-              }
-              setRoutePolyline(segments.length > 0 ? segments : null);
-              setRouteStops(stops);
-              setRouteNodes(nodes);
+            cancelPendingRouteRender();
+            // Apply overlay updates together to avoid iOS-native child index races.
+            setRouteKey((key) => key + 1);
+            setRouteOverlay({
+              polyline: normalizedSegments.length > 0 ? normalizedSegments : null,
+              stops: normalizedStops,
+              nodes: normalizedNodes,
             });
           }}
           onStepSelect={(

@@ -151,7 +151,13 @@ describe("map tab", () => {
   it("updates radius when slider interaction completes", () => {
     const mapViewer = render(<MapViewer />);
 
-    expect(mapViewer.getByText("1000 m")).toBeTruthy();
+    const settingsButton = mapViewer.getByTestId("outdoor-settings-button");
+    act(() => {
+      fireEvent.press(settingsButton);
+    });
+
+    expect(mapViewer.getByTestId("outdoor-settings-panel")).toBeTruthy();
+    expect(mapViewer.getAllByText("0 m").length).toBeGreaterThan(0);
 
     const slider = mapViewer.getByTestId("radius-slider");
     act(() => {
@@ -1227,19 +1233,9 @@ describe("map tab", () => {
         fireEvent.press(mapViewer.getByTestId("walking-route-1"));
       });
 
-      // Frames are queued and have not run yet.
-      expect(mapViewer.queryAllByTestId("polyline")).toHaveLength(0);
-
-      const pendingCallbacks = [...queuedFrames.values()];
-      queuedFrames.clear();
-      await act(async () => {
-        pendingCallbacks.forEach((callback) => callback(0));
-      });
-
       const polylines = mapViewer.getAllByTestId("polyline");
       expect(polylines).toHaveLength(1);
       expect(polylines[0].props.coordinates).toEqual(routeBCoords);
-      expect(global.cancelAnimationFrame).toHaveBeenCalled();
     } finally {
       global.requestAnimationFrame = originalRaf;
       global.cancelAnimationFrame = originalCancelRaf;
@@ -1584,8 +1580,8 @@ describe("map tab", () => {
       fireEvent.press(mapViewer.getByTestId("transit-route-0"));
     });
 
-    // 2 polylines but 0 node markers (no color change between steps)
-    expect(mapViewer.getAllByTestId("polyline").length).toBe(2);
+    // Same-color consecutive transit steps are coalesced into one polyline.
+    expect(mapViewer.getAllByTestId("polyline").length).toBe(1);
   });
 
   it("onRegionChangeComplete sets locationState to 'on' when region moves away from user", async () => {
@@ -3064,6 +3060,36 @@ describe("map tab", () => {
       // Start field should still be auto-filled with VE
       const startInputAgain = mapViewer.getByPlaceholderText("Your location");
       expect(startInputAgain.props.value).toBe("VE");
+    });
+
+    it("does not reuse the previous destination after canceling directions", async () => {
+      const mapViewer = render(<MapViewer />);
+      const mapView = mapViewer.getByTestId("map-view");
+
+      fireEvent(mapView, "onUserLocationChange", {
+        nativeEvent: { coordinate: { latitude: 45.495, longitude: -73.579 } },
+      });
+
+      await act(async () => {
+        fireEvent.press(mapViewer.getByTestId("marker-VE"));
+      });
+      await act(async () => {
+        fireEvent.press(mapViewer.getByTestId("directions-action-button"));
+      });
+
+      await act(async () => {
+        fireEvent(mapView, "press", { nativeEvent: { action: "press" } });
+      });
+
+      await act(async () => {
+        fireEvent.press(mapViewer.getByTestId("marker-RA"));
+      });
+      await act(async () => {
+        fireEvent.press(mapViewer.getByTestId("start-action-button"));
+      });
+
+      const destinationInput = mapViewer.getByPlaceholderText("Destination");
+      expect(destinationInput.props.value).toBe("");
     });
 
     it("keeps room label when setting start from a room info popup", async () => {

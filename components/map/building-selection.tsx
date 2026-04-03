@@ -29,6 +29,7 @@ interface Props {
   readonly selectedBuilding?: SearchBuilding | null;
   readonly onSelect: (buildings: SearchInput, type: FieldType) => void;
   readonly onSwap?: () => void;
+  readonly onFocusChange?: (isFocused: boolean) => void;
   readonly startOverride?: string | null;
   readonly endOverride?: string | null;
   readonly startHint?: string | null;
@@ -135,6 +136,7 @@ export default function BuildingSelection({
   selectedBuilding,
   onSelect,
   onSwap,
+  onFocusChange,
   startOverride,
   endOverride,
   startHint,
@@ -262,6 +264,10 @@ export default function BuildingSelection({
 
     selectedBuildingRef.current = selectedBuilding;
   }, [focusedField, mode, selectedBuilding, updateQuery]);
+
+  useEffect(() => {
+    onFocusChange?.(focusedField !== null);
+  }, [focusedField, onFocusChange]);
 
   const renderInput = useCallback(
     (type: FieldType, placeholder: string) => {

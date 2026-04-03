@@ -19,11 +19,11 @@ function getPoiMarkerVisual(types: string[]): PoiMarkerVisual {
   //Some POIs have multiple types, order is arbitrary
   const typeSet = new Set(types.map((type) => type.toLowerCase()));
 
-  if (typeSet.has("restaurant")) {
-    return { icon: "restaurant", backgroundColor: PoiMarkerColors.restaurant };
-  }
   if (typeSet.has("cafe")) {
     return { icon: "cafe", backgroundColor: PoiMarkerColors.cafe };
+  }
+  if (typeSet.has("restaurant")) {
+    return { icon: "restaurant", backgroundColor: PoiMarkerColors.restaurant };
   }
   if (typeSet.has("library")) {
     return { icon: "library", backgroundColor: PoiMarkerColors.library };
