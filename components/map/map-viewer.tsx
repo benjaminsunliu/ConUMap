@@ -206,7 +206,7 @@ function coalesceRouteSegments(segments: PolylineSegment[]) {
   const merged: PolylineSegment[] = [];
 
   for (const segment of segments) {
-    const previous = merged[merged.length - 1];
+    const previous = merged.at(-1);
     if (!previous) {
       merged.push({
         coordinates: [...segment.coordinates],
@@ -227,7 +227,7 @@ function coalesceRouteSegments(segments: PolylineSegment[]) {
       continue;
     }
 
-    const previousLast = previous.coordinates[previous.coordinates.length - 1];
+    const previousLast = previous.coordinates.at(-1);
     const segmentFirst = segment.coordinates[0];
     if (!previousLast || !segmentFirst) {
       merged.push({
