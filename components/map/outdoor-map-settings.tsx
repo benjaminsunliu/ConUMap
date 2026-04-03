@@ -91,6 +91,7 @@ export default function OutdoorMapSettings({
           activeOpacity={0.8}
           accessibilityRole="button"
           accessibilityLabel="POI filters"
+          accessibilityHint="Opens point of interest and radius settings"
         >
           <Ionicons
             name="pin"

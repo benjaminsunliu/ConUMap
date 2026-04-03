@@ -132,4 +132,19 @@ describe("poi-marker", () => {
       );
     },
   );
+
+  it("prefers the cafe marker when a POI is tagged as both cafe and restaurant", () => {
+    const poi = makePoi(["restaurant", "cafe", "food"]);
+    const { getByTestId } = render(<PoiMarker poi={poi} />);
+
+    const icon = getByTestId("poi-icon");
+    expect(icon.props.name).toBe("cafe");
+
+    const markerBody = getByTestId("poi-marker-body");
+    expect(markerBody.props.style).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ backgroundColor: PoiMarkerColors.cafe }),
+      ]),
+    );
+  });
 });
