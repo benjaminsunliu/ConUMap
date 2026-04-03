@@ -1,6 +1,7 @@
 import { CAMPUS_BUILDINGS } from "@/constants/map";
 import { Colors } from "@/constants/theme";
 import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
+import { IndoorMapSettings } from "@/globals/IndoorMapSettingsStore";
 import { OutdoorRouteStep, OutdoorStepResume } from "@/globals/OutdoorStepResumeStore";
 import { ColorSchemeName, useColorScheme } from "@/hooks/use-color-scheme";
 import { FieldType, SearchBuilding, TransportationMode } from "@/types/buildingTypes";
@@ -496,6 +497,9 @@ export default function MapViewer({
         const fetchedRoutes = normalizeRoutes(
           await fetchAllDirections(routeStart, routeEnd),
         );
+        const indoorSettings = await IndoorMapSettings.getSettings().catch(() =>
+          IndoorMapSettings.getCachedSettings(),
+        );
         const nextRoutes = await enrichRoutesWithIndoorTransitions(
           fetchedRoutes,
           {
@@ -503,6 +507,9 @@ export default function MapViewer({
             end: endSelection,
           },
           CAMPUS_BUILDINGS,
+          {
+            accessibleOnly: indoorSettings.wheelchairOnly,
+          },
         );
         if (!cancelled) {
           setRoutes(normalizeRoutes(nextRoutes));

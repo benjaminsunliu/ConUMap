@@ -11,6 +11,12 @@ import { useLocalSearchParams, router } from "expo-router";
 const mockAnimateToRegion = jest.fn();
 let latestFocusEffect = null;
 
+jest.mock("expo-secure-store", () => ({
+  getItemAsync: jest.fn().mockResolvedValue(null),
+  setItemAsync: jest.fn(),
+  deleteItemAsync: jest.fn(),
+}));
+
 jest.mock("react-native-map-clustering", () => {
   const React = require("react");
   const { forwardRef, useImperativeHandle } = React;

@@ -1,9 +1,16 @@
 import {
   FloorCheckpointId,
+  FloorCheckpointConnection,
   FloorCheckpointsGraph,
   IndoorNavigationPath,
 } from "@/types/mapTypes";
 import { PriorityQueue } from "./priorityQueue";
+
+const NON_WHEELCHAIR_EDGE_TYPES = new Set(["stair", "stairs", "escalator"]);
+
+export type IndoorPathOptions = {
+  accessibleOnly?: boolean;
+};
 
 /**
  * implements dijkstra's shortest path algorithm to find the path from a source to a destination
@@ -15,6 +22,7 @@ export function findIndoorPath(
   graph: FloorCheckpointsGraph,
   source: FloorCheckpointId,
   destination: FloorCheckpointId,
+  options: IndoorPathOptions = {},
 ): IndoorNavigationPath | null {
   const queue = new PriorityQueue<Vertex>((a, b) => a.distance < b.distance);
   const shortestDistance: ShortestDistanceInfo = {};
@@ -41,6 +49,9 @@ export function findIndoorPath(
       if (edge.weight < 0) {
         throw new Error("Negative weights are not allowed in shortest path graphs");
       }
+      if (shouldSkipEdge(edge, options)) {
+        return;
+      }
       const distanceFromMeToNeighbour =
         shortestDistance[vertex.id].distance + edge.weight;
 
@@ -63,6 +74,21 @@ export function findIndoorPath(
     });
   }
   return getPathFromDistanceInfo(shortestDistance, destination);
+}
+
+function shouldSkipEdge(
+  edge: FloorCheckpointConnection,
+  options: IndoorPathOptions,
+) {
+  if (!options.accessibleOnly) {
+    return false;
+  }
+
+  if (!edge.accessible) {
+    return true;
+  }
+
+  return NON_WHEELCHAIR_EDGE_TYPES.has(edge.type.toLowerCase());
 }
 
 type Vertex = {

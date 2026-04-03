@@ -6,8 +6,15 @@ import {
 } from "@/types/mapTypes";
 
 describe("findPathFromRoomToRoom (Undirected Graph)", () => {
+  type TestEdge = [
+    string,
+    string,
+    number,
+    Partial<FloorCheckpointConnection>?,
+  ];
+
   const buildUndirectedGraph = (
-    edges: [string, string, number][],
+    edges: TestEdge[],
   ): FloorCheckpointsGraph => {
     const adjacencySet: FloorCheckpointAdjancencySet = {};
     const defaultEdge: FloorCheckpointConnection = {
@@ -18,11 +25,23 @@ describe("findPathFromRoomToRoom (Undirected Graph)", () => {
       weight: Infinity,
     };
 
-    edges.forEach(([u, v, weight]) => {
+    edges.forEach(([u, v, weight, overrides]) => {
       if (!adjacencySet[u]) adjacencySet[u] = {};
       if (!adjacencySet[v]) adjacencySet[v] = {};
-      adjacencySet[u][v] = { ...defaultEdge, weight };
-      adjacencySet[v][u] = { ...defaultEdge, weight };
+      adjacencySet[u][v] = {
+        ...defaultEdge,
+        source: u,
+        target: v,
+        weight,
+        ...overrides,
+      };
+      adjacencySet[v][u] = {
+        ...defaultEdge,
+        source: v,
+        target: u,
+        weight,
+        ...overrides,
+      };
     });
     return { adjacencySet, checkpoints: {} };
   };
@@ -86,5 +105,58 @@ describe("findPathFromRoomToRoom (Undirected Graph)", () => {
     expect(() => {
       findIndoorPath(invalidGraph, "A", "B");
     }).toThrow("Negative weights are not allowed");
+  });
+
+  it("skips inaccessible edges when wheelchair accessibility is enabled", () => {
+    const graph = buildUndirectedGraph([
+      ["Start", "Shortcut", 1, { accessible: false }],
+      ["Shortcut", "End", 1],
+      ["Start", "Detour", 2],
+      ["Detour", "End", 2],
+    ]);
+
+    expect(findIndoorPath(graph, "Start", "End")).toEqual([
+      "Start",
+      "Shortcut",
+      "End",
+    ]);
+    expect(
+      findIndoorPath(graph, "Start", "End", {
+        accessibleOnly: true,
+      }),
+    ).toEqual(["Start", "Detour", "End"]);
+  });
+
+  it("avoids escalators and prefers elevator routes when wheelchair accessibility is enabled", () => {
+    const graph = buildUndirectedGraph([
+      ["Lobby", "Escalator", 1, { type: "escalator" }],
+      ["Escalator", "Room", 1],
+      ["Lobby", "Elevator", 3],
+      ["Elevator", "Room", 1, { type: "elevator" }],
+    ]);
+
+    expect(findIndoorPath(graph, "Lobby", "Room")).toEqual([
+      "Lobby",
+      "Escalator",
+      "Room",
+    ]);
+    expect(
+      findIndoorPath(graph, "Lobby", "Room", {
+        accessibleOnly: true,
+      }),
+    ).toEqual(["Lobby", "Elevator", "Room"]);
+  });
+
+  it("returns null when wheelchair accessibility is enabled and stairs are the only route", () => {
+    const graph = buildUndirectedGraph([
+      ["Lobby", "StairLanding", 1, { type: "stair" }],
+      ["StairLanding", "Room", 1],
+    ]);
+
+    expect(
+      findIndoorPath(graph, "Lobby", "Room", {
+        accessibleOnly: true,
+      }),
+    ).toBeNull();
   });
 });
