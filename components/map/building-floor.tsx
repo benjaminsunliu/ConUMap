@@ -75,14 +75,16 @@ export default function BuildingFloor({
       })
       .map((floorCheckpoint) => {
         const shouldRenderBathroomIcon = isBathroomPoiCheckpoint(floorCheckpoint);
-        const shouldRenderWaterFountainIcon = isWaterFountainPoiCheckpoint(floorCheckpoint);
+        const shouldRenderWaterFountainIcon =
+          isWaterFountainPoiCheckpoint(floorCheckpoint);
         const shouldRenderElevatorIcon = isElevatorDoorCheckpoint(floorCheckpoint);
         const shouldRenderStairIcon = isStairLandingCheckpoint(floorCheckpoint);
         const shouldRenderEscalatorIcon = isEscalatorCheckpoint(floorCheckpoint);
         const shouldHighlightBathroom = poiFilters.bathrooms && shouldRenderBathroomIcon;
         const shouldHighlightElevator = poiFilters.elevators && shouldRenderElevatorIcon;
         const shouldHighlightStair = poiFilters.stairs && shouldRenderStairIcon;
-        const shouldHighlightEscalator = poiFilters.escalators && shouldRenderEscalatorIcon;
+        const shouldHighlightEscalator =
+          poiFilters.escalators && shouldRenderEscalatorIcon;
         const shouldHighlightWaterFountain =
           poiFilters.waterFountains && shouldRenderWaterFountainIcon;
 
