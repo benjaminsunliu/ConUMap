@@ -11,7 +11,9 @@ interface MapSettingsProps {
   poiFilters: {
     bathrooms: boolean;
     elevators: boolean;
-    washrooms: boolean;
+    waterFountains: boolean;
+    stairs: boolean;
+    escalators: boolean;
   };
   setPoiFilters: (filters: MapSettingsProps["poiFilters"]) => void;
 }
@@ -47,9 +49,19 @@ export default function MapSettings({
       icon: "business-outline",
     },
     {
-      key: "washrooms",
-      label: "Washrooms",
-      icon: "body-outline",
+      key: "waterFountains",
+      label: "Water Fountains",
+      icon: "water",
+    },
+    {
+      key: "stairs",
+      label: "Stairs",
+      icon: "stats-chart-outline",
+    },
+    {
+      key: "escalators",
+      label: "Escalators",
+      icon: "swap-vertical-outline",
     },
   ];
 
@@ -99,7 +111,7 @@ export default function MapSettings({
 
             <View style={styles.divider} />
 
-            <Text style={styles.sectionTitle}> Points of Interest </Text>
+            <Text style={styles.sectionTitle}>Highlight Points of Interest </Text>
 
             {pois.map((item) => (
               <TouchableOpacity

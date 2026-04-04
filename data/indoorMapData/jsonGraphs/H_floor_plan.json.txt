@@ -128,7 +128,7 @@
       "type": "escalator",
       "buildingId": "H",
       "floor": 2,
-      "x": 1207,
+      "x": 1185,
       "y": 1585,
       "label": "",
       "accessible": false
@@ -579,7 +579,7 @@
       "buildingId": "H",
       "floor": 8,
       "x": 588,
-      "y": 1381,
+      "y": 1440,
       "label": "8_Stair_SW",
       "accessible": false
     },
@@ -589,7 +589,7 @@
       "buildingId": "H",
       "floor": 8,
       "x": 1414,
-      "y": 1382,
+      "y": 1440,
       "label": "8_Stair_SE",
       "accessible": false
     },
@@ -3309,7 +3309,7 @@
       "buildingId": "H",
       "floor": 1,
       "x": 1863,
-      "y": 1369,
+      "y": 1450,
       "label": "",
       "accessible": false
     },
@@ -3369,7 +3369,7 @@
       "buildingId": "H",
       "floor": 1,
       "x": 1863,
-      "y": 931,
+      "y": 1050,
       "label": "",
       "accessible": false
     },
@@ -3698,7 +3698,7 @@
       "type": "stair_landing",
       "buildingId": "H",
       "floor": 1,
-      "x": 308,
+      "x": 365,
       "y": 653,
       "label": "",
       "accessible": false
@@ -4014,8 +4014,8 @@
       "type": "stair_landing",
       "buildingId": "H",
       "floor": 2,
-      "x": 354,
-      "y": 620,
+      "x": 400,
+      "y": 640,
       "label": "",
       "accessible": false
     },
