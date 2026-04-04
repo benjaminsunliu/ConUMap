@@ -10,8 +10,9 @@ appId: host.exp.exponent
 - tapOn:
     id: "end-result-VL"
 - assertVisible:
-    text: "Explore Rooms"
-- tapOn: "Explore Rooms"
+    label: "Explore Rooms"
+- tapOn:
+    label: "Explore Rooms"
 - tapOn: "Next Floor"
 - assertVisible:
     text: "Floor 2"
