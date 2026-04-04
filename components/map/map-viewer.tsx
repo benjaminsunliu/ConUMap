@@ -716,17 +716,12 @@ export default function MapViewer({
    */
   const handlePOIPress = useCallback(
     (poi: POI) => {
-      if (selectedPOI?.place_id === poi.place_id) {
-        setSelectedPOI(null);
-        clearRouteInfo();
-      } else{
-        setSelectedBuilding(null);
-        setSelectedPOI(poi);
-        focusBuilding(poi.geometry.location.lat, poi.geometry.location.lng);
-        clearRouteInfo();
-      }
+      setSelectedBuilding(null);
+      setSelectedPOI(poi);
+      focusBuilding(poi.geometry.location.lat, poi.geometry.location.lng);
+      clearRouteInfo();
     },
-    [selectedPOI?.place_id, focusBuilding, clearRouteInfo],
+    [focusBuilding, clearRouteInfo],
   );
 
   /**

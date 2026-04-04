@@ -8,11 +8,18 @@ appId: host.exp.exponent
 - assertVisible:
     id: "campus-toggle-selector"
 - tapOn: "SGW"
-- tapOn: POI filters
+- tapOn: "POI filters"
 - swipe:
     from:
-      id: radius-slider
-    direction: RIGHT
+      id: "radius-slider"
+    direction: UP
 - tapOn: "SGW"
-- tapOn:
-    id: "marker-ChIJU3alcmoayUwRHw9ZVSUzjzc"
+- assertVisible:
+    text: "MTLKFOOD"
+- tapOn: "POI filters"
+- swipe:
+    from:
+      id: "radius-slider"
+    direction: RIGHT
+- assertVisible:
+    text: "Adonis Building"
