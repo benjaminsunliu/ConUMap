@@ -716,12 +716,17 @@ export default function MapViewer({
    */
   const handlePOIPress = useCallback(
     (poi: POI) => {
-      setSelectedBuilding(null);
-      setSelectedPOI(poi);
-      focusBuilding(poi.geometry.location.lat, poi.geometry.location.lng);
-      clearRouteInfo();
+      if (selectedPOI?.place_id === poi.place_id) {
+        setSelectedPOI(null);
+        clearRouteInfo();
+      } else{
+        setSelectedBuilding(null);
+        setSelectedPOI(poi);
+        focusBuilding(poi.geometry.location.lat, poi.geometry.location.lng);
+        clearRouteInfo();
+      }
     },
-    [focusBuilding, clearRouteInfo],
+    [selectedPOI?.place_id, focusBuilding, clearRouteInfo],
   );
 
   /**
@@ -1436,6 +1441,17 @@ export default function MapViewer({
               accessibilityLabel={`${building.buildingCode} ${building.buildingName}`}
               style={styles.androidMarkerProxyTarget}
               onPress={() => handleBuildingPress(building)}
+            />
+          ))}
+          {filteredPlaces.map((poi) => (
+            <Pressable
+              key={`marker-proxy-${poi.place_id}`}
+              testID={`marker-${poi.place_id}`}
+              nativeID={`marker-${poi.place_id}`}
+              accessibilityRole="button"
+              accessibilityLabel={`${poi.name}`}
+              style={styles.androidMarkerProxyTarget}
+              onPress={() => handlePOIPress(poi)}
             />
           ))}
         </View>

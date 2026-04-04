@@ -1,0 +1,18 @@
+appId: host.exp.exponent
+---
+- runFlow:
+    when:
+      notVisible:
+        id: "building-selection"
+    file: ../openLink.yaml
+- assertVisible:
+    id: "campus-toggle-selector"
+- tapOn: "SGW"
+- tapOn: POI filters
+- swipe:
+    from:
+      id: radius-slider
+    direction: RIGHT
+- tapOn: "SGW"
+- tapOn:
+    id: "marker-ChIJU3alcmoayUwRHw9ZVSUzjzc"
