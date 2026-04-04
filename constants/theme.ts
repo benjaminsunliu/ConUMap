@@ -50,7 +50,7 @@ export const Colors = {
       bathroomHighlightColor: "#0072B2",
       elevatorHighlightColor: "#CC79A7",
       stairsHighlightColor: "#E69F00",
-      escalatorHighlightColor: "#009E73",
+      escalatorHighlightColor: "#ff00f7",
       waterFountainHighlightColor: "#56B4E9",
     },
 
@@ -198,7 +198,7 @@ export const Colors = {
       bathroomHighlightColor: "#0072B2",
       elevatorHighlightColor: "#CC79A7",
       stairsHighlightColor: "#E69F00",
-      escalatorHighlightColor: "#009E73",
+      escalatorHighlightColor: "#ff00f7",
       waterFountainHighlightColor: "#56B4E9",
     },
 
