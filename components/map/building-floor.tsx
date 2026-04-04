@@ -52,19 +52,19 @@ export default function BuildingFloor({
       : { width: 0, height: 0 };
   }, [info.images, floor]);
   const bathroomIconUri = useMemo(() => {
-    return Image.resolveAssetSource(require("@/assets/svg/bathroom.png")).uri;
+    return Image.resolveAssetSource(require("@/assets/icons/bathroom.png")).uri;
   }, []);
   const waterFountainIconUri = useMemo(() => {
-    return Image.resolveAssetSource(require("@/assets/svg/water_fountain.png")).uri;
+    return Image.resolveAssetSource(require("@/assets/icons/water_fountain.png")).uri;
   }, []);
   const elevatorIconUri = useMemo(() => {
-    return Image.resolveAssetSource(require("@/assets/svg/elevator.png")).uri;
+    return Image.resolveAssetSource(require("@/assets/icons/elevator.png")).uri;
   }, []);
   const stairwayIconUri = useMemo(() => {
-    return Image.resolveAssetSource(require("@/assets/svg/stairway.png")).uri;
+    return Image.resolveAssetSource(require("@/assets/icons/stairway.png")).uri;
   }, []);
   const escalatorIconUri = useMemo(() => {
-    return Image.resolveAssetSource(require("@/assets/svg/escalator.png")).uri;
+    return Image.resolveAssetSource(require("@/assets/icons/escalator.png")).uri;
   }, []);
 
   const nodes = useMemo(() => {
