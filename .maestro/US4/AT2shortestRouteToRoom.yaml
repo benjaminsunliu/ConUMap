@@ -18,27 +18,30 @@ appId: host.exp.exponent
 - tapOn: "Start (VL820)"
 - inputText: "VL 201.1"
 - tapOn: "End (VL838)"
-- inputText: "VL 202.1"
+- inputText: "VL 201"
 - assertVisible:
-    text: "Navigate"
-- tapOn: "Navigate"
+    id: "indoor-create-path-button"
+- tapOn:
+    id: "indoor-create-path-button"
 - assertVisible:
-    id: "navigation-line-VL_F2_hallway_waypoint_49-VL_202_1"
-- tapOn: 
-   id: "indoor-clear-end-room"
+    id: "active-outline-VL_201_1-VL_201"
+- tapOn:
+    id: "indoor-clear-end-room"
 - tapOn: "End (VL838)"
 - inputText: "VL 202.30"
 - assertVisible:
-    text: "Navigate"
-- tapOn: "Navigate"
+    id: "indoor-create-path-button"
+- tapOn:
+    id: "indoor-create-path-button"
 - assertVisible:
-    id: "navigation-line-VL_F2_hallway_waypoint_52-VL_202_30"
-- tapOn: 
-   id: "indoor-clear-start-room"
+    id: "active-outline-VL_F2_hallway_waypoint_52-VL_202_30"
+- tapOn:
+    id: "indoor-clear-start-room"
 - tapOn: "Start (VL820)"
 - inputText: "VL 203.3"
 - assertVisible:
-    text: "Navigate"
-- tapOn: "Navigate"
+    id: "indoor-create-path-button"
+- tapOn:
+    id: "indoor-create-path-button"
 - assertVisible:
-    id: "navigation-line-VL_F2_hallway_waypoint_52-VL_202_30"
+    id: "active-outline-VL_203_3-VL_F2_hallway_waypoint_56"
