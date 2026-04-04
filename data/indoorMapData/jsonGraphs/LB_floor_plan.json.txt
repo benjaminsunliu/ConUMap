@@ -308,7 +308,7 @@
       "label": "LB-249",
       "accessible": true,
       "metadata": {
-        "POI": "Women's Bathrrom"
+        "POI": "Bathroom"
       }
     },
     {

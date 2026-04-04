@@ -288,7 +288,7 @@ function renderIconLayer({
           height={highlightHeight}
           rx={String(highlightRx)}
           fill={highlightColor}
-          fillOpacity="0.35"
+          fillOpacity="0.70"
           stroke={highlightColor}
           strokeWidth="3"
           strokeOpacity="0.95"
