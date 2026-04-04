@@ -10,6 +10,7 @@ appId: host.exp.exponent
 - tapOn: "SGW"
 - tapOn: "POI filters"
 - assertVisible: "POI Settings"
+# Swipe UP sets the slider to the middle (500m)
 - swipe:
     from:
       id: "radius-slider"
@@ -20,6 +21,7 @@ appId: host.exp.exponent
     id: "marker-ChIJU3alcmoayUwRHw9ZVSUzjzc"
 - tapOn: "POI filters"
 - assertVisible: "POI Settings"
+# Swipe RIGHT sets the slider all the way to the right (1000m)
 - swipe:
     from:
       id: "radius-slider"
