@@ -3278,7 +3278,7 @@
       "type": "stair_landing",
       "buildingId": "H",
       "floor": 1,
-      "x": 1748,
+      "x": 1800,
       "y": 1674,
       "label": "",
       "accessible": false
@@ -3369,7 +3369,7 @@
       "buildingId": "H",
       "floor": 1,
       "x": 1863,
-      "y": 1050,
+      "y": 980,
       "label": "",
       "accessible": false
     },
