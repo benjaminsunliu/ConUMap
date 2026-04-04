@@ -20,9 +20,9 @@ appId: host.exp.exponent
     direction: UP
 - tapOn: "SGW"
 - tapOn:
-    id: "marker-ChIJSRH2i2sayUwRYt5byUqY0Es"
+    id: "marker-ChIJU3alcmoayUwRHw9ZVSUzjzc"
 - assertVisible:
-    text: "MTLKFOOD"
+    text: "Directions"
 - tapOn:
     id: "directions-action-button"
 - swipe:
