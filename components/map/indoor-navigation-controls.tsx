@@ -61,6 +61,7 @@ export default function IndoorNavigationControls({
 
       <TouchableOpacity
         style={[styles.sideButton, !canGoNext && styles.disabled]}
+        testID="next-button"
         onPress={onNext}
         disabled={!canGoNext}
       >
