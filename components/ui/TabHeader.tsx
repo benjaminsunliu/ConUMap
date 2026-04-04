@@ -3,8 +3,6 @@ import { Image, StyleSheet, View } from "react-native";
 interface TabHeaderProps {
   backgroundColor: string;
   logoSource: number;
-  showBackButton?: boolean;
-  backButtonColor?: string;
 }
 
 export default function TabHeader({
@@ -12,7 +10,7 @@ export default function TabHeader({
   logoSource,
 }: Readonly<TabHeaderProps>) {
   return (
-    <View style={[styles.header, { backgroundColor }]}>
+    <View testID="tab-header" style={[styles.header, { backgroundColor }]}>
       <Image source={logoSource} style={styles.logo} resizeMode="contain" />
     </View>
   );
@@ -24,6 +22,6 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: 120,
-    height: 40,
+    height: 35,
   },
 });

@@ -1,9 +1,10 @@
 appId: host.exp.Exponent
 ---
-- openLink: exp://localhost:8081
-- setPermissions:
-    permissions:
-      location: allow
+- runFlow:
+    when:
+      notVisible:
+        id: "building-selection"
+    file: ../openLink.yaml
 - setLocation:
     latitude: 45.4947027
     longitude: -73.57779649999999

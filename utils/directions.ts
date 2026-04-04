@@ -134,6 +134,14 @@ interface NormalizedTransitDetails {
   arrival_stop: NormalizedTransitStop;
 }
 
+export interface NormalizedIndoorDetails {
+  building_code: string;
+  start_checkpoint_id?: string;
+  end_checkpoint_id?: string;
+  start_room?: string;
+  end_room?: string;
+}
+
 export interface NormalizedStep {
   distance: NormalizedTextValue;
   duration: NormalizedTextValue;
@@ -142,6 +150,7 @@ export interface NormalizedStep {
   polyline: { points: string };
   travel_mode: string;
   transit_details?: NormalizedTransitDetails;
+  indoor_details?: NormalizedIndoorDetails;
 }
 
 export interface NormalizedLeg {

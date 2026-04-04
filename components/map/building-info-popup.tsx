@@ -2,10 +2,11 @@ import { Colors } from "@/constants/theme";
 import { BuildingInfo } from "@/types/mapTypes";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback, useMemo } from "react";
-import { Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Linking, StyleSheet, Text, View } from "react-native";
 import InfoPopup from "../ui/popup";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { ScrollView } from "react-native-gesture-handler";
+import { ActionButton, ActionIconName } from "./action-button";
 
 interface Props {
   building: BuildingInfo | null;
@@ -13,6 +14,9 @@ interface Props {
   onNavigate?: () => void;
   onSetAsStart?: () => void;
   onExploreRooms?: () => void;
+  roomContext?: {
+    roomName: string;
+  };
 }
 
 const WEEKDAYS = [
@@ -35,12 +39,10 @@ const DEFAULT_OPENING_HOURS = [
   "7:00 AM – 9:00 PM",
 ];
 
-type IconName = keyof typeof Ionicons.glyphMap;
-
 interface Action {
   type: string;
   label: string;
-  icon?: IconName;
+  icon?: ActionIconName;
   active?: boolean;
   handler?: () => void;
 }
@@ -51,6 +53,7 @@ export default function BuildingInfoPopup({
   onNavigate,
   onSetAsStart,
   onExploreRooms,
+  roomContext,
 }: Readonly<Props>) {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
@@ -68,7 +71,7 @@ export default function BuildingInfoPopup({
   const ACTIONS: Action[] = useMemo(
     () => [
       {
-        label: "Directions",
+        label: roomContext ? "Directions to Room" : "Directions",
         icon: "navigate-outline",
         type: "directions",
         handler: onNavigate,
@@ -80,32 +83,43 @@ export default function BuildingInfoPopup({
         handler: onSetAsStart,
       },
       {
-        label: "Website",
-        icon: "globe-outline",
-        type: "website",
-        handler: openWebsiteURL,
-      },
-      {
-        label: "Explore Rooms",
+        label: roomContext ? "Open Indoor Map" : "Explore Rooms",
         icon: "business-outline",
         type: "rooms",
         handler: onExploreRooms,
         active: hasIndoorNavigation,
       },
+      {
+        label: "Website",
+        icon: "globe-outline",
+        type: "website",
+        handler: openWebsiteURL,
+      },
     ],
-    [onNavigate, onSetAsStart, openWebsiteURL, onExploreRooms, hasIndoorNavigation],
+    [
+      roomContext,
+      onNavigate,
+      onSetAsStart,
+      openWebsiteURL,
+      onExploreRooms,
+      hasIndoorNavigation,
+    ],
   );
 
   const header = useMemo(() => {
     return (
       <>
         <View style={styles.headerText}>
-          <Text style={styles.title} numberOfLines={1}>
-            {building?.buildingCode} – {building?.buildingName}
+          <Text style={styles.title}>
+            {roomContext
+              ? `${building?.buildingCode} – Room ${roomContext.roomName}`
+              : `${building?.buildingCode} – ${building?.buildingName}`}
           </Text>
 
           <Text style={styles.line}>
-            {building?.campus} Campus | {building?.address}
+            {roomContext
+              ? `${building?.buildingName} | ${building?.campus} Campus | ${building?.address}`
+              : `${building?.campus} Campus | ${building?.address}`}
           </Text>
 
           <Text style={styles.openStatus}>Today: {DEFAULT_OPENING_HOURS[todayIdx]}</Text>
@@ -131,6 +145,7 @@ export default function BuildingInfoPopup({
   }, [
     ACTIONS,
     building,
+    roomContext,
     styles.actionsRow,
     styles.line,
     styles.openStatus,
@@ -207,60 +222,6 @@ const ListItem = ({
   </View>
 );
 
-const ActionButton = ({
-  label,
-  icon,
-  onPress,
-  testID,
-  theme,
-  active = true,
-}: {
-  readonly label: string;
-  readonly icon?: IconName;
-  readonly onPress?: () => void;
-  readonly testID: string;
-  readonly theme: typeof Colors.light;
-  readonly active?: boolean;
-}) => {
-  return (
-    <TouchableOpacity
-      style={[
-        {
-          flexDirection: "row",
-          alignItems: "center",
-          paddingHorizontal: 10,
-          borderRadius: 20,
-          height: 40,
-          backgroundColor: theme.buildingInfoPopup.actionButtonBackground,
-        },
-      ]}
-      onPress={active ? onPress : undefined}
-      testID={testID}
-    >
-      <Ionicons
-        name={icon}
-        size={18}
-        color={
-          active
-            ? theme.buildingInfoPopup.actionButtonIcon
-            : theme.buildingInfoPopup.disabledActionButtonColor
-        }
-        style={{ marginRight: 6 }}
-      />
-      <Text
-        style={{
-          color: active
-            ? theme.buildingInfoPopup.actionButtonText
-            : theme.buildingInfoPopup.disabledActionButtonColor,
-          fontWeight: "500",
-        }}
-      >
-        {label}
-      </Text>
-    </TouchableOpacity>
-  );
-};
-
 const makeStyles = (theme: (typeof Colors)["light" | "dark"]) =>
   StyleSheet.create({
     headerText: {
@@ -271,6 +232,7 @@ const makeStyles = (theme: (typeof Colors)["light" | "dark"]) =>
       fontWeight: "600",
       color: theme.buildingInfoPopup.title,
       marginBottom: 4,
+      flexShrink: 1,
     },
     line: {
       color: theme.buildingInfoPopup.text,

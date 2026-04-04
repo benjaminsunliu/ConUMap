@@ -145,7 +145,7 @@
     },
     {
       "id": "LB_F2_stair_landing_2",
-      "type": "stair_landing",
+      "type": "building_entry_exit",
       "buildingId": "LB",
       "floor": 2,
       "x": 292,
@@ -205,7 +205,7 @@
     },
     {
       "id": "LB_F2_elevator_door_2",
-      "type": "elevator_door",
+      "type": "building_entry_exit",
       "buildingId": "LB",
       "floor": 2,
       "x": 552,
@@ -4273,56 +4273,56 @@
       "source": "LB_F3_stair_landing_9",
       "target": "LB_F2_stair_landing_5",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F3_elevator_door_5",
       "target": "LB_F2_elevator_door_1",
       "type": "elevator",
-      "weight": 0,
+      "weight": 500,
       "accessible": true
     },
     {
       "source": "LB_F3_stair_landing_10",
       "target": "LB_F2_stair_landing_7",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F3_stair_landing_11",
       "target": "LB_F2_stair_landing_3",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F3_stair_landing_12",
       "target": "LB_F2_stair_landing_1",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F3_stair_landing_13",
       "target": "LB_F2_stair_landing_4",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F3_stair_landing_14",
       "target": "LB_F2_stair_landing_6",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F3_stair_landing_15",
       "target": "LB_F2_stair_landing_8",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
@@ -5064,49 +5064,49 @@
       "source": "LB_F4_stair_landing_16",
       "target": "LB_F3_stair_landing_9",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F4_stair_landing_20",
       "target": "LB_F3_stair_landing_10",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F4_stair_landing_19",
       "target": "LB_F3_stair_landing_11",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F4_stair_landing_18",
       "target": "LB_F3_stair_landing_12",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F4_stair_landing_23",
       "target": "LB_F3_stair_landing_14",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F4_stair_landing_22",
       "target": "LB_F3_stair_landing_15",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F4_elevator_door_6",
       "target": "LB_F3_elevator_door_5",
       "type": "elevator",
-      "weight": 0,
+      "weight": 500,
       "accessible": true
     },
     {
@@ -5652,49 +5652,49 @@
       "source": "LB_F5_stair_landing_26",
       "target": "LB_F4_stair_landing_16",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F5_stair_landing_27",
       "target": "LB_F4_stair_landing_18",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F5_stair_landing_28",
       "target": "LB_F4_stair_landing_19",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F5_stair_landing_29",
       "target": "LB_F4_stair_landing_21",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F5_stair_landing_30",
       "target": "LB_F4_stair_landing_23",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F5_stair_landing_31",
       "target": "LB_F4_stair_landing_22",
       "type": "stair",
-      "weight": 0,
+      "weight": 600,
       "accessible": true
     },
     {
       "source": "LB_F5_elevator_door_7",
       "target": "LB_F4_elevator_door_6",
       "type": "elevator",
-      "weight": 0,
+      "weight": 500,
       "accessible": true
     },
     {
@@ -6460,5 +6460,75 @@
       "weight": 323,
       "accessible": true
     }
+  ],
+  "rooms": [
+    "LB 204",
+    "LB 205",
+    "LB 207",
+    "LB 211",
+    "LB 231",
+    "LB 245",
+    "LB 251",
+    "LB 257",
+    "LB 259",
+    "LB 261",
+    "LB 285",
+    "LB 311",
+    "LB 314",
+    "LB 316",
+    "LB 322",
+    "LB 327",
+    "LB 328",
+    "LB 331",
+    "LB 345",
+    "LB 351",
+    "LB 353",
+    "LB 359",
+    "LB 361",
+    "LB 362",
+    "LB 385",
+    "LB 445",
+    "LB 451",
+    "LB 453",
+    "LB 459",
+    "LB 461",
+    "LB 485",
+    "LB 505",
+    "LB 506",
+    "LB 507",
+    "LB 508",
+    "LB 509",
+    "LB 510",
+    "LB 511",
+    "LB 512",
+    "LB 513",
+    "LB 514",
+    "LB 515",
+    "LB 518",
+    "LB 520",
+    "LB 522",
+    "LB 527",
+    "LB 528",
+    "LB 529",
+    "LB 530",
+    "LB 531",
+    "LB 532",
+    "LB 533",
+    "LB 534",
+    "LB 535",
+    "LB 536",
+    "LB 537",
+    "LB 538",
+    "LB 539",
+    "LB 540",
+    "LB 545",
+    "LB 547",
+    "LB 555",
+    "LB 560",
+    "LB 561",
+    "LB 562",
+    "LB 564",
+    "LB 583",
+    "LB 585"
   ]
 }

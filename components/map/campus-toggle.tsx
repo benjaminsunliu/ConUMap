@@ -5,10 +5,12 @@ import SwitchSelector from "react-native-switch-selector";
 import MapView from "react-native-maps";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
+import { SGW_CENTER, LOY_CENTER } from "@/constants/campusCenters";
 
 interface Props {
   mapRef: React.RefObject<MapView | null>;
   viewRegion: Region;
+  setCurrCampus: React.Dispatch<React.SetStateAction<"SGW" | "LOY">>;
 }
 
 enum Campus {
@@ -16,22 +18,16 @@ enum Campus {
   SGW = 1,
 }
 
-const SGW_CENTER: Coordinate = {
-  latitude: 45.4957849,
-  longitude: -73.577225,
-};
-
-const LOY_CENTER: Coordinate = {
-  latitude: 45.4578596,
-  longitude: -73.6395856,
-};
-
 const DEFAULT_ZOOM: CoordinateDelta = {
   latitudeDelta: 0.01,
   longitudeDelta: 0.01,
 };
 
-export default function CampusToggle({ mapRef, viewRegion }: Readonly<Props>) {
+export default function CampusToggle({
+  mapRef,
+  viewRegion,
+  setCurrCampus,
+}: Readonly<Props>) {
   const colorScheme = useColorScheme();
   const [switchValue, setSwitchValue] = React.useState<number>(() => {
     let sgwDistance = Math.hypot(
@@ -56,13 +52,16 @@ export default function CampusToggle({ mapRef, viewRegion }: Readonly<Props>) {
     );
     let newSwitchValue = sgwDistance < loyDistance ? Campus.SGW : Campus.Loyola;
 
-    if (newSwitchValue !== switchValue) {
-      setSwitchValue(newSwitchValue);
-    }
-  }, [viewRegion, switchValue]);
+    setCurrCampus(newSwitchValue === Campus.SGW ? "SGW" : "LOY");
+
+    setSwitchValue((prev) => (prev === newSwitchValue ? prev : newSwitchValue));
+  }, [viewRegion, setCurrCampus]);
 
   const focusCampusOnPress = (value: number) => {
     let newFocus: Coordinate = value === Campus.SGW ? SGW_CENTER : LOY_CENTER;
+
+    setSwitchValue(value);
+    setCurrCampus(value === Campus.SGW ? "SGW" : "LOY");
 
     mapRef.current?.animateToRegion({
       ...newFocus,

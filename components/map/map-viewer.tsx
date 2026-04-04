@@ -1,24 +1,45 @@
 import { CAMPUS_BUILDINGS } from "@/constants/map";
 import { Colors } from "@/constants/theme";
 import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
+import { IndoorMapSettings } from "@/globals/IndoorMapSettingsStore";
+import { OutdoorRouteStep, OutdoorStepResume } from "@/globals/OutdoorStepResumeStore";
 import { ColorSchemeName, useColorScheme } from "@/hooks/use-color-scheme";
 import { FieldType, SearchBuilding, TransportationMode } from "@/types/buildingTypes";
-import { BuildingInfo, Coordinate, CoordinateDelta } from "@/types/mapTypes";
+import { BuildingInfo, Campus, Coordinate, CoordinateDelta, POI } from "@/types/mapTypes";
 import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
 import { decodePolyline } from "@/utils/decodePolyline";
 import { fetchAllDirections } from "@/utils/directions";
+import {
+  decodeIndoorStepPayload,
+  enrichRoutesWithIndoorTransitions,
+  resolveSearchSelectionBuildingCode,
+} from "@/utils/hybridNavigation";
 import * as LocationPermissions from "expo-location";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import MapViewCluster from "react-native-map-clustering";
-import MapView, { Circle, Marker, Polygon, Polyline, Region } from "react-native-maps";
-import RoutesInfoPopup from "../navigation/routes-info-popup";
+import MapView, {
+  Circle,
+  MapStyleElement,
+  Marker,
+  Polygon,
+  Polyline,
+  Region,
+} from "react-native-maps";
+import RoutesInfoPopup, {
+  RouteStepSelectionContext,
+} from "../navigation/routes-info-popup";
 import BuildingInfoPopup from "./building-info-popup";
-import BuildingSelection, { CURRENT_LOCATION_CODE } from "./building-selection";
+import BuildingSelection from "./building-selection";
 import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
+import OutdoorMapSettings from "./outdoor-map-settings";
+import { CURRENT_LOCATION_CODE } from "@/hooks/use-search-building";
+import PoiMarker from "./poi-marker";
+import { usePoi } from "@/hooks/use-poi";
+import { POIInfoPopup } from "./poi-info-popup";
 
 interface PolylineSegment {
   coordinates: Coordinate[];
@@ -38,11 +59,27 @@ interface TransitionNode {
   toColor: string;
 }
 
+interface RouteOverlayState {
+  polyline: PolylineSegment[] | null;
+  stops: TransitStopMarker[];
+  nodes: TransitionNode[];
+}
+
 interface NavEndpointMarkerProps {
   readonly coordinate: Coordinate;
   readonly label: "A" | "B";
   readonly color: string;
 }
+
+type PoiTypeFilters = {
+  restaurant: boolean;
+  cafe: boolean;
+  library: boolean;
+  gym: boolean;
+  park: boolean;
+  shopping_mall: boolean;
+  supermarket: boolean;
+};
 
 function NavEndpointMarker({ coordinate, label, color }: NavEndpointMarkerProps) {
   return (
@@ -99,14 +136,19 @@ function collectStopsFromStep(step: any, color: string): TransitStopMarker[] {
  */
 function getTransitionNode(
   coords: Coordinate[],
+  currentMode: string,
   color: string,
   nextStep: any,
 ): TransitionNode | null {
-  const nextMode = nextStep.travel_mode ?? "WALK";
+  const normalizedCurrentMode = normalizeStepTravelMode(currentMode);
+  const nextMode = normalizeStepTravelMode(nextStep.travel_mode);
   const nextVehicleType = nextStep.transit_details?.line?.vehicle_type;
   const nextColor = polylineColor(nextMode, nextVehicleType);
 
-  if (nextColor === color) {
+  const hasModeChanged = normalizedCurrentMode !== nextMode;
+  const hasColorChanged = nextColor !== color;
+
+  if (!hasModeChanged && !hasColorChanged) {
     return null;
   }
   const junction = coords.at(-1);
@@ -137,9 +179,117 @@ function polylineColor(travelMode: string, vehicleType?: string): string {
   return "#1a73e8";
 }
 
+function normalizeStepTravelMode(travelMode: string | undefined): string {
+  const mode = (travelMode ?? "WALK").toUpperCase();
+
+  if (mode === "WALKING") {
+    return "WALK";
+  }
+  if (mode === "DRIVE") {
+    return "DRIVING";
+  }
+  if (mode === "BICYCLE") {
+    return "BICYCLING";
+  }
+
+  return mode;
+}
+
+function areCoordinatesEqual(a: Coordinate, b: Coordinate) {
+  return a.latitude === b.latitude && a.longitude === b.longitude;
+}
+
+function coalesceRouteSegments(segments: PolylineSegment[]) {
+  if (segments.length <= 1) {
+    return segments;
+  }
+
+  const merged: PolylineSegment[] = [];
+
+  for (const segment of segments) {
+    const previous = merged.at(-1);
+    if (!previous) {
+      merged.push({
+        coordinates: [...segment.coordinates],
+        color: segment.color,
+        isDashed: segment.isDashed,
+      });
+      continue;
+    }
+
+    const canMerge =
+      previous.color === segment.color && previous.isDashed === segment.isDashed;
+    if (!canMerge) {
+      merged.push({
+        coordinates: [...segment.coordinates],
+        color: segment.color,
+        isDashed: segment.isDashed,
+      });
+      continue;
+    }
+
+    const previousLast = previous.coordinates.at(-1);
+    const segmentFirst = segment.coordinates[0];
+    if (!previousLast || !segmentFirst) {
+      merged.push({
+        coordinates: [...segment.coordinates],
+        color: segment.color,
+        isDashed: segment.isDashed,
+      });
+      continue;
+    }
+
+    const nextCoordinates = areCoordinatesEqual(previousLast, segmentFirst)
+      ? segment.coordinates.slice(1)
+      : segment.coordinates;
+    previous.coordinates.push(...nextCoordinates);
+  }
+
+  return merged;
+}
+
+function buildOutdoorStepResume(step: any): OutdoorRouteStep | null {
+  const encodedPolyline = step?.polyline?.points;
+  const travelMode = normalizeStepTravelMode(step?.travel_mode);
+  if (!encodedPolyline || travelMode === "INDOOR") {
+    return null;
+  }
+
+  return {
+    encodedPolyline,
+    travelMode,
+  };
+}
+
 interface Props {
   readonly userLocationDelta?: CoordinateDelta;
   readonly initialRegion?: Region;
+}
+
+const EMPTY_ROUTES: Record<TransportationMode, any[] | null> = {
+  walking: null,
+  transit: null,
+  driving: null,
+  bicycling: null,
+  shuttle: null,
+};
+
+const EMPTY_ROUTE_OVERLAY: RouteOverlayState = {
+  polyline: null,
+  stops: [],
+  nodes: [],
+};
+
+function normalizeRoutes(
+  routes: Partial<Record<TransportationMode, any[] | null>> | null | undefined,
+): Record<TransportationMode, any[] | null> {
+  return {
+    walking: Array.isArray(routes?.walking) ? routes.walking : null,
+    transit: Array.isArray(routes?.transit) ? routes.transit : null,
+    driving: Array.isArray(routes?.driving) ? routes.driving : null,
+    bicycling: Array.isArray(routes?.bicycling) ? routes.bicycling : null,
+    shuttle: Array.isArray(routes?.shuttle) ? routes.shuttle : null,
+  };
 }
 
 interface Cluster {
@@ -162,6 +312,10 @@ export default function MapViewer({
   const mapViewRef = useRef<MapView>(null);
   const suppressNextMapPress = useRef(false);
 
+  const [currCampus, setCurrCampus] = useState<Campus>("SGW");
+  const [radius, setRadius] = useState(0);
+  const [searchFieldFocused, setSearchFieldFocused] = useState(false);
+
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
   const [modalOpen, setModalOpen] = useState(false);
@@ -170,17 +324,18 @@ export default function MapViewer({
 
   const [navigationMode, setNavigationMode] = useState<"browse" | "directions">("browse");
   const [shouldDisplayRoutes, setShouldDisplayRoutes] = useState(false);
-  const [routes, setRoutes] = useState<Record<TransportationMode, any[] | null>>({
-    walking: null,
-    transit: null,
-    driving: null,
-    bicycling: null,
-    shuttle: null,
-  });
-  const [routePolyline, setRoutePolyline] = useState<PolylineSegment[] | null>(null);
-  const [routeStops, setRouteStops] = useState<TransitStopMarker[]>([]);
-  const [routeNodes, setRouteNodes] = useState<TransitionNode[]>([]);
+
+  const [routes, setRoutes] = useState<Record<TransportationMode, any[] | null>>(
+    normalizeRoutes(EMPTY_ROUTES),
+  );
+  const [routeOverlay, setRouteOverlay] =
+    useState<RouteOverlayState>(EMPTY_ROUTE_OVERLAY);
   const [routeKey, setRouteKey] = useState(0);
+  const pendingRouteRenderFrameRef = useRef<number | null>(null);
+  const routeRenderGenerationRef = useRef(0);
+  const activeIndoorStepSessionRef = useRef<{
+    resumeContinuationId: string | null;
+  } | null>(null);
   const [navCoords, setNavCoords] = useState<{
     start: Coordinate | null;
     end: Coordinate | null;
@@ -192,6 +347,12 @@ export default function MapViewer({
     start: string | null;
     end: string | null;
   }>({
+    start: null,
+    end: null,
+  });
+  const [selectedSearchLocations, setSelectedSearchLocations] = useState<
+    Record<FieldType, SearchBuilding | null>
+  >({
     start: null,
     end: null,
   });
@@ -208,36 +369,155 @@ export default function MapViewer({
     coord: null,
     label: "",
   });
+  const lastManualStartSelectionRef = useRef<SearchBuilding | null>(null);
 
   const showStartHint =
     navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
+  const isTestEnvironment = process.env.NODE_ENV === "test";
+  const shouldRenderDirectionAuxOverlays = !(
+    Platform.OS === "ios" &&
+    navigationMode === "directions" &&
+    !isTestEnvironment
+  );
 
-  const { buildingId, autoNavigate } = useLocalSearchParams<{
+  const { buildingId, autoNavigate, destinationRoom } = useLocalSearchParams<{
     buildingId?: string;
     buildingName?: string;
     autoNavigate?: string;
+    destinationRoom?: string;
   }>();
+  const places = usePoi(currCampus, radius);
+  const [poiFilters, setPoiFilters] = useState<PoiTypeFilters>({
+    restaurant: true,
+    cafe: true,
+    library: true,
+    gym: true,
+    park: true,
+    shopping_mall: true,
+    supermarket: true,
+  });
+  const [selectedPOI, setSelectedPOI] = useState<POI | null>(null);
+
+  const cancelPendingRouteRender = useCallback(() => {
+    routeRenderGenerationRef.current += 1;
+    if (
+      pendingRouteRenderFrameRef.current != null &&
+      typeof cancelAnimationFrame === "function"
+    ) {
+      cancelAnimationFrame(pendingRouteRenderFrameRef.current);
+    }
+    pendingRouteRenderFrameRef.current = null;
+  }, []);
+
+  const clearRouteRendering = useCallback(() => {
+    cancelPendingRouteRender();
+    // Force route overlays to remount so stale native polylines do not linger.
+    setRouteKey((key) => key + 1);
+    setRouteOverlay(EMPTY_ROUTE_OVERLAY);
+  }, [cancelPendingRouteRender]);
 
   useEffect(() => {
-    if (!navCoords.start || !navCoords.end) {
+    return () => {
+      cancelPendingRouteRender();
+    };
+  }, [cancelPendingRouteRender]);
+
+  const focusRouteStep = useCallback((encoded: string) => {
+    const coords = decodePolyline(encoded);
+    if (coords.length >= 2) {
+      const mid = coords[Math.floor(coords.length / 2)];
+      mapViewRef.current?.animateToRegion({
+        latitude: mid.latitude,
+        longitude: mid.longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      });
+    }
+  }, []);
+
+  /**
+   * Clears all navigation-related state, resetting the map to browse mode. It hides any displayed routes, clears the route polyline, stops, and transition nodes, and resets the navigation coordinates and selection overrides.
+   */
+  const clearRouteInfo = useCallback(() => {
+    activeIndoorStepSessionRef.current = null;
+    lastDestinationRef.current = { coord: null, label: "" };
+    setNavigationMode("browse");
+
+    setShouldDisplayRoutes(false);
+    setRoutes(normalizeRoutes(EMPTY_ROUTES));
+    clearRouteRendering();
+    setNavCoords({ start: null, end: null });
+    setSelectionOverrides({ start: null, end: null });
+    setSelectedSearchLocations({ start: null, end: null });
+
+    requestAnimationFrame(() => {
+      suppressNextMapPress.current = false;
+    });
+  }, [clearRouteRendering]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const pendingStep = OutdoorStepResume.consumePendingStep();
+      if (!pendingStep) {
+        const activeIndoorStepSession = activeIndoorStepSessionRef.current;
+        if (!activeIndoorStepSession) {
+          return;
+        }
+
+        if (activeIndoorStepSession.resumeContinuationId) {
+          OutdoorStepResume.clearContinuation(
+            activeIndoorStepSession.resumeContinuationId,
+          );
+        }
+        activeIndoorStepSessionRef.current = null;
+        return;
+      }
+
+      activeIndoorStepSessionRef.current = null;
+      focusRouteStep(pendingStep.encodedPolyline);
+    }, [focusRouteStep]),
+  );
+
+  useEffect(() => {
+    const routeStart = navCoords.start;
+    const routeEnd = navCoords.end;
+    if (!routeStart || !routeEnd) {
       return;
     }
 
     let cancelled = false;
-    setRoutePolyline(null);
-    setRouteStops([]);
-    setRouteNodes([]);
+    clearRouteRendering();
     setShouldDisplayRoutes(true);
+
+    const startSelection = selectedSearchLocations.start;
+    const endSelection = selectedSearchLocations.end;
 
     (async () => {
       try {
-        const nextRoutes = await fetchAllDirections(navCoords.start!, navCoords.end!);
+        const fetchedRoutes = normalizeRoutes(
+          await fetchAllDirections(routeStart, routeEnd),
+        );
+        const indoorSettings = await IndoorMapSettings.getSettings().catch(() =>
+          IndoorMapSettings.getCachedSettings(),
+        );
+        const nextRoutes = await enrichRoutesWithIndoorTransitions(
+          fetchedRoutes,
+          {
+            start: startSelection,
+            end: endSelection,
+          },
+          CAMPUS_BUILDINGS,
+          {
+            accessibleOnly: indoorSettings.wheelchairOnly,
+          },
+        );
         if (!cancelled) {
-          setRoutes(nextRoutes);
+          setRoutes(normalizeRoutes(nextRoutes));
         }
       } catch (error) {
         if (!cancelled) {
           console.error("Failed to fetch directions:", error);
+          setRoutes(normalizeRoutes(EMPTY_ROUTES));
         }
       }
     })();
@@ -245,7 +525,13 @@ export default function MapViewer({
     return () => {
       cancelled = true;
     };
-  }, [navCoords.start, navCoords.end]);
+  }, [
+    navCoords.start,
+    navCoords.end,
+    selectedSearchLocations.start,
+    selectedSearchLocations.end,
+    clearRouteRendering,
+  ]);
 
   const inBuildingCodes = useMemo(() => {
     const codes = new Set<string>();
@@ -321,13 +607,14 @@ export default function MapViewer({
 
   /**
    * Animates the map to center on the given building's location, using a tighter zoom level for better focus. The latitude and longitude deltas are adjusted to be no larger than 0.0025 to ensure a close-up view of the building, while still respecting the current zoom level if it's already close enough. This function is used when a building is selected to provide a focused view of that building on the map.
-   * @param building The BuildingInfo object representing the building to focus on, which contains its location and other details.
+   * @param lat The latitude of the building's location to focus on.
+   * @param lng The longitude of the building's location to focus on.
    */
   const focusBuilding = useCallback(
-    (building: BuildingInfo) => {
+    (lat: number, lng: number) => {
       mapViewRef.current?.animateToRegion({
-        latitude: building.location.latitude,
-        longitude: building.location.longitude,
+        latitude: lat,
+        longitude: lng,
         latitudeDelta: Math.min(currentRegion.latitudeDelta, 0.0025),
         longitudeDelta: Math.min(currentRegion.longitudeDelta, 0.0025),
       });
@@ -354,9 +641,23 @@ export default function MapViewer({
     if (!buildingId) return;
     const nextBuilding = selectBuildingByCode(buildingId);
     if (nextBuilding) {
-      focusBuilding(nextBuilding);
+      focusBuilding(nextBuilding.location.latitude, nextBuilding.location.longitude);
 
       if (autoNavigate === "true") {
+        const trimmedDestinationRoom = destinationRoom?.trim() ?? "";
+        const destinationSelection: SearchBuilding | null = trimmedDestinationRoom
+          ? {
+              buildingCode: trimmedDestinationRoom,
+              buildingName: trimmedDestinationRoom,
+              address: nextBuilding.address,
+              campus: nextBuilding.campus,
+              parentBuildingCode: nextBuilding.buildingCode,
+              roomName: trimmedDestinationRoom,
+              isIndoorRoom: true,
+            }
+          : null;
+        const destinationLabel =
+          destinationSelection?.roomName ?? nextBuilding.buildingName;
         const { coord: startCoord, label: startLabel } = resolveStartLocation();
 
         if (startCoord && startLabel) {
@@ -365,23 +666,30 @@ export default function MapViewer({
 
         setSelectionOverrides({
           start: startLabel,
-          end: nextBuilding.buildingName,
+          end: destinationLabel,
         });
         lastDestinationRef.current = {
           coord: nextBuilding.location,
-          label: nextBuilding.buildingName,
+          label: destinationLabel,
         };
         userClearedStart.current = false;
+        setSelectedSearchLocations({ start: null, end: destinationSelection });
         setNavCoords({ start: startCoord, end: nextBuilding.location });
         setNavigationMode("directions");
         setShouldDisplayRoutes(true);
       }
     }
     // Ensures that buildingId is undefined after
-    router.setParams({ buildingId: "", buildingName: "", autoNavigate: "" });
+    router.setParams({
+      buildingId: "",
+      buildingName: "",
+      autoNavigate: "",
+      destinationRoom: "",
+    });
   }, [
     buildingId,
     autoNavigate,
+    destinationRoom,
     selectBuildingByCode,
     focusBuilding,
     resolveStartLocation,
@@ -393,22 +701,27 @@ export default function MapViewer({
    */
   const handleBuildingPress = useCallback(
     (building: BuildingInfo) => {
+      setSelectedPOI(null);
       suppressNextMapPress.current = true;
       selectBuildingByCode(building.buildingCode);
-      focusBuilding(building);
-      setNavigationMode("browse");
-      setShouldDisplayRoutes(false);
-      setRoutePolyline(null);
-      setRouteStops([]);
-      setRouteNodes([]);
-      setNavCoords({ start: null, end: null });
-      setSelectionOverrides({ start: null, end: null });
-
-      requestAnimationFrame(() => {
-        suppressNextMapPress.current = false;
-      });
+      focusBuilding(building.location.latitude, building.location.longitude);
+      clearRouteInfo();
     },
-    [selectBuildingByCode, focusBuilding],
+    [selectBuildingByCode, focusBuilding, clearRouteInfo],
+  );
+
+  /**
+   * Handles the event when a POI is pressed on the map. It updates the selected POI state, focuses the map on the POI's location, and resets any existing navigation state to switch back to browse mode.
+   * @param poi The POI object representing the point of interest that was pressed
+   */
+  const handlePOIPress = useCallback(
+    (poi: POI) => {
+      setSelectedBuilding(null);
+      setSelectedPOI(poi);
+      focusBuilding(poi.geometry.location.lat, poi.geometry.location.lng);
+      clearRouteInfo();
+    },
+    [focusBuilding, clearRouteInfo],
   );
 
   /**
@@ -499,6 +812,41 @@ export default function MapViewer({
     [mapColors],
   );
 
+  const navigate = useCallback(
+    (
+      endLabel: string,
+      endCoord: Coordinate,
+      selectionContext?: Partial<Record<FieldType, SearchBuilding | null>>,
+    ) => {
+      const { coord: startCoord, label: startLabel } = resolveStartLocation();
+      const startSelection =
+        selectionContext?.start ?? lastManualStartSelectionRef.current ?? null;
+
+      if (startCoord && startLabel) {
+        lastStartRef.current = { coord: startCoord, label: startLabel };
+      }
+
+      setSelectionOverrides({
+        start: startLabel,
+        end: endLabel,
+      });
+
+      lastDestinationRef.current = {
+        coord: endCoord,
+        label: endLabel,
+      };
+      userClearedStart.current = false;
+      setSelectedSearchLocations({
+        start: startSelection,
+        end: selectionContext?.end ?? null,
+      });
+      setNavCoords({ start: startCoord, end: endCoord });
+      setNavigationMode("directions");
+      setShouldDisplayRoutes(true);
+    },
+    [resolveStartLocation],
+  );
+
   /**
    * Handles the navigation action when the user chooses to navigate to a selected building. It determines the starting point for navigation based on the user's current location, any buildings they are currently in, or a manually selected start point. It then sets the navigation coordinates and mode to "directions", which triggers the fetching and display of routes from the start location to the selected building. This function is called when the user presses the navigate button in the BuildingInfoPopup, allowing them to easily get directions to the building they are interested in.
    */
@@ -514,26 +862,36 @@ export default function MapViewer({
       return;
     }
 
-    const { coord: startCoord, label: startLabel } = resolveStartLocation();
+    const selectedEndSearch = selectedSearchLocations.end;
+    const selectedEndBuildingCode = resolveSearchSelectionBuildingCode(
+      selectedEndSearch,
+      CAMPUS_BUILDINGS,
+    );
+    const isRoomDestination =
+      selectedEndSearch?.isIndoorRoom &&
+      selectedEndBuildingCode === selectedBuilding.buildingCode;
+    const destinationLabel = isRoomDestination
+      ? (selectedEndSearch.roomName ?? selectedEndSearch.buildingName)
+      : selectedBuilding.buildingName;
 
-    if (startCoord && startLabel) {
-      lastStartRef.current = { coord: startCoord, label: startLabel };
-    }
-
-    setSelectionOverrides({
-      start: startLabel,
-      end: selectedBuilding.buildingName,
+    navigate(destinationLabel, mapBuilding.location, {
+      end: isRoomDestination ? selectedEndSearch : null,
     });
+  }, [selectedBuilding, selectedSearchLocations.end, navigate]);
 
-    lastDestinationRef.current = {
-      coord: mapBuilding.location,
-      label: selectedBuilding.buildingName,
+  /**
+   * Handles the navigation action when the user chooses to navigate to a selected POI. It sets the navigation coordinates to route from the user's current location  to the POI's location, and switches the navigation mode to "directions" to display the route.
+   */
+  const navigateToPOI = useCallback(() => {
+    if (!selectedPOI) {
+      return;
+    }
+    const endCoord = {
+      latitude: selectedPOI.geometry.location.lat,
+      longitude: selectedPOI.geometry.location.lng,
     };
-    userClearedStart.current = false;
-    setNavCoords({ start: startCoord, end: mapBuilding.location });
-    setNavigationMode("directions");
-    setShouldDisplayRoutes(true);
-  }, [selectedBuilding, resolveStartLocation]);
+    navigate(selectedPOI.name, endCoord);
+  }, [selectedPOI, navigate]);
 
   const setBuildingAsStart = useCallback(() => {
     if (!selectedBuilding) {
@@ -547,38 +905,47 @@ export default function MapViewer({
       return;
     }
 
+    const selectedEndSearch = selectedSearchLocations.end;
+    const selectedEndBuildingCode = resolveSearchSelectionBuildingCode(
+      selectedEndSearch,
+      CAMPUS_BUILDINGS,
+    );
+    const shouldUseSelectedRoomAsStart = Boolean(
+      selectedEndSearch?.isIndoorRoom &&
+      selectedEndBuildingCode === selectedBuilding.buildingCode,
+    );
+    const startSelection = shouldUseSelectedRoomAsStart ? selectedEndSearch : null;
+    const startLabel =
+      startSelection?.roomName ??
+      startSelection?.buildingName ??
+      selectedBuilding.buildingName;
+
     const lastDest = lastDestinationRef.current;
     lastStartRef.current = {
       coord: mapBuilding.location,
-      label: selectedBuilding.buildingName,
+      label: startLabel,
     };
     lastManualStartRef.current = {
       coord: mapBuilding.location,
-      label: selectedBuilding.buildingName,
+      label: startLabel,
     };
+    lastManualStartSelectionRef.current = startSelection;
     userClearedStart.current = false;
     setNavigationMode("directions");
     setShouldDisplayRoutes(lastDest.coord != null);
-    setSelectionOverrides({ start: selectedBuilding.buildingName, end: lastDest.label });
+    setSelectionOverrides({ start: startLabel, end: lastDest.label });
+    setSelectedSearchLocations({ start: startSelection, end: null });
     setNavCoords({ start: mapBuilding.location, end: lastDest.coord });
-    setRoutePolyline(null);
-    setRouteStops([]);
-    setRouteNodes([]);
-  }, [selectedBuilding]);
+    clearRouteRendering();
+  }, [clearRouteRendering, selectedBuilding, selectedSearchLocations.end]);
 
   /**
    * Handles the action of going back from the directions view to the browse mode. It resets all navigation-related state, including the navigation mode, route display, navigation coordinates, selection overrides, and any displayed routes or stops. This function is called when the user presses the back button in the RoutesInfoPopup, allowing them to exit the directions view and return to browsing the map without any active navigation routes displayed.
    */
   const handleBackFromDirections = useCallback(() => {
     userClearedStart.current = false;
-    setNavigationMode("browse");
-    setShouldDisplayRoutes(false);
-    setNavCoords({ start: null, end: null });
-    setSelectionOverrides({ start: null, end: null });
-    setRoutePolyline(null);
-    setRouteStops([]);
-    setRouteNodes([]);
-  }, []);
+    clearRouteInfo();
+  }, [clearRouteInfo]);
 
   /**
    * Handles the action of swapping the start and end fields in the navigation directions. It updates the navigation coordinates, selection overrides, and manual start point to reflect the swap. This allows users to quickly reverse their route without having to manually re-enter the start and end locations. The function also resets any displayed routes or stops, prompting a new route calculation based on the updated coordinates. This is typically called when the user presses a swap button in the BuildingSelection component while in directions mode.
@@ -587,61 +954,225 @@ export default function MapViewer({
     // Capture current values before swapping
     const currentStart = navCoords.start;
     const currentEnd = navCoords.end;
+    const currentStartSelection = selectedSearchLocations.start;
+    const currentEndSelection = selectedSearchLocations.end;
+    const currentStartLabel = selectionOverrides.start;
+    const currentEndLabel = selectionOverrides.end;
+
+    setRoutes(normalizeRoutes(EMPTY_ROUTES));
+    setShouldDisplayRoutes(false);
+
+    if (currentEnd && currentEndLabel) {
+      lastStartRef.current = { coord: currentEnd, label: currentEndLabel };
+      lastManualStartRef.current = { coord: currentEnd, label: currentEndLabel };
+    } else {
+      lastManualStartRef.current = { coord: null, label: "" };
+    }
+    lastManualStartSelectionRef.current = currentEndSelection;
+    userClearedStart.current = !currentEnd;
+    if (currentStart && currentStartLabel) {
+      lastDestinationRef.current = { coord: currentStart, label: currentStartLabel };
+    } else {
+      lastDestinationRef.current = { coord: null, label: "" };
+    }
 
     // Swap the coordinates
     setNavCoords({ start: currentEnd, end: currentStart });
-    setSelectionOverrides((prev) => ({ start: prev.end, end: prev.start }));
-    setRoutePolyline(null);
-    setRouteStops([]);
-    setRouteNodes([]);
-  }, [navCoords.start, navCoords.end]);
+    setSelectedSearchLocations({
+      start: currentEndSelection,
+      end: currentStartSelection,
+    });
+    setSelectionOverrides({
+      start: currentEndLabel,
+      end: currentStartLabel,
+    });
+    clearRouteRendering();
+  }, [
+    clearRouteRendering,
+    navCoords.start,
+    navCoords.end,
+    selectedSearchLocations.start,
+    selectedSearchLocations.end,
+    selectionOverrides.start,
+    selectionOverrides.end,
+  ]);
 
-  const clearRouteRendering = useCallback(() => {
-    setRoutePolyline(null);
-    setRouteStops([]);
-    setRouteNodes([]);
-  }, []);
+  const getSelectedBuildingCode = useCallback(
+    (selected: SearchBuilding | null | undefined) => {
+      if (!selected || selected.buildingCode === CURRENT_LOCATION_CODE) {
+        return null;
+      }
+
+      return resolveSearchSelectionBuildingCode(selected, CAMPUS_BUILDINGS);
+    },
+    [],
+  );
 
   const resolveSelectionCoordinate = useCallback(
-    (selectedCode?: string) => {
-      if (selectedCode === CURRENT_LOCATION_CODE) {
+    (selected: SearchBuilding | null | undefined) => {
+      if (selected?.buildingCode === CURRENT_LOCATION_CODE) {
         return userLocation;
       }
+
+      const selectedCode = getSelectedBuildingCode(selected);
       if (!selectedCode) {
         return null;
       }
 
-      const building = CAMPUS_BUILDINGS.find((b) => b.buildingCode === selectedCode);
+      const building = CAMPUS_BUILDINGS.find((candidate) => {
+        return candidate.buildingCode === selectedCode;
+      });
       return building?.location ?? null;
     },
-    [userLocation],
+    [getSelectedBuildingCode, userLocation],
   );
 
-  const handleStartSelection = useCallback((coord: Coordinate | null, label: string) => {
-    userClearedStart.current = !coord;
-    if (coord) {
-      lastStartRef.current = { coord, label };
-      lastManualStartRef.current = { coord, label };
-    }
-  }, []);
+  const handleStartSelection = useCallback(
+    (coord: Coordinate | null, label: string, selection: SearchBuilding | null) => {
+      userClearedStart.current = !coord;
+      if (coord) {
+        lastStartRef.current = { coord, label };
+        lastManualStartRef.current = { coord, label };
+        lastManualStartSelectionRef.current = selection;
+      } else {
+        lastManualStartSelectionRef.current = null;
+      }
+    },
+    [],
+  );
 
   const handleEndSelection = useCallback(
     (selected: SearchBuilding | null, coord: Coordinate | null) => {
-      if (coord) {
-        lastDestinationRef.current = { coord, label: selected?.buildingName ?? "" };
+      if (navigationMode === "directions") {
+        if (coord) {
+          lastDestinationRef.current = { coord, label: selected?.buildingName ?? "" };
+        } else {
+          lastDestinationRef.current = { coord: null, label: "" };
+        }
       }
 
-      if (selected?.buildingCode && selected.buildingCode !== CURRENT_LOCATION_CODE) {
-        const nextBuilding = selectBuildingByCode(selected.buildingCode);
+      const selectedBuildingCode = getSelectedBuildingCode(selected);
+      if (selectedBuildingCode) {
+        const nextBuilding = selectBuildingByCode(selectedBuildingCode);
         if (nextBuilding) {
-          focusBuilding(nextBuilding);
+          focusBuilding(nextBuilding.location.latitude, nextBuilding.location.longitude);
         }
       } else {
         setSelectedBuilding(null);
       }
     },
-    [focusBuilding, selectBuildingByCode],
+    [focusBuilding, getSelectedBuildingCode, navigationMode, selectBuildingByCode],
   );
+
+  const resolveIndoorRoomName = useCallback(
+    (selection: SearchBuilding | null | undefined) => {
+      if (!selection) {
+        return null;
+      }
+
+      const roomName = (selection.roomName ?? selection.buildingName ?? "").trim();
+      if (!roomName) {
+        return null;
+      }
+
+      const isRoomSelection = Boolean(
+        selection.isIndoorRoom || selection.parentBuildingCode || selection.roomName,
+      );
+      return isRoomSelection ? roomName : null;
+    },
+    [],
+  );
+
+  const openIndoorNavigationFromRoomSelections = useCallback(
+    (selections: Record<FieldType, SearchBuilding | null>) => {
+      const startSelection = selections.start;
+      const endSelection = selections.end;
+
+      const startRoom = resolveIndoorRoomName(startSelection);
+      const endRoom = resolveIndoorRoomName(endSelection);
+      if (!startRoom || !endRoom) {
+        return false;
+      }
+
+      const startBuildingCode = getSelectedBuildingCode(startSelection);
+      const endBuildingCode = getSelectedBuildingCode(endSelection);
+      if (
+        !startBuildingCode ||
+        !endBuildingCode ||
+        startBuildingCode !== endBuildingCode
+      ) {
+        return false;
+      }
+
+      if (!NavigationLoader.buildingHasNavigationData(startBuildingCode)) {
+        return false;
+      }
+
+      const indoorPath = `/${encodeURIComponent(startBuildingCode)}?indoorStartRoom=${encodeURIComponent(startRoom)}&indoorEndRoom=${encodeURIComponent(endRoom)}`;
+      userClearedStart.current = false;
+      selectBuildingByCode(startBuildingCode);
+      clearRouteInfo();
+      router.push(indoorPath as any);
+      return true;
+    },
+    [
+      clearRouteInfo,
+      getSelectedBuildingCode,
+      resolveIndoorRoomName,
+      selectBuildingByCode,
+    ],
+  );
+
+  const filteredPlaces = useMemo(() => {
+    const enabledTypes = Object.entries(poiFilters)
+      .filter(([, isEnabled]) => isEnabled)
+      .map(([type]) => type);
+
+    if (enabledTypes.length === 0) {
+      return [];
+    }
+
+    return places.filter((poi) => poi.types?.some((type) => enabledTypes.includes(type)));
+  }, [places, poiFilters]);
+
+  useEffect(() => {
+    if (!selectedPOI) {
+      return;
+    }
+
+    const shouldKeepSelected = filteredPlaces.some(
+      (poi) => poi.place_id === selectedPOI.place_id,
+    );
+
+    if (!shouldKeepSelected) {
+      setSelectedPOI(null);
+    }
+  }, [filteredPlaces, selectedPOI]);
+
+  const renderedPOIMarkers = useMemo(() => {
+    return filteredPlaces.map((p) => (
+      <PoiMarker key={p.place_id} poi={p} onPress={() => handlePOIPress(p)} />
+    ));
+  }, [filteredPlaces, handlePOIPress]);
+
+  const selectedRoomContext = useMemo(() => {
+    if (!selectedBuilding) {
+      return undefined;
+    }
+
+    const selectedEndSearch = selectedSearchLocations.end;
+    const selectedEndBuildingCode = getSelectedBuildingCode(selectedEndSearch);
+    const isRoomDestination =
+      selectedEndSearch?.isIndoorRoom &&
+      selectedEndBuildingCode === selectedBuilding.buildingCode;
+    if (!isRoomDestination) {
+      return undefined;
+    }
+
+    return {
+      roomName: selectedEndSearch.roomName ?? selectedEndSearch.buildingName,
+    };
+  }, [selectedBuilding, selectedSearchLocations.end, getSelectedBuildingCode]);
 
   const openIndoorNavigation = () => {
     if (!selectedBuilding?.buildingCode) {
@@ -649,6 +1180,11 @@ export default function MapViewer({
     }
     router.push(`/${encodeURIComponent(selectedBuilding.buildingCode)}`);
   };
+
+  const hasVisiblePopup =
+    modalOpen ||
+    navigationMode === "directions" ||
+    (navigationMode === "browse" && (selectedBuilding != null || selectedPOI != null));
 
   return (
     <View style={styles.container}>
@@ -660,45 +1196,73 @@ export default function MapViewer({
         startOverride={selectionOverrides.start}
         endOverride={selectionOverrides.end}
         startHint={showStartHint ? "Please select a start location" : null}
+        onFocusChange={setSearchFieldFocused}
         onSwap={handleSwapFields}
         onSelect={(
           buildings: Record<FieldType, SearchBuilding | null>,
           type: FieldType,
         ) => {
-          const selected = buildings[type];
-          const selectedCode = selected?.buildingCode;
-          const coord = resolveSelectionCoordinate(selectedCode);
+          try {
+            const selected = buildings?.[type] ?? null;
+            const nextSelections = {
+              ...selectedSearchLocations,
+              [type]: selected,
+            };
+            if (
+              navigationMode === "directions" &&
+              openIndoorNavigationFromRoomSelections(nextSelections)
+            ) {
+              return;
+            }
+            const coord = resolveSelectionCoordinate(selected);
 
-          setNavCoords((prev) => ({ ...prev, [type]: coord }));
-          setSelectionOverrides((prev) => ({
-            ...prev,
-            [type]: selected?.buildingName ?? null,
-          }));
+            setSelectedSearchLocations((prev) => ({
+              ...prev,
+              [type]: selected,
+            }));
+            setNavCoords((prev) => ({ ...prev, [type]: coord }));
+            setSelectionOverrides((prev) => ({
+              ...prev,
+              [type]: selected?.buildingName ?? null,
+            }));
 
-          if (type === "start") {
-            handleStartSelection(coord, selected?.buildingName ?? "");
-          }
+            if (type === "start") {
+              handleStartSelection(coord, selected?.buildingName ?? "", selected);
+            }
 
-          if (!coord) {
+            if (!coord) {
+              clearRouteRendering();
+              setRoutes(normalizeRoutes(EMPTY_ROUTES));
+            }
+
+            if (type === "end") {
+              handleEndSelection(selected, coord);
+            }
+          } catch (error) {
+            console.error("Failed to apply building selection:", error);
             clearRouteRendering();
-          }
-
-          if (type === "end") {
-            handleEndSelection(selected, coord);
+            setRoutes(normalizeRoutes(EMPTY_ROUTES));
           }
         }}
       />
 
-      <CampusToggle mapRef={mapViewRef} viewRegion={currentRegion} />
+      <CampusToggle
+        mapRef={mapViewRef}
+        viewRegion={currentRegion}
+        setCurrCampus={setCurrCampus}
+      />
 
       <MapViewCluster
         ref={mapViewRef}
         testID="map-view"
         style={styles.map}
+        customMapStyle={customMapStyle}
         initialRegion={initialRegion}
         showsUserLocation={!!userLocation}
         followsUserLocation={locationState === "centered"}
         clusteringEnabled={Platform.OS !== "ios"}
+        showsPointsOfInterest={false}
+        onPoiClick={() => {}}
         onRegionChangeComplete={(region) => {
           setCurrentRegion(region);
 
@@ -740,21 +1304,17 @@ export default function MapViewer({
           const action = event?.nativeEvent?.action;
           if (!action || action === "press") {
             setSelectedBuilding(null);
-            setNavigationMode("browse");
-            setShouldDisplayRoutes(false);
-            setRoutePolyline(null);
-            setRouteStops([]);
-            setRouteNodes([]);
-            setNavCoords({ start: null, end: null });
-            setSelectionOverrides({ start: null, end: null });
+            setSelectedPOI(null);
+            clearRouteInfo();
           }
         }}
         renderCluster={renderCluster}
       >
         {renderedPolygons}
+        {navigationMode === "browse" ? renderedPOIMarkers : null}
         {renderedMarkers}
 
-        {routePolyline?.map((segment, index) => {
+        {routeOverlay.polyline?.map((segment, index) => {
           const dashedWidth = Platform.OS === "android" ? 6 : 3;
           const strokeWidth = segment.isDashed ? dashedWidth : 3;
           const firstCoord = segment.coordinates[0];
@@ -774,87 +1334,95 @@ export default function MapViewer({
           );
         })}
 
-        {routeStops.map((stop, index) =>
-          Platform.OS === "android" ? (
-            <Circle
-              key={`stop-${routeKey}-${index}-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
-              center={stop.coordinate}
-              radius={5}
-              fillColor="#fff"
-              strokeColor={stop.color}
-              strokeWidth={2}
-              zIndex={11}
-            />
-          ) : (
-            <Marker
-              key={`stop-${routeKey}-${index}-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
-              coordinate={stop.coordinate}
-              anchor={{ x: 0.5, y: 0.5 }}
-              zIndex={11}
-            >
-              <View
-                collapsable={false}
-                style={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: 5,
-                  backgroundColor: "#fff",
-                  borderWidth: 2,
-                  borderColor: stop.color,
-                }}
-              />
-            </Marker>
-          ),
-        )}
-
-        {Platform.OS === "android"
-          ? routeNodes.map((node, index) => (
+        {shouldRenderDirectionAuxOverlays &&
+          routeOverlay.stops.map((stop, index) =>
+            Platform.OS === "android" ? (
               <Circle
-                key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
-                center={node.coordinate}
-                radius={7}
-                fillColor={node.toColor}
-                strokeColor="#fff"
-                strokeWidth={3}
-                zIndex={12}
+                key={`stop-${routeKey}-${index}-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
+                center={stop.coordinate}
+                radius={5}
+                fillColor="#fff"
+                strokeColor={stop.color}
+                strokeWidth={2}
+                zIndex={11}
               />
-            ))
-          : routeNodes.map((node, index) => (
+            ) : (
               <Marker
-                key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
-                coordinate={node.coordinate}
+                key={`stop-${routeKey}-${index}-${stop.coordinate.latitude}-${stop.coordinate.longitude}`}
+                coordinate={stop.coordinate}
                 anchor={{ x: 0.5, y: 0.5 }}
-                zIndex={12}
+                zIndex={11}
               >
                 <View
                   collapsable={false}
                   style={{
-                    width: 18,
-                    height: 18,
-                    borderRadius: 9,
-                    backgroundColor: node.toColor,
-                    borderWidth: 3,
-                    borderColor: "#fff",
+                    width: 10,
+                    height: 10,
+                    borderRadius: 5,
+                    backgroundColor: "#fff",
+                    borderWidth: 2,
+                    borderColor: stop.color,
                   }}
                 />
               </Marker>
-            ))}
-        {navigationMode === "directions" && navCoords.start && (
-          <NavEndpointMarker
-            key={`nav-start-${navCoords.start.latitude}-${navCoords.start.longitude}`}
-            coordinate={navCoords.start}
-            label="A"
-            color="#049ede"
-          />
-        )}
-        {navigationMode === "directions" && navCoords.end && (
-          <NavEndpointMarker
-            key={`nav-end-${navCoords.end.latitude}-${navCoords.end.longitude}`}
-            coordinate={navCoords.end}
-            label="B"
-            color="#049ede"
-          />
-        )}
+            ),
+          )}
+
+        {shouldRenderDirectionAuxOverlays &&
+          (Platform.OS === "android"
+            ? routeOverlay.nodes.map((node, index) => (
+                <Circle
+                  key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
+                  center={node.coordinate}
+                  radius={7}
+                  fillColor={node.toColor}
+                  strokeColor="#fff"
+                  strokeWidth={3}
+                  zIndex={12}
+                />
+              ))
+            : routeOverlay.nodes.map((node, index) => (
+                <Marker
+                  key={`node-${routeKey}-${index}-${node.coordinate.latitude}-${node.coordinate.longitude}`}
+                  coordinate={node.coordinate}
+                  anchor={{ x: 0.5, y: 0.5 }}
+                  zIndex={12}
+                >
+                  <View
+                    collapsable={false}
+                    style={{
+                      width: 18,
+                      height: 18,
+                      borderRadius: 9,
+                      backgroundColor: node.toColor,
+                      borderWidth: 3,
+                      borderColor: "#fff",
+                    }}
+                  />
+                </Marker>
+              )))}
+
+        {shouldRenderDirectionAuxOverlays &&
+          navigationMode === "directions" &&
+          navCoords.start && (
+            <NavEndpointMarker
+              key={`nav-start-${navCoords.start.latitude}-${navCoords.start.longitude}`}
+              coordinate={navCoords.start}
+              label="A"
+              color="#049ede"
+            />
+          )}
+
+        {shouldRenderDirectionAuxOverlays &&
+          navigationMode === "directions" &&
+          navCoords.end && (
+            <NavEndpointMarker
+              key={`nav-end-${navCoords.end.latitude}-${navCoords.end.longitude}`}
+              coordinate={navCoords.end}
+              label="B"
+              color="#049ede"
+            />
+          )}
       </MapViewCluster>
 
       {__DEV__ && Platform.OS === "android" && (
@@ -870,15 +1438,18 @@ export default function MapViewer({
               onPress={() => handleBuildingPress(building)}
             />
           ))}
-          {Array.from(inBuildingCodes).map((code) => (
-            <View
-              key={`highlight-label-${code}`}
-              testID={`highlight-label-${code}`}
-              style={styles.androidMarkerProxyTarget}
-            />
-          ))}
         </View>
       )}
+
+      {Array.from(inBuildingCodes).map((code) => (
+        <View
+          key={`highlight-label-${code}`}
+          testID={`highlight-label-${code}`}
+          style={styles.highlightLabelProxy}
+          pointerEvents="none"
+        />
+      ))}
+
       <LocationButton
         state={locationState}
         onPress={() => {
@@ -892,6 +1463,15 @@ export default function MapViewer({
 
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
 
+      <OutdoorMapSettings
+        radius={radius}
+        setRadius={setRadius}
+        poiFilters={poiFilters}
+        setPoiFilters={setPoiFilters}
+        hasVisiblePopup={hasVisiblePopup}
+        searchFieldFocused={searchFieldFocused}
+      />
+
       {navigationMode === "browse" && selectedBuilding && (
         <BuildingInfoPopup
           building={selectedBuilding}
@@ -901,7 +1481,12 @@ export default function MapViewer({
           onNavigate={navigateToBuilding}
           onSetAsStart={setBuildingAsStart}
           onExploreRooms={openIndoorNavigation}
+          roomContext={selectedRoomContext}
         />
+      )}
+
+      {navigationMode === "browse" && selectedPOI && (
+        <POIInfoPopup poi={selectedPOI} onNavigate={navigateToPOI} />
       )}
 
       {navigationMode === "directions" && (
@@ -909,15 +1494,24 @@ export default function MapViewer({
           routes={routes}
           isOpen={shouldDisplayRoutes}
           onBack={handleBackFromDirections}
-          onRouteSelect={(route: any) => {
+          onModeChange={() => {
+            clearRouteRendering();
+          }}
+          onRouteSelect={(route: any, _selectedMode: TransportationMode) => {
             // Build new route data synchronously before touching state
             const segments: PolylineSegment[] = [];
             const stops: TransitStopMarker[] = [];
             const nodes: TransitionNode[] = [];
             const allSteps = (route?.legs ?? []).flatMap((leg: any) => leg?.steps ?? []);
+            const routeSteps = allSteps.filter(
+              (step: any) => normalizeStepTravelMode(step?.travel_mode) !== "INDOOR",
+            );
+            const stepsToRender = routeSteps;
 
-            for (let index = 0; index < allSteps.length; index++) {
-              const step = allSteps[index];
+            for (let index = 0; index < stepsToRender.length; index++) {
+              const step = stepsToRender[index];
+              const mode = normalizeStepTravelMode(step.travel_mode);
+
               const encoded = step?.polyline?.points;
               if (!encoded) {
                 continue;
@@ -928,46 +1522,80 @@ export default function MapViewer({
                 continue;
               }
 
-              const mode = step.travel_mode ?? "WALK";
               const vehicleType = step.transit_details?.line?.vehicle_type;
               const color = polylineColor(mode, vehicleType);
-              const isWalking =
-                mode.toUpperCase() === "WALK" || mode.toUpperCase() === "WALKING";
+              const isWalking = mode === "WALK";
 
               segments.push({ coordinates: coords, color, isDashed: isWalking });
               stops.push(...collectStopsFromStep(step, color));
 
-              const nextStep = allSteps[index + 1];
+              const nextStep = stepsToRender[index + 1];
               if (nextStep) {
-                const node = getTransitionNode(coords, color, nextStep);
+                const node = getTransitionNode(coords, mode, color, nextStep);
                 if (node) nodes.push(node);
               }
             }
 
-            // clear all existing polylines so native views are removed
-            setRouteKey((k) => k + 1);
-            setRoutePolyline(null);
-            setRouteStops([]);
-            setRouteNodes([]);
+            const normalizedSegments =
+              Platform.OS === "ios" ? coalesceRouteSegments(segments) : segments;
+            const normalizedStops = Platform.OS === "ios" ? [] : stops;
+            const normalizedNodes = Platform.OS === "ios" ? [] : nodes;
 
-            // then set new data on the next frame to ensure a clean transition without lingering old polylines
-            requestAnimationFrame(() => {
-              setRoutePolyline(segments.length > 0 ? segments : null);
-              setRouteStops(stops);
-              setRouteNodes(nodes);
+            cancelPendingRouteRender();
+            // Apply overlay updates together to avoid iOS-native child index races.
+            setRouteKey((key) => key + 1);
+            setRouteOverlay({
+              polyline: normalizedSegments.length > 0 ? normalizedSegments : null,
+              stops: normalizedStops,
+              nodes: normalizedNodes,
             });
           }}
-          onStepSelect={(encoded: string) => {
-            const coords = decodePolyline(encoded);
-            if (coords.length >= 2) {
-              const mid = coords[Math.floor(coords.length / 2)];
-              mapViewRef.current?.animateToRegion({
-                latitude: mid.latitude,
-                longitude: mid.longitude,
-                latitudeDelta: 0.005,
-                longitudeDelta: 0.005,
-              });
+          onStepSelect={(
+            encoded: string,
+            travelMode: string,
+            _vehicleType: string | undefined,
+            context?: RouteStepSelectionContext,
+          ) => {
+            if ((travelMode ?? "").toUpperCase() === "INDOOR") {
+              const indoorDetails = decodeIndoorStepPayload(encoded);
+              const outdoorResumeStep = buildOutdoorStepResume(context?.nextStep);
+              const resumeContinuationId = outdoorResumeStep
+                ? OutdoorStepResume.saveContinuation(outdoorResumeStep)
+                : null;
+
+              let indoorPath: string | null = null;
+              if (
+                indoorDetails?.building_code &&
+                indoorDetails?.start_checkpoint_id &&
+                indoorDetails?.end_room
+              ) {
+                indoorPath = `/${encodeURIComponent(indoorDetails.building_code)}?indoorStartCheckpointId=${encodeURIComponent(indoorDetails.start_checkpoint_id)}&indoorEndRoom=${encodeURIComponent(indoorDetails.end_room)}`;
+              } else if (
+                indoorDetails?.building_code &&
+                indoorDetails?.start_room &&
+                indoorDetails?.end_checkpoint_id
+              ) {
+                indoorPath = `/${encodeURIComponent(indoorDetails.building_code)}?indoorStartRoom=${encodeURIComponent(indoorDetails.start_room)}&indoorEndCheckpointId=${encodeURIComponent(indoorDetails.end_checkpoint_id)}`;
+              }
+
+              if (!indoorPath) {
+                if (resumeContinuationId) {
+                  OutdoorStepResume.clearContinuation(resumeContinuationId);
+                }
+                return;
+              }
+
+              if (resumeContinuationId) {
+                indoorPath = `${indoorPath}&resumeContinuationId=${encodeURIComponent(resumeContinuationId)}`;
+              }
+              activeIndoorStepSessionRef.current = {
+                resumeContinuationId,
+              };
+              router.push(indoorPath as any);
+              return;
             }
+
+            focusRouteStep(encoded);
           }}
         />
       )}
@@ -1021,6 +1649,7 @@ function renderBuildings(
         key={building.buildingCode}
         coordinate={building.location}
         onPress={() => onPress(building)}
+        zIndex={4}
       >
         <View
           testID={
@@ -1155,7 +1784,27 @@ const styles = StyleSheet.create({
     opacity: 0.01,
     zIndex: 10,
   },
+  highlightLabelProxy: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: 1,
+    height: 1,
+    opacity: 0.01,
+    zIndex: 1,
+  },
 });
+
+const customMapStyle: MapStyleElement[] = [
+  {
+    featureType: "poi",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+];
 
 const defaultFocusDelta: CoordinateDelta = {
   latitudeDelta: 0.00922,

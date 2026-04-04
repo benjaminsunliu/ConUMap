@@ -4,6 +4,12 @@ import BuildingSelection from "@/components/map/building-selection";
 
 const mockAnimateToRegion = jest.fn();
 
+jest.mock("expo-secure-store", () => ({
+  getItemAsync: jest.fn().mockResolvedValue(null),
+  setItemAsync: jest.fn(),
+  deleteItemAsync: jest.fn(),
+}));
+
 jest.mock("react-native-map-clustering", () => {
   const React = require("react");
   const { forwardRef, useImperativeHandle } = React;
@@ -175,8 +181,12 @@ describe("BuildingSelection Directions", () => {
     const swapButton = await selectionView.findByTestId("swap-fields");
     fireEvent.press(swapButton);
 
-    expect(startInput.props.value).toBe("J.W. McConnell Building");
-    expect(endInput.props.value).toBe("Henry F. Hall Building");
+    expect(selectionView.getByPlaceholderText("Your location").props.value).toBe(
+      "J.W. McConnell Building",
+    );
+    expect(selectionView.getByPlaceholderText("Destination").props.value).toBe(
+      "Henry F. Hall Building",
+    );
 
     expect(mockOnSelect).toHaveBeenCalled();
   });
@@ -212,10 +222,40 @@ describe("BuildingSelection Directions", () => {
       },
       "start",
     );
-    expect(startInput.props.value).toBe("Henry F. Hall Building");
+    expect(selectionView.getByPlaceholderText("Your location").props.value).toBe(
+      "Henry F. Hall Building",
+    );
     expect(
       (await selectionView.findByPlaceholderText("Destination")).props.value,
     ).toBeFalsy();
+  });
+
+  it("keeps the selected label when a delayed text update arrives after choosing a suggestion", async () => {
+    const selectionView = render(
+      <BuildingSelection
+        selectedBuilding={null}
+        mode={"directions"}
+        onSelect={mockOnSelect}
+      />,
+    );
+    const startInput = selectionView.getByPlaceholderText("Your location");
+
+    fireEvent(startInput, "focus");
+    fireEvent.changeText(startInput, "Ha");
+
+    const hallResult = await selectionView.findByTestId("start-result-H");
+    fireEvent.press(hallResult);
+
+    expect(selectionView.getByPlaceholderText("Your location").props.value).toBe(
+      "Henry F. Hall Building",
+    );
+
+    // Simulate a delayed native onChangeText event with stale typed text.
+    fireEvent.changeText(startInput, "Ha");
+
+    expect(selectionView.getByPlaceholderText("Your location").props.value).toBe(
+      "Henry F. Hall Building",
+    );
   });
 
   it("should prioritize current buildings when typing in Search building field", async () => {
@@ -292,7 +332,7 @@ describe("BuildingSelection Directions", () => {
       />,
     );
 
-    expect(endInput.props.value).toBe("CI Annex");
+    expect(getByPlaceholderText("Destination").props.value).toBe("CI Annex");
   });
 
   it("shouldn't update previously focused field when selectedBuilding changes and no field focused", async () => {
@@ -321,7 +361,7 @@ describe("BuildingSelection Directions", () => {
       />,
     );
 
-    expect(startInput.props.value).toBe("");
+    expect(selectionView.getByPlaceholderText("Your location").props.value).toBe("");
   });
 
   it("should update start field when focused and selectedBuilding changes (prop change)", async () => {
@@ -349,7 +389,56 @@ describe("BuildingSelection Directions", () => {
       />,
     );
 
-    expect(startInput.props.value).toBe("CI Annex");
+    expect(getByPlaceholderText("Your location").props.value).toBe("CI Annex");
+  });
+
+  it("should not clear existing start/end inputs when selectedBuilding is deselected in directions mode", async () => {
+    const { rerender, getByPlaceholderText, findByTestId } = render(
+      <BuildingSelection
+        selectedBuilding={null}
+        mode="directions"
+        onSelect={mockOnSelect}
+      />,
+    );
+
+    const startInput = getByPlaceholderText("Your location");
+    const endInput = getByPlaceholderText("Destination");
+
+    fireEvent(startInput, "focus");
+    fireEvent.changeText(startInput, "Hall");
+    fireEvent.press(await findByTestId("start-result-H"));
+
+    fireEvent(endInput, "focus");
+    fireEvent.changeText(endInput, "McConnell");
+    fireEvent.press(await findByTestId("end-result-LB"));
+
+    rerender(
+      <BuildingSelection
+        selectedBuilding={{
+          buildingCode: "CI",
+          buildingName: "CI Annex",
+          address: "2149 Mackay St., Montreal, QC",
+          campus: "SGW",
+        }}
+        mode="directions"
+        onSelect={mockOnSelect}
+      />,
+    );
+
+    rerender(
+      <BuildingSelection
+        selectedBuilding={null}
+        mode="directions"
+        onSelect={mockOnSelect}
+      />,
+    );
+
+    expect(getByPlaceholderText("Your location").props.value).toBe(
+      "Henry F. Hall Building",
+    );
+    expect(getByPlaceholderText("Destination").props.value).toBe(
+      "J.W. McConnell Building",
+    );
   });
 });
 
@@ -397,17 +486,21 @@ describe("BuildingSelection Integration Tests", () => {
       expect(startResultsAfterPress).toBeNull();
 
       await waitFor(() => {
-        expect(startInput.props.value).toBe("Henry F. Hall Building");
+        expect(mapViewer.getByPlaceholderText("Your location").props.value).toBe(
+          "Henry F. Hall Building",
+        );
       });
 
       await waitFor(() => {
-        expect(destinationInput.props.value).toBe("CL Annex");
+        expect(mapViewer.getByPlaceholderText("Destination").props.value).toBe(
+          "CL Annex",
+        );
       });
     },
     TEST_TIMEOUT,
   );
 
-  it("should set selected building as start when Set Start is pressed", async () => {
+  it("should set selected building as start when Set Start is pressed without forcing destination", async () => {
     const MapViewer = require("@/components/map/map-viewer").default;
     const mapViewer = render(<MapViewer />);
 
@@ -429,6 +522,6 @@ describe("BuildingSelection Integration Tests", () => {
       );
     });
 
-    expect(mapViewer.getByPlaceholderText("Destination").props.value).toBe("CL Annex");
+    expect(mapViewer.getByPlaceholderText("Destination").props.value).toBe("");
   });
 });
