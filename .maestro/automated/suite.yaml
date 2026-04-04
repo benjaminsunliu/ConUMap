@@ -24,7 +24,6 @@ appId: com.anonymous.client
 - runFlow:
     file: ../US2/AT3.1routeBetweenCampus.yaml
 
-
 - runFlow:
     file: launchApp.yaml
 - runFlow:

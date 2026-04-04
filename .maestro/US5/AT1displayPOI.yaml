@@ -9,6 +9,7 @@ appId: host.exp.exponent
     id: "campus-toggle-selector"
 - tapOn: "SGW"
 - tapOn: "POI filters"
+- assertVisible: "POI Settings"
 - swipe:
     from:
       id: "radius-slider"
@@ -18,6 +19,7 @@ appId: host.exp.exponent
     # MTLKFOOD
     id: "marker-ChIJSRH2i2sayUwRYt5byUqY0Es"
 - tapOn: "POI filters"
+- assertVisible: "POI Settings"
 - swipe:
     from:
       id: "radius-slider"
