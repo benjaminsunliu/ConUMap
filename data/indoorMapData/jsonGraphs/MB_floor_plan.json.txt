@@ -108,8 +108,8 @@
       "type": "stair_landing",
       "buildingId": "MB",
       "floor": -2,
-      "x": 1185,
-      "y": 313,
+      "x": 1110,
+      "y": 355,
       "label": "",
       "accessible": false
     },
@@ -118,22 +118,9 @@
       "type": "point_of_interest",
       "buildingId": "MB",
       "floor": -2,
-      "x": 1258,
-      "y": 1527,
+      "x": 1240,
+      "y": 1596,
       "label": "Women's Bathroom",
-      "accessible": true,
-      "metadata": {
-        "POI": "Bathroom"
-      }
-    },
-    {
-      "id": "MB_S2_poi_2",
-      "type": "point_of_interest",
-      "buildingId": "MB",
-      "floor": -2,
-      "x": 1351,
-      "y": 1554,
-      "label": "Individual Bathroom",
       "accessible": true,
       "metadata": {
         "POI": "Bathroom"
@@ -144,8 +131,8 @@
       "type": "point_of_interest",
       "buildingId": "MB",
       "floor": -2,
-      "x": 1417,
-      "y": 1531,
+      "x": 1420,
+      "y": 1598,
       "label": "Men's Bathroom",
       "accessible": true,
       "metadata": {
@@ -157,8 +144,8 @@
       "type": "point_of_interest",
       "buildingId": "MB",
       "floor": -2,
-      "x": 1328,
-      "y": 1594,
+      "x": 1330,
+      "y": 1614,
       "label": "Water Fountain",
       "accessible": true,
       "metadata": {
@@ -180,8 +167,8 @@
       "type": "stair_landing",
       "buildingId": "MB",
       "floor": -2,
-      "x": 1571,
-      "y": 1269,
+      "x": 1484,
+      "y": 1265,
       "label": "",
       "accessible": false
     },
@@ -490,8 +477,8 @@
       "type": "doorway",
       "buildingId": "MB",
       "floor": -2,
-      "x": 1502,
-      "y": 1254,
+      "x": 1483,
+      "y": 1264,
       "label": "MB-S2-394",
       "accessible": true
     },
@@ -761,7 +748,7 @@
       "buildingId": "MB",
       "floor": 1,
       "x": 538,
-      "y": 153,
+      "y": 146,
       "label": "MB-1-294",
       "accessible": true
     },
@@ -770,8 +757,8 @@
       "type": "stair_landing",
       "buildingId": "MB",
       "floor": 1,
-      "x": 627,
-      "y": 137,
+      "x": 691,
+      "y": 189,
       "label": "",
       "accessible": false
     },
@@ -1050,8 +1037,8 @@
       "type": "stair_landing",
       "buildingId": "MB",
       "floor": 1,
-      "x": 1392,
-      "y": 1192,
+      "x": 1504,
+      "y": 1190,
       "label": "",
       "accessible": false
     },
@@ -1360,10 +1347,56 @@
       "type": "stair_landing",
       "buildingId": "MB",
       "floor": 1,
-      "x": 540,
-      "y": 868,
+      "x": 544,
+      "y": 857,
       "label": "",
       "accessible": false
+    },
+    {
+      "id": "MB_F1_point_of_interest_9",
+      "type": "point_of_interest",
+      "buildingId": "MB",
+      "floor": 1,
+      "x": 1123,
+      "y": 1552,
+      "label": "Bathroom",
+      "accessible": true,
+      "metadata": {
+        "POI": "Bathroom"
+      }
+    },
+    {
+      "id": "MB_F1_point_of_interest_10",
+      "type": "point_of_interest",
+      "buildingId": "MB",
+      "floor": 1,
+      "x": 1322,
+      "y": 1558,
+      "label": "Bathroom",
+      "accessible": true,
+      "metadata": {
+        "POI": "Bathroom"
+      }
+    },
+    {
+      "id": "MB_F1_hallway_waypoint_30",
+      "type": "hallway_waypoint",
+      "buildingId": "MB",
+      "floor": 1,
+      "x": 545,
+      "y": 29,
+      "label": "",
+      "accessible": true
+    },
+    {
+      "id": "MB_F1_hallway_waypoint_31",
+      "type": "hallway_waypoint",
+      "buildingId": "MB",
+      "floor": 1,
+      "x": 689,
+      "y": 29,
+      "label": "",
+      "accessible": true
     }
   ],
   "edges": [
@@ -2110,13 +2143,6 @@
       "accessible": true
     },
     {
-      "source": "MB_1_294",
-      "target": "MB_F1_stair_landing_9",
-      "type": "door_to_hallway",
-      "weight": 90,
-      "accessible": true
-    },
-    {
       "source": "MB_F1_escalator_3",
       "target": "MB_F1_hallway_waypoint_22",
       "type": "hallway",
@@ -2439,17 +2465,31 @@
       "accessible": true
     },
     {
-      "source": "MB_F1_hallway_waypoint_19",
-      "target": "MB_F1_stair_landing_13",
-      "type": "hallway",
-      "weight": 158,
-      "accessible": true
-    },
-    {
       "source": "MB_F1_hallway_waypoint_18",
       "target": "MB_F1_stair_landing_13",
       "type": "hallway",
       "weight": 265,
+      "accessible": true
+    },
+    {
+      "source": "MB_1_294",
+      "target": "MB_F1_hallway_waypoint_30",
+      "type": "door_to_hallway",
+      "weight": 117,
+      "accessible": true
+    },
+    {
+      "source": "MB_F1_hallway_waypoint_30",
+      "target": "MB_F1_hallway_waypoint_31",
+      "type": "hallway",
+      "weight": 144,
+      "accessible": true
+    },
+    {
+      "source": "MB_F1_hallway_waypoint_31",
+      "target": "MB_F1_stair_landing_9",
+      "type": "hallway",
+      "weight": 150,
       "accessible": true
     }
   ],

@@ -98,8 +98,8 @@
       "type": "elevator_door",
       "buildingId": "VL",
       "floor": 1,
-      "x": 895,
-      "y": 452,
+      "x": 901,
+      "y": 427,
       "label": "VL1-Elevator 1",
       "accessible": true
     },
@@ -118,8 +118,8 @@
       "type": "stair_landing",
       "buildingId": "VL",
       "floor": 1,
-      "x": 1081,
-      "y": 407,
+      "x": 999,
+      "y": 409,
       "label": "VL-Stair-1",
       "accessible": false
     },
@@ -438,8 +438,8 @@
       "type": "point_of_interest",
       "buildingId": "VL",
       "floor": 1,
-      "x": 1367,
-      "y": 1370,
+      "x": 1353,
+      "y": 1318,
       "label": "Women's Bathroom",
       "accessible": true,
       "metadata": {
@@ -451,8 +451,8 @@
       "type": "point_of_interest",
       "buildingId": "VL",
       "floor": 1,
-      "x": 1527,
-      "y": 1377,
+      "x": 1532,
+      "y": 1318,
       "label": "Men's Bathroom",
       "accessible": true,
       "metadata": {
@@ -464,10 +464,10 @@
       "type": "point_of_interest",
       "buildingId": "VL",
       "floor": 1,
-      "x": 1512,
-      "y": 1519,
+      "x": 1505,
+      "y": 1459,
       "label": "Women's Bathroom",
-      "accessible": true
+      "accessible": true,
       "metadata": {
         "POI": "Bathroom"
       }
@@ -477,8 +477,8 @@
       "type": "point_of_interest",
       "buildingId": "VL",
       "floor": 1,
-      "x": 1371,
-      "y": 1520,
+      "x": 1361,
+      "y": 1459,
       "label": "Men's Bathroom",
       "accessible": true,
       "metadata": {
@@ -763,8 +763,8 @@
       "type": "stair_landing",
       "buildingId": "VL",
       "floor": 1,
-      "x": 1503,
-      "y": 1108,
+      "x": 1473,
+      "y": 1135,
       "label": "VL-Stair-4",
       "accessible": false
     },
@@ -1033,8 +1033,8 @@
       "type": "point_of_interest",
       "buildingId": "VL",
       "floor": 2,
-      "x": 1406,
-      "y": 1340,
+      "x": 1390,
+      "y": 1282,
       "label": "Women's Bathroom",
       "accessible": true,
       "metadata": {
@@ -1046,8 +1046,8 @@
       "type": "point_of_interest",
       "buildingId": "VL",
       "floor": 2,
-      "x": 1563,
-      "y": 1339,
+      "x": 1573,
+      "y": 1285,
       "label": "Men's Bathroom",
       "accessible": true,
       "metadata": {
@@ -1914,6 +1914,13 @@
       "target": "VL_F2_stair_landing_21",
       "type": "door_to_hallway",
       "weight": 160,
+      "accessible": true
+    },
+    {
+      "source": "VL_F1_doorway_114",
+      "target": "VL_F1_stair_landing_23",
+      "type": "door_to_hallway",
+      "weight": 131,
       "accessible": true
     }
   ],
