@@ -1,0 +1,27 @@
+appId: host.exp.Exponent
+---
+- runFlow:
+    when:
+      notVisible:
+        id: "building-selection"
+    file: ../openLink.yaml
+
+# Navigate to Calendar tab
+- assertVisible: Calendar
+- tapOn: Calendar
+
+# Enter credentials (injected from environment variables)
+- tapOn:
+    id: userNameInput
+- inputText: ${MAESTRO_USERNAME}
+
+- tapOn:
+    id: passwordInput
+- inputText: ${MAESTRO_PASSWORD}
+
+# Tap login button
+- tapOn: Sign in
+
+# Verify successful login - should see courses view
+- assertVisible:
+    id: courses-view
