@@ -3,78 +3,79 @@ appId: host.exp.exponent
 - runFlow:
     when:
       notVisible:
-        id: building-selection
+        id: "building-selection"
     file: ../openLink.yaml
-- waitForAnimationToEnd: 5000
 - assertVisible:
-    id: search-input
+    id: "search-input"
 - tapOn:
-    id: search-input
-- inputText: H205
+    id: "search-input"
+- inputText: "H205"
 - assertVisible: "H – H205"
 - tapOn:
     text: "H – H205"
 - assertVisible:
-    id: start-button
+    id: "start-button"
 - tapOn:
-    id: start-button
+    id: "start-button"
 - assertVisible:
-    id: destination-input
+    id: "destination-input"
 - tapOn:
-    id: destination-input
-- inputText: VL 212
+    id: "destination-input"
+- inputText: "VL 212"
 - assertVisible: "VL – VL 212"
 - tapOn:
     text: "VL – VL 212"
 - assertVisible:
-    id: walking-selector
+    id: "walking-selector"
 - swipe:
     from:
-      id: routes-info-popup
+      id: "routes-info-popup"
     direction: UP
 - tapOn:
-    id: walking-selector
+    id: "walking-selector"
 - assertVisible:
-    id: walking-route-0
+    id: "walking-route-0"
 - tapOn:
-    id: walking-route-0
+    id: "walking-route-0"
 - assertVisible:
-    text: navigate indoors from
+    text: "navigate indoors from"
 - tapOn:
-    text: navigate indoors from
+    text: "navigate indoors from"
 - assertVisible:
-    id: next-step
+    id: "next-step"
 - tapOn:
-    id: next-step
+    id: "next-step"
 - tapOn:
-    id: next-step
+    id: "next-step"
 - tapOn:
-    id: next-step
+    id: "next-step"
 - tapOn:
-    id: next-step
+    id: "next-step"
 - tapOn:
-    id: next-step
+    id: "next-step"
 - tapOn:
-    id: back-arrow
+    id: "back-arrow"
 - swipe:
+    from:
+      id: "routes-info-popup"
     direction: DOWN
 - tapOn:
-    id: walking-route-last
+    id: "walking-route-last"
 - assertVisible:
-    text: Enter
+    text: "Enter"
 - tapOn:
-    text: Enter
+    text: "Enter"
 - assertVisible:
-    id: next-step
+    id: "next-step"
 - tapOn:
-    id: next-step
+    id: "next-step"
 - tapOn:
-    id: next-step
+    id: "next-step"
 - tapOn:
-    id: next-step
+    id: "next-step"
 - tapOn:
-    id: next-step
+    id: "next-step"
 - tapOn:
-    id: next-step
+    id: "next-step"
 - tapOn:
-    id: back-arrow
+    id: "back-arrow"
