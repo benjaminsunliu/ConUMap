@@ -56,14 +56,6 @@ appId: host.exp.exponent
     start: 50%, 70%
     end: 50%, 10%
     duration: 1200
-- swipe:
-    start: 50%, 70%
-    end: 50%, 10%
-    duration: 1200
-- swipe:
-    start: 50%, 70%
-    end: 50%, 10%
-    duration: 1200
 - assertVisible:
     id: "walking-step-10"
 - tapOn:
