@@ -15,7 +15,7 @@ appId: host.exp.exponent
     direction: UP
 - tapOn: "SGW"
 - assertVisible:
-  # MTLKFOOD
+    # MTLKFOOD
     id: "marker-ChIJSRH2i2sayUwRYt5byUqY0Es"
 - tapOn: "POI filters"
 - swipe:
@@ -24,5 +24,5 @@ appId: host.exp.exponent
     direction: RIGHT
 - tapOn: "SGW"
 - assertVisible:
-  # Parc des Franciscains
+    # Parc des Franciscains
     id: "marker-ChIJS7gZEwAbyUwR3NncJXJ0obc"
