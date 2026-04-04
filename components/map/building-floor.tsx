@@ -70,6 +70,7 @@ export default function BuildingFloor({
       result.push(
         <Line
           key={`${current.id}-${next.id}-${floor}`}
+          testID={`navigation-line-${current.id}-${next.id}`}
           x1={current.x}
           y1={current.y}
           x2={next.x}

@@ -1,0 +1,44 @@
+appId: host.exp.exponent
+---
+- runFlow:
+    when:
+      notVisible:
+        id: "building-selection"
+    file: ../openLink.yaml
+- tapOn: "Search building"
+- inputText: "Vanier"
+- tapOn:
+    id: "end-result-VL"
+- assertVisible:
+    text: "Explore Rooms"
+- tapOn: "Explore Rooms"
+- tapOn: "Next Floor"
+- assertVisible:
+    text: "Floor 2"
+- tapOn: "Start (VL820)"
+- inputText: "VL 201.1"
+- tapOn: "End (VL838)"
+- inputText: "VL 202.1"
+- assertVisible:
+    text: "Navigate"
+- tapOn: "Navigate"
+- assertVisible:
+    id: "navigation-line-VL_F2_hallway_waypoint_49-VL_202_1"
+- tapOn: 
+   id: "indoor-clear-end-room"
+- tapOn: "End (VL838)"
+- inputText: "VL 202.30"
+- assertVisible:
+    text: "Navigate"
+- tapOn: "Navigate"
+- assertVisible:
+    id: "navigation-line-VL_F2_hallway_waypoint_52-VL_202_30"
+- tapOn: 
+   id: "indoor-clear-start-room"
+- tapOn: "Start (VL820)"
+- inputText: "VL 203.3"
+- assertVisible:
+    text: "Navigate"
+- tapOn: "Navigate"
+- assertVisible:
+    id: "navigation-line-VL_F2_hallway_waypoint_52-VL_202_30"
