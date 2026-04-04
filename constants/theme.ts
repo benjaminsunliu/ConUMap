@@ -46,7 +46,7 @@ export const Colors = {
       markerBorderSelected: "#200003",
       clusterMarker: "#200003",
       clusterText: white,
-      navigationPathColor: "#216feb",
+      navigationPathColor: "#1500ff",
     },
 
     buildingInfoPopup: {

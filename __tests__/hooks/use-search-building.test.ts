@@ -122,6 +122,12 @@ describe("useBuildingSearch - Full Coverage Suite", () => {
       expect(result.current.results.start.some((r) => r.buildingName === "H963")).toBe(
         true,
       );
+      const roomResult = result.current.results.start.find(
+        (r) => r.buildingName === "H963",
+      );
+      expect(roomResult?.parentBuildingCode).toBe("H");
+      expect(roomResult?.roomName).toBe("H963");
+      expect(roomResult?.isIndoorRoom).toBe(true);
     });
 
     act(() => {

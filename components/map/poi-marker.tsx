@@ -15,15 +15,18 @@ interface PoiMarkerProps {
   readonly onPress?: () => void;
 }
 
+const POI_MARKER_SIZE = 24;
+const POI_MARKER_ICON_SIZE = 13;
+
 function getPoiMarkerVisual(types: string[]): PoiMarkerVisual {
   //Some POIs have multiple types, order is arbitrary
   const typeSet = new Set(types.map((type) => type.toLowerCase()));
 
-  if (typeSet.has("restaurant")) {
-    return { icon: "restaurant", backgroundColor: PoiMarkerColors.restaurant };
-  }
   if (typeSet.has("cafe")) {
     return { icon: "cafe", backgroundColor: PoiMarkerColors.cafe };
+  }
+  if (typeSet.has("restaurant")) {
+    return { icon: "restaurant", backgroundColor: PoiMarkerColors.restaurant };
   }
   if (typeSet.has("library")) {
     return { icon: "library", backgroundColor: PoiMarkerColors.library };
@@ -57,12 +60,17 @@ export default function PoiMarker({ poi, onPress }: Readonly<PoiMarkerProps>) {
         longitude: poi.geometry.location.lng,
       }}
       onPress={onPress}
+      zIndex={3}
     >
       <View
         testID="poi-marker-body"
         style={[styles.poiMarker, { backgroundColor: markerVisual.backgroundColor }]}
       >
-        <Ionicons name={markerVisual.icon} size={15} color={PoiMarkerColors.icon} />
+        <Ionicons
+          name={markerVisual.icon}
+          size={POI_MARKER_ICON_SIZE}
+          color={PoiMarkerColors.icon}
+        />
       </View>
     </Marker>
   );
@@ -70,9 +78,9 @@ export default function PoiMarker({ poi, onPress }: Readonly<PoiMarkerProps>) {
 
 const styles = StyleSheet.create({
   poiMarker: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: POI_MARKER_SIZE,
+    height: POI_MARKER_SIZE,
+    borderRadius: POI_MARKER_SIZE / 2,
     alignItems: "center",
     justifyContent: "center",
     borderColor: PoiMarkerColors.border,

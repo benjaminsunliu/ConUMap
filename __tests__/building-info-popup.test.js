@@ -47,6 +47,23 @@ describe("building-info-popup", () => {
     expect(getByText(/^Today:/)).toBeTruthy();
   });
 
+  it("renders room-aware header and actions when roomContext is provided", () => {
+    const { getByText } = render(
+      <BuildingInfoPopup
+        building={mockBuilding}
+        roomContext={{ roomName: "H101" }}
+        onNavigate={mockOnNavigate}
+      />,
+    );
+
+    expect(getByText("H – Room H101")).toBeTruthy();
+    expect(
+      getByText("Henry F. Hall Building | SGW Campus | 1455 De Maisonneuve Blvd. W."),
+    ).toBeTruthy();
+    expect(getByText("Directions to Room")).toBeTruthy();
+    expect(getByText("Open Indoor Map")).toBeTruthy();
+  });
+
   it('calls the on navigate function when "Directions" is pressed', async () => {
     render(<BuildingInfoPopup building={mockBuilding} onNavigate={mockOnNavigate} />);
 

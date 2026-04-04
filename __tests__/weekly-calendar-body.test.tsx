@@ -1,10 +1,11 @@
 import React from "react";
-import { act, fireEvent, render } from "@testing-library/react-native";
+import { act, fireEvent, render, waitFor } from "@testing-library/react-native";
 
 import WeeklyCalendarBody, {
   getNextClass,
 } from "../components/schedule/weekly-calendar-body";
 import type { ClassSchedule } from "@/hooks/use-calendar";
+import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
 
 const mockNavigate = jest.fn();
 
@@ -179,9 +180,63 @@ describe("WeeklyCalendarBody interactions", () => {
 
   afterEach(() => {
     jest.useRealTimers();
+    jest.restoreAllMocks();
   });
 
-  it("navigates to the next class building when the next-class button is pressed", () => {
+  it("navigates to the next class room when the class room is supported", async () => {
+    jest
+      .spyOn(NavigationLoader, "buildingHasNavigationData")
+      .mockReturnValue(true as any);
+    jest.spyOn(NavigationLoader, "loadBuildingData").mockResolvedValue({
+      buildingCode: "EV",
+      images: {},
+      graphData: { checkpoints: {}, adjacencySet: {} },
+      rooms: ["EV 1.001", "EV 2.260"],
+    } as any);
+
+    setFakeNow("2026-03-23T09:00:00"); // Monday (local time)
+    const classes = [
+      makeClass({
+        DAY_OF_WEEK: "mon",
+        START_HOURS: "10",
+        START_MINUTES: "00",
+        END_HOURS: "11",
+        END_MINUTES: "00",
+        CU_BLDG: "EV",
+        ROOM: "1.001",
+      }),
+    ];
+
+    const screen = render(
+      <WeeklyCalendarBody
+        weekStartDate={weekStartDate}
+        classes={classes}
+        colorMap={colorMap}
+        onClassPress={jest.fn()}
+      />,
+    );
+
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText("Jump to next class"));
+    });
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith({
+        pathname: "/",
+        params: {
+          buildingId: "EV",
+          autoNavigate: "true",
+          destinationRoom: "EV 1.001",
+        },
+      });
+    });
+  });
+
+  it("falls back to the next class building when the class room is not supported", async () => {
+    jest
+      .spyOn(NavigationLoader, "buildingHasNavigationData")
+      .mockReturnValue(false as any);
+
     setFakeNow("2026-03-23T09:00:00"); // Monday (local time)
     const classes = [
       makeClass({
@@ -203,11 +258,15 @@ describe("WeeklyCalendarBody interactions", () => {
       />,
     );
 
-    fireEvent.press(screen.getByLabelText("Jump to next class"));
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText("Jump to next class"));
+    });
 
-    expect(mockNavigate).toHaveBeenCalledWith({
-      pathname: "/",
-      params: { buildingId: "EV", autoNavigate: "true" },
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith({
+        pathname: "/",
+        params: { buildingId: "EV", autoNavigate: "true" },
+      });
     });
   });
 

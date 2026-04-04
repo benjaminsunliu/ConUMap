@@ -3,6 +3,9 @@ export interface SearchBuilding {
   buildingName: string;
   address: string;
   campus: string;
+  parentBuildingCode?: string;
+  roomName?: string;
+  isIndoorRoom?: boolean;
 }
 
 export type FieldType = "start" | "end";

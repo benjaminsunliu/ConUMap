@@ -9,14 +9,24 @@ import ShuttleIconDark from "@/assets/images/shuttle-icon-dark.png";
 import ShuttleIconLight from "@/assets/images/shuttle-icon-light.png";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
+export interface RouteStepSelectionContext {
+  readonly mode: TransportationMode;
+  readonly route: any;
+  readonly step: any;
+  readonly nextStep: any;
+  readonly stepIndex: number;
+}
+
 interface Props {
-  readonly routes: Record<TransportationMode, any[] | null>;
+  readonly routes?: Record<TransportationMode, any[] | null>;
   readonly isOpen: boolean;
-  readonly onRouteSelect: (route: any) => void;
+  readonly onRouteSelect: (route: any, mode: TransportationMode) => void;
+  readonly onModeChange?: (mode: TransportationMode) => void;
   readonly onStepSelect?: (
     encodedPolyline: string,
     travelMode: string,
     vehicleType?: string,
+    context?: RouteStepSelectionContext,
   ) => void;
   readonly onBack?: () => void;
 }
@@ -35,14 +45,13 @@ function stripHtml(html: string): string {
 
 function getRouteKey(route: any, mode: TransportationMode, index: number): string {
   const overviewPolyline = route?.overview_polyline?.points;
-  if (overviewPolyline) {
-    return `${mode}-${overviewPolyline}-${index}`;
-  }
-
   const firstLeg = route?.legs?.[0];
   const duration = firstLeg?.duration?.value ?? "na";
   const distance = firstLeg?.distance?.value ?? "na";
-  return `${mode}-${duration}-${distance}-${index}`;
+  const steps = Array.isArray(firstLeg?.steps) ? firstLeg.steps : [];
+  const firstStepPolyline = steps[0]?.polyline?.points ?? "na";
+  const lastStepPolyline = steps[steps.length - 1]?.polyline?.points ?? "na";
+  return `${mode}-${overviewPolyline ?? "na"}-${duration}-${distance}-${steps.length}-${firstStepPolyline}-${lastStepPolyline}-${index}`;
 }
 
 const transportIconMap: Record<TransportationMode, keyof typeof Ionicons.glyphMap> = {
@@ -61,10 +70,23 @@ const transportOrder: TransportationMode[] = [
   "shuttle",
 ];
 
+function normalizeRoutes(
+  routes: Record<TransportationMode, any[] | null> | undefined,
+): Record<TransportationMode, any[] | null> {
+  return {
+    walking: Array.isArray(routes?.walking) ? routes.walking : null,
+    transit: Array.isArray(routes?.transit) ? routes.transit : null,
+    driving: Array.isArray(routes?.driving) ? routes.driving : null,
+    bicycling: Array.isArray(routes?.bicycling) ? routes.bicycling : null,
+    shuttle: Array.isArray(routes?.shuttle) ? routes.shuttle : null,
+  };
+}
+
 export default function RoutesInfoPopup({
   routes,
   isOpen,
   onRouteSelect,
+  onModeChange,
   onStepSelect,
   onBack,
 }: Props) {
@@ -74,12 +96,13 @@ export default function RoutesInfoPopup({
   const [tabIndex, setTabIndex] = React.useState(0);
   const [selectedRoute, setSelectedRoute] = React.useState<any>(null);
   const [selectorVersion, setSelectorVersion] = React.useState(0);
+  const safeRoutes = useMemo(() => normalizeRoutes(routes), [routes]);
 
-  const availableTransports = transportOrder.filter((mode) => routes[mode] !== null);
+  const availableTransports = transportOrder.filter((mode) => safeRoutes[mode] !== null);
   const defaultTabIndex = Math.max(availableTransports.indexOf("walking"), 0);
   const routeResetToken = transportOrder
     .map((mode) => {
-      const modeRoutes = routes[mode];
+      const modeRoutes = safeRoutes[mode];
       if (modeRoutes === null) {
         return `${mode}:null`;
       }
@@ -88,7 +111,9 @@ export default function RoutesInfoPopup({
         return `${mode}:empty`;
       }
 
-      return `${mode}:${modeRoutes.length}:${getRouteKey(modeRoutes[0], mode, 0)}`;
+      return `${mode}:${modeRoutes
+        .map((route, index) => getRouteKey(route, mode, index))
+        .join("|")}`;
     })
     .join("|");
 
@@ -158,7 +183,18 @@ export default function RoutesInfoPopup({
           options={selectorOptions}
           testID="navigation-mode-selector"
           accessibilityLabel="navigation-mode-selector"
-          onPress={(value: number) => setTabIndex(value)}
+          onPress={(value: number) => {
+            if (value === tabIndex) {
+              return;
+            }
+
+            const mode = availableTransports[value];
+            setSelectedRoute(null);
+            if (mode && onModeChange) {
+              onModeChange(mode);
+            }
+            setTabIndex(value);
+          }}
         />
       </>
     );
@@ -166,6 +202,7 @@ export default function RoutesInfoPopup({
     availableTransports,
     colorScheme,
     onBack,
+    onModeChange,
     selectorVersion,
     styles.headerBackButton,
     styles.headerTitle,
@@ -178,7 +215,7 @@ export default function RoutesInfoPopup({
   }
 
   const currentMode = availableTransports[tabIndex];
-  const currentRoutes = routes[currentMode];
+  const currentRoutes = safeRoutes[currentMode];
 
   const routeList =
     (currentRoutes?.length ?? 0) > 0 ? (
@@ -188,7 +225,7 @@ export default function RoutesInfoPopup({
           route={route}
           key={getRouteKey(route, currentMode, index)}
           onRouteSelect={(selected) => {
-            onRouteSelect(selected);
+            onRouteSelect(selected, currentMode);
             setSelectedRoute(selected);
           }}
         />
@@ -228,11 +265,19 @@ export default function RoutesInfoPopup({
               step={step}
               onPress={() => {
                 const encoded = step?.polyline?.points;
-                if (encoded && onStepSelect) {
+                const isIndoorStep = (step?.travel_mode ?? "").toUpperCase() === "INDOOR";
+                if ((encoded || isIndoorStep) && onStepSelect) {
                   onStepSelect(
-                    encoded,
+                    encoded ?? "",
                     step?.travel_mode ?? "WALK",
                     step?.transit_details?.line?.vehicle_type,
+                    {
+                      mode: currentMode,
+                      route: selectedRoute,
+                      step,
+                      nextStep: selectedRoute?.legs?.[0]?.steps?.[index + 1],
+                      stepIndex: index,
+                    },
                   );
                 }
               }}
@@ -361,6 +406,7 @@ function RouteStep({
     DRIVE: "car-outline",
     BICYCLING: "bicycle-outline",
     BICYCLE: "bicycle-outline",
+    INDOOR: "business-outline",
   };
   const icon = iconMap[travelMode] ?? "navigate-outline";
 

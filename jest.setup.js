@@ -10,6 +10,10 @@ jest.mock("@expo/vector-icons", () => {
   };
 });
 jest.mock("expo-router", () => ({
+  useFocusEffect: (effect) => {
+    const React = require("react");
+    React.useEffect(effect, [effect]);
+  },
   useLocalSearchParams: jest.fn(() => ({})),
   useRouter: jest.fn(() => ({
     push: jest.fn(),
@@ -18,7 +22,7 @@ jest.mock("expo-router", () => ({
   })),
   usePathname: jest.fn(() => "/"),
 }));
-process.env.EXPO_PUBLIC_GOOGLE_API_KEY = 'test-key';
+process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
 
 jest.mock("@/data/indoorMapData/jsonGraphs/CC_floor_plan.json.txt", () => ({}));
 jest.mock("@/data/indoorMapData/jsonGraphs/H_floor_plan.json.txt", () => ({}));

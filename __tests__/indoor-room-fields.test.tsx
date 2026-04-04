@@ -35,6 +35,27 @@ function IndoorRoomFieldsHarness() {
   );
 }
 
+function IndoorRoomFieldsEntryExitHarness() {
+  const [startRoom, setStartRoom] = useState("");
+  const [endRoom, setEndRoom] = useState("");
+
+  return (
+    <IndoorRoomFields
+      buildingCode="MB"
+      startRoom={startRoom}
+      endRoom={endRoom}
+      roomSuggestions={[
+        ...ROOM_SUGGESTIONS,
+        "MB1 Entry Exit 1",
+        "MB_F1_building_entry_exit_2",
+      ]}
+      onChangeStartRoom={setStartRoom}
+      onChangeEndRoom={setEndRoom}
+      onCreatePath={jest.fn()}
+    />
+  );
+}
+
 describe("IndoorRoomFields", () => {
   it("disables Navigate when both fields are not filled", () => {
     const onCreatePath = jest.fn();
@@ -209,5 +230,23 @@ describe("IndoorRoomFields", () => {
     fireEvent.changeText(startInput, "838");
 
     expect(screen.getByTestId("indoor-start-room-input").props.value).toBe("838");
+  });
+
+  it("shows and applies building entry-exit suggestions", () => {
+    const screen = render(<IndoorRoomFieldsEntryExitHarness />);
+
+    const startInput = screen.getByTestId("indoor-start-room-input");
+    fireEvent(startInput, "focus");
+    fireEvent.changeText(startInput, "entry exit 1");
+
+    const entrySuggestion = screen.getByTestId(
+      "indoor-start-room-suggestion-MB1-ENTRY-EXIT-1",
+    );
+    expect(entrySuggestion).toBeTruthy();
+
+    fireEvent.press(entrySuggestion);
+    expect(screen.getByTestId("indoor-start-room-input").props.value).toBe(
+      "MB1 Entry Exit 1",
+    );
   });
 });
