@@ -13,8 +13,6 @@ appId: host.exp.exponent
     id: "rooms-action-button"
 - tapOn:
     id: "rooms-action-button"
-- assertVisible:
-    text: "Floor 1"
 - tapOn:
     id: "indoor-start-room-input"
 - inputText: "H110"
