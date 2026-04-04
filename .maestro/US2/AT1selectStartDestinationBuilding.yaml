@@ -1,6 +1,10 @@
 appId: host.exp.Exponent
 ---
-- openLink: exp://localhost:8081
+- runFlow:
+    when:
+      notVisible:
+        id: "building-selection"
+    file: ../openLink.yaml
 
 # Select start location: Henry F. Hall Building
 - assertVisible: "Search building"
@@ -16,8 +20,9 @@ appId: host.exp.Exponent
     id: "directions-action-button"
 
 # Select intermediate location: Faubourg Ste-Catherine
-- assertVisible: "Your location"
-- tapOn: "Your location"
+- assertVisible: "Current Location"
+- tapOn: "Current Location"
+- eraseText
 - inputText: "FG"
 - assertVisible: "FG – Faubourg Ste-Catherine Building"
 - tapOn: "FG – Faubourg Ste-Catherine Building"

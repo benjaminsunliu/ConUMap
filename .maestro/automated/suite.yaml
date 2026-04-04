@@ -1,5 +1,6 @@
 appId: com.anonymous.client
 ---
+# E1 E2E TESTS
 - runFlow:
     file: launchApp.yaml
 - runFlow:
@@ -11,6 +12,11 @@ appId: com.anonymous.client
 - runFlow:
     file: ../US1/AT4buildingPopup.yaml
 
+# E2 E2E TESTS
+- runFlow:
+    file: launchApp.yaml
+- runFlow:
+    file: ../US2/AT1selectStartDestinationBuilding.yaml
 - runFlow:
     file: launchApp.yaml
 - runFlow:
@@ -23,3 +29,7 @@ appId: com.anonymous.client
     file: launchApp.yaml
 - runFlow:
     file: ../US2/AT3.1routeBetweenCampus.yaml
+- runFlow:
+    file: launchApp.yaml
+- runFlow:
+    file: ../US2/AT4chooseBetweenTransportationModes.yaml
