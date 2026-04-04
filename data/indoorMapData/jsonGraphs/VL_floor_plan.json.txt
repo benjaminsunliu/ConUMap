@@ -783,7 +783,7 @@
       "type": "stair_landing",
       "buildingId": "VL",
       "floor": 2,
-      "x": 1119,
+      "x": 1070,
       "y": 1512,
       "label": "",
       "accessible": false
