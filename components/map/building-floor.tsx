@@ -389,7 +389,7 @@ function renderCheckpointNode({
         shouldRender: shouldRenderElevatorIcon,
         shouldHighlight: poiFilters.elevators && shouldRenderElevatorIcon,
         iconUri: icons.elevator,
-        iconX: floorCheckpoint.x - 48,
+        iconX: floorCheckpoint.x - 46,
         iconY: floorCheckpoint.y - 78,
         iconWidth: 96,
         iconHeight: 96,
