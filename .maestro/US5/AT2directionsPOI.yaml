@@ -5,6 +5,8 @@ appId: host.exp.exponent
       notVisible:
         id: "building-selection"
     file: ../openLink.yaml
+- tapOn:
+    id: "locationButton"
 - setLocation:
     latitude: 45.4957849
     longitude: -73.577225

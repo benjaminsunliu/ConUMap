@@ -15,11 +15,14 @@ appId: host.exp.exponent
     direction: UP
 - tapOn: "SGW"
 - assertVisible:
-    text: "MTLKFOOD"
+  # MTLKFOOD
+    id: "marker-ChIJSRH2i2sayUwRYt5byUqY0Es"
 - tapOn: "POI filters"
 - swipe:
     from:
       id: "radius-slider"
     direction: RIGHT
+- tapOn: "SGW"
 - assertVisible:
-    text: "Adonis Building"
+  # Parc des Franciscains
+    id: "marker-ChIJS7gZEwAbyUwR3NncJXJ0obc"
