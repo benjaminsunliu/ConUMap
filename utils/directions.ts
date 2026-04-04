@@ -4,14 +4,14 @@ import { getConcordiaShuttleSchedule } from "@/utils/getShuttleSchedule";
 import isEqual from "lodash.isequal";
 
 const ROUTES_BASE_URL = "https://routes.googleapis.com/directions/v2:computeRoutes";
-export const interCampusPolyline = "adutGxhb`MvpFnhJ"; // Formatted Map Polyline for the shuttle route between the two campuses
+export const interCampusPolyline = "crmtGnnm`McpFatJ"; // Formatted Map Polyline for the shuttle route between the two campuses
 export const LOY_STOP_COORD: Coordinate = {
-  latitude: 45.4584539,
-  longitude: -73.6389287,
+  latitude: 45.458417,
+  longitude: -73.638317,
 };
 export const SGW_STOP_COORD: Coordinate = {
-  latitude: 45.4971279,
-  longitude: -73.5805579,
+  latitude: 45.496997,
+  longitude: -73.578633,
 };
 const DISTANCE_BETWEEN_CAMPUSES = 6700;
 const shuttleTransitTime = 30 * 60;
