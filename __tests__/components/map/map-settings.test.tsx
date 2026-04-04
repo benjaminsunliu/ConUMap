@@ -64,7 +64,7 @@ describe("MapSettings Component", () => {
     fireEvent.press(icon.parent);
 
     expect(getByText("Settings")).toBeTruthy();
-    expect(getByText("Points of Interest")).toBeTruthy();
+    expect(getByText("Highlight Points of Interest")).toBeTruthy();
   });
 
   it("should toggle the wheelchair accessibility switch", () => {
