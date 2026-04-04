@@ -6,48 +6,50 @@ appId: host.exp.exponent
         id: "building-selection"
     file: ../openLink.yaml
 - tapOn: "Search building"
-- inputText: "Vanier"
+- inputText: "Hall"
 - tapOn:
-    id: "end-result-VL"
+    id: "end-result-H"
 - assertVisible:
-    label: "Explore Rooms"
-- tapOn:
     id: "rooms-action-button"
 - tapOn:
-    id: "next-button"
+    id: "rooms-action-button"
 - assertVisible:
-    text: "Floor 2"
-- tapOn: "Start (VL820)"
-- inputText: "VL 201.1"
-- tapOn: "End (VL838)"
-- inputText: "VL 203.1"
+    text: "Floor 1"
+- tapOn:
+    id: "indoor-start-room-input"
+- inputText: "H110"
+- tapOn:
+    id: "indoor-end-room-input"
+- inputText: "H116"
 - assertVisible:
     id: "indoor-create-path-button"
 - tapOn:
     id: "indoor-create-path-button"
 - assertVisible:
-    id: "active-outline-VL_201_1-VL_201"
+    id: "active-outline-H_110_4-Hall_F1_hallway_waypoint_31"
 - tapOn:
     id: "indoor-clear-end-room"
-- tapOn: "End (VL838)"
-- inputText: "VL 202.30"
+- tapOn:
+    id: "indoor-end-room-input"
+- inputText: "H118"
 - assertVisible:
     id: "indoor-create-path-button"
 - tapOn:
     id: "indoor-create-path-button"
 - assertVisible:
-    id: "active-outline-VL_201_1-VL_201"
+    id: "active-outline-H_110_4-Hall_F1_hallway_waypoint_31"
 - tapOn:
     id: "next-button"
 - assertVisible:
-    id: "active-outline-VL_201-VL_F2_hallway_waypoint_53"
+    id: "active-outline-Hall_F1_hallway_waypoint_31-Hall_F1_hallway_waypoint_25"
 - tapOn:
     id: "indoor-clear-start-room"
-- tapOn: "Start (VL820)"
-- inputText: "VL 203.3"
+- tapOn:
+    id: "indoor-start-room-input"
+- inputText: "H103"
 - assertVisible:
     id: "indoor-create-path-button"
 - tapOn:
     id: "indoor-create-path-button"
 - assertVisible:
-    id: "active-outline-VL_203_3-VL_F2_hallway_waypoint_56"
+    id: "active-outline-H_102_N2-Hall_F1_hallway_waypoint_29"
