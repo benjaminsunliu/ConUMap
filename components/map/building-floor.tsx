@@ -9,16 +9,18 @@ import { useMemo, useRef, type ReactElement } from "react";
 import { Image, StyleSheet, View } from "react-native";
 import Svg, { Circle, G, Image as SvgImage, Line, Rect } from "react-native-svg";
 
+type PoiFilters = {
+  bathrooms: boolean;
+  elevators: boolean;
+  waterFountains: boolean;
+  stairs: boolean;
+  escalators: boolean;
+};
+
 interface BuildingFloorProps {
   info: BuildingFloorInfo;
   floor: number;
-  poiFilters: {
-    bathrooms: boolean;
-    elevators: boolean;
-    waterFountains: boolean;
-    stairs: boolean;
-    escalators: boolean;
-  };
+  poiFilters: PoiFilters;
   navigationPath?: IndoorNavigationPath;
   isStepMode?: boolean;
   activeStepIndex?: number;
@@ -73,169 +75,26 @@ export default function BuildingFloor({
       .filter((floorCheckpoint) => {
         return floorCheckpoint.floor === floor;
       })
-      .map((floorCheckpoint) => {
-        const shouldRenderBathroomIcon = isBathroomPoiCheckpoint(floorCheckpoint);
-        const shouldRenderWaterFountainIcon =
-          isWaterFountainPoiCheckpoint(floorCheckpoint);
-        const shouldRenderElevatorIcon = isElevatorDoorCheckpoint(floorCheckpoint);
-        const shouldRenderStairIcon = isStairLandingCheckpoint(floorCheckpoint);
-        const shouldRenderEscalatorIcon = isEscalatorCheckpoint(floorCheckpoint);
-        const shouldHighlightBathroom = poiFilters.bathrooms && shouldRenderBathroomIcon;
-        const shouldHighlightElevator = poiFilters.elevators && shouldRenderElevatorIcon;
-        const shouldHighlightStair = poiFilters.stairs && shouldRenderStairIcon;
-        const shouldHighlightEscalator =
-          poiFilters.escalators && shouldRenderEscalatorIcon;
-        const shouldHighlightWaterFountain =
-          poiFilters.waterFountains && shouldRenderWaterFountainIcon;
-
-        return (
-          <G key={`node-${floorCheckpoint.id}`}>
-            <Circle
-              fill="blue"
-              stroke="green"
-              strokeWidth="5"
-              cx={floorCheckpoint.x}
-              cy={floorCheckpoint.y}
-              r="10"
-            />
-            {shouldRenderBathroomIcon ? (
-              <>
-                {shouldHighlightBathroom ? (
-                  <Rect
-                    x={floorCheckpoint.x - 42}
-                    y={floorCheckpoint.y - 42}
-                    width={84}
-                    height={84}
-                    rx="10"
-                    fill={bathroomHighlightColor}
-                    fillOpacity="0.35"
-                    stroke={bathroomHighlightColor}
-                    strokeWidth="3"
-                    strokeOpacity="0.95"
-                    testID={`bathroom-highlight-${floorCheckpoint.id}`}
-                  />
-                ) : null}
-                <SvgImage
-                  x={floorCheckpoint.x - 36}
-                  y={floorCheckpoint.y - 36}
-                  width={72}
-                  height={72}
-                  href={bathroomIconUri}
-                  testID={`bathroom-icon-${floorCheckpoint.id}`}
-                />
-              </>
-            ) : null}
-            {shouldRenderWaterFountainIcon ? (
-              <>
-                {shouldHighlightWaterFountain ? (
-                  <Rect
-                    x={floorCheckpoint.x - 24}
-                    y={floorCheckpoint.y - 24}
-                    width={48}
-                    height={48}
-                    rx="10"
-                    fill={waterFountainHighlightColor}
-                    fillOpacity="0.35"
-                    stroke={waterFountainHighlightColor}
-                    strokeWidth="3"
-                    strokeOpacity="0.95"
-                    testID={`water-fountain-highlight-${floorCheckpoint.id}`}
-                  />
-                ) : null}
-                <SvgImage
-                  x={floorCheckpoint.x - 24}
-                  y={floorCheckpoint.y - 24}
-                  width={48}
-                  height={48}
-                  href={waterFountainIconUri}
-                  testID={`water-fountain-icon-${floorCheckpoint.id}`}
-                />
-              </>
-            ) : null}
-            {shouldRenderElevatorIcon ? (
-              <>
-                {shouldHighlightElevator ? (
-                  <Rect
-                    x={floorCheckpoint.x - 48}
-                    y={floorCheckpoint.y - 78}
-                    width={96}
-                    height={96}
-                    rx="12"
-                    fill={elevatorHighlightColor}
-                    fillOpacity="0.35"
-                    stroke={elevatorHighlightColor}
-                    strokeWidth="3"
-                    strokeOpacity="0.95"
-                    testID={`elevator-highlight-${floorCheckpoint.id}`}
-                  />
-                ) : null}
-                <SvgImage
-                  x={floorCheckpoint.x - 48}
-                  y={floorCheckpoint.y - 78}
-                  width={96}
-                  height={96}
-                  href={elevatorIconUri}
-                  testID={`elevator-icon-${floorCheckpoint.id}`}
-                />
-              </>
-            ) : null}
-            {shouldRenderStairIcon ? (
-              <>
-                {shouldHighlightStair ? (
-                  <Rect
-                    x={floorCheckpoint.x - 48}
-                    y={floorCheckpoint.y - 78}
-                    width={96}
-                    height={96}
-                    rx="12"
-                    fill={stairsHighlightColor}
-                    fillOpacity="0.35"
-                    stroke={stairsHighlightColor}
-                    strokeWidth="3"
-                    strokeOpacity="0.95"
-                    testID={`stair-highlight-${floorCheckpoint.id}`}
-                  />
-                ) : null}
-                <SvgImage
-                  x={floorCheckpoint.x - 40}
-                  y={floorCheckpoint.y - 73}
-                  width={86}
-                  height={86}
-                  href={stairwayIconUri}
-                  testID={`stair-icon-${floorCheckpoint.id}`}
-                />
-              </>
-            ) : null}
-            {shouldRenderEscalatorIcon ? (
-              <>
-                {shouldHighlightEscalator ? (
-                  <Rect
-                    x={floorCheckpoint.x - 48}
-                    y={floorCheckpoint.y - 78}
-                    width={96}
-                    height={96}
-                    rx="12"
-                    fill={escalatorHighlightColor}
-                    fillOpacity="0.35"
-                    stroke={escalatorHighlightColor}
-                    strokeWidth="3"
-                    strokeOpacity="0.95"
-                    testID={`escalator-highlight-${floorCheckpoint.id}`}
-                  />
-                ) : null}
-                <SvgImage
-                  x={floorCheckpoint.x - 48}
-                  y={floorCheckpoint.y - 78}
-                  width={96}
-                  height={96}
-                  href={escalatorIconUri}
-                  testID={`escalator-icon-${floorCheckpoint.id}`}
-                />
-              </>
-            ) : null}
-          </G>
-        );
-      });
+      .map((floorCheckpoint) =>
+        renderCheckpointNode({
+          floorCheckpoint,
+          poiFilters,
+          icons: {
+            bathroom: bathroomIconUri,
+            waterFountain: waterFountainIconUri,
+            elevator: elevatorIconUri,
+            stair: stairwayIconUri,
+            escalator: escalatorIconUri,
+          },
+          highlightColors: {
+            bathroom: bathroomHighlightColor,
+            waterFountain: waterFountainHighlightColor,
+            elevator: elevatorHighlightColor,
+            stair: stairsHighlightColor,
+            escalator: escalatorHighlightColor,
+          },
+        }),
+      );
   }, [
     viewContainerRef,
     info.graphData.checkpoints,
@@ -377,6 +236,209 @@ function renderPathEdge({
       strokeOpacity={getPathStrokeOpacity(isStepMode, isActiveEdge)}
       strokeLinecap="round"
     />
+  );
+}
+
+type RenderIconLayerOptions = {
+  shouldRender: boolean;
+  shouldHighlight: boolean;
+  iconUri: string;
+  iconX: number;
+  iconY: number;
+  iconWidth: number;
+  iconHeight: number;
+  iconTestID: string;
+  highlightColor: string;
+  highlightX: number;
+  highlightY: number;
+  highlightWidth: number;
+  highlightHeight: number;
+  highlightRx: number;
+  highlightTestID: string;
+};
+
+function renderIconLayer({
+  shouldRender,
+  shouldHighlight,
+  iconUri,
+  iconX,
+  iconY,
+  iconWidth,
+  iconHeight,
+  iconTestID,
+  highlightColor,
+  highlightX,
+  highlightY,
+  highlightWidth,
+  highlightHeight,
+  highlightRx,
+  highlightTestID,
+}: RenderIconLayerOptions) {
+  if (!shouldRender) {
+    return null;
+  }
+
+  return (
+    <>
+      {shouldHighlight ? (
+        <Rect
+          x={highlightX}
+          y={highlightY}
+          width={highlightWidth}
+          height={highlightHeight}
+          rx={String(highlightRx)}
+          fill={highlightColor}
+          fillOpacity="0.35"
+          stroke={highlightColor}
+          strokeWidth="3"
+          strokeOpacity="0.95"
+          testID={highlightTestID}
+        />
+      ) : null}
+      <SvgImage
+        x={iconX}
+        y={iconY}
+        width={iconWidth}
+        height={iconHeight}
+        href={iconUri}
+        testID={iconTestID}
+      />
+    </>
+  );
+}
+
+type RenderCheckpointNodeOptions = {
+  floorCheckpoint: FloorCheckpoint;
+  poiFilters: PoiFilters;
+  icons: {
+    bathroom: string;
+    waterFountain: string;
+    elevator: string;
+    stair: string;
+    escalator: string;
+  };
+  highlightColors: {
+    bathroom: string;
+    waterFountain: string;
+    elevator: string;
+    stair: string;
+    escalator: string;
+  };
+};
+
+function renderCheckpointNode({
+  floorCheckpoint,
+  poiFilters,
+  icons,
+  highlightColors,
+}: RenderCheckpointNodeOptions) {
+  const shouldRenderBathroomIcon = isBathroomPoiCheckpoint(floorCheckpoint);
+  const shouldRenderWaterFountainIcon = isWaterFountainPoiCheckpoint(floorCheckpoint);
+  const shouldRenderElevatorIcon = isElevatorDoorCheckpoint(floorCheckpoint);
+  const shouldRenderStairIcon = isStairLandingCheckpoint(floorCheckpoint);
+  const shouldRenderEscalatorIcon = isEscalatorCheckpoint(floorCheckpoint);
+
+  return (
+    <G key={`node-${floorCheckpoint.id}`}>
+      <Circle
+        fill="blue"
+        stroke="green"
+        strokeWidth="5"
+        cx={floorCheckpoint.x}
+        cy={floorCheckpoint.y}
+        r="10"
+      />
+
+      {renderIconLayer({
+        shouldRender: shouldRenderBathroomIcon,
+        shouldHighlight: poiFilters.bathrooms && shouldRenderBathroomIcon,
+        iconUri: icons.bathroom,
+        iconX: floorCheckpoint.x - 36,
+        iconY: floorCheckpoint.y - 36,
+        iconWidth: 72,
+        iconHeight: 72,
+        iconTestID: `bathroom-icon-${floorCheckpoint.id}`,
+        highlightColor: highlightColors.bathroom,
+        highlightX: floorCheckpoint.x - 42,
+        highlightY: floorCheckpoint.y - 42,
+        highlightWidth: 84,
+        highlightHeight: 84,
+        highlightRx: 10,
+        highlightTestID: `bathroom-highlight-${floorCheckpoint.id}`,
+      })}
+
+      {renderIconLayer({
+        shouldRender: shouldRenderWaterFountainIcon,
+        shouldHighlight: poiFilters.waterFountains && shouldRenderWaterFountainIcon,
+        iconUri: icons.waterFountain,
+        iconX: floorCheckpoint.x - 24,
+        iconY: floorCheckpoint.y - 24,
+        iconWidth: 48,
+        iconHeight: 48,
+        iconTestID: `water-fountain-icon-${floorCheckpoint.id}`,
+        highlightColor: highlightColors.waterFountain,
+        highlightX: floorCheckpoint.x - 24,
+        highlightY: floorCheckpoint.y - 24,
+        highlightWidth: 48,
+        highlightHeight: 48,
+        highlightRx: 10,
+        highlightTestID: `water-fountain-highlight-${floorCheckpoint.id}`,
+      })}
+
+      {renderIconLayer({
+        shouldRender: shouldRenderElevatorIcon,
+        shouldHighlight: poiFilters.elevators && shouldRenderElevatorIcon,
+        iconUri: icons.elevator,
+        iconX: floorCheckpoint.x - 48,
+        iconY: floorCheckpoint.y - 78,
+        iconWidth: 96,
+        iconHeight: 96,
+        iconTestID: `elevator-icon-${floorCheckpoint.id}`,
+        highlightColor: highlightColors.elevator,
+        highlightX: floorCheckpoint.x - 48,
+        highlightY: floorCheckpoint.y - 78,
+        highlightWidth: 96,
+        highlightHeight: 96,
+        highlightRx: 12,
+        highlightTestID: `elevator-highlight-${floorCheckpoint.id}`,
+      })}
+
+      {renderIconLayer({
+        shouldRender: shouldRenderStairIcon,
+        shouldHighlight: poiFilters.stairs && shouldRenderStairIcon,
+        iconUri: icons.stair,
+        iconX: floorCheckpoint.x - 40,
+        iconY: floorCheckpoint.y - 73,
+        iconWidth: 86,
+        iconHeight: 86,
+        iconTestID: `stair-icon-${floorCheckpoint.id}`,
+        highlightColor: highlightColors.stair,
+        highlightX: floorCheckpoint.x - 48,
+        highlightY: floorCheckpoint.y - 78,
+        highlightWidth: 96,
+        highlightHeight: 96,
+        highlightRx: 12,
+        highlightTestID: `stair-highlight-${floorCheckpoint.id}`,
+      })}
+
+      {renderIconLayer({
+        shouldRender: shouldRenderEscalatorIcon,
+        shouldHighlight: poiFilters.escalators && shouldRenderEscalatorIcon,
+        iconUri: icons.escalator,
+        iconX: floorCheckpoint.x - 48,
+        iconY: floorCheckpoint.y - 78,
+        iconWidth: 96,
+        iconHeight: 96,
+        iconTestID: `escalator-icon-${floorCheckpoint.id}`,
+        highlightColor: highlightColors.escalator,
+        highlightX: floorCheckpoint.x - 48,
+        highlightY: floorCheckpoint.y - 78,
+        highlightWidth: 96,
+        highlightHeight: 96,
+        highlightRx: 12,
+        highlightTestID: `escalator-highlight-${floorCheckpoint.id}`,
+      })}
+    </G>
   );
 }
 
