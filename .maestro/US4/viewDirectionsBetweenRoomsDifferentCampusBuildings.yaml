@@ -5,26 +5,27 @@ appId: host.exp.exponent
       notVisible:
         id: "building-selection"
     file: ../openLink.yaml
+- tapOn:
+    text: "Search building"
+- inputText: "MB 1.115"
+- assertVisible: "MB – MB 1.115"
+- tapOn:
+    text: "MB – MB 1.115"
+
 - assertVisible:
-    id: "search-input"
+    text: "Set Start"
 - tapOn:
-    id: "search-input"
-- inputText: "H205"
-- assertVisible: "H – H205"
-- tapOn:
-    text: "H – H205"
+    text: "Set Start"
+
 - assertVisible:
-    id: "start-button"
+    text: "Destination"
 - tapOn:
-    id: "start-button"
-- assertVisible:
-    id: "destination-input"
-- tapOn:
-    id: "destination-input"
+    text: "Destination"
 - inputText: "VL 212"
 - assertVisible: "VL – VL 212"
 - tapOn:
     text: "VL – VL 212"
+
 - assertVisible:
     id: "walking-selector"
 - swipe:
@@ -38,9 +39,9 @@ appId: host.exp.exponent
 - tapOn:
     id: "walking-route-0"
 - assertVisible:
-    text: "navigate indoors from"
+    id: "walking-step-0"
 - tapOn:
-    text: "navigate indoors from"
+    id: "walking-step-0"
 - assertVisible:
     id: "next-step"
 - tapOn:
@@ -51,20 +52,22 @@ appId: host.exp.exponent
     id: "next-step"
 - tapOn:
     id: "next-step"
-- tapOn:
-    id: "next-step"
-- tapOn:
-    id: "back-arrow"
 - swipe:
-    from:
-      id: "routes-info-popup"
-    direction: DOWN
-- tapOn:
-    id: "walking-route-last"
+    start: 50%, 70%
+    end: 50%, 10%
+    duration: 1200
+- swipe:
+    start: 50%, 70%
+    end: 50%, 10%
+    duration: 1200
+- swipe:
+    start: 50%, 70%
+    end: 50%, 10%
+    duration: 1200
 - assertVisible:
-    text: "Enter"
+    id: "walking-step-10"
 - tapOn:
-    text: "Enter"
+    id: "walking-step-10"
 - assertVisible:
     id: "next-step"
 - tapOn:
@@ -78,4 +81,13 @@ appId: host.exp.exponent
 - tapOn:
     id: "next-step"
 - tapOn:
-    id: "back-arrow"
+    id: "next-step"
+- tapOn:
+    id: "next-step"
+- tapOn:
+    id: "next-step"
+- tapOn:
+    id: "next-step"
+- tapOn:
+    id: "next-step"
+
