@@ -78,7 +78,9 @@ export default function IndoorMap() {
   const [poiFilters, setPoiFilters] = useState({
     bathrooms: false,
     elevators: false,
-    washrooms: false,
+    waterFountains: false,
+    stairs: false,
+    escalators: false,
   });
   const previousWheelchairOnly = useRef(wheelchairOnly);
 
@@ -641,10 +643,10 @@ export default function IndoorMap() {
             routeError={inputValidationError ?? routeError}
           />
           <MapSettings
-            wheelchairOnly={wheelchairOnly} //TODO temp
-            setWheelchairOnly={handleSetWheelchairOnly} //TODO temp
-            poiFilters={poiFilters} //TODO temp
-            setPoiFilters={setPoiFilters} //TODO temp
+            wheelchairOnly={wheelchairOnly}
+            setWheelchairOnly={handleSetWheelchairOnly}
+            poiFilters={poiFilters}
+            setPoiFilters={setPoiFilters}
           />
           <IndoorNavigationControls
             onNext={() => {
@@ -671,6 +673,7 @@ export default function IndoorMap() {
           />
           <BuildingFloor
             info={floorInfo}
+            poiFilters={poiFilters}
             navigationPath={navigationPath}
             floor={defaultFloor}
             isStepMode={hasStepNavigation}
