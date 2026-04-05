@@ -2,30 +2,30 @@
   "polygons": [
     [
       {
-        "latitude": 45.498005813165,
-        "longitude": -73.5796129843803
+        "latitude": 45.497976613165,
+        "longitude": -73.5795287843803
       },
       {
-        "latitude": 45.497827663139,
-        "longitude": -73.579779728197
+        "latitude": 45.497798463139,
+        "longitude": -73.579695528197
       },
       {
-        "latitude": 45.4977905107449,
-        "longitude": -73.5797039317568
+        "latitude": 45.4977613107449,
+        "longitude": -73.5796197317568
       },
       {
-        "latitude": 45.4979631908601,
-        "longitude": -73.5795371416831
+        "latitude": 45.4979339908601,
+        "longitude": -73.5794529416831
       },
       {
-        "latitude": 45.498005813165,
-        "longitude": -73.5796129843803
+        "latitude": 45.497976613165,
+        "longitude": -73.5795287843803
       }
     ]
   ],
   "location": {
-    "latitude": 45.4978851223049,
-    "longitude": -73.5796629426972
+    "latitude": 45.4978559223049,
+    "longitude": -73.5795787426972
   },
   "buildingCode": "MU",
   "buildingName": "MU Annex",
