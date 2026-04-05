@@ -1,6 +1,6 @@
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { IndoorNavigationControlsState } from "@/utils/indoorNavigationCommands";
+import type { IndoorNavigationControlsState } from "@/utils/indoorNavigationCommands";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
