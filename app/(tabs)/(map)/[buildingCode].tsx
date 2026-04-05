@@ -1,7 +1,7 @@
-import BuildingFloor from "@/components/map/building-floor";
-import MapSettings from "@/components/map/indoor-map-settings";
-import IndoorNavigationControls from "@/components/map/indoor-navigation-controls";
-import IndoorRoomFields from "@/components/map/indoor-room-fields";
+import BuildingFloor from "@/components/map/indoor-map/building-floor";
+import MapSettings from "@/components/map/indoor-map/indoor-map-settings";
+import IndoorNavigationControls from "@/components/map/indoor-map/indoor-navigation-controls";
+import IndoorRoomFields from "@/components/map/indoor-map/indoor-room-fields";
 import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
 import { IndoorMapSettings } from "@/globals/IndoorMapSettingsStore";
 import { OutdoorStepResume } from "@/globals/OutdoorStepResumeStore";

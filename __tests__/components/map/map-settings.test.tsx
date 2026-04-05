@@ -1,6 +1,6 @@
 import React from "react";
 import { render, fireEvent } from "@testing-library/react-native";
-import MapSettings from "@/components/map/indoor-map-settings";
+import MapSettings from "@/components/map/indoor-map/indoor-map-settings";
 
 jest.mock("@expo/vector-icons", () => {
   const { Text } = require("react-native");

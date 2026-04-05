@@ -1,4 +1,4 @@
-import BuildingFloor from "@/components/map/building-floor";
+import BuildingFloor from "@/components/map/indoor-map/building-floor";
 import { render } from "@testing-library/react-native";
 
 describe("building floor", () => {
