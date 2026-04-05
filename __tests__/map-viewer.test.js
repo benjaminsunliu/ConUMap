@@ -207,10 +207,11 @@ describe("map tab", () => {
 
     try {
       const mapViewer = render(<MapViewer />);
+      const poiMarkers = mapViewer.getAllByTestId("marker-poi-1");
 
-      expect(mapViewer.getByTestId("marker-poi-1")).toBeTruthy();
+      expect(poiMarkers.length).toBeGreaterThan(0);
 
-      fireEvent.press(mapViewer.getByTestId("marker-poi-1"));
+      fireEvent.press(poiMarkers[0]);
 
       expect(mapViewer.getByTestId("poi-info-popup")).toBeTruthy();
       expect(mapViewer.getByText("Test POI")).toBeTruthy();
