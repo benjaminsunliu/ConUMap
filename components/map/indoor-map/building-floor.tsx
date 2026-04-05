@@ -8,8 +8,8 @@ import {
 } from "@/types/mapTypes";
 import { useMemo, useRef, type ReactElement } from "react";
 import { Image, StyleSheet, View } from "react-native";
-import Svg, { Circle, G, Image as SvgImage, Line, Rect } from "react-native-svg";
-import IndoorMarker from "./indoor-poi/indoor-marker";
+import Svg, { Line } from "react-native-svg";
+import defaultMarkerFactory from "./indoor-poi/default-marker-factory";
 
 interface BuildingFloorProps {
   info: BuildingFloorInfo;
@@ -32,11 +32,6 @@ export default function BuildingFloor({
   const theme = Colors[colorScheme];
   const navigationPathColor = theme.map.navigationPathColor;
   const activeStepOutlineColor = theme.map.currentSelectedBuildingColor;
-  const bathroomHighlightColor = theme.map.bathroomHighlightColor;
-  const elevatorHighlightColor = theme.map.elevatorHighlightColor;
-  const stairsHighlightColor = theme.map.stairsHighlightColor;
-  const escalatorHighlightColor = theme.map.escalatorHighlightColor;
-  const waterFountainHighlightColor = theme.map.waterFountainHighlightColor;
   const viewContainerRef = useRef(null);
 
   const imageSize = useMemo(() => {
@@ -45,21 +40,6 @@ export default function BuildingFloor({
       ? { width: imageInfo.width, height: imageInfo.height }
       : { width: 0, height: 0 };
   }, [info.images, floor]);
-  const bathroomIconUri = useMemo(() => {
-    return Image.resolveAssetSource(require("@/assets/icons/bathroom.png")).uri;
-  }, []);
-  const waterFountainIconUri = useMemo(() => {
-    return Image.resolveAssetSource(require("@/assets/icons/water_fountain.png")).uri;
-  }, []);
-  const elevatorIconUri = useMemo(() => {
-    return Image.resolveAssetSource(require("@/assets/icons/elevator.png")).uri;
-  }, []);
-  const stairwayIconUri = useMemo(() => {
-    return Image.resolveAssetSource(require("@/assets/icons/stairway.png")).uri;
-  }, []);
-  const escalatorIconUri = useMemo(() => {
-    return Image.resolveAssetSource(require("@/assets/icons/escalator.png")).uri;
-  }, []);
 
   const nodes = useMemo(() => {
     if (!viewContainerRef) {
@@ -70,48 +50,9 @@ export default function BuildingFloor({
         return floorCheckpoint.floor === floor;
       })
       .map((floorCheckpoint) => {
-        const icons = {
-          bathroom: bathroomIconUri,
-          waterFountain: waterFountainIconUri,
-          elevator: elevatorIconUri,
-          stair: stairwayIconUri,
-          escalator: escalatorIconUri,
-        };
-
-        const highlightColors = {
-          bathroom: bathroomHighlightColor,
-          waterFountain: waterFountainHighlightColor,
-          elevator: elevatorHighlightColor,
-          stair: stairsHighlightColor,
-          escalator: escalatorHighlightColor,
-        };
-
-        return (
-          <IndoorMarker
-            key={floorCheckpoint.id}
-            floorCheckpoint={floorCheckpoint}
-            poiFilters={poiFilters}
-            icons={icons}
-            highlightColors={highlightColors}
-          />
-        );
+        return defaultMarkerFactory.createMarker(floorCheckpoint, poiFilters, theme);
       });
-  }, [
-    viewContainerRef,
-    info.graphData.checkpoints,
-    floor,
-    poiFilters,
-    bathroomIconUri,
-    waterFountainIconUri,
-    elevatorIconUri,
-    stairwayIconUri,
-    escalatorIconUri,
-    bathroomHighlightColor,
-    elevatorHighlightColor,
-    stairsHighlightColor,
-    escalatorHighlightColor,
-    waterFountainHighlightColor,
-  ]);
+  }, [info.graphData.checkpoints, floor, poiFilters, theme]);
 
   const lines = useMemo(() => {
     if (!navigationPath) {
