@@ -23,3 +23,12 @@ appId: com.anonymous.client
     file: launchApp.yaml
 - runFlow:
     file: ../US2/AT3.1routeBetweenCampus.yaml
+
+- runFlow:
+    file: launchApp.yaml
+- runFlow:
+    file: ../US5/AT1displayPOI.yaml
+- runFlow:
+    file: launchApp.yaml
+- runFlow:
+    file: ../US5/AT2directionsPOI.yaml

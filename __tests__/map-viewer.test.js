@@ -7,9 +7,27 @@ import { CAMPUS_BUILDINGS } from "../constants/map";
 import { OutdoorStepResume } from "@/globals/OutdoorStepResumeStore";
 import { fetchAllDirections } from "@/utils/directions";
 import * as SearchBuildingHook from "@/hooks/use-search-building";
+import { usePoi } from "@/hooks/use-poi";
 import { useLocalSearchParams, router } from "expo-router";
+import { Platform } from "react-native";
 const mockAnimateToRegion = jest.fn();
 let latestFocusEffect = null;
+
+const MOCK_POI = {
+  place_id: "poi-1",
+  name: "Test POI",
+  types: ["restaurant"],
+  geometry: {
+    location: {
+      lat: 45.495,
+      lng: -73.579,
+    },
+    viewport: {
+      northeast: { lat: 45.496, lng: -73.578 },
+      southwest: { lat: 45.494, lng: -73.58 },
+    },
+  },
+};
 
 jest.mock("expo-secure-store", () => ({
   getItemAsync: jest.fn().mockResolvedValue(null),
@@ -57,6 +75,10 @@ jest.mock("@/utils/directions", () => ({
 
 jest.mock("@/utils/decodePolyline", () => ({
   decodePolyline: jest.fn().mockReturnValue([]),
+}));
+
+jest.mock("@/hooks/use-poi", () => ({
+  usePoi: jest.fn(),
 }));
 
 jest.mock("expo-router", () => ({
@@ -131,6 +153,7 @@ beforeEach(() => {
   OutdoorStepResume.reset();
   latestFocusEffect = null;
   useLocalSearchParams.mockReturnValue({});
+  usePoi.mockReturnValue([]);
   router.setParams.mockClear();
   router.push.mockClear();
   router.back.mockClear();
@@ -171,6 +194,32 @@ describe("map tab", () => {
     });
 
     expect(mapViewer.getByText("760 m")).toBeTruthy();
+  });
+
+  it("opens the POI popup when pressing a filtered place proxy", () => {
+    const originalPlatformOS = Platform.OS;
+    Object.defineProperty(Platform, "OS", {
+      configurable: true,
+      value: "android",
+    });
+
+    usePoi.mockReturnValue([MOCK_POI]);
+
+    try {
+      const mapViewer = render(<MapViewer />);
+
+      expect(mapViewer.getByTestId("marker-poi-1")).toBeTruthy();
+
+      fireEvent.press(mapViewer.getByTestId("marker-poi-1"));
+
+      expect(mapViewer.getByTestId("poi-info-popup")).toBeTruthy();
+      expect(mapViewer.getByText("Test POI")).toBeTruthy();
+    } finally {
+      Object.defineProperty(Platform, "OS", {
+        configurable: true,
+        value: originalPlatformOS,
+      });
+    }
   });
 
   it("opens routes mode directly when opened with buildingId and autoNavigate=true", async () => {
