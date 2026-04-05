@@ -18,8 +18,8 @@
       "type": "escalator",
       "buildingId": "H",
       "floor": 9,
-      "x": 1064,
-      "y": 898,
+      "x": 1060,
+      "y": 934,
       "label": "9_Escalator_1",
       "accessible": false
     },
@@ -38,8 +38,8 @@
       "type": "stair_landing",
       "buildingId": "H",
       "floor": 9,
-      "x": 1420,
-      "y": 510,
+      "x": 1417,
+      "y": 479,
       "label": "",
       "accessible": false
     },
@@ -58,8 +58,8 @@
       "type": "stair_landing",
       "buildingId": "H",
       "floor": 9,
-      "x": 592,
-      "y": 1410,
+      "x": 583,
+      "y": 1378,
       "label": "",
       "accessible": false
     },
@@ -128,7 +128,7 @@
       "type": "escalator",
       "buildingId": "H",
       "floor": 2,
-      "x": 1207,
+      "x": 1185,
       "y": 1585,
       "label": "",
       "accessible": false
@@ -578,8 +578,8 @@
       "type": "stair_landing",
       "buildingId": "H",
       "floor": 8,
-      "x": 586,
-      "y": 1418,
+      "x": 588,
+      "y": 1440,
       "label": "8_Stair_SW",
       "accessible": false
     },
@@ -588,8 +588,8 @@
       "type": "stair_landing",
       "buildingId": "H",
       "floor": 8,
-      "x": 1417,
-      "y": 1416,
+      "x": 1414,
+      "y": 1440,
       "label": "8_Stair_SE",
       "accessible": false
     },
@@ -618,8 +618,8 @@
       "type": "stair_landing",
       "buildingId": "H",
       "floor": 8,
-      "x": 604,
-      "y": 636,
+      "x": 602,
+      "y": 613,
       "label": "8_Stair_NW",
       "accessible": false
     },
@@ -648,8 +648,8 @@
       "type": "stair_landing",
       "buildingId": "H",
       "floor": 8,
-      "x": 1414,
-      "y": 520,
+      "x": 1416,
+      "y": 565,
       "label": "8_Stair_NE",
       "accessible": false
     },
@@ -768,12 +768,12 @@
       "type": "point_of_interest",
       "buildingId": "H",
       "floor": 8,
-      "x": 707,
-      "y": 538,
+      "x": 779,
+      "y": 466,
       "label": "Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Unisex Bathroom"
+        "POI": "Bathroom"
       }
     },
     {
@@ -781,12 +781,12 @@
       "type": "point_of_interest",
       "buildingId": "H",
       "floor": 8,
-      "x": 656,
-      "y": 400,
+      "x": 645,
+      "y": 418,
       "label": "Water_Fountain_1",
       "accessible": true,
       "metadata": {
-        "POI": "Water Fountain"
+        "POI": "Water fountain"
       }
     },
     {
@@ -794,12 +794,12 @@
       "type": "point_of_interest",
       "buildingId": "H",
       "floor": 8,
-      "x": 1273,
-      "y": 521,
-      "label": "H-810",
+      "x": 1281,
+      "y": 453,
+      "label": "Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Unisex Bathroom"
+        "POI": "Bathroom"
       }
     },
     {
@@ -809,10 +809,10 @@
       "floor": 8,
       "x": 630,
       "y": 1640,
-      "label": "Water Fountain 2",
+      "label": "Water fountain 2",
       "accessible": true,
       "metadata": {
-        "POI": "Water Fountain"
+        "POI": "Water fountain"
       }
     },
     {
@@ -1650,12 +1650,12 @@
       "type": "point_of_interest",
       "buildingId": "H",
       "floor": 9,
-      "x": 1257,
-      "y": 1432,
+      "x": 1347,
+      "y": 1422,
       "label": "Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Women's Bathroom"
+        "POI": "Bathroom"
       }
     },
     {
@@ -1693,12 +1693,12 @@
       "type": "point_of_interest",
       "buildingId": "H",
       "floor": 9,
-      "x": 729,
-      "y": 1394,
+      "x": 731,
+      "y": 1423,
       "label": "Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Men's Bathroom"
+        "POI": "Bathroom"
       }
     },
     {
@@ -2586,12 +2586,12 @@
       "type": "point_of_interest",
       "buildingId": "H",
       "floor": 9,
-      "x": 466,
-      "y": 630,
-      "label": "Water Fountain",
+      "x": 476,
+      "y": 591,
+      "label": "Water fountain",
       "accessible": true,
       "metadata": {
-        "POI": "Water Fountain"
+        "POI": "Water fountain"
       }
     },
     {
@@ -2601,10 +2601,10 @@
       "floor": 9,
       "x": 1714,
       "y": 1272,
-      "label": "Water Fountain",
+      "label": "Water fountain",
       "accessible": true,
       "metadata": {
-        "POI": "Water Fountain"
+        "POI": "Water fountain"
       }
     },
     {
@@ -2612,12 +2612,12 @@
       "type": "point_of_interest",
       "buildingId": "H",
       "floor": 9,
-      "x": 702,
-      "y": 1529,
-      "label": "Water Fountain",
+      "x": 693,
+      "y": 1552,
+      "label": "Water fountain",
       "accessible": true,
       "metadata": {
-        "POI": "Water Fountain"
+        "POI": "Water fountain"
       }
     },
     {
@@ -3097,10 +3097,10 @@
       "floor": 1,
       "x": 868,
       "y": 1321,
-      "label": "Unisex Bathroom",
+      "label": "Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Unisex Bathroom"
+        "POI": "Bathroom"
       }
     },
     {
@@ -3259,7 +3259,7 @@
       "buildingId": "H",
       "floor": 1,
       "x": 1406,
-      "y": 1591,
+      "y": 1602,
       "label": "H1-elevator1",
       "accessible": true
     },
@@ -3268,8 +3268,8 @@
       "type": "elevator_door",
       "buildingId": "H",
       "floor": 1,
-      "x": 1344,
-      "y": 1592,
+      "x": 1321,
+      "y": 1600,
       "label": "H1-elevator2",
       "accessible": true
     },
@@ -3278,7 +3278,7 @@
       "type": "stair_landing",
       "buildingId": "H",
       "floor": 1,
-      "x": 1748,
+      "x": 1800,
       "y": 1674,
       "label": "",
       "accessible": false
@@ -3309,7 +3309,7 @@
       "buildingId": "H",
       "floor": 1,
       "x": 1863,
-      "y": 1369,
+      "y": 1450,
       "label": "",
       "accessible": false
     },
@@ -3369,7 +3369,7 @@
       "buildingId": "H",
       "floor": 1,
       "x": 1863,
-      "y": 931,
+      "y": 980,
       "label": "",
       "accessible": false
     },
@@ -3698,7 +3698,7 @@
       "type": "stair_landing",
       "buildingId": "H",
       "floor": 1,
-      "x": 308,
+      "x": 365,
       "y": 653,
       "label": "",
       "accessible": false
@@ -3728,12 +3728,12 @@
       "type": "point_of_interest",
       "buildingId": "H",
       "floor": 1,
-      "x": 1073,
+      "x": 1063,
       "y": 1322,
-      "label": "Water Fountain",
+      "label": "Water fountain",
       "accessible": true,
       "metadata": {
-        "POI": "Water Fountain"
+        "POI": "Water fountain"
       }
     },
     {
@@ -3741,8 +3741,8 @@
       "type": "point_of_interest",
       "buildingId": "H",
       "floor": 1,
-      "x": 1393,
-      "y": 229,
+      "x": 1396,
+      "y": 169,
       "label": "Bathroom",
       "accessible": false,
       "metadata": {
@@ -4014,8 +4014,8 @@
       "type": "stair_landing",
       "buildingId": "H",
       "floor": 2,
-      "x": 354,
-      "y": 620,
+      "x": 400,
+      "y": 640,
       "label": "",
       "accessible": false
     },
@@ -4134,18 +4134,21 @@
       "type": "point_of_interest",
       "buildingId": "H",
       "floor": 2,
-      "x": 630,
-      "y": 598,
+      "x": 633,
+      "y": 644,
       "label": "Bathroom",
-      "accessible": true
+      "accessible": true,
+      "metadata": {
+        "POI": "Bathroom"
+      }
     },
     {
       "id": "H2_poi_bathroom",
       "type": "point_of_interest",
       "buildingId": "H",
       "floor": 2,
-      "x": 839,
-      "y": 457,
+      "x": 838,
+      "y": 464,
       "label": "Bathroom",
       "accessible": true,
       "metadata": {
@@ -4159,10 +4162,10 @@
       "floor": 2,
       "x": 537,
       "y": 829,
-      "label": "Water Fountain",
+      "label": "Water fountain",
       "accessible": true,
       "metadata": {
-        "POI": "Water Fountain"
+        "POI": "Water fountain"
       }
     },
     {

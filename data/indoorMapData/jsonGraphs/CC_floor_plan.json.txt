@@ -79,7 +79,7 @@
       "buildingId": "CC",
       "floor": 1,
       "x": 1368,
-      "y": 335,
+      "y": 299,
       "label": "CC-Stair-1",
       "accessible": false
     },
@@ -268,8 +268,8 @@
       "type": "stair_landing",
       "buildingId": "CC",
       "floor": 1,
-      "x": 2623,
-      "y": 391,
+      "x": 2644,
+      "y": 357,
       "label": "CC-Stair-3",
       "accessible": false
     },
@@ -394,37 +394,30 @@
       "accessible": true
     },
     {
-      "id": "CC_1_poi_1",
-      "type": "point_of_interest",
-      "buildingId": "CC",
-      "floor": 1,
-      "x": 3521,
-      "y": 421,
-      "label": "Individual Bathroom",
-      "accessible": true,
-      "metadata": {
-        "POI": "Individual Bathroom"
-      }
-    },
-    {
       "id": "CC_1_poi_2",
       "type": "point_of_interest",
       "buildingId": "CC",
       "floor": 1,
-      "x": 3387,
-      "y": 350,
-      "label": "Women's Bathroom",
-      "accessible": true
+      "x": 3399,
+      "y": 411,
+      "label": "Bathroom",
+      "accessible": true,
+      "metadata": {
+        "POI": "Bathroom"
+      }
     },
     {
       "id": "CC_1_poi_3",
       "type": "point_of_interest",
       "buildingId": "CC",
       "floor": 1,
-      "x": 613,
-      "y": 384,
-      "label": "Men's Bathroom",
-      "accessible": true
+      "x": 602,
+      "y": 423,
+      "label": "Bathroom",
+      "accessible": true,
+      "metadata": {
+        "POI": "Bathroom"
+      }
     }
   ],
   "edges": [

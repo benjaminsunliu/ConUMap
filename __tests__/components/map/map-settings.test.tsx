@@ -39,7 +39,9 @@ describe("MapSettings Component", () => {
     poiFilters: {
       bathrooms: true,
       elevators: false,
-      washrooms: true,
+      waterFountains: true,
+      stairs: false,
+      escalators: false,
     },
     setPoiFilters: jest.fn(),
   };
@@ -62,7 +64,7 @@ describe("MapSettings Component", () => {
     fireEvent.press(icon.parent);
 
     expect(getByText("Settings")).toBeTruthy();
-    expect(getByText("Points of Interest")).toBeTruthy();
+    expect(getByText("Highlight Points of Interest")).toBeTruthy();
   });
 
   it("should toggle the wheelchair accessibility switch", () => {
@@ -118,8 +120,12 @@ describe("MapSettings Component", () => {
     fireEvent.press(icon.parent);
 
     const checkboxes = getAllByText("checkbox");
+    const uncheckedBoxes = getAllByText("square-outline");
 
     expect(checkboxes.length).toBe(2);
-    expect(getByText("square-outline")).toBeTruthy();
+    expect(uncheckedBoxes.length).toBe(3);
+    expect(getByText("Water Fountains")).toBeTruthy();
+    expect(getByText("Stairs")).toBeTruthy();
+    expect(getByText("Escalators")).toBeTruthy();
   });
 });

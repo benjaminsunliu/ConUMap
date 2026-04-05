@@ -114,6 +114,9 @@ export type FloorCheckpoint = {
   y: number;
   label?: string;
   accessible: boolean;
+  metadata?: {
+    POI?: string;
+  };
 };
 
 export type FloorCheckpointId = FloorCheckpoint["id"];

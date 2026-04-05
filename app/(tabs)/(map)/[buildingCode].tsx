@@ -11,6 +11,10 @@ import {
   FloorCheckpointsGraph,
   IndoorNavigationPath,
 } from "@/types/mapTypes";
+import {
+  createFloorNavigationCommandSet,
+  createStepNavigationCommandSet,
+} from "@/utils/indoorNavigationCommands";
 import { findIndoorPath } from "@/utils/indoorNavigation";
 import { describeIndoorStep } from "@/utils/indoorStepInstructions";
 import {
@@ -78,7 +82,9 @@ export default function IndoorMap() {
   const [poiFilters, setPoiFilters] = useState({
     bathrooms: false,
     elevators: false,
-    washrooms: false,
+    waterFountains: false,
+    stairs: false,
+    escalators: false,
   });
   const previousWheelchairOnly = useRef(wheelchairOnly);
 
@@ -213,52 +219,105 @@ export default function IndoorMap() {
   }, [endRoom, startRoom, validEndRoom, validStartRoom]);
 
   type NavigationDirection = "next" | "prev";
-  const handleFloorNavigation = (direction: NavigationDirection) => {
-    if (currentFloorIndex < 0) {
-      return;
-    }
-    const delta = direction === "next" ? 1 : -1;
-    const newFloorIndex = Math.min(
-      Math.max(currentFloorIndex + delta, 0),
-      availableFloors.length - 1,
-    );
-    setFloor(availableFloors[newFloorIndex]);
-  };
-  const handleStepNavigation = (direction: NavigationDirection) => {
-    if (!hasStepNavigation || !navigationPath || !floorInfo) {
-      return;
-    }
-
-    if (direction === "next" && isOnLastIndoorStep) {
-      if (outdoorStepResume) {
-        OutdoorStepResume.setPendingStep(outdoorStepResume);
-        if (autoResumeContinuationId) {
-          OutdoorStepResume.clearContinuation(autoResumeContinuationId);
-        }
-        router.back();
+  const handleFloorNavigation = useCallback(
+    (direction: NavigationDirection) => {
+      if (currentFloorIndex < 0) {
+        return;
       }
-      return;
+      const delta = direction === "next" ? 1 : -1;
+      const newFloorIndex = Math.min(
+        Math.max(currentFloorIndex + delta, 0),
+        availableFloors.length - 1,
+      );
+      setFloor(availableFloors[newFloorIndex]);
+    },
+    [availableFloors, currentFloorIndex],
+  );
+  const handleStepNavigation = useCallback(
+    (direction: NavigationDirection) => {
+      if (!hasStepNavigation || !navigationPath || !floorInfo) {
+        return;
+      }
+
+      if (direction === "next" && isOnLastIndoorStep) {
+        if (outdoorStepResume) {
+          OutdoorStepResume.setPendingStep(outdoorStepResume);
+          if (autoResumeContinuationId) {
+            OutdoorStepResume.clearContinuation(autoResumeContinuationId);
+          }
+          router.back();
+        }
+        return;
+      }
+
+      const delta = direction === "next" ? 1 : -1;
+      const nextStepPointer = Math.min(
+        Math.max(boundedStepPointer + delta, 0),
+        totalPathSteps - 1,
+      );
+      if (nextStepPointer === boundedStepPointer) {
+        return;
+      }
+
+      const nextPathIndex = stepStopIndices[nextStepPointer];
+      const nextStepCheckpoint =
+        floorInfo.graphData.checkpoints[navigationPath[nextPathIndex]];
+      if (!nextStepCheckpoint) {
+        return;
+      }
+
+      setCurrentPathStepIndex(nextStepPointer);
+      setFloor(nextStepCheckpoint.floor);
+    },
+    [
+      autoResumeContinuationId,
+      boundedStepPointer,
+      floorInfo,
+      hasStepNavigation,
+      isOnLastIndoorStep,
+      navigationPath,
+      outdoorStepResume,
+      stepStopIndices,
+      totalPathSteps,
+    ],
+  );
+  const navigationControls = useMemo(() => {
+    const currentFloor = defaultFloor ?? firstFloor ?? 0;
+
+    if (hasStepNavigation) {
+      return createStepNavigationCommandSet({
+        currentFloor,
+        currentStep: boundedStepPointer + 1,
+        totalSteps: Math.max(totalPathSteps, 1),
+        stepInstruction: currentStepInstruction,
+        canGoNext: canGoNextStep,
+        canGoPrevious: canGoPreviousStep,
+        onNext: () => handleStepNavigation("next"),
+        onPrevious: () => handleStepNavigation("prev"),
+      });
     }
 
-    const delta = direction === "next" ? 1 : -1;
-    const nextStepPointer = Math.min(
-      Math.max(boundedStepPointer + delta, 0),
-      totalPathSteps - 1,
-    );
-    if (nextStepPointer === boundedStepPointer) {
-      return;
-    }
-
-    const nextPathIndex = stepStopIndices[nextStepPointer];
-    const nextStepCheckpoint =
-      floorInfo.graphData.checkpoints[navigationPath[nextPathIndex]];
-    if (!nextStepCheckpoint) {
-      return;
-    }
-
-    setCurrentPathStepIndex(nextStepPointer);
-    setFloor(nextStepCheckpoint.floor);
-  };
+    return createFloorNavigationCommandSet({
+      currentFloor,
+      canGoNext: canGoNextFloor,
+      canGoPrevious: canGoPreviousFloor,
+      onNext: () => handleFloorNavigation("next"),
+      onPrevious: () => handleFloorNavigation("prev"),
+    });
+  }, [
+    boundedStepPointer,
+    canGoNextFloor,
+    canGoNextStep,
+    canGoPreviousFloor,
+    canGoPreviousStep,
+    currentStepInstruction,
+    defaultFloor,
+    firstFloor,
+    handleFloorNavigation,
+    handleStepNavigation,
+    hasStepNavigation,
+    totalPathSteps,
+  ]);
 
   const createPathFromRooms = useCallback(() => {
     setHasCheckpointDrivenRoute(false);
@@ -641,36 +700,15 @@ export default function IndoorMap() {
             routeError={inputValidationError ?? routeError}
           />
           <MapSettings
-            wheelchairOnly={wheelchairOnly} //TODO temp
-            setWheelchairOnly={handleSetWheelchairOnly} //TODO temp
-            poiFilters={poiFilters} //TODO temp
-            setPoiFilters={setPoiFilters} //TODO temp
+            wheelchairOnly={wheelchairOnly}
+            setWheelchairOnly={handleSetWheelchairOnly}
+            poiFilters={poiFilters}
+            setPoiFilters={setPoiFilters}
           />
-          <IndoorNavigationControls
-            onNext={() => {
-              if (hasStepNavigation) {
-                handleStepNavigation("next");
-                return;
-              }
-              handleFloorNavigation("next");
-            }}
-            onPrevious={() => {
-              if (hasStepNavigation) {
-                handleStepNavigation("prev");
-                return;
-              }
-              handleFloorNavigation("prev");
-            }}
-            currentFloor={defaultFloor}
-            canGoNext={hasStepNavigation ? canGoNextStep : canGoNextFloor}
-            canGoPrevious={hasStepNavigation ? canGoPreviousStep : canGoPreviousFloor}
-            mode={hasStepNavigation ? "step" : "floor"}
-            currentStep={boundedStepPointer + 1}
-            totalSteps={Math.max(totalPathSteps, 1)}
-            stepInstruction={currentStepInstruction}
-          />
+          <IndoorNavigationControls {...navigationControls} />
           <BuildingFloor
             info={floorInfo}
+            poiFilters={poiFilters}
             navigationPath={navigationPath}
             floor={defaultFloor}
             isStepMode={hasStepNavigation}

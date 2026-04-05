@@ -1,0 +1,43 @@
+appId: host.exp.exponent
+---
+- runFlow:
+    when:
+      notVisible:
+        id: "building-selection"
+    file: ../openLink.yaml
+- tapOn:
+    id: "locationButton"
+- setLocation:
+    latitude: 45.4957849
+    longitude: -73.577225
+- assertVisible:
+    id: "campus-toggle-selector"
+- tapOn: "SGW"
+- tapOn: "POI filters"
+- swipe:
+    from:
+      id: "radius-slider"
+    direction: UP
+- tapOn: "SGW"
+- tapOn:
+    id: "marker-ChIJU3alcmoayUwRHw9ZVSUzjzc"
+- swipe:
+    start: 45%, 74%
+    end: 45%, 40%
+    duration: 800
+- assertVisible:
+    text: "Directions"
+- tapOn:
+    id: "directions-action-button"
+- swipe:
+    start: 45%, 74%
+    end: 45%, 40%
+    duration: 800
+- tapOn:
+    id: "walking-route-0"
+- assertVisible:
+    id: "walking-step-0"
+- swipe:
+    from:
+      id: "driving-selector"
+    direction: DOWN

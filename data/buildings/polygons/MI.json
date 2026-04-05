@@ -2,30 +2,30 @@
   "polygons": [
     [
       {
-        "latitude": 45.4977067257788,
-        "longitude": -73.5793416838473
+        "latitude": 45.4976775257788,
+        "longitude": -73.5792574838473
       },
       {
-        "latitude": 45.4978116691037,
-        "longitude": -73.5792342402066
+        "latitude": 45.4977824691037,
+        "longitude": -73.5791500402066
       },
       {
-        "latitude": 45.4978489907935,
-        "longitude": -73.5793121854624
+        "latitude": 45.4978197907935,
+        "longitude": -73.5792279854624
       },
       {
-        "latitude": 45.4977422320955,
-        "longitude": -73.5794123189956
+        "latitude": 45.4977130320955,
+        "longitude": -73.5793281189956
       },
       {
-        "latitude": 45.4977067257788,
-        "longitude": -73.5793416838473
+        "latitude": 45.4976775257788,
+        "longitude": -73.5792574838473
       }
     ]
   ],
   "location": {
-    "latitude": 45.4977781,
-    "longitude": -73.5793243
+    "latitude": 45.4977489,
+    "longitude": -73.5792401
   },
   "buildingCode": "MI",
   "buildingName": "MI Annex",
