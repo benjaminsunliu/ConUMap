@@ -2,7 +2,7 @@ import { POI } from "@/types/mapTypes";
 import { PoiMarkerColors } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 import { Marker } from "react-native-maps";
 
 type PoiMarkerVisual = {
@@ -63,7 +63,13 @@ export default function PoiMarker({ poi, onPress }: Readonly<PoiMarkerProps>) {
       zIndex={3}
     >
       <View
-        testID="poi-marker-body"
+        testID={Platform.OS === "android" ? undefined : `marker-${poi.place_id}`}
+        nativeID={Platform.OS === "android" ? undefined : `marker-${poi.place_id}`}
+        accessible
+        accessibilityRole="button"
+        accessibilityLabel={`${poi.name}`}
+        accessibilityHint={`Shows details for ${poi.name}`}
+        collapsable={false}
         style={[styles.poiMarker, { backgroundColor: markerVisual.backgroundColor }]}
       >
         <Ionicons

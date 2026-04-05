@@ -1438,6 +1438,17 @@ export default function MapViewer({
               onPress={() => handleBuildingPress(building)}
             />
           ))}
+          {filteredPlaces.map((poi) => (
+            <Pressable
+              key={`marker-proxy-${poi.place_id}`}
+              testID={`marker-${poi.place_id}`}
+              nativeID={`marker-${poi.place_id}`}
+              accessibilityRole="button"
+              accessibilityLabel={`${poi.name}`}
+              style={styles.androidMarkerProxyTarget}
+              onPress={() => handlePOIPress(poi)}
+            />
+          ))}
         </View>
       )}
 
