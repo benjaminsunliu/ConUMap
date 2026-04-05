@@ -1,3 +1,5 @@
+import { DayOfWeek } from "@/types/dayOfWeek";
+import { Campus } from "@/types/mapTypes";
 import * as cheerio from "cheerio";
 import type { CheerioAPI } from "cheerio";
 
@@ -5,17 +7,13 @@ export interface ShuttleScheduleData {
   warnings: string[];
   noServiceDates: Date[];
   isAvailableToday: boolean;
-  schedule: {
-    loyolaDepartures: string[];
-    sgwDepartures: string[];
-  };
+  schedule: Record<Campus, string[]>;
 }
 
 /**
  * Checks if the shuttle is running based on current date and parsed exceptions.
  */
-function checkAvailability(noServiceDates: Date[]): boolean {
-  const now = new Date();
+function checkAvailability(noServiceDates: Date[], now: Date): boolean {
   const dayOfWeek = now.getDay();
   if (dayOfWeek === 0 || dayOfWeek === 6) {
     return false;
@@ -58,7 +56,7 @@ function parseWarnings($: CheerioAPI, dateRegex: RegExp) {
       return;
     }
 
-    warnings.push(text);
+    warnings.push(text.replaceAll(/\s+/g, " ").trim());
     if (lowerText.includes("no service")) {
       const match = dateRegex.exec(text);
       if (match) {
@@ -78,47 +76,116 @@ function parseWarnings($: CheerioAPI, dateRegex: RegExp) {
   return { warnings, noServiceDates };
 }
 
-function parseSchedule($: CheerioAPI) {
+/**
+ * Parses shuttle schedule information from an HTML document for a specific day of the week.
+ *
+ * Attempts to find a table matching the specified day, with a fallback to Monday's schedule
+ * if the target day is not found. Extracts departure times for LOY and SGW campuses.
+ *
+ * @param $ - Cheerio API instance for DOM traversal and manipulation
+ * @param dayOfWeek - Numeric representation of the day of the week (0-6, where 0 is Sunday)
+ *
+ * @returns An object containing arrays of unique departure times
+ * @returns {string[]} loyolaDepartures - Array of departure times from LOY campus, formatted as HH:MM
+ * @returns {string[]} sgwDepartures - Array of departure times from SGW campus, formatted as HH:MM
+ */
+function parseSchedule($: CheerioAPI, dayOfWeek: number) {
   const loyolaDepartures: string[] = [];
   const sgwDepartures: string[] = [];
   const timeRegex = /^(\d{1,2}:\d{2})/;
 
-  $("table tr").each((_, row) => {
-    const cols = $(row).find("td, th");
-    if (cols.length < 2) {
-      return;
-    }
-    const col1 = $(cols[0]).text().trim();
-    const col2 = $(cols[1]).text().trim();
+  const todayName = DayOfWeek.toString(dayOfWeek as DayOfWeek);
 
-    if (timeRegex.test(col1)) {
-      loyolaDepartures.push(col1.replace("*", "").trim());
-    }
-    if (timeRegex.test(col2)) {
-      sgwDepartures.push(col2.replace("*", "").trim());
+  let targetTable: any = null;
+
+  // 1. Try to find a table specifically mentioning today (e.g., "Friday")
+  $("table").each((_, table) => {
+    const tableText = $(table).text().toLowerCase();
+    if (tableText.includes(todayName)) {
+      targetTable = table;
+      return false; // Found specific match, stop searching
     }
   });
 
-  return { loyolaDepartures, sgwDepartures };
+  // 2. Fallback: If no specific day table, find the standard "Monday" table
+  if (!targetTable) {
+    $("table").each((_, table) => {
+      if ($(table).text().toLowerCase().includes("monday")) {
+        targetTable = table;
+        return false;
+      }
+    });
+  }
+
+  // 3. Parse the identified table
+  if (targetTable) {
+    let loyColIdx = 0;
+    let sgwColIdx = 1;
+
+    $(targetTable)
+      .find("tr")
+      .each((_, row) => {
+        const cols = $(row).find("td, th");
+
+        // Determine column order from headers
+        let isHeaderRow = false;
+        cols.each((i, col) => {
+          const text = $(col).text().toLowerCase();
+          if (text.includes("loy")) {
+            loyColIdx = i;
+            isHeaderRow = true;
+          }
+          if (text.includes("s.g.w") || text.includes("sgw")) {
+            sgwColIdx = i;
+            isHeaderRow = true;
+          }
+        });
+
+        if (!isHeaderRow && cols.length >= 2) {
+          const loyText = $(cols[loyColIdx]).text().trim();
+          const sgwText = $(cols[sgwColIdx]).text().trim();
+
+          if (timeRegex.test(loyText))
+            loyolaDepartures.push(loyText.replace("*", "").trim());
+          if (timeRegex.test(sgwText))
+            sgwDepartures.push(sgwText.replace("*", "").trim());
+        }
+      });
+  }
+
+  return {
+    loyolaDepartures: Array.from(new Set(loyolaDepartures)),
+    sgwDepartures: Array.from(new Set(sgwDepartures)),
+  };
 }
 
 export async function getConcordiaShuttleSchedule(): Promise<ShuttleScheduleData> {
   const url = "https://www.concordia.ca/maps/shuttle-bus.html";
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`Failed to fetch page: ${response.statusText}`);
+    console.error(
+      `Failed to fetch shuttle schedule: ${response.status} ${response.statusText}`,
+    );
+    return {
+      warnings: [],
+      noServiceDates: [],
+      isAvailableToday: false,
+      schedule: { LOY: [], SGW: [] },
+    };
   }
   const html = await response.text();
   const $ = cheerio.load(html);
+  const now = new Date();
+  const dayOfWeek = now.getDay();
   const { warnings, noServiceDates } = parseWarnings($, dateRegex);
-  const { loyolaDepartures, sgwDepartures } = parseSchedule($);
+  const { loyolaDepartures, sgwDepartures } = parseSchedule($, dayOfWeek);
   return {
     warnings,
     noServiceDates,
-    isAvailableToday: checkAvailability(noServiceDates),
+    isAvailableToday: checkAvailability(noServiceDates, now),
     schedule: {
-      loyolaDepartures,
-      sgwDepartures,
+      LOY: loyolaDepartures,
+      SGW: sgwDepartures,
     },
   };
 }

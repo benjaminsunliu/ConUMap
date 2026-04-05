@@ -5,9 +5,9 @@ import {
   Platform,
   StyleSheet,
   ScrollView,
-  useColorScheme,
   View,
 } from "react-native";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 
 interface Props {
@@ -23,20 +23,21 @@ const OPEN_TRANSLATE_Y = 0;
 const COLLAPSED_TRANSLATE_Y = CLOSE_HEIGHT - COLLAPSED_HEIGHT;
 
 export default function InfoPopup(props: React.PropsWithChildren<Props>) {
-  const colorScheme = useColorScheme() ?? "light";
+  const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
   const styles = makeStyles(theme);
 
   const translateY = useRef(new Animated.Value(COLLAPSED_TRANSLATE_Y)).current;
   const currentTranslateY = useRef(COLLAPSED_TRANSLATE_Y);
   const [expanded, setExpanded] = useState(false);
-  const dragThreshold = Platform.OS === "web" ? 2 : 5;
+  const dragThreshold = Platform.OS === "web" ? 12 : 5;
+  const canUseNativeDriver = Platform.OS !== "web";
 
   useEffect(() => {
     if (props.shouldDisplay) {
       Animated.spring(translateY, {
         toValue: COLLAPSED_TRANSLATE_Y,
-        useNativeDriver: true,
+        useNativeDriver: canUseNativeDriver,
       }).start(() => {
         currentTranslateY.current = COLLAPSED_TRANSLATE_Y;
       });
@@ -44,7 +45,7 @@ export default function InfoPopup(props: React.PropsWithChildren<Props>) {
     } else {
       Animated.spring(translateY, {
         toValue: CLOSE_HEIGHT,
-        useNativeDriver: true,
+        useNativeDriver: canUseNativeDriver,
       }).start();
     }
   }, [props.shouldDisplay, translateY]);
@@ -52,7 +53,7 @@ export default function InfoPopup(props: React.PropsWithChildren<Props>) {
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dy) > dragThreshold,
-      onMoveShouldSetPanResponderCapture: (_, g) => Math.abs(g.dy) > dragThreshold,
+      onMoveShouldSetPanResponderCapture: () => false,
       onPanResponderGrant: () =>
         translateY.stopAnimation((y) => {
           currentTranslateY.current = y;
@@ -74,7 +75,7 @@ export default function InfoPopup(props: React.PropsWithChildren<Props>) {
           velocity: g.vy,
           tension: 80,
           friction: 14,
-          useNativeDriver: true,
+          useNativeDriver: canUseNativeDriver,
         }).start(() => {
           currentTranslateY.current = snapPoint;
         });
@@ -113,7 +114,6 @@ const makeStyles = (theme: typeof Colors.light) =>
       right: 0,
       overflow: "hidden",
       backgroundColor: theme.buildingInfoPopup.background,
-      paddingHorizontal: 20,
       paddingTop: 10,
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20,
@@ -131,10 +131,11 @@ const makeStyles = (theme: typeof Colors.light) =>
     rule: {
       borderBottomColor: theme.buildingInfoPopup.divider,
       borderBottomWidth: StyleSheet.hairlineWidth,
-      marginVertical: 12,
+      marginVertical: 10,
       zIndex: 10,
     },
     ScrollView: {
       marginTop: 10,
+      paddingHorizontal: 20,
     },
   });

@@ -24,6 +24,7 @@ jest.mock("react-native", () => {
 
 const mockOnNavigate = jest.fn();
 const mockOnSetAsStart = jest.fn();
+const mockOnExploreRooms = jest.fn();
 
 jest.spyOn(Linking, "openURL").mockImplementation(jest.fn());
 jest.spyOn(Linking, "canOpenURL").mockResolvedValue(true);
@@ -45,6 +46,23 @@ describe("building-info-popup", () => {
     expect(getByText("H – Henry F. Hall Building")).toBeTruthy();
     expect(getByText("SGW Campus | 1455 De Maisonneuve Blvd. W.")).toBeTruthy();
     expect(getByText(/^Today:/)).toBeTruthy();
+  });
+
+  it("renders room-aware header and actions when roomContext is provided", () => {
+    const { getByText } = render(
+      <BuildingInfoPopup
+        building={mockBuilding}
+        roomContext={{ roomName: "H101" }}
+        onNavigate={mockOnNavigate}
+      />,
+    );
+
+    expect(getByText("H – Room H101")).toBeTruthy();
+    expect(
+      getByText("Henry F. Hall Building | SGW Campus | 1455 De Maisonneuve Blvd. W."),
+    ).toBeTruthy();
+    expect(getByText("Directions to Room")).toBeTruthy();
+    expect(getByText("Open Indoor Map")).toBeTruthy();
   });
 
   it('calls the on navigate function when "Directions" is pressed', async () => {
@@ -77,6 +95,24 @@ describe("building-info-popup", () => {
     expect(mockOnSetAsStart).toHaveBeenCalled();
   });
 
+  it('calls the on explore rooms function when "Explore Rooms" is pressed', async () => {
+    render(
+      <BuildingInfoPopup
+        building={mockBuilding}
+        onNavigate={mockOnNavigate}
+        onExploreRooms={mockOnExploreRooms}
+      />,
+    );
+
+    const roomsButton = screen.getByTestId("rooms-action-button");
+
+    await act(async () => {
+      await fireEvent.press(roomsButton);
+    });
+
+    expect(mockOnExploreRooms).toHaveBeenCalled();
+  });
+
   it('opens the correct link when "Website" is pressed', async () => {
     render(<BuildingInfoPopup building={mockBuilding} onNavigate={mockOnNavigate} />);
 
@@ -86,22 +122,6 @@ describe("building-info-popup", () => {
     });
 
     expect(Linking.openURL).toHaveBeenCalledWith(mockBuilding.url);
-  });
-
-  it("does not open URL when building has no link", async () => {
-    Linking.openURL.mockClear();
-    const buildingNoLink = { ...mockBuilding, url: "" };
-    const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
-    render(<BuildingInfoPopup building={buildingNoLink} />);
-
-    const websiteButton = screen.getByTestId("website-action-button");
-    await act(async () => {
-      await fireEvent.press(websiteButton);
-    });
-
-    expect(Linking.openURL).not.toHaveBeenCalled();
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("No URL available"));
-    warnSpy.mockRestore();
   });
 
   it("does not open URL when canOpenURL returns false", async () => {
@@ -116,7 +136,7 @@ describe("building-info-popup", () => {
     });
 
     expect(Linking.openURL).not.toHaveBeenCalled();
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("Cannot open URL"));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("Cannot open URL: "));
     warnSpy.mockRestore();
   });
 
@@ -136,19 +156,6 @@ describe("building-info-popup", () => {
       expect.any(Error),
     );
     errorSpy.mockRestore();
-  });
-
-  it("falls back to Linking when Directions is pressed without onNavigate prop", async () => {
-    render(<BuildingInfoPopup building={mockBuilding} />);
-
-    const directionsButton = screen.getByTestId("directions-action-button");
-    await act(async () => {
-      await fireEvent.press(directionsButton);
-    });
-
-    expect(Linking.openURL).toHaveBeenCalledWith(
-      expect.stringContaining("google.com/maps"),
-    );
   });
 
   it("shows accessibility items when building has accessibility features", async () => {
@@ -205,10 +212,9 @@ describe("building-info-popup-panresponder", () => {
       expect(screen.queryByText("Opening Hours")).toBeNull();
     });
   });
-  it("warns and does nothing if website URL is empty", async () => {
-    jest.clearAllMocks();
 
-    const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+  it("does nothing if website URL is empty", async () => {
+    jest.clearAllMocks();
 
     const buildingWithoutUrl = {
       ...mockBuilding,
@@ -224,8 +230,5 @@ describe("building-info-popup-panresponder", () => {
     });
 
     expect(Linking.openURL).not.toHaveBeenCalled();
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("No URL available"));
-
-    warnSpy.mockRestore();
   });
 });

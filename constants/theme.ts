@@ -5,6 +5,23 @@ const black = "#000000";
 const tintColorLight = "#5e0e16";
 const tintColorDark = white;
 
+export const PoiMarkerColors = {
+  restaurant: "#ef6c00",
+  cafe: "#6d4c41",
+  library: "#455a64",
+  school: "#5e35b1",
+  gym: "#2e7d32",
+  park: "#388e3c",
+  shopping: "#1976d2",
+  supermarket: "#00897b",
+  transit: "#546e7a",
+  lodging: "#8d6e63",
+  default: "#1a73e8",
+  icon: white,
+  border: white,
+  shadow: black,
+};
+
 export const Colors = {
   light: {
     text: "#11181C",
@@ -29,6 +46,12 @@ export const Colors = {
       markerBorderSelected: "#200003",
       clusterMarker: "#200003",
       clusterText: white,
+      navigationPathColor: "#1500ff",
+      bathroomHighlightColor: "#0072B2",
+      elevatorHighlightColor: "#00f2ff",
+      stairsHighlightColor: "#2ab5bc",
+      escalatorHighlightColor: "#0055ff",
+      waterFountainHighlightColor: "#56B4E9",
     },
 
     buildingInfoPopup: {
@@ -39,11 +62,13 @@ export const Colors = {
       divider: "#dddddd",
 
       openStatus: "#1e8e3e",
+      closedStatus: "#d32f2f",
       accessibilityIcon: "#1e8e3e",
 
       actionButtonBackground: "#e8f0fe",
       actionButtonText: "#1a73e8",
       actionButtonIcon: "#1a73e8",
+      disabledActionButtonColor: "#6e6e6eff",
     },
 
     routesInfoPopup: {
@@ -68,6 +93,81 @@ export const Colors = {
       containerBackground: "#fbf6ec",
       swapButton: black,
       resultTitle: "#2e0306",
+    },
+
+    floorSelection: {
+      chevron: "#2e0306",
+      buttonBackground: "#fff",
+      textColor: "#2e0306",
+      selectedFloor: "rgba(255, 148, 148, 0.29)",
+      separator: "#eee",
+      dropdown: "#fff",
+    },
+
+    mapSettings: {
+      fabBackground: "#fff",
+      fabIcon: "#2e0306",
+
+      panelBackground: "#ffffff",
+      title: "#11181C",
+      text: "#333333",
+      divider: "#dddddd",
+
+      toggleTrue: "#5e0e16",
+      toggleFalse: "#cccccc",
+
+      checkbox: "#2e0306",
+      icon: "#5e0e16",
+      backdropColor: "rgba(0,0,0,0.25)",
+    },
+
+    scheduleViewer: {
+      containerBackground: white,
+    },
+
+    weeklyCalendarBody: {
+      todayColor: "rgba(148, 142, 25, 0.1)",
+      backgroundColor: "#fdfcea",
+      borderColor: "#E0E0E0",
+      dayAndTimeLabel: "#7d7d7d",
+      dateNumber: "#333",
+      dateNumberToday: white,
+      hourLineColor: "#d4d4d4",
+      timeDotColor: "#E53935",
+      nextClassButtonColor: "#5e0e16",
+      nextClassButtonText: "#fdfcea",
+    },
+
+    scheduleHeader: {
+      backgroundColor: "#fdfcea",
+      shadowColor: black,
+      monthButtonText: "#5e0e16",
+      todayButtonText: "#fdfcea",
+      monthPickerBackdrop: "rgba(0,0,0,0.3)",
+      monthPickerBackground: "#fbf6ec",
+      monthMenuItemActive: "#fdebeb",
+      monthMenuText: "#333",
+      monthMenuTextActive: "#e81a1a",
+    },
+
+    dayColumn: {
+      borderColor: "#d4d4d4",
+      todayColor: "rgba(148, 142, 25, 0.1)",
+    },
+
+    classDetailPopup: {
+      courseNotInColorMap: "#707070",
+      buttonColor: "#fdfcea",
+      backdropColor: "rgba(0,0,0,0.4)",
+      cardShadowColor: black,
+      text: "#fdfcea",
+      mapButtonText: black,
+    },
+
+    classBlock: {
+      courseNotInColorMap: "#707070",
+      shadowColor: black,
+      text: "#fdfcea",
     },
   },
 
@@ -94,6 +194,12 @@ export const Colors = {
       markerBorderSelected: "#330703",
       clusterMarker: "#330703",
       clusterText: white,
+      navigationPathColor: "#216feb",
+      bathroomHighlightColor: "#0072B2",
+      elevatorHighlightColor: "#00f2ff",
+      stairsHighlightColor: "#2ab5bc",
+      escalatorHighlightColor: "#0055ff",
+      waterFountainHighlightColor: "#56B4E9",
     },
 
     buildingInfoPopup: {
@@ -104,11 +210,13 @@ export const Colors = {
       divider: "#dddddd",
 
       openStatus: "#02C39A",
+      closedStatus: "#be5555",
       accessibilityIcon: "#02C39A",
 
       actionButtonBackground: "#C2E8F6",
       actionButtonText: "#1a73e8",
       actionButtonIcon: "#1a73e8",
+      disabledActionButtonColor: "#6e6e6eff",
     },
 
     routesInfoPopup: {
@@ -132,6 +240,81 @@ export const Colors = {
       containerBackground: "#420A0F",
       swapButton: white,
       resultTitle: white,
+    },
+
+    floorSelection: {
+      chevron: white,
+      buttonBackground: "#5e0e16",
+      textColor: white,
+      selectedFloor: "rgba(255, 148, 148, 0.29)",
+      separator: "#eee",
+      dropdown: "#5e0e16",
+    },
+
+    mapSettings: {
+      fabBackground: "#5e0e16",
+      fabIcon: white,
+
+      panelBackground: "#5e0e16",
+      title: white,
+      text: white,
+      divider: "#dddddd",
+
+      toggleTrue: "#cccccc",
+      toggleFalse: white,
+
+      checkbox: white,
+      icon: white,
+      backdropColor: "rgba(0,0,0,0.25)",
+    },
+
+    scheduleViewer: {
+      containerBackground: white,
+    },
+
+    weeklyCalendarBody: {
+      todayColor: "rgba(148, 142, 25, 0.1)",
+      backgroundColor: "#333",
+      borderColor: "#E0E0E0",
+      dayAndTimeLabel: "#7d7d7d",
+      dateNumber: white,
+      dateNumberToday: black,
+      hourLineColor: "#d4d4d4",
+      timeDotColor: "#E53935",
+      nextClassButtonColor: "#5e0e16",
+      nextClassButtonText: "#fdfcea",
+    },
+
+    scheduleHeader: {
+      backgroundColor: "#fdfcea",
+      shadowColor: "#333",
+      monthButtonText: white,
+      todayButtonText: black,
+      monthPickerBackdrop: "rgba(0,0,0,0.3)",
+      monthPickerBackground: "#5e0e16",
+      monthMenuItemActive: "#fdebeb",
+      monthMenuText: white,
+      monthMenuTextActive: "#e81a1a",
+    },
+
+    dayColumn: {
+      borderColor: "#d4d4d4",
+      todayColor: "rgba(148, 142, 25, 0.1)",
+    },
+
+    classDetailPopup: {
+      courseNotInColorMap: "#707070",
+      buttonColor: "#fdfcea",
+      backdropColor: "rgba(0,0,0,0.4)",
+      cardShadowColor: black,
+      text: "#fdfcea",
+      mapButtonText: black,
+    },
+
+    classBlock: {
+      courseNotInColorMap: "#707070",
+      shadowColor: black,
+      text: "#fdfcea",
     },
   },
 };

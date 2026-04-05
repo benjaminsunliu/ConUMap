@@ -1,0 +1,12 @@
+appId: host.exp.Exponent
+---
+- runFlow:
+    when:
+      notVisible:
+        id: "building-selection"
+    file: ../openLink.yaml
+- tapOn: "SGW"
+- assertVisible:
+    label: "Concordia building FB"
+- assertVisible:
+    id: "marker-FB"

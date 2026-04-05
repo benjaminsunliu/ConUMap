@@ -1,46 +1,56 @@
-import { fetchDirections, fetchAllDirections } from "@/utils/directions";
-
-jest.mock("expo/virtual/env", () => ({ env: process.env }));
+import {
+  fetchDirections,
+  fetchAllDirections,
+  LOY_STOP_COORD,
+  SGW_STOP_COORD,
+  interCampusPolyline,
+} from "@/utils/directions";
+import { mockRouteApi, mockShuttlePage } from "../data/mock-data/mockRequests";
 
 const origin = { latitude: 45.4975, longitude: -73.5794 };
 const destination = { latitude: 45.5087, longitude: -73.5538 };
 
-// A minimal Routes API v2 route object
-const mockApiRoute = {
-  description: "Via Rue Sainte-Catherine O",
-  polyline: { encodedPolyline: "overview_poly_encoded" },
-  legs: [
-    {
-      distanceMeters: 2692,
-      duration: "2233s",
-      steps: [
-        {
-          distanceMeters: 227,
-          staticDuration: "171s",
-          polyline: { encodedPolyline: "step_poly_1" },
-          navigationInstruction: {
-            instructions: "Head southeast toward Rte 138 E",
-            maneuver: "",
-          },
-          travelMode: "WALKING",
-        },
-        {
-          distanceMeters: 350,
-          staticDuration: "292s",
-          polyline: { encodedPolyline: "step_poly_2" },
-          navigationInstruction: {
-            instructions: "Continue onto Av. McGill College",
-            maneuver: "",
-          },
-          travelMode: "WALKING",
-        },
-      ],
-    },
-  ],
-};
+jest.mock("expo/virtual/env", () => ({ env: process.env }));
+jest.mock("@/utils/getShuttleSchedule", () => ({
+  getConcordiaShuttleSchedule: jest.fn(),
+}));
+
+function mockNoResponses(): any {
+  return jest.fn().mockImplementation((url: string, options?: any) => {
+    if (url.includes("concordia.ca/maps/shuttle-bus.html")) {
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        text: async () => "",
+      } as any);
+    }
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      json: async () => ({ routes: [] }),
+    } as any);
+  });
+}
+
+// import after mock
+import { getConcordiaShuttleSchedule } from "@/utils/getShuttleSchedule";
 
 beforeEach(() => {
-  global.fetch = jest.fn();
+  globalThis.fetch = jest.fn().mockImplementation((url: string, options?: any) => {
+    if (url.includes("concordia.ca/maps/shuttle-bus.html")) {
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        text: async () => mockShuttlePage,
+      } as any);
+    }
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      json: async () => ({ routes: [mockRouteApi] }),
+    } as any);
+  });
+
   jest.spyOn(console, "log").mockImplementation(() => {});
 });
 
@@ -60,12 +70,12 @@ describe("fetchDirections", () => {
     expect(warnSpy).toHaveBeenCalledWith(
       expect.stringContaining("EXPO_PUBLIC_GOOGLE_API_KEY"),
     );
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
   it("returns null and warns when the API returns an HTTP error", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-    (global.fetch as jest.Mock).mockResolvedValue({ ok: false, status: 403 });
+    (globalThis.fetch as jest.Mock).mockResolvedValue({ ok: false, status: 403 });
     const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
 
     const result = await fetchDirections(origin, destination, "walking");
@@ -78,7 +88,7 @@ describe("fetchDirections", () => {
 
   it("returns an empty array when the API returns no routes", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ routes: [] }),
     });
@@ -90,7 +100,7 @@ describe("fetchDirections", () => {
 
   it("returns empty array when the API returns no 'routes' key", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({}),
     });
@@ -102,7 +112,7 @@ describe("fetchDirections", () => {
 
   it("returns null when a network error occurs", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-    (global.fetch as jest.Mock).mockRejectedValue(new Error("Network error"));
+    (globalThis.fetch as jest.Mock).mockRejectedValue(new Error("Network error"));
     const errorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
 
     const result = await fetchDirections(origin, destination, "driving");
@@ -116,10 +126,6 @@ describe("fetchDirections", () => {
 
   it("returns normalized routes on a successful API call", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-    (global.fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: async () => ({ routes: [mockApiRoute] }),
-    });
 
     const result = await fetchDirections(origin, destination, "walking");
 
@@ -133,15 +139,10 @@ describe("fetchDirections", () => {
 
   it("normalizes leg distance and duration correctly", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-    (global.fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: async () => ({ routes: [mockApiRoute] }),
-    });
 
     const result = await fetchDirections(origin, destination, "walking");
     const leg = result![0].legs[0];
 
-    // 2692 m -> "2.7 km", 2233 s -> "37 mins"
     expect(leg.distance.value).toBe(2692);
     expect(leg.distance.text).toBe("2.7 km");
     expect(leg.duration.value).toBe(2233);
@@ -150,31 +151,20 @@ describe("fetchDirections", () => {
 
   it("formats distances under 1 km as metres", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-    (global.fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: async () => ({ routes: [mockApiRoute] }),
-    });
 
     const result = await fetchDirections(origin, destination, "walking");
     const steps = result![0].legs[0].steps;
 
-    // 227 m -> "227 m"
     expect(steps[0].distance.text).toBe("227 m");
-    // 350 m -> "350 m"
     expect(steps[1].distance.text).toBe("350 m");
   });
 
   it("formats step duration from staticDuration correctly", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-    (global.fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: async () => ({ routes: [mockApiRoute] }),
-    });
 
     const result = await fetchDirections(origin, destination, "walking");
     const steps = result![0].legs[0].steps;
 
-    // 171 s -> "3 mins", 292 s -> "5 mins"
     expect(steps[0].duration.text).toBe("3 mins");
     expect(steps[1].duration.text).toBe("5 mins");
   });
@@ -182,43 +172,37 @@ describe("fetchDirections", () => {
   it("formats duration ≥ 1 hour with hours and minutes", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
     const longRoute = {
-      ...mockApiRoute,
-      legs: [{ ...mockApiRoute.legs[0], duration: "3900s", steps: [] }],
+      ...mockRouteApi,
+      legs: [{ ...mockRouteApi.legs[0], duration: "3900s", steps: [] }],
     };
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ routes: [longRoute] }),
     });
 
     const result = await fetchDirections(origin, destination, "transit");
 
-    // 3900 s = 65 mins -> "1 hr 5 mins"
     expect(result![0].legs[0].duration.text).toBe("1 hr 5 mins");
   });
 
   it("formats duration at exactly 1 hour", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
     const hourRoute = {
-      ...mockApiRoute,
-      legs: [{ ...mockApiRoute.legs[0], duration: "3600s", steps: [] }],
+      ...mockRouteApi,
+      legs: [{ ...mockRouteApi.legs[0], duration: "3600s", steps: [] }],
     };
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ routes: [hourRoute] }),
     });
 
     const result = await fetchDirections(origin, destination, "driving");
 
-    // 3600 s = 60 mins -> "1 hr"
     expect(result![0].legs[0].duration.text).toBe("1 hr");
   });
 
   it("normalizes step html_instructions from navigationInstruction", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-    (global.fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: async () => ({ routes: [mockApiRoute] }),
-    });
 
     const result = await fetchDirections(origin, destination, "walking");
     const step = result![0].legs[0].steps[0];
@@ -230,10 +214,6 @@ describe("fetchDirections", () => {
 
   it("sets transit_details to undefined for non-transit steps", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-    (global.fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: async () => ({ routes: [mockApiRoute] }),
-    });
 
     const result = await fetchDirections(origin, destination, "walking");
     const step = result![0].legs[0].steps[0];
@@ -287,7 +267,7 @@ describe("fetchDirections", () => {
         },
       ],
     };
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ routes: [transitRoute] }),
     });
@@ -343,7 +323,7 @@ describe("fetchDirections", () => {
         },
       ],
     };
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ routes: [transitRoute] }),
     });
@@ -357,10 +337,6 @@ describe("fetchDirections", () => {
 
   it("sets departure_time and arrival_time to undefined for non-transit legs", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-    (global.fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: async () => ({ routes: [mockApiRoute] }),
-    });
 
     const result = await fetchDirections(origin, destination, "walking");
     const leg = result![0].legs[0];
@@ -372,10 +348,10 @@ describe("fetchDirections", () => {
   it("formats exactly 1 minute as singular '1 min'", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
     const oneMinRoute = {
-      ...mockApiRoute,
-      legs: [{ ...mockApiRoute.legs[0], duration: "60s", steps: [] }],
+      ...mockRouteApi,
+      legs: [{ ...mockRouteApi.legs[0], duration: "60s", steps: [] }],
     };
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ routes: [oneMinRoute] }),
     });
@@ -387,47 +363,44 @@ describe("fetchDirections", () => {
   it("formats 1 hr 1 min with singular 'min'", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
     const route = {
-      ...mockApiRoute,
-      legs: [{ ...mockApiRoute.legs[0], duration: "3660s", steps: [] }],
+      ...mockRouteApi,
+      legs: [{ ...mockRouteApi.legs[0], duration: "3660s", steps: [] }],
     };
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ routes: [route] }),
     });
 
     const result = await fetchDirections(origin, destination, "walking");
-    // 3660s = 61 mins -> "1 hr 1 min"
     expect(result![0].legs[0].duration.text).toBe("1 hr 1 min");
   });
 
   it("formats 2 hrs with plural 'hrs' and zero remainder", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
     const route = {
-      ...mockApiRoute,
-      legs: [{ ...mockApiRoute.legs[0], duration: "7200s", steps: [] }],
+      ...mockRouteApi,
+      legs: [{ ...mockRouteApi.legs[0], duration: "7200s", steps: [] }],
     };
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ routes: [route] }),
     });
 
     const result = await fetchDirections(origin, destination, "walking");
-    // 7200s = 120 mins -> "2 hrs"
     expect(result![0].legs[0].duration.text).toBe("2 hrs");
   });
 
   it("returns 0 seconds for a step with no duration fields", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
     const routeNoDuration = {
-      ...mockApiRoute,
+      ...mockRouteApi,
       legs: [
         {
-          ...mockApiRoute.legs[0],
+          ...mockRouteApi.legs[0],
           duration: "600s",
           steps: [
             {
               distanceMeters: 100,
-              // no staticDuration, no duration
               polyline: { encodedPolyline: "abc" },
               navigationInstruction: { instructions: "Walk", maneuver: "" },
               travelMode: "WALKING",
@@ -436,13 +409,12 @@ describe("fetchDirections", () => {
         },
       ],
     };
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ routes: [routeNoDuration] }),
     });
 
     const result = await fetchDirections(origin, destination, "walking");
-    // parseDurationSeconds(undefined) -> 0 -> "0 mins"
     expect(result![0].legs[0].steps[0].duration.value).toBe(0);
   });
 
@@ -478,7 +450,7 @@ describe("fetchDirections", () => {
         },
       ],
     };
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ routes: [routeNoLatLng] }),
     });
@@ -492,8 +464,8 @@ describe("fetchDirections", () => {
 
   it("sets route summary to empty string when description is missing", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-    const routeNoDesc = { ...mockApiRoute, description: undefined };
-    (global.fetch as jest.Mock).mockResolvedValue({
+    const routeNoDesc = { ...mockRouteApi, description: undefined };
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ routes: [routeNoDesc] }),
     });
@@ -505,10 +477,10 @@ describe("fetchDirections", () => {
   it("handles legs with null/missing steps array gracefully", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
     const routeNoSteps = {
-      ...mockApiRoute,
+      ...mockRouteApi,
       legs: [{ distanceMeters: 500, duration: "300s" /* no steps key */ }],
     };
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ routes: [routeNoSteps] }),
     });
@@ -519,7 +491,7 @@ describe("fetchDirections", () => {
 
   it("sends correct travelMode for each transport type in the request body", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ routes: [] }),
     });
@@ -532,9 +504,9 @@ describe("fetchDirections", () => {
     ];
 
     for (const [mode, expectedApiMode] of cases) {
-      (global.fetch as jest.Mock).mockClear();
+      (globalThis.fetch as jest.Mock).mockClear();
       await fetchDirections(origin, destination, mode);
-      const callArgs = (global.fetch as jest.Mock).mock.calls[0];
+      const callArgs = (globalThis.fetch as jest.Mock).mock.calls[0];
       const body = JSON.parse(callArgs[1].body);
       expect(body.travelMode).toBe(expectedApiMode);
     }
@@ -542,14 +514,14 @@ describe("fetchDirections", () => {
 
   it("sends the correct origin and destination coordinates in the request body", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ routes: [] }),
     });
 
     await fetchDirections(origin, destination, "walking");
 
-    const body = JSON.parse((global.fetch as jest.Mock).mock.calls[0][1].body);
+    const body = JSON.parse((globalThis.fetch as jest.Mock).mock.calls[0][1].body);
     expect(body.origin.location.latLng).toEqual({
       latitude: origin.latitude,
       longitude: origin.longitude,
@@ -562,39 +534,316 @@ describe("fetchDirections", () => {
 
   it("sends the API key in the request headers", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "my-secret-key";
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ routes: [] }),
     });
 
     await fetchDirections(origin, destination, "walking");
 
-    const headers = (global.fetch as jest.Mock).mock.calls[0][1].headers;
+    const headers = (globalThis.fetch as jest.Mock).mock.calls[0][1].headers;
     expect(headers["X-Goog-Api-Key"]).toBe("my-secret-key");
   });
 
   it("requests alternative routes (computeAlternativeRoutes: true)", async () => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ routes: [] }),
     });
 
     await fetchDirections(origin, destination, "driving");
 
-    const body = JSON.parse((global.fetch as jest.Mock).mock.calls[0][1].body);
+    const body = JSON.parse((globalThis.fetch as jest.Mock).mock.calls[0][1].body);
     expect(body.computeAlternativeRoutes).toBe(true);
   });
 });
 
 describe("fetchAllDirections", () => {
-  it("returns an object with all five transport mode keys", async () => {
+  beforeAll(() => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date("2024-03-04T12:00:00Z"));
+  });
+
+  beforeEach(() => {
     process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-    (global.fetch as jest.Mock).mockResolvedValue({
+    jest.clearAllMocks();
+  });
+
+  it("returns routes sorted by duration", async () => {
+    const routeShort = {
+      ...mockRouteApi,
+      description: "Short Route",
+      legs: [{ ...mockRouteApi.legs[0], duration: "300s", steps: [] }],
+    };
+    const routeLong = {
+      ...mockRouteApi,
+      description: "Long Route",
+      legs: [{ ...mockRouteApi.legs[0], duration: "900s", steps: [] }],
+    };
+    (globalThis.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: async () => ({ routes: [mockApiRoute] }),
+      json: async () => ({ routes: [routeLong, routeShort] }),
     });
 
+    const result = await fetchDirections(origin, destination, "walking");
+    expect(result).toHaveLength(2);
+    expect(result[0].summary).toBe("Short Route");
+    expect(result[1].summary).toBe("Long Route");
+  });
+
+  it("chooses walking when it is faster than transit", async () => {
+    // Overwrite the duration string inside the legs so normalizeRoute calculates 300
+    const fastWalking = [
+      {
+        ...mockRouteApi,
+        legs: [{ ...mockRouteApi.legs[0], duration: "300s" }],
+      },
+    ];
+    const slowTransit = [
+      {
+        ...mockRouteApi,
+        legs: [{ ...mockRouteApi.legs[0], duration: "900s" }],
+      },
+    ];
+
+    globalThis.fetch = jest
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ routes: [fastWalking[0]] }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ routes: [slowTransit[0]] }),
+      })
+      .mockResolvedValue({ ok: true, json: async () => ({ routes: [] }) });
+
+    (getConcordiaShuttleSchedule as jest.Mock).mockResolvedValue({
+      isAvailableToday: true,
+      schedule: { LOY: ["12:10"], SGW: ["12:10"] },
+    });
+
+    const result = await fetchAllDirections(origin, destination);
+
+    // Now received will be 300 because normalizeRoute("300s") = 300
+    expect(result.walking![0].totalDurationSeconds).toBe(300);
+  });
+
+  it("validates logs for shuttle decisions", async () => {
+    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+    // near campus coords to ensure shuttle routes are valid and we hit the relevant code paths in fetchAllDirections
+    const nearOrigin = { latitude: 45.458, longitude: -73.638 };
+    const nearDest = { latitude: 45.497, longitude: -73.58 };
+    const every10Mins = Array.from(
+      { length: 144 },
+      (_, i) =>
+        `${Math.floor(i / 6)
+          .toString()
+          .padStart(2, "0")}:${((i % 6) * 10).toString().padStart(2, "0")}`,
+    );
+    (getConcordiaShuttleSchedule as jest.Mock).mockResolvedValue({
+      isAvailableToday: true,
+      schedule: { LOY: every10Mins, SGW: every10Mins },
+    });
+
+    const createMockRoute = (durationSeconds: number) => ({
+      ok: true,
+      json: async () => ({
+        routes: [
+          {
+            description: "Mock",
+            legs: [{ distanceMeters: 100, duration: `${durationSeconds}s`, steps: [] }],
+          },
+        ],
+      }),
+    });
+    const emptyRoute = { ok: true, json: async () => ({ routes: [] }) };
+
+    // We make direct transit super fast (100s) and pre-shuttle paths valid (50s)
+    globalThis.fetch = jest
+      .fn()
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(500))) // 1. Direct Walk
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 2. Direct Transit (Best)
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(500))) // 3. Direct Drive
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(500))) // 4. Direct Bike
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 5. Direct Transit (Best)
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 6. Pre-shuttle Transit
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 7. Pre-shuttle Walk
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 8. Post-shuttle Transit
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))); // 9. Post-shuttle Walk
+
+    await fetchAllDirections(nearOrigin, nearDest);
+
+    expect(logSpy).toHaveBeenCalledWith("no direct transit route");
+    logSpy.mockClear();
+
+    // We make direct transit faster (30s) than taking pre-shuttle path with shuttle (100s)
+    const fastDirectTransitRoute = createMockRoute(30);
+    globalThis.fetch = jest
+      .fn()
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 1. Direct Walk
+      .mockReturnValueOnce(Promise.resolve(fastDirectTransitRoute)) // 2. Direct Transit (Best)
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 3. Direct Drive
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 4. Direct Bike
+      .mockReturnValueOnce(Promise.resolve(fastDirectTransitRoute)) // 5. Direct Transit (Best)
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 6. Pre-shuttle Transit
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 7. Pre-shuttle Walk
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 8. Post-shuttle Transit
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))); // 9. Post-shuttle Walk
+
+    await fetchAllDirections(nearOrigin, nearDest);
+    console.log("direct transit route is faster than pre + shuttle");
+    logSpy.mockClear();
+
+    // We force the POST-shuttle path to return empty, hitting the fallback.
+    globalThis.fetch = jest
+      .fn()
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 1. Direct Walk
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 2. Direct Transit
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 3. Direct Drive
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 4. Direct Bike
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(5000))) // 5. Direct Transit
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 6. Pre-shuttle Transit (Valid)
+      .mockReturnValueOnce(Promise.resolve(createMockRoute(50))) // 7. Pre-shuttle Walk (Valid)
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)) // 8. Post-shuttle Transit (Fails)
+      .mockReturnValueOnce(Promise.resolve(emptyRoute)); // 9. Post-shuttle Walk (Fails)
+
+    const result = await fetchAllDirections(nearOrigin, nearDest);
+
+    expect(logSpy).toHaveBeenCalledWith("no post shuttle path");
+    expect(result.shuttle).toEqual([]);
+
+    logSpy.mockRestore();
+  });
+
+  it("handles null values in chooseBestDirectRoute gracefully", async () => {
+    const _ = jest.spyOn(console, "warn").mockImplementation(() => {});
+    globalThis.fetch = jest
+      .fn()
+      .mockResolvedValueOnce({ ok: false, status: 500 }) // walking fails (null)
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ routes: [mockRouteApi] }) }) // transit ok
+      .mockResolvedValue({ ok: true, json: async () => ({ routes: [] }) });
+
+    (getConcordiaShuttleSchedule as jest.Mock).mockResolvedValue({
+      isAvailableToday: false,
+      schedule: { LOY: [], SGW: [] },
+    });
+
+    const result = await fetchAllDirections(origin, destination);
+    expect(result.transit).toHaveLength(1);
+  });
+
+  it("handles empty arrays for both walking and transit", async () => {
+    // Branch: Both exist but are empty []
+    globalThis.fetch = jest
+      .fn()
+      .mockResolvedValue({ ok: true, json: async () => ({ routes: [] }) });
+    (getConcordiaShuttleSchedule as jest.Mock).mockResolvedValue({
+      isAvailableToday: false,
+      schedule: { LOY: [], SGW: [] },
+    });
+
+    const result = await fetchAllDirections(origin, destination);
+    // This hits the final 'return null' or default branch of the comparison logic
+    expect(result.walking).toEqual([]);
+    expect(result.transit).toEqual([]);
+  });
+
+  describe("handleShuttleRouting", () => {
+    const origin = { latitude: 45.45, longitude: -73.64 };
+    const destination = { latitude: 45.5, longitude: -73.58 };
+
+    beforeAll(() => {
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date("2024-03-010T12:00:00Z"));
+    });
+
+    beforeEach(() => {
+      process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
+      jest.clearAllMocks();
+    });
+
+    afterAll(() => {
+      jest.useRealTimers();
+    });
+
+    it("returns polyline with only shuttle if from bus stop to bus stop", async () => {
+      (getConcordiaShuttleSchedule as jest.Mock).mockResolvedValue({
+        isAvailableToday: true,
+        schedule: { LOY: ["12:10"], SGW: ["12:10"] },
+      });
+
+      const result = await fetchAllDirections(LOY_STOP_COORD, SGW_STOP_COORD);
+      expect(result.shuttle).toHaveLength(1);
+      expect(result.shuttle[0].legs).toHaveLength(1);
+      expect(result.shuttle[0].legs[0].steps).toHaveLength(1);
+      expect(result.shuttle[0].legs[0].steps[0].polyline.points).toBe(
+        interCampusPolyline,
+      );
+    });
+
+    it("returns empty array for shuttle when there is no schedule today", async () => {
+      globalThis.fetch = mockNoResponses();
+
+      (getConcordiaShuttleSchedule as jest.Mock).mockResolvedValue({
+        isAvailableToday: false,
+        schedule: { LOY: [], SGW: [] },
+      });
+
+      const result = await fetchAllDirections(LOY_STOP_COORD, SGW_STOP_COORD);
+      expect(result.shuttle).toEqual([]);
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining("No shuttle today"),
+        expect.anything(),
+      );
+    });
+
+    it("returns empty array when preShuttlePath is null", async () => {
+      (getConcordiaShuttleSchedule as jest.Mock).mockResolvedValue({
+        isAvailableToday: true,
+        schedule: {
+          LOY: ["08:00", "09:00"],
+          SGW: ["08:30", "09:30"],
+        },
+      });
+
+      jest.mock("../utils/directions", () => ({
+        fetchDirections: jest.fn().mockResolvedValue(null),
+      }));
+
+      const result = await fetchAllDirections(origin, destination);
+
+      expect(result.shuttle).toEqual([]);
+    });
+
+    it("returns null when shuttle is not available today", async () => {
+      (getConcordiaShuttleSchedule as jest.Mock).mockResolvedValue({
+        isAvailableToday: false,
+        schedule: {
+          LOY: ["08:00", "09:00"],
+          SGW: ["08:30", "09:30"],
+        },
+      });
+
+      const result = await fetchAllDirections(origin, destination);
+
+      expect(result.shuttle).toEqual([]);
+    });
+
+    it("returns null when campusSchedule is null", async () => {
+      (getConcordiaShuttleSchedule as jest.Mock).mockResolvedValue({
+        isAvailableToday: true,
+        schedule: {},
+      });
+
+      const result = await fetchAllDirections(origin, destination);
+
+      expect(result.shuttle).toEqual([]);
+    });
+  });
+
+  it("returns an object with all five transport mode keys", async () => {
     const result = await fetchAllDirections(origin, destination);
 
     expect(result).toHaveProperty("walking");
@@ -604,41 +853,22 @@ describe("fetchAllDirections", () => {
     expect(result).toHaveProperty("shuttle");
   });
 
-  it("always returns shuttle as an empty array regardless of API result", async () => {
-    process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-    (global.fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: async () => ({ routes: [mockApiRoute] }),
-    });
-
-    const result = await fetchAllDirections(origin, destination);
-
-    expect(result.shuttle).toEqual([]);
-  });
-
-  it("makes exactly 4 fetch calls (one per non-shuttle mode)", async () => {
-    process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-    (global.fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: async () => ({ routes: [] }),
-    });
-
-    await fetchAllDirections(origin, destination);
-
-    expect(global.fetch).toHaveBeenCalledTimes(4);
-  });
-
   it("handles individual mode failures gracefully, returning null for failed modes", async () => {
-    process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
     jest.spyOn(console, "warn").mockImplementation(() => {});
+
     // walking ok, transit http error, driving empty, bicycling ok
-    (global.fetch as jest.Mock)
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ routes: [mockApiRoute] }) })
+    (globalThis.fetch as jest.Mock)
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ routes: [mockRouteApi] }) })
       .mockResolvedValueOnce({ ok: false, status: 500 })
       .mockResolvedValueOnce({ ok: true, json: async () => ({ routes: [] }) })
       .mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ routes: [mockApiRoute] }),
+        json: async () => ({ routes: [mockRouteApi] }),
+      })
+      .mockResolvedValue({
+        ok: true,
+        text: async () => "",
+        json: async () => ({ routes: [] }),
       });
 
     const result = await fetchAllDirections(origin, destination);
@@ -664,12 +894,6 @@ describe("fetchAllDirections", () => {
   });
 
   it("returns normalized route arrays for all successful modes", async () => {
-    process.env.EXPO_PUBLIC_GOOGLE_API_KEY = "test-key";
-    (global.fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: async () => ({ routes: [mockApiRoute] }),
-    });
-
     const result = await fetchAllDirections(origin, destination);
 
     (["walking", "transit", "driving", "bicycling"] as const).forEach((mode) => {
@@ -678,5 +902,65 @@ describe("fetchAllDirections", () => {
       expect((result[mode] as any[])[0]).toHaveProperty("summary");
       expect((result[mode] as any[])[0]).toHaveProperty("legs");
     });
+  });
+
+  // --- New Coverage Boosters ---
+
+  it("handles fetch timeout (AbortError) in fetchDirections", async () => {
+    // Force an AbortError to cover the specific catch block branch
+    const abortError = new Error("Timeout");
+    abortError.name = "AbortError";
+    global.fetch = jest.fn().mockRejectedValue(abortError);
+
+    const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+    const result = await fetchDirections(origin, destination, "walking");
+
+    expect(result).toBeNull();
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("timed out"));
+    warnSpy.mockRestore();
+  });
+
+  it("handles generic fetch failure in fetchDirections", async () => {
+    global.fetch = jest.fn().mockRejectedValue(new Error("Network Error"));
+    const errorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+
+    const result = await fetchDirections(origin, destination, "walking");
+
+    expect(result).toBeNull();
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Failed to fetch directions"),
+      expect.any(Error),
+    );
+    errorSpy.mockRestore();
+  });
+
+  it("returns empty array when shuttle is not available today", async () => {
+    // Mock the utility to return available: false
+    (getConcordiaShuttleSchedule as jest.Mock).mockResolvedValueOnce({
+      isAvailableToday: false,
+      schedule: { LOY: [], SGW: [] },
+    });
+
+    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+
+    const result = await fetchAllDirections(LOY_STOP_COORD, SGW_STOP_COORD);
+
+    expect(result.shuttle).toEqual([]);
+    expect(logSpy).toHaveBeenCalledWith(
+      expect.stringContaining("No shuttle today"),
+      expect.any(Date),
+    );
+    logSpy.mockRestore();
+  });
+
+  it("returns empty array when Google API returns a route with no legs", async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ routes: [{}] }),
+    });
+
+    const result = await fetchDirections(origin, destination, "driving");
+    expect(result).toEqual([]);
   });
 });

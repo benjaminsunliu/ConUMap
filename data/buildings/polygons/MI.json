@@ -1,0 +1,40 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4976775257788,
+        "longitude": -73.5792574838473
+      },
+      {
+        "latitude": 45.4977824691037,
+        "longitude": -73.5791500402066
+      },
+      {
+        "latitude": 45.4978197907935,
+        "longitude": -73.5792279854624
+      },
+      {
+        "latitude": 45.4977130320955,
+        "longitude": -73.5793281189956
+      },
+      {
+        "latitude": 45.4976775257788,
+        "longitude": -73.5792574838473
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4977489,
+    "longitude": -73.5792401
+  },
+  "buildingCode": "MI",
+  "buildingName": "MI Annex",
+  "overview": [
+    "Built in 1891, this red sandstone house was designed in the Richardsonian Romanesque style with bay windows, ironwork and a bold gabled roof. Concordia acquired it in 1971.",
+    "Once a private home, today the MI Annex hosts union offices."
+  ],
+  "accessibility": [],
+  "address": "2130 Bishop St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/mi.html"
+}

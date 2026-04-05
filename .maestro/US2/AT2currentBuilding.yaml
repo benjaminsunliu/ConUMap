@@ -1,0 +1,37 @@
+appId: host.exp.exponent
+---
+- runFlow:
+    when:
+      notVisible:
+        id: "building-selection"
+    file: ../openLink.yaml
+- setLocation:
+    latitude: 45.4957849
+    longitude: -73.577225
+- tapOn:
+    id: "locationButton"
+- runFlow:
+    when:
+      visible:
+        text: "While using the app"
+    commands:
+      - tapOn: "While using the app"
+      - tapOn:
+          id: "locationButton"
+- tapOn: "Search building"
+- inputText: "Hall"
+- tapOn:
+    id: "end-result-H"
+- assertVisible:
+    id: "building-info-popup"
+- assertVisible:
+    id: "directions-action-button"
+- tapOn:
+    id: "directions-action-button"
+- assertVisible: "Current Location"
+- tapOn: "Current Location"
+- tapOn: "Destination"
+- eraseText
+- inputText: "Ev"
+- tapOn:
+    id: "end-result-EV"

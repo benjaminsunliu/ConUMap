@@ -1,0 +1,16 @@
+appId: host.exp.Exponent
+---
+- runFlow:
+    when:
+      notVisible:
+        id: "building-selection"
+    file: ../openLink.yaml
+- tapOn: "LOY"
+- tapOn:
+    id: "marker-DO"
+- assertVisible:
+    text: "DO – Stinger Dome"
+- tapOn:
+    point: "95%, 50%"
+- assertNotVisible:
+    text: "DO – Stinger Dome"

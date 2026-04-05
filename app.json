@@ -45,7 +45,9 @@
         }
       ],
       "expo-location",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-asset",
+      "expo-file-system"
     ],
     "experiments": {
       "typedRoutes": true,

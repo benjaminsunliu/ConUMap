@@ -1,0 +1,40 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.497976613165,
+        "longitude": -73.5795287843803
+      },
+      {
+        "latitude": 45.497798463139,
+        "longitude": -73.579695528197
+      },
+      {
+        "latitude": 45.4977613107449,
+        "longitude": -73.5796197317568
+      },
+      {
+        "latitude": 45.4979339908601,
+        "longitude": -73.5794529416831
+      },
+      {
+        "latitude": 45.497976613165,
+        "longitude": -73.5795287843803
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4978559223049,
+    "longitude": -73.5795787426972
+  },
+  "buildingCode": "MU",
+  "buildingName": "MU Annex",
+  "overview": [
+    "Built in 1891, the MU Annex blends limestone and textured concrete, giving it a distinct look among the Bishop Street row houses. Once a private home, it was later converted into apartments before being acquired by Concordia in 1971.",
+    "Today, it provides office space for various university services."
+  ],
+  "accessibility": [],
+  "address": "2170 Bishop St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/mu.html"
+}

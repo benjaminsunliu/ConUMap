@@ -1,0 +1,42 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4593181,
+        "longitude": -73.6426154
+      },
+      {
+        "latitude": 45.4593139,
+        "longitude": -73.642428
+      },
+      {
+        "latitude": 45.4592384,
+        "longitude": -73.6424139
+      },
+      {
+        "latitude": 45.4592401,
+        "longitude": -73.64261
+      },
+      {
+        "latitude": 45.4593181,
+        "longitude": -73.6426154
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.459277625,
+    "longitude": -73.642516825
+  },
+  "buildingCode": "SH",
+  "buildingName": "Future Buildings Laboratory",
+  "overview": [
+    "Completed in 2021, the Future Buildings Laboratory supports research and innovation in sustainable buildings and infrastructure. It carries forward the legacy of Concordia’s Solar House, originally designed for the university’s entry in the prestigious U.S. Solar Decathlon in 2005. After the competition, the house was reassembled on campus as a permanent research facility.",
+    "Today, the laboratory serves as a world-class living lab where students and researchers explore net-zero energy envelope design, intelligent building systems and renewable nano-grid integration."
+  ],
+  "accessibility": [
+    "entranceAutomatedDoor"
+  ],
+  "address": "7141 Sherbrooke St. W.",
+  "campus": "LOY",
+  "url": "https://www.concordia.ca/maps/buildings/sh.html"
+}

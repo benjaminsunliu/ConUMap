@@ -9,13 +9,16 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test": "jest --coverage",
-    "format-check": "prettier --config prettier.config.mjs --ignore-path ./.prettierignore --check ."
+    "test": "run-script-os",
+    "test:win32": "node --expose-gc node_modules/jest/bin/jest --coverage",
+    "test:nix": "node --expose-gc node_modules/.bin/jest --coverage",
+    "format-check": "prettier --config prettier.config.mjs --ignore-path ./.prettierignore --check .",
+    "format-write": "prettier --config prettier.config.mjs --ignore-path ./.prettierignore --write ."
   },
   "jest": {
-    "preset": "react-native",
+    "preset": "jest-expo",
     "transformIgnorePatterns": [
-      "node_modules/(?!@react-native|react-native|@expo/.*|expo-font|@react-navigation|expo-secure-store|expo-modules-core)"
+      "node_modules/(?!@react-native|react-native|@expo/.*|expo-font|@react-navigation|expo-secure-store|expo-modules-core|expo|expo-router)"
     ],
     "transform": {
       "^.+\\.(js|ts|tsx)$": "babel-jest"
@@ -52,13 +55,16 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
+    "@react-native-community/slider": "^4.5.7",
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
     "@tanstack/react-query": "^5.90.21",
-    "cheerio": "^1.2.0",
+    "cheerio": "1.0.0-rc.12",
     "expo": "~54.0.33",
+    "expo-asset": "~12.0.12",
     "expo-constants": "~18.0.13",
+    "expo-file-system": "~19.0.21",
     "expo-font": "~14.0.10",
     "expo-haptics": "~15.0.8",
     "expo-image": "~3.0.11",
@@ -73,6 +79,7 @@
     "expo-updates": "~29.0.16",
     "expo-web-browser": "~15.0.10",
     "leaflet": "^1.9.4",
+    "lodash.isequal": "^4.5.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-leaflet": "^5.0.0",
@@ -83,6 +90,7 @@
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
+    "react-native-svg": "15.12.1",
     "react-native-switch-selector": "^2.3.0",
     "react-native-web": "~0.21.0",
     "react-native-webview": "13.15.0",
@@ -95,6 +103,7 @@
     "@testing-library/react-native": "^13.3.3",
     "@types/jest": "^29.5.14",
     "@types/leaflet": "^1.9.21",
+    "@types/lodash.isequal": "^4.5.8",
     "@types/react": "~19.1.0",
     "@types/react-test-renderer": "^19.1.0",
     "babel-jest": "^29.7.0",
@@ -108,6 +117,7 @@
     "metro-react-native-babel-preset": "^0.77.0",
     "prettier": "^3.8.1",
     "react-test-renderer": "^19.1.0",
+    "run-script-os": "^1.1.6",
     "typescript": "~5.9.2"
   },
   "private": true

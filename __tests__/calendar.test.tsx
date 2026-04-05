@@ -1,10 +1,10 @@
 import CalendarScreen from "@/app/(tabs)/calendar";
 import { AuthContext } from "@/components/authentication/AuthContextProvider";
-import { queryClient } from "@/hooks/query";
 import { ClassSchedule } from "@/hooks/use-calendar";
-import { LoggedInContext, LoggedInData, LoggedOutContext } from "@/types/authTypes";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { render } from "@testing-library/react-native";
+import { LoggedInContext, LoggedOutContext } from "@/types/authTypes";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { notifyManager } from "@tanstack/query-core";
+import { act, render } from "@testing-library/react-native";
 import React from "react";
 
 jest.mock("expo-secure-store", () => {
@@ -21,16 +21,41 @@ jest.mock("react-native-webview", () => {
 });
 
 describe("Calendar View", () => {
-  const originalFetch = global.fetch;
+  const originalFetch = globalThis.fetch;
+  let testQueryClient: QueryClient;
+
+  beforeAll(() => {
+    notifyManager.setNotifyFunction((callback) => {
+      act(callback);
+    });
+  });
+
+  beforeEach(() => {
+    testQueryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+          gcTime: 0,
+        },
+      },
+    });
+  });
 
   afterEach(() => {
-    global.fetch = originalFetch;
+    globalThis.fetch = originalFetch;
+    testQueryClient.clear();
+  });
+
+  afterAll(() => {
+    notifyManager.setNotifyFunction((callback) => {
+      callback();
+    });
   });
 
   it("Should not render courses when logged out and render the webview", async () => {
     const calendarView = render(
       <AuthContext value={loggedOutContext}>
-        <QueryClientProvider client={queryClient}>
+        <QueryClientProvider client={testQueryClient}>
           <CalendarScreen />
         </QueryClientProvider>
       </AuthContext>,
@@ -42,12 +67,12 @@ describe("Calendar View", () => {
   });
 
   it("Should render the courses when logged in and not the web view", async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    globalThis.fetch = jest.fn().mockResolvedValue({
       text: jest.fn().mockResolvedValue(`'${JSON.stringify(calendarFetchValue)}'`),
     });
     const calendarView = render(
       <AuthContext value={loggedInContext}>
-        <QueryClientProvider client={queryClient}>
+        <QueryClientProvider client={testQueryClient}>
           <CalendarScreen />
         </QueryClientProvider>
       </AuthContext>,

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<!-- ***************************************************************************************************
+DUE TO MISSING FLOOR PLANS WITH ROOM NUMBERS, THE ROOMS HAVE BEEN ID FROM 201-203 IN CHRONOLOGICAL ORDER
+*****************************************************************************************************-->
+
+<svg
+   width="2000"
+   height="2000"
+   viewBox="0 0 2000 2000"
+   id="svg2"
+   version="1.1"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   sodipodi:docname="ve1.svg"
+   inkscape:export-filename="G:\SOEN 390 Floorplans\VL-2.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.24748737"
+     inkscape:cx="917.21851"
+     inkscape:cy="1133.3912"
+     inkscape:document-units="px"
+     inkscape:current-layer="g4664"
+     showgrid="false"
+     inkscape:snap-page="false"
+     units="px"
+     inkscape:object-paths="true"
+     inkscape:snap-intersection-paths="true"
+     inkscape:object-nodes="true"
+     inkscape:snap-bbox="false"
+     inkscape:window-width="1680"
+     inkscape:window-height="961"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:snap-nodes="true"
+     inkscape:snap-others="false"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     style="display:inline"
+     inkscape:label="VE1 vec copy"
+     id="g4664"
+     inkscape:groupmode="layer">
+    <path
+       id="path4672"
+       d="M 1366.1912,17.309502 V 1196.5702 H 154.90407 v 399.3332 320.9461 h 182.49745 v 75.5397 h 421.6495 v -396.4858 h 607.14018 v 12.5819 h 418.6806 V 1018.575 h 81.8183 V 17.309502 h -81.8183 z"
+       style="fill:#f7d6d6;fill-opacity:1;stroke:#000000;stroke-width:24.9203;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:connector-curvature="0" />
+    <rect
+       y="1595.8987"
+       x="337.40836"
+       height="396.47955"
+       width="421.65262"
+       id="rect4102"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:24.9203;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="367.1647"
+       y="1983.3362"
+       font-family="Arial"
+       font-size="186.902px"
+       fill="#000000"
+       stroke-width="0"
+       id="text1"
+       style="line-height:0%">102</text>
+    <path
+       inkscape:connector-curvature="0"
+       id="path4101"
+       d="M 1366.1912,17.309502 V 1608.4853 h 418.6806 V 1018.575 h 81.8183 V 17.309502 h -81.8183 z"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:24.9203;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="1488.5782"
+       y="488.11823"
+       font-family="Arial"
+       font-size="186.902px"
+       fill="#000000"
+       stroke-width="0"
+       id="text2"
+       style="line-height:0%">101</text>
+    <rect
+       y="1595.8987"
+       x="154.90182"
+       height="320.95966"
+       width="182.5067"
+       id="rect4103"
+       style="fill:#da3636;fill-opacity:1;stroke:#000000;stroke-width:24.9203;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       x="155.34219"
+       y="1796.434"
+       font-family="Arial"
+       font-size="99.6812px"
+       fill="#000000"
+       stroke-width="0"
+       id="text3"
+       style="line-height:0%">103</text>
+    <rect
+       x="142.88199"
+       y="1210.8069"
+       height="62.300747"
+       width="1246.015"
+       style="fill:none;stroke:none;stroke-width:12.4601"
+       id="rect3" />
+    <rect
+       x="142.88199"
+       y="1547.231"
+       height="62.300747"
+       width="1246.015"
+       style="fill:none;stroke:none;stroke-width:12.4601"
+       id="rect4" />
+    <!-- Displaying icons on the map -->
+    <!-- Displaying stair icon on the map -->
+    <svg
+       x="690"
+       y="150"
+       id="entrance"
+       version="1.1"
+       width="100%"
+       height="100%" />
+    <!-- PATH ARROW HERE  -->
+  </g>
+</svg>

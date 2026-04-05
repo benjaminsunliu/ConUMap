@@ -1,7 +1,6 @@
 import csvParser from "csv-parser";
 import fs from "fs";
-
-type Campus = "SGW" | "LOY";
+import { Campus } from "@/types/mapTypes";
 
 type ConcordiaWebsiteResource = {
   name: string;
@@ -60,7 +59,7 @@ function getResources(
   data: string,
   resources: ConcordiaWebsiteResource[],
 ): ConcordiaWebsiteResource[] | null {
-  if (data.length == 0) return null;
+  if (data.length === 0) return null;
   return data.split("\n").flatMap((name) => {
     name = name.replaceAll("\n", "");
     const found = resources.find((r) => r.name === name);
@@ -122,7 +121,7 @@ async function getBuildingsForCampus(campus: Campus) {
       address: el.address,
       overview: el.overview
         .split("\n")
-        .map((line) => line.replace(/\r/g, "").trim())
+        .map((line) => line.replaceAll("\r", "").trim())
         .filter((line) => line.length > 0),
       services: getResources(el.services, resources),
       departments: getResources(el.departments, resources),

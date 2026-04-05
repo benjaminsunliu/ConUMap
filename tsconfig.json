@@ -14,6 +14,8 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "scripts/extract-building-info.ts"
+    "scripts/extract-building-info.ts",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
   ]
 }

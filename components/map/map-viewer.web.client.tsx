@@ -1,16 +1,25 @@
 import { CAMPUS_BUILDINGS } from "@/constants/map";
 import { Colors } from "@/constants/theme";
+import { IndoorMapSettings } from "@/globals/IndoorMapSettingsStore";
+import { OutdoorRouteStep, OutdoorStepResume } from "@/globals/OutdoorStepResumeStore";
 import { ColorSchemeName, useColorScheme } from "@/hooks/use-color-scheme";
 import { FieldType, SearchBuilding, TransportationMode } from "@/types/buildingTypes";
 import { BuildingInfo, Coordinate, CoordinateDelta, Region } from "@/types/mapTypes";
 import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
 import { decodePolyline } from "@/utils/decodePolyline";
 import { fetchAllDirections } from "@/utils/directions";
+import {
+  decodeIndoorStepPayload,
+  enrichRoutesWithIndoorTransitions,
+  resolveSearchSelectionBuildingCode,
+} from "@/utils/hybridNavigation";
+import { normalizeSearchToken } from "@/utils/roomSearch";
 import * as LocationPermissions from "expo-location";
+import { router, useFocusEffect } from "expo-router";
 import { Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 import {
   CircleMarker,
   MapContainer,
@@ -21,7 +30,9 @@ import {
   useMap,
   useMapEvents,
 } from "react-leaflet";
-import RoutesInfoPopup from "../navigation/routes-info-popup";
+import RoutesInfoPopup, {
+  RouteStepSelectionContext,
+} from "../navigation/routes-info-popup";
 import BuildingInfoPopup from "./building-info-popup";
 import BuildingSelection, { CURRENT_LOCATION_CODE } from "./building-selection";
 import CampusToggle from "./campus-toggle";
@@ -61,6 +72,14 @@ interface Props {
   readonly userLocationDelta?: CoordinateDelta;
   readonly initialRegion?: Region;
 }
+
+const EMPTY_ROUTES: Record<TransportationMode, any[] | null> = {
+  walking: null,
+  transit: null,
+  driving: null,
+  bicycling: null,
+  shuttle: null,
+};
 
 interface MapEventsBinderProps {
   onRegionChangeComplete: (region: Region) => void;
@@ -121,6 +140,35 @@ function getTransitionNode(
   }
   const junction = coords.at(-1);
   return junction ? { coordinate: junction, fromColor: color, toColor: nextColor } : null;
+}
+
+function normalizeStepTravelMode(travelMode: string | undefined): string {
+  const mode = (travelMode ?? "WALK").toUpperCase();
+
+  if (mode === "WALKING") {
+    return "WALK";
+  }
+  if (mode === "DRIVE") {
+    return "DRIVING";
+  }
+  if (mode === "BICYCLE") {
+    return "BICYCLING";
+  }
+
+  return mode;
+}
+
+function buildOutdoorStepResume(step: any): OutdoorRouteStep | null {
+  const encodedPolyline = step?.polyline?.points;
+  const travelMode = normalizeStepTravelMode(step?.travel_mode);
+  if (!encodedPolyline || travelMode === "INDOOR") {
+    return null;
+  }
+
+  return {
+    encodedPolyline,
+    travelMode,
+  };
 }
 
 function getPolygonColor(
@@ -205,6 +253,15 @@ export default function MapViewer({
   const mapViewRef = useRef<MapRefLike | null>(null);
   const leafletMapRef = useRef<LeafletMap | null>(null);
   const suppressNextMapPress = useRef(false);
+  const activeIndoorStepSessionRef = useRef<{
+    resumeContinuationId: string | null;
+  } | null>(null);
+  const suppressMapPressOnce = useCallback(() => {
+    suppressNextMapPress.current = true;
+    requestAnimationFrame(() => {
+      suppressNextMapPress.current = false;
+    });
+  }, []);
 
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
@@ -238,6 +295,12 @@ export default function MapViewer({
     start: null,
     end: null,
   });
+  const [selectedSearchLocations, setSelectedSearchLocations] = useState<
+    Record<FieldType, SearchBuilding | null>
+  >({
+    start: null,
+    end: null,
+  });
 
   const userClearedStart = useRef(false);
   const lastDestinationRef = useRef<{ coord: Coordinate | null; label: string }>({
@@ -255,6 +318,44 @@ export default function MapViewer({
 
   const showStartHint =
     navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
+
+  const focusRouteStep = useCallback((encodedPolyline: string) => {
+    const coords = decodePolyline(encodedPolyline);
+    if (coords.length < 2) {
+      return;
+    }
+
+    const mid = coords[Math.floor(coords.length / 2)];
+    mapViewRef.current?.animateToRegion({
+      latitude: mid.latitude,
+      longitude: mid.longitude,
+      latitudeDelta: 0.005,
+      longitudeDelta: 0.005,
+    });
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      const pendingStep = OutdoorStepResume.consumePendingStep();
+      if (!pendingStep) {
+        const activeIndoorStepSession = activeIndoorStepSessionRef.current;
+        if (!activeIndoorStepSession) {
+          return;
+        }
+
+        if (activeIndoorStepSession.resumeContinuationId) {
+          OutdoorStepResume.clearContinuation(
+            activeIndoorStepSession.resumeContinuationId,
+          );
+        }
+        activeIndoorStepSessionRef.current = null;
+        return;
+      }
+
+      activeIndoorStepSessionRef.current = null;
+      focusRouteStep(pendingStep.encodedPolyline);
+    }, [focusRouteStep]),
+  );
 
   const handleMapReady = useCallback((map: LeafletMap) => {
     leafletMapRef.current = map;
@@ -279,13 +380,28 @@ export default function MapViewer({
 
     (async () => {
       try {
-        const nextRoutes = await fetchAllDirections(navCoords.start!, navCoords.end!);
+        const fetchedRoutes = await fetchAllDirections(navCoords.start!, navCoords.end!);
+        const indoorSettings = await IndoorMapSettings.getSettings().catch(() =>
+          IndoorMapSettings.getCachedSettings(),
+        );
+        const nextRoutes = await enrichRoutesWithIndoorTransitions(
+          fetchedRoutes,
+          {
+            start: selectedSearchLocations.start,
+            end: selectedSearchLocations.end,
+          },
+          CAMPUS_BUILDINGS,
+          {
+            accessibleOnly: indoorSettings.wheelchairOnly,
+          },
+        );
         if (!cancelled) {
           setRoutes(nextRoutes);
         }
       } catch (error) {
         if (!cancelled) {
           console.error("Failed to fetch directions:", error);
+          setRoutes(EMPTY_ROUTES);
         }
       }
     })();
@@ -293,7 +409,12 @@ export default function MapViewer({
     return () => {
       cancelled = true;
     };
-  }, [navCoords.start, navCoords.end]);
+  }, [
+    navCoords.start,
+    navCoords.end,
+    selectedSearchLocations.start,
+    selectedSearchLocations.end,
+  ]);
 
   const inBuildingCodes = useMemo(() => {
     const codes = new Set<string>();
@@ -362,6 +483,38 @@ export default function MapViewer({
     },
     [currentRegion.latitudeDelta, currentRegion.longitudeDelta],
   );
+
+  const openIndoorNavigation = useCallback(() => {
+    if (!selectedBuilding?.buildingCode) {
+      return;
+    }
+
+    if (Platform.OS === "web" && typeof document !== "undefined") {
+      (document.activeElement as HTMLElement | null)?.blur();
+    }
+
+    const selectedEndSearch = selectedSearchLocations.end;
+    const selectedEndBuildingCode =
+      !selectedEndSearch || selectedEndSearch.buildingCode === CURRENT_LOCATION_CODE
+        ? null
+        : resolveSearchSelectionBuildingCode(selectedEndSearch, CAMPUS_BUILDINGS);
+    const isRoomDestination =
+      selectedEndSearch?.isIndoorRoom &&
+      selectedEndBuildingCode === selectedBuilding.buildingCode;
+    const roomName = isRoomDestination
+      ? (selectedEndSearch.roomName ?? selectedEndSearch.buildingName ?? "").trim()
+      : "";
+    suppressNextMapPress.current = true;
+    router.push({
+      pathname: "/[buildingCode]",
+      params: roomName
+        ? {
+            buildingCode: selectedBuilding.buildingCode,
+            indoorEndRoom: roomName,
+          }
+        : { buildingCode: selectedBuilding.buildingCode },
+    } as any);
+  }, [selectedBuilding, selectedSearchLocations.end]);
 
   const selectBuildingByCode = useCallback((code: string) => {
     const nextBuilding =
@@ -435,6 +588,18 @@ export default function MapViewer({
       return;
     }
 
+    const selectedEndSearch = selectedSearchLocations.end;
+    const selectedEndBuildingCode =
+      !selectedEndSearch || selectedEndSearch.buildingCode === CURRENT_LOCATION_CODE
+        ? null
+        : resolveSearchSelectionBuildingCode(selectedEndSearch, CAMPUS_BUILDINGS);
+    const isRoomDestination =
+      selectedEndSearch?.isIndoorRoom &&
+      selectedEndBuildingCode === selectedBuilding.buildingCode;
+    const destinationLabel = isRoomDestination
+      ? (selectedEndSearch.roomName ?? selectedEndSearch.buildingName)
+      : selectedBuilding.buildingName;
+
     let startCoord: Coordinate | null = null;
     let startLabel: string | null = null;
 
@@ -462,23 +627,33 @@ export default function MapViewer({
 
     setSelectionOverrides({
       start: startLabel,
-      end: selectedBuilding.buildingName,
+      end: destinationLabel,
     });
 
     lastDestinationRef.current = {
       coord: mapBuilding.location,
-      label: selectedBuilding.buildingName,
+      label: destinationLabel,
     };
     userClearedStart.current = false;
+    setSelectedSearchLocations({ start: null, end: isRoomDestination ? selectedEndSearch : null });
     setNavCoords({ start: startCoord, end: mapBuilding.location });
     setNavigationMode("directions");
     setShouldDisplayRoutes(true);
-  }, [selectedBuilding, inBuildingCodes, userLocation]);
+  }, [selectedBuilding, selectedSearchLocations.end, inBuildingCodes, userLocation]);
 
   const setBuildingAsStart = useCallback(() => {
     if (!selectedBuilding) {
       return;
     }
+
+    const selectedEndSearch = selectedSearchLocations.end;
+    const selectedEndBuildingCode =
+      !selectedEndSearch || selectedEndSearch.buildingCode === CURRENT_LOCATION_CODE
+        ? null
+        : resolveSearchSelectionBuildingCode(selectedEndSearch, CAMPUS_BUILDINGS);
+    const shouldUseSelectedRoomAsStart =
+      selectedEndSearch?.isIndoorRoom &&
+      selectedEndBuildingCode === selectedBuilding.buildingCode;
 
     const mapBuilding = CAMPUS_BUILDINGS.find(
       (building) => building.buildingCode === selectedBuilding.buildingCode,
@@ -487,24 +662,41 @@ export default function MapViewer({
       return;
     }
 
+    const startSelection = shouldUseSelectedRoomAsStart ? selectedEndSearch : null;
+    const startLabel =
+      startSelection?.roomName ??
+      startSelection?.buildingName ??
+      selectedBuilding.buildingName;
+
     const lastDest = lastDestinationRef.current;
+    const shouldClearDestination =
+      Boolean(lastDest.coord) &&
+      Boolean(lastDest.label) &&
+      normalizeSearchToken(lastDest.label) === normalizeSearchToken(startLabel);
+    const nextDestinationCoord = shouldClearDestination ? null : lastDest.coord;
+    const nextDestinationLabel = shouldClearDestination ? "" : lastDest.label;
+
     lastStartRef.current = {
       coord: mapBuilding.location,
-      label: selectedBuilding.buildingName,
+      label: startLabel,
     };
     lastManualStartRef.current = {
       coord: mapBuilding.location,
-      label: selectedBuilding.buildingName,
+      label: startLabel,
     };
+    if (shouldClearDestination) {
+      lastDestinationRef.current = { coord: null, label: "" };
+    }
     userClearedStart.current = false;
     setNavigationMode("directions");
-    setShouldDisplayRoutes(lastDest.coord != null);
-    setSelectionOverrides({ start: selectedBuilding.buildingName, end: lastDest.label });
-    setNavCoords({ start: mapBuilding.location, end: lastDest.coord });
+    setShouldDisplayRoutes(nextDestinationCoord != null);
+    setSelectionOverrides({ start: startLabel, end: nextDestinationLabel });
+    setSelectedSearchLocations({ start: startSelection, end: null });
+    setNavCoords({ start: mapBuilding.location, end: nextDestinationCoord });
     setRoutePolyline(null);
     setRouteStops([]);
     setRouteNodes([]);
-  }, [selectedBuilding]);
+  }, [selectedBuilding, selectedSearchLocations.end]);
 
   const handleBackFromDirections = useCallback(() => {
     userClearedStart.current = false;
@@ -534,11 +726,24 @@ export default function MapViewer({
     setRouteNodes([]);
   }, []);
 
+  const getSelectedBuildingCode = useCallback(
+    (selected: SearchBuilding | null | undefined) => {
+      if (!selected || selected.buildingCode === CURRENT_LOCATION_CODE) {
+        return null;
+      }
+
+      return resolveSearchSelectionBuildingCode(selected, CAMPUS_BUILDINGS);
+    },
+    [],
+  );
+
   const resolveSelectionCoordinate = useCallback(
-    (selectedCode?: string) => {
-      if (selectedCode === CURRENT_LOCATION_CODE) {
+    (selected: SearchBuilding | null | undefined) => {
+      if (selected?.buildingCode === CURRENT_LOCATION_CODE) {
         return userLocation;
       }
+
+      const selectedCode = getSelectedBuildingCode(selected);
       if (!selectedCode) {
         return null;
       }
@@ -546,7 +751,7 @@ export default function MapViewer({
       const building = CAMPUS_BUILDINGS.find((b) => b.buildingCode === selectedCode);
       return building?.location ?? null;
     },
-    [userLocation],
+    [getSelectedBuildingCode, userLocation],
   );
 
   const handleStartSelection = useCallback((coord: Coordinate | null, label: string) => {
@@ -563,8 +768,9 @@ export default function MapViewer({
         lastDestinationRef.current = { coord, label: selected?.buildingName ?? "" };
       }
 
-      if (selected?.buildingCode && selected.buildingCode !== CURRENT_LOCATION_CODE) {
-        const nextBuilding = selectBuildingByCode(selected.buildingCode);
+      const selectedBuildingCode = getSelectedBuildingCode(selected);
+      if (selectedBuildingCode) {
+        const nextBuilding = selectBuildingByCode(selectedBuildingCode);
         if (nextBuilding) {
           focusBuilding(nextBuilding);
         }
@@ -572,8 +778,27 @@ export default function MapViewer({
         setSelectedBuilding(null);
       }
     },
-    [focusBuilding, selectBuildingByCode],
+    [focusBuilding, getSelectedBuildingCode, selectBuildingByCode],
   );
+
+  const selectedRoomContext = useMemo(() => {
+    if (!selectedBuilding) {
+      return undefined;
+    }
+
+    const selectedEndSearch = selectedSearchLocations.end;
+    const selectedEndBuildingCode = getSelectedBuildingCode(selectedEndSearch);
+    const isRoomDestination =
+      selectedEndSearch?.isIndoorRoom &&
+      selectedEndBuildingCode === selectedBuilding.buildingCode;
+    if (!isRoomDestination) {
+      return undefined;
+    }
+
+    return {
+      roomName: selectedEndSearch.roomName ?? selectedEndSearch.buildingName,
+    };
+  }, [selectedBuilding, selectedSearchLocations.end, getSelectedBuildingCode]);
 
   const onMapRegionChangeComplete = useCallback(
     (region: Region) => {
@@ -593,6 +818,7 @@ export default function MapViewer({
 
   const onMapPress = useCallback(() => {
     if (suppressNextMapPress.current) {
+      suppressNextMapPress.current = false;
       return;
     }
 
@@ -604,6 +830,7 @@ export default function MapViewer({
     setRouteNodes([]);
     setNavCoords({ start: null, end: null });
     setSelectionOverrides({ start: null, end: null });
+    setSelectedSearchLocations({ start: null, end: null });
   }, []);
 
   useEffect(() => {
@@ -632,9 +859,14 @@ export default function MapViewer({
           buildings: Record<FieldType, SearchBuilding | null>,
           type: FieldType,
         ) => {
+          suppressMapPressOnce();
           const selected = buildings[type];
-          const selectedCode = selected?.buildingCode;
-          const coord = resolveSelectionCoordinate(selectedCode);
+          const coord = resolveSelectionCoordinate(selected);
+
+          setSelectedSearchLocations((prev) => ({
+            ...prev,
+            [type]: selected,
+          }));
 
           setNavCoords((prev) => ({ ...prev, [type]: coord }));
           setSelectionOverrides((prev) => ({
@@ -827,6 +1059,8 @@ export default function MapViewer({
           building={selectedBuilding}
           onNavigate={navigateToBuilding}
           onSetAsStart={setBuildingAsStart}
+          onExploreRooms={openIndoorNavigation}
+          roomContext={selectedRoomContext}
         />
       )}
 
@@ -840,9 +1074,12 @@ export default function MapViewer({
             const stops: TransitStopMarker[] = [];
             const nodes: TransitionNode[] = [];
             const allSteps = (route?.legs ?? []).flatMap((leg: any) => leg?.steps ?? []);
+            const routeSteps = allSteps.filter(
+              (step: any) => normalizeStepTravelMode(step?.travel_mode) !== "INDOOR",
+            );
 
-            for (let index = 0; index < allSteps.length; index++) {
-              const step = allSteps[index];
+            for (let index = 0; index < routeSteps.length; index++) {
+              const step = routeSteps[index];
               const encoded = step?.polyline?.points;
               if (!encoded) {
                 continue;
@@ -853,16 +1090,15 @@ export default function MapViewer({
                 continue;
               }
 
-              const mode = step.travel_mode ?? "WALK";
+              const mode = normalizeStepTravelMode(step.travel_mode);
               const vehicleType = step.transit_details?.line?.vehicle_type;
               const color = polylineColor(mode, vehicleType);
-              const isWalking =
-                mode.toUpperCase() === "WALK" || mode.toUpperCase() === "WALKING";
+              const isWalking = mode === "WALK";
 
               segments.push({ coordinates: coords, color, isDashed: isWalking });
               stops.push(...collectStopsFromStep(step, color));
 
-              const nextStep = allSteps[index + 1];
+              const nextStep = routeSteps[index + 1];
               if (nextStep) {
                 const node = getTransitionNode(coords, color, nextStep);
                 if (node) nodes.push(node);
@@ -873,17 +1109,73 @@ export default function MapViewer({
             setRouteStops(stops);
             setRouteNodes(nodes);
           }}
-          onStepSelect={(encoded: string) => {
-            const coords = decodePolyline(encoded);
-            if (coords.length >= 2) {
-              const mid = coords[Math.floor(coords.length / 2)];
-              mapViewRef.current?.animateToRegion({
-                latitude: mid.latitude,
-                longitude: mid.longitude,
-                latitudeDelta: 0.005,
-                longitudeDelta: 0.005,
-              });
+          onStepSelect={(
+            encoded: string,
+            travelMode: string,
+            _vehicleType: string | undefined,
+            context?: RouteStepSelectionContext,
+          ) => {
+            if ((travelMode ?? "").toUpperCase() === "INDOOR") {
+              const indoorDetails = decodeIndoorStepPayload(encoded);
+              const outdoorResumeStep = buildOutdoorStepResume(context?.nextStep);
+              const resumeContinuationId = outdoorResumeStep
+                ? OutdoorStepResume.saveContinuation(outdoorResumeStep)
+                : null;
+
+              let indoorRoute: { pathname: string; params: Record<string, string> } | null =
+                null;
+              if (
+                indoorDetails?.building_code &&
+                indoorDetails?.start_checkpoint_id &&
+                indoorDetails?.end_room
+              ) {
+                indoorRoute = {
+                  pathname: "/[buildingCode]",
+                  params: {
+                    buildingCode: indoorDetails.building_code,
+                    indoorStartCheckpointId: indoorDetails.start_checkpoint_id,
+                    indoorEndRoom: indoorDetails.end_room,
+                  },
+                };
+              } else if (
+                indoorDetails?.building_code &&
+                indoorDetails?.start_room &&
+                indoorDetails?.end_checkpoint_id
+              ) {
+                indoorRoute = {
+                  pathname: "/[buildingCode]",
+                  params: {
+                    buildingCode: indoorDetails.building_code,
+                    indoorStartRoom: indoorDetails.start_room,
+                    indoorEndCheckpointId: indoorDetails.end_checkpoint_id,
+                  },
+                };
+              }
+
+              if (!indoorRoute) {
+                if (resumeContinuationId) {
+                  OutdoorStepResume.clearContinuation(resumeContinuationId);
+                }
+                return;
+              }
+
+              if (resumeContinuationId) {
+                indoorRoute = {
+                  pathname: indoorRoute.pathname,
+                  params: {
+                    ...indoorRoute.params,
+                    resumeContinuationId,
+                  },
+                };
+              }
+              activeIndoorStepSessionRef.current = {
+                resumeContinuationId,
+              };
+              router.push(indoorRoute as any);
+              return;
             }
+
+            focusRouteStep(encoded);
           }}
         />
       )}

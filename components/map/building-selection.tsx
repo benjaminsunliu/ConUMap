@@ -1,4 +1,11 @@
-import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import {
   View,
   TextInput,
@@ -11,55 +18,115 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
-import buildingAddressesRaw from "@/data/building-addresses.json";
 import { SearchBuilding, FieldType } from "@/types/buildingTypes";
+import { useBuildingSearch, CURRENT_LOCATION_CODE } from "@/hooks/use-search-building";
 
-const buildingAddresses = buildingAddressesRaw as SearchBuilding[];
-
-export const CURRENT_LOCATION_CODE = "CURRENT_LOCATION";
-
-const CURRENT_LOCATION_SENTINEL: SearchBuilding = {
-  buildingCode: CURRENT_LOCATION_CODE,
-  buildingName: "Current Location",
-  address: "Your current GPS position",
-  campus: "",
-};
-
-/**
- * Separates buildings into current and other, returning current buildings first.
- * This prioritizes user's current location in search results.
- */
-function prioritizeCurrentBuildings(
-  buildings: SearchBuilding[],
-  currentCodes: Set<string>,
-): SearchBuilding[] {
-  const currentBuildings: SearchBuilding[] = [];
-  const otherBuildings: SearchBuilding[] = [];
-
-  buildings.forEach((building) => {
-    if (currentCodes.has(building.buildingCode)) {
-      currentBuildings.push(building);
-    } else {
-      otherBuildings.push(building);
-    }
-  });
-
-  return [...currentBuildings, ...otherBuildings];
-}
-
+type SearchInput = Record<FieldType, SearchBuilding | null>;
 interface Props {
   readonly currentBuildingCodes?: Set<string>;
   readonly hasUserLocation?: boolean;
   readonly mode: "browse" | "directions";
-  readonly selectedBuilding: SearchBuilding | null;
-  readonly onSelect: (
-    buildings: Record<FieldType, SearchBuilding | null>,
-    type: FieldType,
-  ) => void;
+  readonly selectedBuilding?: SearchBuilding | null;
+  readonly onSelect: (buildings: SearchInput, type: FieldType) => void;
   readonly onSwap?: () => void;
+  readonly onFocusChange?: (isFocused: boolean) => void;
   readonly startOverride?: string | null;
   readonly endOverride?: string | null;
   readonly startHint?: string | null;
+}
+
+const getSelectionDisplayLabel = (selection: SearchBuilding) => {
+  if (selection.buildingCode === CURRENT_LOCATION_CODE) {
+    return "Current Location";
+  }
+
+  const roomLabel = (selection.roomName ?? "").trim();
+  if (selection.isIndoorRoom && roomLabel) {
+    return roomLabel;
+  }
+
+  return selection.buildingName;
+};
+
+type UpdateQuery = (type: FieldType, value: string) => void;
+type SetSelectedBuildings = Dispatch<SetStateAction<SearchInput>>;
+
+function shouldPreserveRoomSelection(
+  currentSelection: SearchBuilding | null | undefined,
+  selectedBuilding: SearchBuilding,
+) {
+  return Boolean(
+    currentSelection?.isIndoorRoom &&
+    currentSelection.parentBuildingCode === selectedBuilding.buildingCode,
+  );
+}
+
+function getPreservedSelectionLabel(selection: SearchBuilding | null | undefined) {
+  return selection?.roomName ?? selection?.buildingName ?? "";
+}
+
+function syncBrowseSelection({
+  selectedBuilding,
+  previousSelectedBuilding,
+  currentEndSelection,
+  updateQuery,
+  setSelectedBuildings,
+}: {
+  selectedBuilding?: SearchBuilding | null;
+  previousSelectedBuilding?: SearchBuilding | null;
+  currentEndSelection: SearchBuilding | null;
+  updateQuery: UpdateQuery;
+  setSelectedBuildings: SetSelectedBuildings;
+}) {
+  if (selectedBuilding) {
+    if (shouldPreserveRoomSelection(currentEndSelection, selectedBuilding)) {
+      updateQuery("end", getPreservedSelectionLabel(currentEndSelection));
+      return;
+    }
+
+    updateQuery("end", selectedBuilding.buildingName);
+    setSelectedBuildings((prev) => ({ ...prev, end: selectedBuilding }));
+    return;
+  }
+
+  if (selectedBuilding !== previousSelectedBuilding) {
+    updateQuery("end", "");
+    setSelectedBuildings((prev) => ({ ...prev, end: null }));
+  }
+}
+
+function syncFocusedSelection({
+  field,
+  selectedBuilding,
+  currentSelection,
+  updateQuery,
+  setSelectedBuildings,
+}: {
+  field: FieldType | null;
+  selectedBuilding?: SearchBuilding | null;
+  currentSelection: SearchBuilding | null;
+  updateQuery: UpdateQuery;
+  setSelectedBuildings: SetSelectedBuildings;
+}) {
+  if (!field || !selectedBuilding) {
+    return;
+  }
+
+  if (shouldPreserveRoomSelection(currentSelection, selectedBuilding)) {
+    updateQuery(field, getPreservedSelectionLabel(currentSelection));
+    return;
+  }
+
+  updateQuery(field, selectedBuilding.buildingName);
+  setSelectedBuildings((prev) => ({ ...prev, [field]: selectedBuilding }));
+}
+
+function getSearchResultLabel(item: SearchBuilding) {
+  if (item.isIndoorRoom && item.parentBuildingCode) {
+    return `${item.parentBuildingCode} G�� ${item.roomName ?? item.buildingName}`;
+  }
+
+  return `${item.buildingCode} G�� ${item.buildingName}`;
 }
 
 export default function BuildingSelection({
@@ -69,224 +136,190 @@ export default function BuildingSelection({
   selectedBuilding,
   onSelect,
   onSwap,
+  onFocusChange,
   startOverride,
   endOverride,
   startHint,
 }: Props) {
-  const colorScheme = useColorScheme() ?? "light";
+  const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
 
-  const [queries, setQueries] = useState<Record<FieldType, string>>({
-    start: "",
-    end: "",
+  const { queries, updateQuery, swapQueries, results } = useBuildingSearch({
+    currentBuildingCodes,
+    hasUserLocation,
   });
+
   const [focusedField, setFocusedField] = useState<FieldType | null>(null);
-  const [selectedBuildings, setSelectedBuildings] = useState<
-    Record<FieldType, SearchBuilding | null>
-  >({
+  const [selectedBuildings, setSelectedBuildings] = useState<SearchInput>({
     start: null,
     end: null,
   });
 
-  const selectedBuildingRef = useRef<SearchBuilding | null>(selectedBuilding);
-  const selectedBuildingsRef = useRef<Record<FieldType, SearchBuilding | null>>({
-    start: null,
-    end: null,
-  });
-  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startInputRef = useRef<TextInput>(null);
   const endInputRef = useRef<TextInput>(null);
+  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSelectionPressRef = useRef<{
+    type: FieldType;
+    buildingCode: string;
+    timestamp: number;
+  } | null>(null);
+  const selectedBuildingsRef = useRef(selectedBuildings);
+  const selectedBuildingRef = useRef(selectedBuilding);
+  const suppressSelectionChangeRef = useRef<Record<FieldType, boolean>>({
+    start: false,
+    end: false,
+  });
 
-  const clearPendingBlur = useCallback(() => {
+  const clearBlurTimeout = useCallback(() => {
     if (blurTimeoutRef.current) {
       clearTimeout(blurTimeoutRef.current);
       blurTimeoutRef.current = null;
     }
   }, []);
 
-  useEffect(() => {
-    selectedBuildingsRef.current = selectedBuildings;
-  }, [selectedBuildings]);
-
-  useEffect(() => {
-    return () => {
-      clearPendingBlur();
-    };
-  }, [clearPendingBlur]);
-
-  useEffect(() => {
-    if (mode === "browse") {
-      setQueries((prev) => ({ ...prev, end: selectedBuilding?.buildingName ?? "" }));
-      setSelectedBuildings((prev) => ({ ...prev, end: selectedBuilding }));
-    } else if (
-      focusedField === "end" &&
-      selectedBuilding &&
-      selectedBuilding.buildingCode !== selectedBuildingRef.current?.buildingCode
-    ) {
-      setQueries((prev) => ({ ...prev, end: selectedBuilding.buildingName }));
-      setSelectedBuildings((prev) => ({ ...prev, end: selectedBuilding }));
-    } else if (
-      focusedField === "start" &&
-      selectedBuilding &&
-      selectedBuilding.buildingCode !== selectedBuildingRef.current?.buildingCode
-    ) {
-      setQueries((prev) => ({ ...prev, start: selectedBuilding.buildingName }));
-      setSelectedBuildings((prev) => ({ ...prev, start: selectedBuilding }));
-    }
-
-    selectedBuildingRef.current = selectedBuilding;
-  }, [focusedField, mode, selectedBuilding, clearPendingBlur]);
-
-  useEffect(() => {
-    if (startOverride != null) {
-      setQueries((prev) => ({ ...prev, start: startOverride }));
-      setFocusedField(null);
-    }
-  }, [startOverride]);
-
-  useEffect(() => {
-    if (endOverride != null) {
-      setQueries((prev) => ({ ...prev, end: endOverride }));
-      setFocusedField(null);
-    }
-  }, [endOverride]);
-
-  const filterBuildings = useCallback(
-    (text: string, fieldType: FieldType) => {
-      const q = text.toLowerCase();
-      const filtered = buildingAddresses.filter(
-        (building) =>
-          building.buildingName.toLowerCase().includes(q) ||
-          building.buildingCode.toLowerCase().includes(q) ||
-          building.address.toLowerCase().includes(q),
-      );
-
-      if (fieldType === "start" && currentBuildingCodes.size > 0) {
-        return prioritizeCurrentBuildings(filtered, currentBuildingCodes);
-      }
-
-      return filtered;
+  const scheduleBlur = useCallback(
+    (field: FieldType) => {
+      clearBlurTimeout();
+      blurTimeoutRef.current = setTimeout(() => {
+        setFocusedField((prev) => (prev === field ? null : prev));
+      }, 120);
     },
-    [currentBuildingCodes],
-  );
-
-  const results = useMemo(() => {
-    const matchesSentinel = (q: string) =>
-      "current location".includes(q) || "my location".includes(q) || "gps".includes(q);
-
-    const getStartResults = (): SearchBuilding[] => {
-      if (queries.start) {
-        let startResults = filterBuildings(queries.start, "start");
-        if (hasUserLocation && currentBuildingCodes.size === 0) {
-          if (matchesSentinel(queries.start.toLowerCase())) {
-            startResults = [CURRENT_LOCATION_SENTINEL, ...startResults];
-          }
-        }
-        return startResults;
-      } else if (currentBuildingCodes.size > 0) {
-        return buildingAddresses.filter((building) =>
-          currentBuildingCodes.has(building.buildingCode),
-        );
-      } else if (hasUserLocation) {
-        return [CURRENT_LOCATION_SENTINEL];
-      }
-      return [];
-    };
-
-    const getEndResults = (): SearchBuilding[] => {
-      if (queries.end) {
-        let endResults = filterBuildings(queries.end, "end");
-        if (hasUserLocation && matchesSentinel(queries.end.toLowerCase())) {
-          endResults = [CURRENT_LOCATION_SENTINEL, ...endResults];
-        }
-        return endResults;
-      } else if (hasUserLocation && mode === "directions") {
-        return [CURRENT_LOCATION_SENTINEL];
-      }
-      return [];
-    };
-
-    return { start: getStartResults(), end: getEndResults() };
-  }, [queries, filterBuildings, currentBuildingCodes, hasUserLocation, mode]);
-
-  const setQuery = useCallback((type: FieldType, value: string) => {
-    setQueries((prev) => ({ ...prev, [type]: value }));
-  }, []);
-
-  const handleChange = useCallback(
-    (text: string, type: FieldType) => {
-      setQuery(type, text);
-      setSelectedBuildings((prev) => ({ ...prev, [type]: null }));
-    },
-    [setQuery],
+    [clearBlurTimeout],
   );
 
   const removeInputFocus = useCallback((type: FieldType) => {
+    clearBlurTimeout();
     if (type === "start") {
       startInputRef.current?.blur();
     } else {
       endInputRef.current?.blur();
     }
     setFocusedField(null);
-  }, []);
+  }, [clearBlurTimeout]);
 
-  const clearFocusedFieldIfMatching = useCallback((type: FieldType) => {
-    setFocusedField((prev) => {
-      if (prev === type) {
-        return null;
+  useEffect(() => {
+    return () => {
+      clearBlurTimeout();
+    };
+  }, [clearBlurTimeout]);
+
+  useEffect(() => {
+    if (startOverride !== undefined) updateQuery("start", startOverride ?? "");
+  }, [startOverride, updateQuery]);
+
+  useEffect(() => {
+    if (endOverride !== undefined) updateQuery("end", endOverride ?? "");
+  }, [endOverride, updateQuery]);
+
+  const handleChange = useCallback(
+    (text: string, type: FieldType) => {
+      if (suppressSelectionChangeRef.current[type]) {
+        suppressSelectionChangeRef.current[type] = false;
+        return;
       }
-
-      return prev;
-    });
-  }, []);
+      updateQuery(type, text);
+      setSelectedBuildings((prev) => ({ ...prev, [type]: null }));
+    },
+    [updateQuery],
+  );
 
   const handleSelect = useCallback(
     (building: SearchBuilding, type: FieldType) => {
-      clearPendingBlur();
-      setQuery(type, building.buildingName);
+      const now = Date.now();
+      const lastSelection = lastSelectionPressRef.current;
+      if (
+        lastSelection &&
+        lastSelection.type === type &&
+        lastSelection.buildingCode === building.buildingCode &&
+        now - lastSelection.timestamp < 250
+      ) {
+        return;
+      }
+
+      lastSelectionPressRef.current = {
+        type,
+        buildingCode: building.buildingCode,
+        timestamp: now,
+      };
+
+      clearBlurTimeout();
+      suppressSelectionChangeRef.current[type] = true;
+      updateQuery(type, getSelectionDisplayLabel(building));
       const updated = { ...selectedBuildingsRef.current, [type]: building };
       setSelectedBuildings(updated);
       onSelect(updated, type);
       removeInputFocus(type);
     },
-    [clearPendingBlur, setQuery, removeInputFocus, onSelect],
+    [clearBlurTimeout, updateQuery, onSelect, removeInputFocus],
   );
 
   const clearField = useCallback(
     (type: FieldType) => {
-      clearPendingBlur();
-      setQuery(type, "");
+      suppressSelectionChangeRef.current[type] = false;
+      updateQuery(type, "");
       const updated = { ...selectedBuildingsRef.current, [type]: null };
       setSelectedBuildings(updated);
       onSelect(updated, type);
       removeInputFocus(type);
     },
-    [clearPendingBlur, setQuery, removeInputFocus, onSelect],
+    [updateQuery, onSelect, removeInputFocus],
   );
 
   const swapFields = useCallback(() => {
-    clearPendingBlur();
-    setQueries((prevQueries) => ({
-      start: prevQueries.end,
-      end: prevQueries.start,
-    }));
-
+    suppressSelectionChangeRef.current = {
+      start: false,
+      end: false,
+    };
+    swapQueries();
     const swapped = {
       start: selectedBuildingsRef.current.end,
       end: selectedBuildingsRef.current.start,
     };
     setSelectedBuildings(swapped);
+    if (onSwap) onSwap();
+    setFocusedField(null);
+  }, [onSwap, swapQueries]);
 
-    if (onSwap) {
-      onSwap();
+  useEffect(() => {
+    selectedBuildingsRef.current = selectedBuildings;
+  }, [selectedBuildings]);
+  useEffect(() => {
+    const previousSelectedBuilding = selectedBuildingRef.current;
+
+    if (mode === "browse") {
+      syncBrowseSelection({
+        selectedBuilding,
+        previousSelectedBuilding,
+        currentEndSelection: selectedBuildingsRef.current.end,
+        updateQuery,
+        setSelectedBuildings,
+      });
+      selectedBuildingRef.current = selectedBuilding;
+      return;
     }
 
-    setFocusedField(null);
-  }, [clearPendingBlur, onSwap]);
+    if (selectedBuilding !== previousSelectedBuilding) {
+      syncFocusedSelection({
+        field: focusedField,
+        selectedBuilding,
+        currentSelection: focusedField
+          ? selectedBuildingsRef.current[focusedField]
+          : null,
+        updateQuery,
+        setSelectedBuildings,
+      });
+    }
+
+    selectedBuildingRef.current = selectedBuilding;
+  }, [focusedField, mode, selectedBuilding, updateQuery]);
+
+  useEffect(() => {
+    onFocusChange?.(focusedField !== null);
+  }, [focusedField, onFocusChange]);
 
   const renderInput = useCallback(
     (type: FieldType, placeholder: string) => {
-      const value = queries[type];
+      const value = queries[type] || "";
       const hasMagnifier = mode === "browse";
 
       return (
@@ -306,25 +339,23 @@ export default function BuildingSelection({
           )}
           <TextInput
             ref={type === "start" ? startInputRef : endInputRef}
+            key={type}
             placeholder={placeholder}
             placeholderTextColor={theme.placeholder}
             value={value}
             onFocus={() => {
-              clearPendingBlur();
+              clearBlurTimeout();
+              suppressSelectionChangeRef.current[type] = false;
               setFocusedField(type);
             }}
             onBlur={() => {
-              if (Platform.OS === "web") {
-                clearPendingBlur();
-                // On web, defer blur handling so result-item clicks can fire before list hides.
-                blurTimeoutRef.current = setTimeout(() => {
-                  clearFocusedFieldIfMatching(type);
-                  blurTimeoutRef.current = null;
-                }, 120);
+              const shouldDelayBlur =
+                mode === "browse" || (mode === "directions" && results[type].length > 0);
+              if (shouldDelayBlur) {
+                scheduleBlur(type);
                 return;
               }
-
-              clearFocusedFieldIfMatching(type);
+              setFocusedField((prev) => (prev === type ? null : prev));
             }}
             onChangeText={(text) => handleChange(text, type)}
             textAlign="left"
@@ -345,7 +376,7 @@ export default function BuildingSelection({
               style={styles.clearButton}
             >
               <Text style={{ color: theme.buildingSelection.clearButton, fontSize: 18 }}>
-                ×
+                +�
               </Text>
             </TouchableOpacity>
           )}
@@ -354,17 +385,18 @@ export default function BuildingSelection({
     },
     [
       queries,
+      mode,
+      results,
       theme.buildingSelection.inputBackground,
       theme.buildingSelection.magnifierColor,
       theme.buildingSelection.borderColor,
       theme.buildingSelection.inputText,
       theme.buildingSelection.clearButton,
       theme.placeholder,
-      mode,
+      clearBlurTimeout,
+      scheduleBlur,
       handleChange,
       clearField,
-      clearPendingBlur,
-      clearFocusedFieldIfMatching,
     ],
   );
 
@@ -395,12 +427,14 @@ export default function BuildingSelection({
           renderItem={({ item }) => {
             const isSentinel = item.buildingCode === CURRENT_LOCATION_CODE;
             const isCurrent = currentBuildingCodes.has(item.buildingCode);
+            const resultLabel = getSearchResultLabel(item);
             return (
               <TouchableOpacity
                 style={[
                   styles.resultItem,
                   { borderBottomColor: theme.buildingInfoPopup.divider },
                 ]}
+                onPressIn={() => handleSelect(item, type)}
                 onPress={() => handleSelect(item, type)}
                 testID={`${type}-result-${item.buildingCode.toUpperCase()}`}
               >
@@ -411,11 +445,11 @@ export default function BuildingSelection({
                   ]}
                 >
                   {isSentinel ? (
-                    "📍 Current Location"
+                    "=��� Current Location"
                   ) : (
                     <>
-                      {isCurrent && "📍 "}
-                      {item.buildingCode} – {item.buildingName}
+                      {isCurrent && "=��� "}
+                      {resultLabel}
                       {isCurrent && (
                         <Text style={styles.currentLabel}> (Current Building)</Text>
                       )}

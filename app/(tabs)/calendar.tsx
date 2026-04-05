@@ -1,10 +1,31 @@
+import ScheduleViewer from "@/components/schedule/schedule-viewer";
 import AuthWebView from "@/components/authentication/AuthWebView";
 import { ONE_WEEK_MS } from "@/constants/time";
-import { useCalendar } from "@/hooks/use-calendar";
+import { ClassSchedule, useCalendar } from "@/hooks/use-calendar";
 import { useIsLoggedIn, useLogin, useLogout } from "@/hooks/use-login";
-import React, { useEffect, useState } from "react";
-import { Button, FlatList, Text, View } from "react-native";
+import { DayOfWeek } from "@/types/dayOfWeek";
+import React, { useEffect, useMemo, useState } from "react";
+import { Button, Text, View } from "react-native";
 import { Directions, Gesture, GestureDetector } from "react-native-gesture-handler";
+
+function sortCalendarData(
+  data: readonly ClassSchedule[] | null | undefined,
+): ClassSchedule[] {
+  if (!data) return [];
+
+  return [...data].sort((a, b) => {
+    const aDay = DayOfWeek.fromShortString(a.DAY_OF_WEEK);
+    const bDay = DayOfWeek.fromShortString(b.DAY_OF_WEEK);
+    const dayDiff = aDay - bDay;
+    if (dayDiff !== 0) return dayDiff;
+
+    const aStartMinutes = Number(a.START_HOURS) * 60 + Number(a.START_MINUTES);
+    const bStartMinutes = Number(b.START_HOURS) * 60 + Number(b.START_MINUTES);
+    if (aStartMinutes - bStartMinutes > 0) return 1;
+    if (aStartMinutes - bStartMinutes < 0) return -1;
+    return 0;
+  });
+}
 
 export default function CalendarScreen() {
   const [date, setDate] = useState(new Date());
@@ -17,7 +38,12 @@ export default function CalendarScreen() {
     refetch: fetchCalendar,
   } = useCalendar(date);
 
-  // TODO: whoever is on UI should change this gesture because its a bit finnicky
+  const sortedCalendarData = useMemo(
+    () => sortCalendarData(calendarData),
+    [calendarData],
+  );
+
+  // whoever is on UI should change this gesture because its a bit finnicky
   const swipeLeftGesture = Gesture.Fling()
     .direction(Directions.LEFT)
     .onStart(() => {
@@ -51,18 +77,7 @@ export default function CalendarScreen() {
       <GestureDetector gesture={Gesture.Race(swipeLeftGesture, swipeRightGesture)}>
         <View style={{ flex: 1 }} testID="courses-view">
           <Button title="Logout" onPress={() => logout()} />
-          <FlatList
-            data={calendarData}
-            renderItem={(info) => (
-              <View>
-                <Text>
-                  {info.item.SUBJECT}
-                  {info.item.CATALOG_NBR} - {info.item.CU_BUILDING}
-                  {info.item.ROOM}
-                </Text>
-              </View>
-            )}
-          />
+          <ScheduleViewer data={sortedCalendarData} date={date} setDate={setDate} />
         </View>
       </GestureDetector>
     );

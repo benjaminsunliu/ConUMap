@@ -1,0 +1,46 @@
+{
+  "polygons": [
+    [
+      {
+        "latitude": 45.4979339908601,
+        "longitude": -73.5794529416831
+      },
+      {
+        "latitude": 45.4977558408341,
+        "longitude": -73.5796196854998
+      },
+      {
+        "latitude": 45.49771868844,
+        "longitude": -73.5795438890596
+      },
+      {
+        "latitude": 45.4978913685552,
+        "longitude": -73.5793770989859
+      },
+      {
+        "latitude": 45.4979339908601,
+        "longitude": -73.5794529416831
+      }
+    ]
+  ],
+  "location": {
+    "latitude": 45.4978133,
+    "longitude": -73.5795029
+  },
+  "buildingCode": "B",
+  "buildingName": "B Annex",
+  "overview": [
+    "Built between 1890 and 1891, this annex features a limestone façade and understated ornamentation around the windows. It was once a private home and even served as a student housing co-op in the 1960s.",
+    "Concordia acquired the annex in 1969, and it now provides offices and shared spaces for student and community services."
+  ],
+  "services": [
+    {
+      "name": "Engineering and Computer Science Association",
+      "url": "https://ecaconcordia.ca/"
+    }
+  ],
+  "accessibility": [],
+  "address": "2160 Bishop St.",
+  "campus": "SGW",
+  "url": "https://www.concordia.ca/maps/buildings/b.html"
+}
