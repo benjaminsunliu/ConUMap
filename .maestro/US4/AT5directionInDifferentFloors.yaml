@@ -1,0 +1,53 @@
+appId: host.exp.exponent
+---
+- runFlow:
+    when:
+      notVisible:
+        id: "building-selection"
+    file: ../openLink.yaml
+- tapOn: "Search building"
+- inputText: "Vanier"
+- tapOn:
+    id: "end-result-VL"
+- assertVisible:
+    id: "rooms-action-button"
+- tapOn:
+    id: "rooms-action-button"
+- tapOn:
+    id: "indoor-start-room-input"
+- inputText: "VL 101.1"
+- tapOn:
+    id: "indoor-end-room-input"
+- inputText: "VL 202.1"
+- assertVisible:
+    id: "indoor-create-path-button"
+- tapOn:
+    id: "indoor-create-path-button"
+- assertVisible:
+    id: "active-outline-VL_101_1-VL_F1_hallway_waypoint_34"
+- tapOn:
+    id: "indoor-clear-end-room"
+- tapOn:
+    id: "indoor-end-room-input"
+- inputText: "VL 202.30"
+- assertVisible:
+    id: "indoor-create-path-button"
+- tapOn:
+    id: "indoor-create-path-button"
+- assertVisible:
+    id: "active-outline-VL_101_1-VL_F1_hallway_waypoint_34"
+- tapOn:
+    id: "next-button"
+- assertVisible:
+    id: "active-outline-VL_F1_hallway_waypoint_34-VL_F1_hallway_waypoint_33"
+- tapOn:
+    id: "indoor-clear-start-room"
+- tapOn:
+    id: "indoor-start-room-input"
+- inputText: "VL 101.3"
+- assertVisible:
+    id: "indoor-create-path-button"
+- tapOn:
+    id: "indoor-create-path-button"
+- assertVisible:
+    id: "active-outline-VL_101_3-VL_F1_hallway_waypoint_30"
