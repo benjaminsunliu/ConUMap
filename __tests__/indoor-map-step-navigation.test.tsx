@@ -48,10 +48,13 @@ jest.mock("@/components/map/indoor-map/indoor-room-fields", () => (props: unknow
 });
 
 jest.mock("@/components/map/indoor-map/indoor-map-settings", () => () => null);
-jest.mock("@/components/map/indoor-map/indoor-navigation-controls", () => (props: unknown) => {
-  mockIndoorNavigationControls(props);
-  return null;
-});
+jest.mock(
+  "@/components/map/indoor-map/indoor-navigation-controls",
+  () => (props: unknown) => {
+    mockIndoorNavigationControls(props);
+    return null;
+  },
+);
 
 const getLatestFloorProps = () => mockBuildingFloor.mock.calls.at(-1)?.[0] as any;
 const getLatestRoomFieldsProps = () => mockIndoorRoomFields.mock.calls.at(-1)?.[0] as any;
