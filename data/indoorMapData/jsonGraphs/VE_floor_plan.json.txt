@@ -513,7 +513,7 @@
       "label": "Men's Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Men's Bathroom"
+        "POI": "Bathroom"
       }
     },
     {
@@ -526,7 +526,7 @@
       "label": "Women's Bathroom",
       "accessible": true,
       "metadata": {
-        "POI": "Women's Bathroom"
+        "POI": "Bathroom"
       }
     },
     {
