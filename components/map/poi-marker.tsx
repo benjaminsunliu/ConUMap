@@ -63,8 +63,8 @@ export default function PoiMarker({ poi, onPress }: Readonly<PoiMarkerProps>) {
       zIndex={3}
     >
       <View
-        testID={Platform.OS === "android" ? undefined : `marker-${poi.place_id}`}
-        nativeID={Platform.OS === "android" ? undefined : `marker-${poi.place_id}`}
+        testID={`marker-${poi.place_id}`}
+        nativeID={`marker-${poi.place_id}`}
         accessible
         accessibilityRole="button"
         accessibilityLabel={`${poi.name}`}
