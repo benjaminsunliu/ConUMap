@@ -47,6 +47,11 @@ export const Colors = {
       clusterMarker: "#200003",
       clusterText: white,
       navigationPathColor: "#1500ff",
+      bathroomHighlightColor: "#0072B2",
+      elevatorHighlightColor: "#00f2ff",
+      stairsHighlightColor: "#2ab5bc",
+      escalatorHighlightColor: "#0055ff",
+      waterFountainHighlightColor: "#56B4E9",
     },
 
     buildingInfoPopup: {
@@ -190,6 +195,11 @@ export const Colors = {
       clusterMarker: "#330703",
       clusterText: white,
       navigationPathColor: "#216feb",
+      bathroomHighlightColor: "#0072B2",
+      elevatorHighlightColor: "#00f2ff",
+      stairsHighlightColor: "#2ab5bc",
+      escalatorHighlightColor: "#0055ff",
+      waterFountainHighlightColor: "#56B4E9",
     },
 
     buildingInfoPopup: {

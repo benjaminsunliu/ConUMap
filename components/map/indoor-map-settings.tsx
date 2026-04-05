@@ -2,7 +2,7 @@ import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Switch } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Switch, Image } from "react-native";
 
 interface MapSettingsProps {
   wheelchairOnly: boolean;
@@ -11,7 +11,9 @@ interface MapSettingsProps {
   poiFilters: {
     bathrooms: boolean;
     elevators: boolean;
-    washrooms: boolean;
+    waterFountains: boolean;
+    stairs: boolean;
+    escalators: boolean;
   };
   setPoiFilters: (filters: MapSettingsProps["poiFilters"]) => void;
 }
@@ -39,17 +41,27 @@ export default function MapSettings({
     {
       key: "bathrooms",
       label: "Bathrooms",
-      icon: "water-outline",
+      iconSource: require("@/assets/icons/bathroom.png"),
     },
     {
       key: "elevators",
       label: "Elevators",
-      icon: "business-outline",
+      iconSource: require("@/assets/icons/elevator.png"),
     },
     {
-      key: "washrooms",
-      label: "Washrooms",
-      icon: "body-outline",
+      key: "waterFountains",
+      label: "Water Fountains",
+      iconSource: require("@/assets/icons/water_fountain.png"),
+    },
+    {
+      key: "stairs",
+      label: "Stairs",
+      iconSource: require("@/assets/icons/stairway.png"),
+    },
+    {
+      key: "escalators",
+      label: "Escalators",
+      iconSource: require("@/assets/icons/escalator.png"),
     },
   ];
 
@@ -99,7 +111,7 @@ export default function MapSettings({
 
             <View style={styles.divider} />
 
-            <Text style={styles.sectionTitle}> Points of Interest </Text>
+            <Text style={styles.sectionTitle}>Highlight Points of Interest </Text>
 
             {pois.map((item) => (
               <TouchableOpacity
@@ -107,10 +119,14 @@ export default function MapSettings({
                 style={styles.checkboxRow}
                 onPress={() => togglePOI(item.key as keyof typeof poiFilters)}
               >
-                <Ionicons
-                  name={item.icon as any}
-                  size={18}
-                  color={theme.mapSettings.icon}
+                <Image
+                  source={item.iconSource}
+                  style={[
+                    styles.poiIcon,
+                    item.key === "elevators" ? styles.elevatorPoiIcon : null,
+                  ]}
+                  resizeMode="contain"
+                  testID={`poi-settings-icon-${item.key}`}
                 />
 
                 <Text style={styles.label}> {item.label} </Text>
@@ -208,5 +224,16 @@ const makeStyles = (theme: typeof Colors.light | typeof Colors.dark) =>
       height: 1,
       backgroundColor: theme.mapSettings.divider,
       marginVertical: 8,
+    },
+
+    poiIcon: {
+      width: 18,
+      height: 18,
+    },
+
+    elevatorPoiIcon: {
+      width: 26,
+      height: 26,
+      marginLeft: -6,
     },
   });

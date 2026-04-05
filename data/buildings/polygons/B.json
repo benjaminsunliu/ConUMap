@@ -2,30 +2,30 @@
   "polygons": [
     [
       {
-        "latitude": 45.4979631908601,
-        "longitude": -73.5795371416831
+        "latitude": 45.4979339908601,
+        "longitude": -73.5794529416831
       },
       {
-        "latitude": 45.4977850408341,
-        "longitude": -73.5797038854998
+        "latitude": 45.4977558408341,
+        "longitude": -73.5796196854998
       },
       {
-        "latitude": 45.49774788844,
-        "longitude": -73.5796280890596
+        "latitude": 45.49771868844,
+        "longitude": -73.5795438890596
       },
       {
-        "latitude": 45.4979205685552,
-        "longitude": -73.5794612989859
+        "latitude": 45.4978913685552,
+        "longitude": -73.5793770989859
       },
       {
-        "latitude": 45.4979631908601,
-        "longitude": -73.5795371416831
+        "latitude": 45.4979339908601,
+        "longitude": -73.5794529416831
       }
     ]
   ],
   "location": {
-    "latitude": 45.4978425,
-    "longitude": -73.5795871
+    "latitude": 45.4978133,
+    "longitude": -73.5795029
   },
   "buildingCode": "B",
   "buildingName": "B Annex",

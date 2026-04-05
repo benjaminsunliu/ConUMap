@@ -122,12 +122,13 @@ describe("poi-marker", () => {
     ({ types, expectedIcon, expectedColor }) => {
       const poi = makePoi(types);
       const { getByTestId } = render(<PoiMarker poi={poi} />);
+      const markerTestId = `marker-${poi.place_id}`;
 
       const icon = getByTestId("poi-icon");
       expect(icon.props.name).toBe(expectedIcon);
       expect(icon.props.color).toBe(PoiMarkerColors.icon);
 
-      const markerBody = getByTestId("poi-marker-body");
+      const markerBody = getByTestId(markerTestId);
       expect(markerBody.props.style).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ width: 24, height: 24 }),
@@ -140,11 +141,12 @@ describe("poi-marker", () => {
   it("prefers the cafe marker when a POI is tagged as both cafe and restaurant", () => {
     const poi = makePoi(["restaurant", "cafe", "food"]);
     const { getByTestId } = render(<PoiMarker poi={poi} />);
+    const markerTestId = `marker-${poi.place_id}`;
 
     const icon = getByTestId("poi-icon");
     expect(icon.props.name).toBe("cafe");
 
-    const markerBody = getByTestId("poi-marker-body");
+    const markerBody = getByTestId(markerTestId);
     expect(markerBody.props.style).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ width: 24, height: 24 }),
