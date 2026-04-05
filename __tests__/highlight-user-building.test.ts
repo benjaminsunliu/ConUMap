@@ -27,8 +27,8 @@ describe("isPointInPolygon (Is the point (the user in the app context) in the po
   it("should return true when a coordinate is inside the B Annex building polygon", () => {
     // This coordinate is confirmed to be within the B Annex building boundaries
     const insideLocation: Coordinate = {
-      latitude: 45.497854,
-      longitude: -73.579582,
+      latitude: 45.497825,
+      longitude: -73.5794984,
     };
 
     const result = isPointInPolygon(insideLocation, bAnnexPolygon);

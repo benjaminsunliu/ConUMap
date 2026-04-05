@@ -2,46 +2,46 @@
   "polygons": [
     [
       {
-        "latitude": 45.4978841227901,
-        "longitude": -73.5793852899212
+        "latitude": 45.4978549227901,
+        "longitude": -73.5793010899212
       },
       {
-        "latitude": 45.4976269522658,
-        "longitude": -73.579634998021
+        "latitude": 45.4975977522658,
+        "longitude": -73.579550798021
       },
       {
-        "latitude": 45.49759701502,
-        "longitude": -73.5795710952769
+        "latitude": 45.49756781502,
+        "longitude": -73.5794868952769
       },
       {
-        "latitude": 45.4976856390671,
-        "longitude": -73.5794871715002
+        "latitude": 45.4976564390671,
+        "longitude": -73.5794029715002
       },
       {
-        "latitude": 45.4976965292006,
-        "longitude": -73.579509979305
+        "latitude": 45.4976673292006,
+        "longitude": -73.579425779305
       },
       {
-        "latitude": 45.4977721255837,
-        "longitude": -73.5794388447476
+        "latitude": 45.4977429255837,
+        "longitude": -73.5793546447476
       },
       {
-        "latitude": 45.4977542839333,
-        "longitude": -73.5794009222431
+        "latitude": 45.4977250839333,
+        "longitude": -73.5793167222431
       },
       {
-        "latitude": 45.4978489907935,
-        "longitude": -73.5793121854624
+        "latitude": 45.4978197907935,
+        "longitude": -73.5792279854624
       },
       {
-        "latitude": 45.4978841227901,
-        "longitude": -73.5793852899212
+        "latitude": 45.4978549227901,
+        "longitude": -73.5793010899212
       }
     ]
   ],
   "location": {
-    "latitude": 45.4977463,
-    "longitude": -73.5794727
+    "latitude": 45.4977171,
+    "longitude": -73.5793885
   },
   "buildingCode": "D",
   "buildingName": "D Annex",
