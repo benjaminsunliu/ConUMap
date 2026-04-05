@@ -155,8 +155,10 @@ describe("IndoorMap step-driven navigation", () => {
       expect(controlsProps.mode).toBe("step");
       expect(controlsProps.currentStep).toBe(1);
       expect(controlsProps.totalSteps).toBe(2);
-      expect(controlsProps.canGoPrevious).toBe(false);
-      expect(controlsProps.canGoNext).toBe(true);
+      expect(controlsProps.previousCommand.canExecute).toBe(false);
+      expect(controlsProps.previousCommand.label).toBe("Prev Step");
+      expect(controlsProps.nextCommand.canExecute).toBe(true);
+      expect(controlsProps.nextCommand.label).toBe("Next Step");
       expect(controlsProps.stepInstruction).toContain("Start");
     });
   });
@@ -455,7 +457,7 @@ describe("IndoorMap step-driven navigation", () => {
 
     await act(async () => {
       const controlsProps = mockIndoorNavigationControls.mock.calls.at(-1)?.[0] as any;
-      controlsProps.onNext();
+      controlsProps.nextCommand.execute();
     });
 
     await waitFor(() => {
@@ -468,7 +470,7 @@ describe("IndoorMap step-driven navigation", () => {
 
     await act(async () => {
       const controlsProps = mockIndoorNavigationControls.mock.calls.at(-1)?.[0] as any;
-      controlsProps.onNext();
+      controlsProps.nextCommand.execute();
     });
 
     await waitFor(() => {
@@ -481,7 +483,7 @@ describe("IndoorMap step-driven navigation", () => {
 
     await act(async () => {
       const controlsProps = mockIndoorNavigationControls.mock.calls.at(-1)?.[0] as any;
-      controlsProps.onPrevious();
+      controlsProps.previousCommand.execute();
     });
 
     await waitFor(() => {
@@ -563,18 +565,18 @@ describe("IndoorMap step-driven navigation", () => {
 
     await waitFor(() => {
       const controlsProps = mockIndoorNavigationControls.mock.calls.at(-1)?.[0] as any;
-      expect(controlsProps.canGoNext).toBe(true);
+      expect(controlsProps.nextCommand.canExecute).toBe(true);
     });
 
     await act(async () => {
       const controlsProps = mockIndoorNavigationControls.mock.calls.at(-1)?.[0] as any;
-      controlsProps.onNext();
+      controlsProps.nextCommand.execute();
     });
 
     await waitFor(() => {
       const controlsProps = mockIndoorNavigationControls.mock.calls.at(-1)?.[0] as any;
       expect(controlsProps.currentStep).toBe(2);
-      expect(controlsProps.canGoNext).toBe(true);
+      expect(controlsProps.nextCommand.canExecute).toBe(true);
       expect(controlsProps.stepInstruction).toContain(
         "Continue to the outdoor route on the next step.",
       );
@@ -582,7 +584,7 @@ describe("IndoorMap step-driven navigation", () => {
 
     await act(async () => {
       const controlsProps = mockIndoorNavigationControls.mock.calls.at(-1)?.[0] as any;
-      controlsProps.onNext();
+      controlsProps.nextCommand.execute();
     });
 
     expect(router.back).toHaveBeenCalled();
@@ -1084,28 +1086,30 @@ describe("IndoorMap step-driven navigation", () => {
     render(<IndoorMap />);
 
     expect(getLatestControlProps().mode).toBe("floor");
+    expect(getLatestControlProps().previousCommand.label).toBe("Prev Floor");
+    expect(getLatestControlProps().nextCommand.label).toBe("Next Floor");
     expect(getLatestFloorProps().floor).toBe(1);
 
     await act(async () => {
-      getLatestControlProps().onNext();
+      getLatestControlProps().nextCommand.execute();
     });
 
     await waitFor(() => {
       expect(getLatestFloorProps().floor).toBe(2);
-      expect(getLatestControlProps().canGoPrevious).toBe(true);
+      expect(getLatestControlProps().previousCommand.canExecute).toBe(true);
     });
 
     await act(async () => {
-      getLatestControlProps().onNext();
+      getLatestControlProps().nextCommand.execute();
     });
 
     await waitFor(() => {
       expect(getLatestFloorProps().floor).toBe(3);
-      expect(getLatestControlProps().canGoNext).toBe(false);
+      expect(getLatestControlProps().nextCommand.canExecute).toBe(false);
     });
 
     await act(async () => {
-      getLatestControlProps().onPrevious();
+      getLatestControlProps().previousCommand.execute();
     });
 
     await waitFor(() => {
