@@ -15,8 +15,8 @@ interface MarkerFactory {
 }
 
 class DefaultMarkerFactory implements MarkerFactory {
-  private creators: Record<string, CreatorFunc> = {};
-  private icons: Record<string, string> = {};
+  private readonly creators: Record<string, CreatorFunc> = {};
+  private readonly icons: Record<string, string> = {};
 
   // Call the associated POI creator or return a generic circle
   public createMarker: CreatorFunc = (checkpoint, filters, theme) => {
@@ -37,7 +37,7 @@ class DefaultMarkerFactory implements MarkerFactory {
     );
   };
 
-  private bathroomCreator: CreatorFunc = (checkpoint, filters, theme) => (
+  private readonly bathroomCreator: CreatorFunc = (checkpoint, filters, theme) => (
     <DefaultPoiMarker
       shouldHighlight={filters.bathrooms}
       iconUri={this.icons.bathroom}
@@ -57,7 +57,7 @@ class DefaultMarkerFactory implements MarkerFactory {
     />
   );
 
-  private waterFountainCreator: CreatorFunc = (checkpoint, filters, theme) => (
+  private readonly waterFountainCreator: CreatorFunc = (checkpoint, filters, theme) => (
     <DefaultPoiMarker
       shouldHighlight={filters.waterFountains}
       iconUri={this.icons.waterFountain}
@@ -77,7 +77,7 @@ class DefaultMarkerFactory implements MarkerFactory {
     />
   );
 
-  private elevatorCreator: CreatorFunc = (checkpoint, filters, theme) => (
+  private readonly elevatorCreator: CreatorFunc = (checkpoint, filters, theme) => (
     <DefaultPoiMarker
       shouldHighlight={filters.elevators}
       iconUri={this.icons.elevator}
@@ -97,7 +97,7 @@ class DefaultMarkerFactory implements MarkerFactory {
     />
   );
 
-  private stairCreator: CreatorFunc = (checkpoint, filters, theme) => (
+  private readonly stairCreator: CreatorFunc = (checkpoint, filters, theme) => (
     <DefaultPoiMarker
       shouldHighlight={filters.stairs}
       iconUri={this.icons.stair}
@@ -117,7 +117,7 @@ class DefaultMarkerFactory implements MarkerFactory {
     />
   );
 
-  private escalatorCreator: CreatorFunc = (checkpoint, filters, theme) => (
+  private readonly escalatorCreator: CreatorFunc = (checkpoint, filters, theme) => (
     <DefaultPoiMarker
       shouldHighlight={filters.escalators}
       iconUri={this.icons.escalator}

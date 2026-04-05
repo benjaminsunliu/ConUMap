@@ -32,7 +32,7 @@ export default function DefaultPoiMarker({
   highlightHeight,
   highlightRx,
   highlightTestID,
-}: DefaultPoiMarkerProps) {
+}: Readonly<DefaultPoiMarkerProps>) {
   return (
     <>
       {shouldHighlight ? (
