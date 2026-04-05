@@ -21,6 +21,10 @@ appId: host.exp.exponent
 - tapOn: "SGW"
 - tapOn:
     id: "marker-ChIJU3alcmoayUwRHw9ZVSUzjzc"
+- swipe:
+    start: 45%, 74%
+    end: 45%, 40%
+    duration: 800
 - assertVisible:
     text: "Directions"
 - tapOn:
