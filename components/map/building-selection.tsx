@@ -123,10 +123,10 @@ function syncFocusedSelection({
 
 function getSearchResultLabel(item: SearchBuilding) {
   if (item.isIndoorRoom && item.parentBuildingCode) {
-    return `${item.parentBuildingCode} G�� ${item.roomName ?? item.buildingName}`;
+    return `${item.parentBuildingCode} – ${item.roomName ?? item.buildingName}`;
   }
 
-  return `${item.buildingCode} G�� ${item.buildingName}`;
+  return `${item.buildingCode} – ${item.buildingName}`;
 }
 
 export default function BuildingSelection({
@@ -375,9 +375,7 @@ export default function BuildingSelection({
               onPress={() => clearField(type)}
               style={styles.clearButton}
             >
-              <Text style={{ color: theme.buildingSelection.clearButton, fontSize: 18 }}>
-                +�
-              </Text>
+              <Ionicons name="close-circle" size={18} color={theme.buildingSelection.clearButton} />
             </TouchableOpacity>
           )}
         </View>
@@ -445,10 +443,10 @@ export default function BuildingSelection({
                   ]}
                 >
                   {isSentinel ? (
-                    "=��� Current Location"
+                    "• Current Location"
                   ) : (
                     <>
-                      {isCurrent && "=��� "}
+                      {isCurrent && "• "}
                       {resultLabel}
                       {isCurrent && (
                         <Text style={styles.currentLabel}> (Current Building)</Text>

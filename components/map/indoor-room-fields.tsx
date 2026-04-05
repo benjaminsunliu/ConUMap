@@ -332,6 +332,7 @@ const makeStyles = (theme: typeof Colors.light | typeof Colors.dark) =>
     },
     field: {
       flex: 1,
+      minWidth: 0,
       flexDirection: "row",
       alignItems: "center",
       gap: 6,
@@ -343,6 +344,8 @@ const makeStyles = (theme: typeof Colors.light | typeof Colors.dark) =>
     },
     input: {
       flex: 1,
+      flexShrink: 1,
+      minWidth: 0,
       color: theme.buildingSelection.inputText,
       fontSize: 12,
       fontWeight: "500",

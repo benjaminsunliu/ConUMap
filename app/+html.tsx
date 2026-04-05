@@ -10,23 +10,35 @@ export default function Root({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
-        <meta charSet="utf-8" />
-        <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function (m, a, z, e) {
+              var s, t, u, v;
+              try {
+                t = m.sessionStorage.getItem('maze-us');
+              } catch (err) {}
+              if (!t) {
+                t = new Date().getTime();
+                try {
+                  m.sessionStorage.setItem('maze-us', t);
+                } catch (err) {}
+              }
+              u = document.currentScript || (function () {
+                var w = document.getElementsByTagName('script');
+                return w[w.length - 1];
+              })();
+              v = u && u.nonce;
+              s = a.createElement('script');
+              s.src = z + '?apiKey=' + e;
+              s.async = true;
+              if (v) s.setAttribute('nonce', v);
+              a.getElementsByTagName('head')[0].appendChild(s);
+              m.mazeUniversalSnippetApiKey = e;
+            })(window, document, 'https://snippet.maze.co/maze-universal-loader.js', '506db8ca-0170-4634-9863-2cd86df960ba');`,
+          }}
         />
 
-        {/*
-          Disable body scrolling on web. This makes ScrollView components work closer to how they do on native.
-          However, body scrolling is often nice to have for mobile web. If you want to enable it, remove this line.
-        */}
         <ScrollViewStyleReset />
-
-        <script
-          async
-          src="https://t.contentsquare.net/uxa/9b6a7dccd541b.js"
-        ></script>
       </head>
       <body>{children}</body>
     </html>
