@@ -1,32 +1,19 @@
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { IndoorNavigationControlsState } from "@/utils/indoorNavigationCommands";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
-interface IndoorNavigationControlsProps {
-  onNext: () => void;
-  onPrevious: () => void;
-  currentFloor: number;
-  canGoNext?: boolean;
-  canGoPrevious?: boolean;
-  mode?: "floor" | "step";
-  currentStep?: number;
-  totalSteps?: number;
-  stepInstruction?: string;
-}
-
 export default function IndoorNavigationControls({
-  onNext,
-  onPrevious,
+  nextCommand,
+  previousCommand,
   currentFloor,
-  canGoNext = true,
-  canGoPrevious = true,
   mode = "floor",
   currentStep = 1,
   totalSteps = 1,
   stepInstruction,
-}: Readonly<IndoorNavigationControlsProps>) {
+}: Readonly<IndoorNavigationControlsState>) {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
   const styles = makeStyles(theme);
@@ -42,12 +29,12 @@ export default function IndoorNavigationControls({
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        style={[styles.sideButton, !canGoPrevious && styles.disabled]}
-        onPress={onPrevious}
-        disabled={!canGoPrevious}
+        style={[styles.sideButton, !previousCommand.canExecute && styles.disabled]}
+        onPress={previousCommand.execute}
+        disabled={!previousCommand.canExecute}
       >
         <Ionicons name="arrow-back" size={18} color={theme.mapSettings.fabIcon} />
-        <Text style={styles.sideText}>{isStepMode ? "Prev Step" : "Prev Floor"}</Text>
+        <Text style={styles.sideText}>{previousCommand.label}</Text>
       </TouchableOpacity>
 
       <View style={styles.centerCard}>
@@ -60,11 +47,11 @@ export default function IndoorNavigationControls({
       </View>
 
       <TouchableOpacity
-        style={[styles.sideButton, !canGoNext && styles.disabled]}
-        onPress={onNext}
-        disabled={!canGoNext}
+        style={[styles.sideButton, !nextCommand.canExecute && styles.disabled]}
+        onPress={nextCommand.execute}
+        disabled={!nextCommand.canExecute}
       >
-        <Text style={styles.sideText}>{isStepMode ? "Next Step" : "Next Floor"}</Text>
+        <Text style={styles.sideText}>{nextCommand.label}</Text>
         <Ionicons name="arrow-forward" size={18} color={theme.mapSettings.fabIcon} />
       </TouchableOpacity>
     </View>
