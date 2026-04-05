@@ -91,8 +91,8 @@ export default function IndoorMap() {
   const availableFloors: number[] = useMemo(() => {
     return floorInfo?.images
       ? Object.keys(floorInfo.images)
-        .map(Number)
-        .sort((a, b) => a - b)
+          .map(Number)
+          .sort((a, b) => a - b)
       : [];
   }, [floorInfo]);
 
@@ -705,9 +705,7 @@ export default function IndoorMap() {
             poiFilters={poiFilters}
             setPoiFilters={setPoiFilters}
           />
-          <IndoorNavigationControls
-            {...navigationControls}
-          />
+          <IndoorNavigationControls {...navigationControls} />
           <BuildingFloor
             info={floorInfo}
             poiFilters={poiFilters}
