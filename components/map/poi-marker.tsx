@@ -2,7 +2,7 @@ import { POI } from "@/types/mapTypes";
 import { PoiMarkerColors } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { Platform, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Marker } from "react-native-maps";
 
 type PoiMarkerVisual = {
