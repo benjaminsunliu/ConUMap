@@ -32,7 +32,6 @@ export default function BuildingFloor({
   const theme = Colors[colorScheme];
   const navigationPathColor = theme.map.navigationPathColor;
   const activeStepOutlineColor = theme.map.currentSelectedBuildingColor;
-  const viewContainerRef = useRef(null);
 
   const imageSize = useMemo(() => {
     const imageInfo = Image.resolveAssetSource(info.images[floor]);
@@ -42,9 +41,6 @@ export default function BuildingFloor({
   }, [info.images, floor]);
 
   const nodes = useMemo(() => {
-    if (!viewContainerRef) {
-      return null;
-    }
     return Object.values(info.graphData.checkpoints)
       .filter((floorCheckpoint) => {
         return floorCheckpoint.floor === floor;
@@ -78,7 +74,7 @@ export default function BuildingFloor({
   ]);
 
   return (
-    <View style={styles.container} ref={viewContainerRef}>
+    <View style={styles.container}>
       <Image source={info.images[floor]} style={styles.image} resizeMode="contain" />
       <Svg style={styles.svg} viewBox={`0 0 ${imageSize.width} ${imageSize.height}`}>
         {nodes}

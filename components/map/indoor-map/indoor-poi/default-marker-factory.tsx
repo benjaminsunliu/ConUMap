@@ -3,12 +3,13 @@ import DefaultPoiMarker from "./default-poi-marker";
 import { Image } from "react-native";
 import { Colors } from "@/constants/theme";
 import { Circle } from "react-native-svg";
+import { type ReactElement } from "react";
 
 type CreatorFunc = (
   checkpoint: FloorCheckpoint,
   filters: PoiFilters,
   colorScheme: (typeof Colors)["light"],
-) => React.ReactElement;
+) => ReactElement;
 
 interface MarkerFactory {
   createMarker: CreatorFunc;
