@@ -5,13 +5,18 @@ import { useContext } from "react";
 
 export function useCalendar(date: Date) {
   const authContext = useContext(AuthContext);
+  const authToken = authContext.isLoggedIn ? authContext.data.authToken : null;
+
   return useQuery({
-    queryKey: ["fetching-calendar", date],
+    queryKey: ["fetching-calendar", authToken, date.toISOString()],
     queryFn: async () => {
       if (!authContext.isLoggedIn) {
         throw new Error("User is not logged in");
       }
       const response = await fetchCalendarForDate(authContext.data.authToken, date);
+      if (response.errorMessage) {
+        throw new Error(response.errorMessage);
+      }
       return response.scheduleList || null;
     },
     enabled: false,
@@ -67,5 +72,6 @@ export type ClassSchedule = {
 
 type CalendarResponse = {
   status: string;
+  errorMessage?: string;
   scheduleList?: ClassSchedule[];
 };

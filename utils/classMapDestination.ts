@@ -33,7 +33,6 @@ export async function buildClassMapNavigationParams(classInfo: ClassLocationFiel
   const buildingId = classInfo.CU_BLDG.trim().toUpperCase();
   const params: Record<string, string> = {
     buildingId,
-    autoNavigate: "true",
   };
 
   const destinationRoom = await resolveSupportedClassRoom(classInfo);
@@ -42,4 +41,12 @@ export async function buildClassMapNavigationParams(classInfo: ClassLocationFiel
   }
 
   return params;
+}
+
+export async function buildClassDirectionsNavigationParams(classInfo: ClassLocationFields) {
+  const params = await buildClassMapNavigationParams(classInfo);
+  return {
+    ...params,
+    autoNavigate: "true",
+  };
 }

@@ -1,4 +1,4 @@
-import { Image, StyleSheet, View } from "react-native";
+import { Image, Platform, StyleSheet, View } from "react-native";
 
 interface TabHeaderProps {
   backgroundColor: string;
@@ -19,9 +19,11 @@ export default function TabHeader({
 const styles = StyleSheet.create({
   header: {
     alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: Platform.OS === "web" ? 10 : 0,
   },
   logo: {
-    width: 120,
-    height: 35,
+    width: Platform.OS === "web" ? 136 : 120,
+    height: Platform.OS === "web" ? 42 : 35,
   },
 });

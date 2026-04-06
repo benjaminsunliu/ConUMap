@@ -1,11 +1,12 @@
 import React from "react";
-import { fireEvent, render } from "@testing-library/react-native";
+import { fireEvent, render, waitFor } from "@testing-library/react-native";
 
 import ClassDetailPopup from "../components/schedule/class-detail-popup";
 import type { ClassSchedule } from "@/hooks/use-calendar";
 import { Colors } from "@/constants/theme";
 
 const mockNavigate = jest.fn();
+const mockBuildClassMapNavigationParams = jest.fn();
 const mockWithTiming = jest.fn((toValue, _config, callback) => {
   if (callback) callback(true);
   return toValue;
@@ -39,6 +40,11 @@ jest.mock("expo-router", () => ({
   },
 }));
 
+jest.mock("@/utils/classMapDestination", () => ({
+  buildClassMapNavigationParams: (...args: unknown[]) =>
+    mockBuildClassMapNavigationParams(...args),
+}));
+
 jest.mock("@/hooks/use-color-scheme", () => ({
   useColorScheme: () => "light",
 }));
@@ -69,6 +75,11 @@ const MOCK_CLASS: ClassSchedule = {
 describe("ClassDetailPopup", () => {
   beforeEach(() => {
     mockNavigate.mockClear();
+    mockBuildClassMapNavigationParams.mockReset();
+    mockBuildClassMapNavigationParams.mockResolvedValue({
+      buildingId: "EV",
+      destinationRoom: "EV 2.260",
+    });
     mockWithTiming.mockClear();
     mockScheduleOnRN.mockClear();
   });
@@ -136,7 +147,7 @@ describe("ClassDetailPopup", () => {
     expect(mockScheduleOnRN).toHaveBeenCalledTimes(1);
   });
 
-  it("closes popup and navigates to map when View in Map is pressed", () => {
+  it("closes popup and navigates to the room-aware map popup when View in Map is pressed", async () => {
     const onClose = jest.fn();
 
     const screen = render(
@@ -150,9 +161,15 @@ describe("ClassDetailPopup", () => {
     fireEvent.press(screen.getByText("View in Map"));
 
     expect(onClose).toHaveBeenCalledTimes(1);
-    expect(mockNavigate).toHaveBeenCalledWith({
-      pathname: "/",
-      params: { buildingId: "EV" },
+    await waitFor(() => {
+      expect(mockBuildClassMapNavigationParams).toHaveBeenCalledWith(MOCK_CLASS);
+      expect(mockNavigate).toHaveBeenCalledWith({
+        pathname: "/",
+        params: {
+          buildingId: "EV",
+          destinationRoom: "EV 2.260",
+        },
+      });
     });
     expect(onClose.mock.invocationCallOrder[0]).toBeLessThan(
       mockNavigate.mock.invocationCallOrder[0],

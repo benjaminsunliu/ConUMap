@@ -1,5 +1,6 @@
 import { CAMPUS_BUILDINGS } from "@/constants/map";
 import { Colors } from "@/constants/theme";
+import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
 import { IndoorMapSettings } from "@/globals/IndoorMapSettingsStore";
 import { OutdoorRouteStep, OutdoorStepResume } from "@/globals/OutdoorStepResumeStore";
 import { ColorSchemeName, useColorScheme } from "@/hooks/use-color-scheme";
@@ -14,8 +15,9 @@ import {
   resolveSearchSelectionBuildingCode,
 } from "@/utils/hybridNavigation";
 import { normalizeSearchToken } from "@/utils/roomSearch";
+import { buildIndoorRoomRouteFromSelections } from "@/utils/roomSelectionNavigation";
 import * as LocationPermissions from "expo-location";
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -249,6 +251,11 @@ export default function MapViewer({
 }: Props) {
   const colorScheme = useColorScheme();
   const mapColors = Colors[colorScheme].map;
+  const { buildingId, autoNavigate, destinationRoom } = useLocalSearchParams<{
+    buildingId?: string;
+    autoNavigate?: string;
+    destinationRoom?: string;
+  }>();
 
   const mapViewRef = useRef<MapRefLike | null>(null);
   const leafletMapRef = useRef<LeafletMap | null>(null);
@@ -315,6 +322,7 @@ export default function MapViewer({
     coord: null,
     label: "",
   });
+  const lastManualStartSelectionRef = useRef<SearchBuilding | null>(null);
 
   const showStartHint =
     navigationMode === "directions" && navCoords.end != null && navCoords.start == null;
@@ -331,6 +339,24 @@ export default function MapViewer({
       longitude: mid.longitude,
       latitudeDelta: 0.005,
       longitudeDelta: 0.005,
+    });
+  }, []);
+
+  const clearRouteInfo = useCallback(() => {
+    activeIndoorStepSessionRef.current = null;
+    lastDestinationRef.current = { coord: null, label: "" };
+    setNavigationMode("browse");
+    setShouldDisplayRoutes(false);
+    setRoutes({ ...EMPTY_ROUTES });
+    setRoutePolyline(null);
+    setRouteStops([]);
+    setRouteNodes([]);
+    setNavCoords({ start: null, end: null });
+    setSelectionOverrides({ start: null, end: null });
+    setSelectedSearchLocations({ start: null, end: null });
+
+    requestAnimationFrame(() => {
+      suppressNextMapPress.current = false;
     });
   }, []);
 
@@ -489,6 +515,10 @@ export default function MapViewer({
       return;
     }
 
+    if (!NavigationLoader.buildingHasNavigationData(selectedBuilding.buildingCode)) {
+      return;
+    }
+
     if (Platform.OS === "web" && typeof document !== "undefined") {
       (document.activeElement as HTMLElement | null)?.blur();
     }
@@ -522,6 +552,95 @@ export default function MapViewer({
     setSelectedBuilding(nextBuilding);
     return nextBuilding;
   }, []);
+
+  useEffect(() => {
+    if (!buildingId) {
+      return;
+    }
+
+    const nextBuilding = selectBuildingByCode(buildingId);
+    if (nextBuilding) {
+      focusBuilding(nextBuilding);
+
+      const trimmedDestinationRoom = destinationRoom?.trim() ?? "";
+      const destinationSelection: SearchBuilding | null = trimmedDestinationRoom
+        ? {
+            buildingCode: trimmedDestinationRoom,
+            buildingName: trimmedDestinationRoom,
+            address: nextBuilding.address,
+            campus: nextBuilding.campus,
+            parentBuildingCode: nextBuilding.buildingCode,
+            roomName: trimmedDestinationRoom,
+            isIndoorRoom: true,
+          }
+        : null;
+
+      if (autoNavigate === "true") {
+        const destinationLabel =
+          destinationSelection?.roomName ?? nextBuilding.buildingName;
+
+        let startCoord: Coordinate | null = null;
+        let startLabel: string | null = null;
+
+        if (lastManualStartRef.current.coord && lastManualStartRef.current.label) {
+          startCoord = lastManualStartRef.current.coord;
+          startLabel = lastManualStartRef.current.label;
+        } else if (inBuildingCodes.size > 0) {
+          const firstCode = [...inBuildingCodes][0];
+          const startBuilding = CAMPUS_BUILDINGS.find(
+            (building) => building.buildingCode === firstCode,
+          );
+          startLabel = startBuilding?.buildingName ?? firstCode;
+          startCoord = startBuilding?.location ?? userLocation ?? null;
+        } else if (userLocation) {
+          startLabel = "Current Location";
+          startCoord = userLocation;
+        } else if (lastStartRef.current.coord && lastStartRef.current.label) {
+          startLabel = lastStartRef.current.label;
+          startCoord = lastStartRef.current.coord;
+        }
+
+        if (startCoord && startLabel) {
+          lastStartRef.current = { coord: startCoord, label: startLabel };
+        }
+
+        setSelectionOverrides({
+          start: startLabel,
+          end: destinationLabel,
+        });
+        lastDestinationRef.current = {
+          coord: nextBuilding.location,
+          label: destinationLabel,
+        };
+        userClearedStart.current = false;
+        setSelectedSearchLocations({ start: null, end: destinationSelection });
+        setNavCoords({ start: startCoord, end: nextBuilding.location });
+        setNavigationMode("directions");
+        setShouldDisplayRoutes(true);
+      } else {
+        clearRouteInfo();
+        if (destinationSelection) {
+          setSelectedSearchLocations({ start: null, end: destinationSelection });
+        }
+      }
+    }
+
+    router.setParams({
+      buildingId: "",
+      buildingName: "",
+      autoNavigate: "",
+      destinationRoom: "",
+    });
+  }, [
+    buildingId,
+    autoNavigate,
+    destinationRoom,
+    selectBuildingByCode,
+    focusBuilding,
+    clearRouteInfo,
+    inBuildingCodes,
+    userLocation,
+  ]);
 
   const handleBuildingPress = useCallback(
     (building: BuildingInfo) => {
@@ -599,6 +718,8 @@ export default function MapViewer({
     const destinationLabel = isRoomDestination
       ? (selectedEndSearch.roomName ?? selectedEndSearch.buildingName)
       : selectedBuilding.buildingName;
+    const startSelection =
+      lastManualStartSelectionRef.current ?? selectedSearchLocations.start ?? null;
 
     let startCoord: Coordinate | null = null;
     let startLabel: string | null = null;
@@ -635,11 +756,20 @@ export default function MapViewer({
       label: destinationLabel,
     };
     userClearedStart.current = false;
-    setSelectedSearchLocations({ start: null, end: isRoomDestination ? selectedEndSearch : null });
+    setSelectedSearchLocations({
+      start: startSelection,
+      end: isRoomDestination ? selectedEndSearch : null,
+    });
     setNavCoords({ start: startCoord, end: mapBuilding.location });
     setNavigationMode("directions");
     setShouldDisplayRoutes(true);
-  }, [selectedBuilding, selectedSearchLocations.end, inBuildingCodes, userLocation]);
+  }, [
+    selectedBuilding,
+    selectedSearchLocations.end,
+    selectedSearchLocations.start,
+    inBuildingCodes,
+    userLocation,
+  ]);
 
   const setBuildingAsStart = useCallback(() => {
     if (!selectedBuilding) {
@@ -684,6 +814,7 @@ export default function MapViewer({
       coord: mapBuilding.location,
       label: startLabel,
     };
+    lastManualStartSelectionRef.current = startSelection;
     if (shouldClearDestination) {
       lastDestinationRef.current = { coord: null, label: "" };
     }
@@ -709,22 +840,37 @@ export default function MapViewer({
     setRouteNodes([]);
   }, []);
 
-  const handleSwapFields = useCallback(() => {
-    const currentStart = navCoords.start;
-    const currentEnd = navCoords.end;
-
-    setNavCoords({ start: currentEnd, end: currentStart });
-    setSelectionOverrides((prev) => ({ start: prev.end, end: prev.start }));
-    setRoutePolyline(null);
-    setRouteStops([]);
-    setRouteNodes([]);
-  }, [navCoords.start, navCoords.end]);
-
   const clearRouteRendering = useCallback(() => {
     setRoutePolyline(null);
     setRouteStops([]);
     setRouteNodes([]);
   }, []);
+
+  const openIndoorNavigationFromRoomSelections = useCallback(
+    (selections: Record<FieldType, SearchBuilding | null>) => {
+      const indoorRouteParams = buildIndoorRoomRouteFromSelections(
+        selections,
+        CAMPUS_BUILDINGS,
+      );
+      if (!indoorRouteParams) {
+        return false;
+      }
+
+      if (!NavigationLoader.buildingHasNavigationData(indoorRouteParams.buildingCode)) {
+        return false;
+      }
+
+      userClearedStart.current = false;
+      selectBuildingByCode(indoorRouteParams.buildingCode);
+      clearRouteInfo();
+      router.push({
+        pathname: "/[buildingCode]",
+        params: indoorRouteParams,
+      } as any);
+      return true;
+    },
+    [clearRouteInfo, selectBuildingByCode],
+  );
 
   const getSelectedBuildingCode = useCallback(
     (selected: SearchBuilding | null | undefined) => {
@@ -754,13 +900,19 @@ export default function MapViewer({
     [getSelectedBuildingCode, userLocation],
   );
 
-  const handleStartSelection = useCallback((coord: Coordinate | null, label: string) => {
-    userClearedStart.current = !coord;
-    if (coord) {
-      lastStartRef.current = { coord, label };
-      lastManualStartRef.current = { coord, label };
-    }
-  }, []);
+  const handleStartSelection = useCallback(
+    (coord: Coordinate | null, label: string, selection: SearchBuilding | null) => {
+      userClearedStart.current = !coord;
+      if (coord) {
+        lastStartRef.current = { coord, label };
+        lastManualStartRef.current = { coord, label };
+        lastManualStartSelectionRef.current = selection;
+      } else {
+        lastManualStartSelectionRef.current = null;
+      }
+    },
+    [],
+  );
 
   const handleEndSelection = useCallback(
     (selected: SearchBuilding | null, coord: Coordinate | null) => {
@@ -780,6 +932,71 @@ export default function MapViewer({
     },
     [focusBuilding, getSelectedBuildingCode, selectBuildingByCode],
   );
+
+  const handleSwapFields = useCallback(() => {
+    const currentStart = navCoords.start;
+    const currentEnd = navCoords.end;
+    const currentStartSelection = selectedSearchLocations.start;
+    const currentEndSelection = selectedSearchLocations.end;
+    const currentStartLabel = selectionOverrides.start;
+    const currentEndLabel = selectionOverrides.end;
+    const swappedSelections = {
+      start: currentEndSelection,
+      end: currentStartSelection,
+    };
+
+    if (openIndoorNavigationFromRoomSelections(swappedSelections)) {
+      return;
+    }
+
+    setRoutes({ ...EMPTY_ROUTES });
+    setShouldDisplayRoutes(false);
+
+    if (currentEnd && currentEndLabel) {
+      lastStartRef.current = { coord: currentEnd, label: currentEndLabel };
+      lastManualStartRef.current = { coord: currentEnd, label: currentEndLabel };
+    } else {
+      lastManualStartRef.current = { coord: null, label: "" };
+    }
+    lastManualStartSelectionRef.current = currentEndSelection;
+    userClearedStart.current = !currentEnd;
+
+    if (currentStart && currentStartLabel) {
+      lastDestinationRef.current = { coord: currentStart, label: currentStartLabel };
+    } else {
+      lastDestinationRef.current = { coord: null, label: "" };
+    }
+
+    const swappedEndBuildingCode = getSelectedBuildingCode(swappedSelections.end);
+    if (swappedEndBuildingCode) {
+      const nextBuilding = selectBuildingByCode(swappedEndBuildingCode);
+      if (nextBuilding) {
+        focusBuilding(nextBuilding);
+      }
+    } else {
+      setSelectedBuilding(null);
+    }
+
+    setNavCoords({ start: currentEnd, end: currentStart });
+    setSelectedSearchLocations(swappedSelections);
+    setSelectionOverrides({
+      start: currentEndLabel,
+      end: currentStartLabel,
+    });
+    clearRouteRendering();
+  }, [
+    clearRouteRendering,
+    focusBuilding,
+    getSelectedBuildingCode,
+    navCoords.end,
+    navCoords.start,
+    openIndoorNavigationFromRoomSelections,
+    selectBuildingByCode,
+    selectedSearchLocations.end,
+    selectedSearchLocations.start,
+    selectionOverrides.end,
+    selectionOverrides.start,
+  ]);
 
   const selectedRoomContext = useMemo(() => {
     if (!selectedBuilding) {
@@ -861,6 +1078,16 @@ export default function MapViewer({
         ) => {
           suppressMapPressOnce();
           const selected = buildings[type];
+          const nextSelections = {
+            ...selectedSearchLocations,
+            [type]: selected,
+          };
+          if (
+            navigationMode === "directions" &&
+            openIndoorNavigationFromRoomSelections(nextSelections)
+          ) {
+            return;
+          }
           const coord = resolveSelectionCoordinate(selected);
 
           setSelectedSearchLocations((prev) => ({
@@ -875,7 +1102,7 @@ export default function MapViewer({
           }));
 
           if (type === "start") {
-            handleStartSelection(coord, selected?.buildingName ?? "");
+            handleStartSelection(coord, selected?.buildingName ?? "", selected);
           }
 
           if (!coord) {
@@ -1122,8 +1349,10 @@ export default function MapViewer({
                 ? OutdoorStepResume.saveContinuation(outdoorResumeStep)
                 : null;
 
-              let indoorRoute: { pathname: string; params: Record<string, string> } | null =
-                null;
+              let indoorRoute: {
+                pathname: string;
+                params: Record<string, string>;
+              } | null = null;
               if (
                 indoorDetails?.building_code &&
                 indoorDetails?.start_checkpoint_id &&

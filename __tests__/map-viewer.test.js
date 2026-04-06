@@ -1970,11 +1970,14 @@ describe("map tab", () => {
       fireEvent.press(mapViewer.getByTestId("walking-step-0"));
     });
 
-    expect(router.push).toHaveBeenCalledWith(
-      expect.stringContaining(
-        "/H?indoorStartCheckpointId=H_F2_building_entry_exit_15&indoorEndRoom=H110",
-      ),
-    );
+    expect(router.push).toHaveBeenCalledWith({
+      pathname: "/[buildingCode]",
+      params: {
+        buildingCode: "H",
+        indoorStartCheckpointId: "H_F2_building_entry_exit_15",
+        indoorEndRoom: "H110",
+      },
+    });
   });
 
   it("opens indoor map with room and destination entry checkpoint when an indoor step is pressed", async () => {
@@ -2051,11 +2054,14 @@ describe("map tab", () => {
       fireEvent.press(mapViewer.getByTestId("walking-step-0"));
     });
 
-    expect(router.push).toHaveBeenCalledWith(
-      expect.stringContaining(
-        "/H?indoorStartRoom=H110&indoorEndCheckpointId=H_F2_building_entry_exit_15",
-      ),
-    );
+    expect(router.push).toHaveBeenCalledWith({
+      pathname: "/[buildingCode]",
+      params: {
+        buildingCode: "H",
+        indoorStartRoom: "H110",
+        indoorEndCheckpointId: "H_F2_building_entry_exit_15",
+      },
+    });
   });
 
   it("stores the next outdoor step when opening an indoor-to-outdoor segment", async () => {
@@ -2136,9 +2142,15 @@ describe("map tab", () => {
     });
 
     const pushedPath = router.push.mock.calls.at(-1)?.[0];
-    expect(pushedPath).toEqual(
-      expect.stringContaining("resumeContinuationId=outdoor-step-0"),
-    );
+    expect(pushedPath).toEqual({
+      pathname: "/[buildingCode]",
+      params: {
+        buildingCode: "H",
+        indoorStartRoom: "H110",
+        indoorEndCheckpointId: "H_F2_building_entry_exit_15",
+        resumeContinuationId: "outdoor-step-0",
+      },
+    });
     expect(OutdoorStepResume.getContinuation("outdoor-step-0")).toEqual({
       encodedPolyline: "outdoor-step-polyline",
       travelMode: "WALK",
@@ -2227,9 +2239,15 @@ describe("map tab", () => {
       fireEvent.press(mapViewer.getByTestId("shuttle-step-0"));
     });
 
-    expect(router.push).toHaveBeenCalledWith(
-      expect.stringContaining("resumeContinuationId=outdoor-step-0"),
-    );
+    expect(router.push).toHaveBeenCalledWith({
+      pathname: "/[buildingCode]",
+      params: {
+        buildingCode: "H",
+        indoorStartRoom: "H110",
+        indoorEndCheckpointId: "H_F2_building_entry_exit_15",
+        resumeContinuationId: "outdoor-step-0",
+      },
+    });
     expect(OutdoorStepResume.getContinuation("outdoor-step-0")).toEqual({
       encodedPolyline: "outdoor-shuttle-step-polyline",
       travelMode: "SHUTTLE",
@@ -3446,9 +3464,14 @@ describe("map tab", () => {
         });
 
         await waitFor(() => {
-          expect(router.push).toHaveBeenCalledWith(
-            expect.stringContaining("/VE?indoorStartRoom=VE101&indoorEndRoom=VE102"),
-          );
+          expect(router.push).toHaveBeenCalledWith({
+            pathname: "/[buildingCode]",
+            params: {
+              buildingCode: "VE",
+              indoorStartRoom: "VE101",
+              indoorEndRoom: "VE102",
+            },
+          });
         });
         expect(fetchAllDirections.mock.calls.length).toBe(fetchCallsBeforeEndSelection);
       } finally {
@@ -3558,9 +3581,14 @@ describe("map tab", () => {
         });
 
         await waitFor(() => {
-          expect(router.push).toHaveBeenCalledWith(
-            expect.stringContaining("/VE?indoorStartRoom=VE101&indoorEndRoom=VE102"),
-          );
+          expect(router.push).toHaveBeenCalledWith({
+            pathname: "/[buildingCode]",
+            params: {
+              buildingCode: "VE",
+              indoorStartRoom: "VE101",
+              indoorEndRoom: "VE102",
+            },
+          });
         });
 
         await waitFor(() => {
@@ -3586,9 +3614,14 @@ describe("map tab", () => {
         });
 
         await waitFor(() => {
-          expect(router.push).toHaveBeenCalledWith(
-            expect.stringContaining("/VE?indoorStartRoom=VE201&indoorEndRoom=VE202"),
-          );
+          expect(router.push).toHaveBeenCalledWith({
+            pathname: "/[buildingCode]",
+            params: {
+              buildingCode: "VE",
+              indoorStartRoom: "VE201",
+              indoorEndRoom: "VE202",
+            },
+          });
         });
         expect(router.push).toHaveBeenCalledTimes(2);
       } finally {

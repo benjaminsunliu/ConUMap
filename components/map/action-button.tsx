@@ -23,6 +23,8 @@ export function ActionButton({
 }: Readonly<ActionButtonProps>) {
   return (
     <TouchableOpacity
+      accessibilityState={{ disabled: !active }}
+      disabled={!active}
       style={[
         {
           flexDirection: "row",

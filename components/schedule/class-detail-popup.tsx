@@ -12,6 +12,7 @@ import { scheduleOnRN } from "react-native-worklets";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 import { ClassSchedule } from "@/hooks/use-calendar";
+import { buildClassMapNavigationParams } from "@/utils/classMapDestination";
 
 interface ClassDetailPopupProps {
   classInfo: ClassSchedule;
@@ -48,11 +49,12 @@ export default function ClassDetailPopup({
   const courseKey = `${classInfo.SUBJECT}-${classInfo.CATALOG_NBR}`;
   const color = colorMap.get(courseKey) ?? theme.classDetailPopup.courseNotInColorMap;
 
-  function handleLocateOnMap() {
+  async function handleLocateOnMap() {
     onClose();
+    const params = await buildClassMapNavigationParams(classInfo);
     router.navigate({
       pathname: "/",
-      params: { buildingId: classInfo.CU_BLDG },
+      params,
     });
   }
 
@@ -146,7 +148,9 @@ export default function ClassDetailPopup({
               </View>
             </View>
             <Pressable
-              onPress={handleLocateOnMap}
+              onPress={() => {
+                void handleLocateOnMap();
+              }}
               style={({ pressed }) => [
                 styles.mapButton,
                 {

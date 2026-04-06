@@ -7,21 +7,23 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import Feather from "@expo/vector-icons/Feather";
 import { Tabs } from "expo-router";
 import React from "react";
+import { Platform } from "react-native";
 
 export const unstable_settings = {
   initialRouteName: "(map)",
 };
 
 function MapTabIcon({ color }: { readonly color: string }) {
-  return <Feather name="map" size={24} color={color} />;
+  return <Feather name="map" size={Platform.OS === "web" ? 27 : 24} color={color} />;
 }
 
 function CalendarTabIcon({ color }: { readonly color: string }) {
-  return <Feather name="calendar" size={24} color={color} />;
+  return <Feather name="calendar" size={Platform.OS === "web" ? 27 : 24} color={color} />;
 }
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const isWeb = Platform.OS === "web";
   const logos = {
     light: lightIcon,
     dark: darkIcon,
@@ -35,8 +37,12 @@ export default function TabLayout() {
       screenOptions={{
         headerStyle: {
           backgroundColor: Colors[colorScheme].background,
+          height: isWeb ? 82 : undefined,
         },
         headerTitleAlign: "center",
+        headerTitleContainerStyle: {
+          paddingVertical: isWeb ? 8 : 0,
+        },
         tabBarButton: HapticTab,
         tabBarActiveTintColor: Colors[colorScheme].tint,
         tabBarInactiveTintColor: Colors[colorScheme].text,
@@ -44,6 +50,13 @@ export default function TabLayout() {
           backgroundColor: Colors[colorScheme].background,
           borderTopWidth: 0,
           elevation: 5,
+          height: isWeb ? 76 : undefined,
+          paddingTop: isWeb ? 8 : undefined,
+          paddingBottom: isWeb ? 10 : undefined,
+        },
+        tabBarLabelStyle: {
+          fontSize: isWeb ? 15 : 12,
+          paddingBottom: isWeb ? 2 : 0,
         },
         headerTitle: () => (
           <TabHeader

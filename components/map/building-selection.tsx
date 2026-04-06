@@ -14,6 +14,9 @@ import {
   Text,
   StyleSheet,
   Platform,
+  useWindowDimensions,
+  type StyleProp,
+  type ViewStyle,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -50,6 +53,8 @@ const getSelectionDisplayLabel = (selection: SearchBuilding) => {
 
 type UpdateQuery = (type: FieldType, value: string) => void;
 type SetSelectedBuildings = Dispatch<SetStateAction<SearchInput>>;
+
+const isWeb = Platform.OS === "web";
 
 function shouldPreserveRoomSelection(
   currentSelection: SearchBuilding | null | undefined,
@@ -143,6 +148,9 @@ export default function BuildingSelection({
 }: Props) {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
+  const { width: windowWidth } = useWindowDimensions();
+  const shouldUseHorizontalWebDirectionsLayout =
+    isWeb && mode === "directions" && windowWidth >= 1100;
 
   const { queries, updateQuery, swapQueries, results } = useBuildingSearch({
     currentBuildingCodes,
@@ -187,15 +195,18 @@ export default function BuildingSelection({
     [clearBlurTimeout],
   );
 
-  const removeInputFocus = useCallback((type: FieldType) => {
-    clearBlurTimeout();
-    if (type === "start") {
-      startInputRef.current?.blur();
-    } else {
-      endInputRef.current?.blur();
-    }
-    setFocusedField(null);
-  }, [clearBlurTimeout]);
+  const removeInputFocus = useCallback(
+    (type: FieldType) => {
+      clearBlurTimeout();
+      if (type === "start") {
+        startInputRef.current?.blur();
+      } else {
+        endInputRef.current?.blur();
+      }
+      setFocusedField(null);
+    },
+    [clearBlurTimeout],
+  );
 
   useEffect(() => {
     return () => {
@@ -318,7 +329,13 @@ export default function BuildingSelection({
   }, [focusedField, onFocusChange]);
 
   const renderInput = useCallback(
-    (type: FieldType, placeholder: string) => {
+    (
+      type: FieldType,
+      placeholder: string,
+      options?: {
+        inputWrapperStyle?: StyleProp<ViewStyle>;
+      },
+    ) => {
       const value = queries[type] || "";
       const hasMagnifier = mode === "browse";
 
@@ -327,12 +344,13 @@ export default function BuildingSelection({
           style={[
             { backgroundColor: theme.buildingSelection.inputBackground },
             styles.inputWrapper,
+            options?.inputWrapperStyle,
           ]}
         >
           {hasMagnifier && (
             <Ionicons
               name="search"
-              size={18}
+              size={isWeb ? 21 : 18}
               color={theme.buildingSelection.magnifierColor}
               style={styles.magnifierIcon}
             />
@@ -365,6 +383,7 @@ export default function BuildingSelection({
                 backgroundColor: theme.buildingSelection.inputBackground,
                 borderColor: theme.buildingSelection.borderColor,
                 color: theme.buildingSelection.inputText,
+                fontSize: isWeb ? 18 : 16,
                 paddingLeft: hasMagnifier ? 0 : 8,
               },
             ]}
@@ -375,7 +394,11 @@ export default function BuildingSelection({
               onPress={() => clearField(type)}
               style={styles.clearButton}
             >
-              <Ionicons name="close-circle" size={18} color={theme.buildingSelection.clearButton} />
+              <Ionicons
+                name="close-circle"
+                size={isWeb ? 20 : 18}
+                color={theme.buildingSelection.clearButton}
+              />
             </TouchableOpacity>
           )}
         </View>
@@ -488,9 +511,16 @@ export default function BuildingSelection({
             style={[
               { backgroundColor: theme.buildingSelection.containerBackground },
               styles.directionContainer,
+              shouldUseHorizontalWebDirectionsLayout &&
+                styles.directionContainerHorizontal,
             ]}
           >
-            <View style={styles.icons}>
+            <View
+              style={[
+                styles.icons,
+                shouldUseHorizontalWebDirectionsLayout && styles.iconsHorizontal,
+              ]}
+            >
               <Ionicons
                 name="ellipse-outline"
                 size={15}
@@ -508,32 +538,89 @@ export default function BuildingSelection({
               />
               <Ionicons name="pin" size={24} color={theme.buildingSelection.swapButton} />
             </View>
-            <View>
-              {renderInput("start", "Your location")}
-              {!!startHint && (
-                <Text
-                  style={[
-                    styles.startHint,
-                    { color: theme.buildingSelection.resultTitle },
-                  ]}
-                  testID="start-hint"
-                >
-                  {startHint}
-                </Text>
-              )}
-              {renderInput("end", "Destination")}
-            </View>
-            <TouchableOpacity
-              testID="swap-fields"
-              onPress={swapFields}
-              style={styles.swapButton}
+            <View
+              style={[
+                styles.directionFields,
+                shouldUseHorizontalWebDirectionsLayout &&
+                  styles.directionFieldsHorizontal,
+              ]}
             >
-              <Ionicons
-                name="swap-vertical"
-                size={24}
-                color={theme.buildingSelection.swapButton}
-              />
-            </TouchableOpacity>
+              <View
+                style={[
+                  styles.directionFieldGroup,
+                  shouldUseHorizontalWebDirectionsLayout &&
+                    styles.directionFieldGroupHorizontal,
+                ]}
+              >
+                {renderInput(
+                  "start",
+                  "Your location",
+                  shouldUseHorizontalWebDirectionsLayout
+                    ? { inputWrapperStyle: styles.inputWrapperHorizontal }
+                    : undefined,
+                )}
+                {shouldUseHorizontalWebDirectionsLayout ? (
+                  <View style={styles.hintSlotHorizontal}>
+                    {!!startHint && (
+                      <Text
+                        style={[
+                          styles.startHint,
+                          styles.startHintHorizontal,
+                          { color: theme.buildingSelection.resultTitle },
+                        ]}
+                        testID="start-hint"
+                      >
+                        {startHint}
+                      </Text>
+                    )}
+                  </View>
+                ) : (
+                  !!startHint && (
+                    <Text
+                      style={[
+                        styles.startHint,
+                        { color: theme.buildingSelection.resultTitle },
+                      ]}
+                      testID="start-hint"
+                    >
+                      {startHint}
+                    </Text>
+                  )
+                )}
+              </View>
+              <TouchableOpacity
+                testID="swap-fields"
+                onPress={swapFields}
+                style={[
+                  styles.swapButton,
+                  shouldUseHorizontalWebDirectionsLayout && styles.swapButtonHorizontal,
+                ]}
+              >
+                <Ionicons
+                  name="swap-vertical"
+                  size={24}
+                  color={theme.buildingSelection.swapButton}
+                />
+              </TouchableOpacity>
+              <View
+                style={[
+                  styles.directionFieldGroup,
+                  shouldUseHorizontalWebDirectionsLayout &&
+                    styles.directionFieldGroupHorizontal,
+                ]}
+              >
+                {renderInput(
+                  "end",
+                  "Destination",
+                  shouldUseHorizontalWebDirectionsLayout
+                    ? { inputWrapperStyle: styles.inputWrapperHorizontal }
+                    : undefined,
+                )}
+                {shouldUseHorizontalWebDirectionsLayout ? (
+                  <View style={styles.hintSlotHorizontal} />
+                ) : null}
+              </View>
+            </View>
           </View>
         )}
       </View>
@@ -552,14 +639,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   directionContainer: {
-    borderRadius: 16,
+    borderRadius: isWeb ? 18 : 16,
     flexDirection: "row",
     width: "95%",
     paddingRight: 40,
     paddingLeft: 10,
-    paddingBottom: 10,
+    paddingBottom: isWeb ? 10 : 10,
     borderWidth: 1.5,
-    marginTop: 10,
+    marginTop: isWeb ? 12 : 10,
+  },
+  directionContainerHorizontal: {
+    alignItems: "center",
+    paddingRight: 18,
+    paddingLeft: 14,
+    paddingTop: 6,
+    paddingBottom: 8,
   },
   buildingSelectionContainer: {
     position: "absolute",
@@ -575,21 +669,42 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flex: 1,
     marginHorizontal: 4,
-    marginTop: 10,
+    marginTop: isWeb ? 12 : 10,
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderRadius: 16,
+    borderRadius: isWeb ? 18 : 16,
     maxWidth: "95%",
     overflow: "hidden",
     paddingRight: "8%",
-    minHeight: Platform.OS === "ios" ? 38 : undefined,
-    paddingVertical: Platform.OS === "ios" ? 4 : 0,
+    minHeight: isWeb ? 44 : Platform.OS === "ios" ? 38 : undefined,
+    paddingVertical: isWeb ? 4 : Platform.OS === "ios" ? 4 : 0,
+  },
+  inputWrapperHorizontal: {
+    maxWidth: "100%",
+    marginTop: 0,
+    marginHorizontal: 0,
   },
   input: {
     paddingRight: "10%",
     width: "100%",
     textAlign: "left",
+    minHeight: isWeb ? 44 : undefined,
+  },
+  directionFields: {
+    flex: 1,
+  },
+  directionFieldsHorizontal: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  directionFieldGroup: {
+    flexShrink: 1,
+  },
+  directionFieldGroupHorizontal: {
+    flex: 1,
+    minWidth: 0,
+    paddingTop: 8,
   },
   clearButton: {
     position: "absolute",
@@ -604,6 +719,12 @@ const styles = StyleSheet.create({
     paddingLeft: "0%",
     marginLeft: "0%",
   },
+  swapButtonHorizontal: {
+    paddingHorizontal: 14,
+    paddingRight: 14,
+    alignSelf: "center",
+    marginTop: 4,
+  },
   results: {
     maxHeight: 180,
     borderRadius: 8,
@@ -611,25 +732,39 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   resultItem: {
-    padding: 8,
+    padding: isWeb ? 10 : 8,
     borderBottomWidth: 1,
   },
   resultTitle: {
     fontWeight: "600",
+    fontSize: isWeb ? 15 : 14,
   },
   resultAddress: {
-    fontSize: 12,
+    fontSize: isWeb ? 13 : 12,
   },
   currentLabel: {
     fontSize: 11,
   },
   startHint: {
-    fontSize: 12,
+    fontSize: isWeb ? 13 : 12,
     marginLeft: 6,
     marginBottom: 2,
   },
+  startHintHorizontal: {
+    marginLeft: 2,
+    marginTop: 2,
+    marginBottom: 0,
+  },
+  hintSlotHorizontal: {
+    minHeight: 20,
+    justifyContent: "flex-start",
+  },
   magnifierIcon: {
+    marginRight: isWeb ? 12 : 10,
+    marginLeft: isWeb ? 12 : 10,
+  },
+  iconsHorizontal: {
+    paddingTop: 0,
     marginRight: 10,
-    marginLeft: 10,
   },
 });

@@ -3,6 +3,7 @@ import BuildingInfoPopup from "../components/map/building-info-popup";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react-native";
 import { CAMPUS_BUILDINGS } from "../constants/map";
 import { Linking } from "react-native";
+import { NavigationLoader } from "../globals/IndoorNavigationLoader";
 
 const mockBuilding = CAMPUS_BUILDINGS[22]; // Hall Building
 
@@ -30,6 +31,11 @@ jest.spyOn(Linking, "openURL").mockImplementation(jest.fn());
 jest.spyOn(Linking, "canOpenURL").mockResolvedValue(true);
 
 describe("building-info-popup", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.spyOn(NavigationLoader, "buildingHasNavigationData").mockReturnValue(true);
+  });
+
   it("renders nothing if building is null", () => {
     const { queryByTestId } = render(<BuildingInfoPopup building={null} />);
     expect(queryByTestId("building-info-popup")).toBeNull();
@@ -111,6 +117,26 @@ describe("building-info-popup", () => {
     });
 
     expect(mockOnExploreRooms).toHaveBeenCalled();
+  });
+
+  it('disables "Explore Rooms" when the building has no indoor map data', async () => {
+    jest.spyOn(NavigationLoader, "buildingHasNavigationData").mockReturnValue(false);
+
+    render(
+      <BuildingInfoPopup
+        building={mockBuilding}
+        onNavigate={mockOnNavigate}
+        onExploreRooms={mockOnExploreRooms}
+      />,
+    );
+
+    const roomsButton = screen.getByTestId("rooms-action-button");
+
+    await act(async () => {
+      await fireEvent.press(roomsButton);
+    });
+
+    expect(mockOnExploreRooms).not.toHaveBeenCalled();
   });
 
   it('opens the correct link when "Website" is pressed', async () => {

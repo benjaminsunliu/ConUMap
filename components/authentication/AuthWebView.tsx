@@ -1,4 +1,5 @@
 import { LoggedInData } from "@/types/authTypes";
+import { buildLoggedInDataFromCookieString } from "@/utils/authCookies";
 import { useRef } from "react";
 import { WebView, WebViewMessageEvent, WebViewNavigation } from "react-native-webview";
 
@@ -17,7 +18,7 @@ export default function AuthWebView({ onLogin }: Readonly<AuthWebViewProps>) {
       // because the implementation doesn't load it the first time
       return;
     }
-    const data = parseCookies(cookieString);
+    const data = buildLoggedInDataFromCookieString(cookieString);
     visitedAuthScreen.current = false;
     onLogin(data);
   };
@@ -51,39 +52,6 @@ export default function AuthWebView({ onLogin }: Readonly<AuthWebViewProps>) {
       onShouldStartLoadWithRequest={handleShouldStartLoad}
     />
   );
-}
-
-function parseCookies(cookieString: string) {
-  const cookies: Record<string, string | undefined> = {};
-
-  cookieString.split(";").forEach((cookieSetting) => {
-    const values = cookieSetting.trim().split("=");
-    const cookieValue = values.at(-1);
-    const cookieName = values.at(0);
-    if (!cookieName || !cookieValue) {
-      console.warn("Couldn't parse a cookie");
-      return;
-    }
-    cookies[cookieName] = cookieValue;
-  });
-
-  const givenName = cookies["Given-Name"];
-  const surname = cookies["Surname"];
-  const token = cookies["SSO-Token"];
-  if (!givenName || !surname || !token) {
-    console.error({
-      givenName: !!givenName,
-      surname: !!surname,
-      token: !!token,
-    });
-    throw new Error("Couldn't parse the cookies. Something went wrong");
-  }
-  const loggedInData: LoggedInData = {
-    authToken: token,
-    firstName: givenName,
-    lastNameInitial: surname,
-  };
-  return loggedInData;
 }
 
 const authenticationURL = "https://hub.concordia.ca/app-sso.html?app=true";

@@ -1,4 +1,5 @@
 import { Colors } from "@/constants/theme";
+import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
 import { BuildingInfo } from "@/types/mapTypes";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback, useMemo } from "react";
@@ -58,6 +59,9 @@ export default function BuildingInfoPopup({
   const styles = makeStyles(theme);
 
   const todayIdx = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+  const hasIndoorNavigation = !!building?.buildingCode
+    ? NavigationLoader.buildingHasNavigationData(building.buildingCode)
+    : false;
 
   const openWebsiteURL = useCallback(async () => {
     if (!building?.url) {
@@ -84,6 +88,7 @@ export default function BuildingInfoPopup({
         label: roomContext ? "Open Indoor Map" : "Explore Rooms",
         icon: "business-outline",
         type: "rooms",
+        active: hasIndoorNavigation,
         handler: onExploreRooms,
       },
       {
@@ -95,6 +100,7 @@ export default function BuildingInfoPopup({
     ],
     [
       roomContext,
+      hasIndoorNavigation,
       onNavigate,
       onSetAsStart,
       openWebsiteURL,
