@@ -45,7 +45,6 @@ export default function AuthWebView({ onLogin }: Readonly<AuthWebViewProps>) {
           styles.card,
           {
             backgroundColor: theme.scheduleHeader.backgroundColor,
-            shadowColor: theme.scheduleHeader.shadowColor,
             borderColor: theme.buildingInfoPopup.divider,
           },
         ]}
@@ -196,9 +195,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     padding: 24,
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.12,
-    shadowRadius: 24,
+    boxShadow: "0px 12px 24px rgba(0, 0, 0, 0.12)",
     elevation: 6,
   },
   title: {

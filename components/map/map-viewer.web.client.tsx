@@ -20,13 +20,14 @@ import { normalizeSearchToken } from "@/utils/roomSearch";
 import { buildIndoorRoomRouteFromSelections } from "@/utils/roomSelectionNavigation";
 import * as LocationPermissions from "expo-location";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
-import { Map as LeafletMap } from "leaflet";
+import { Map as LeafletMap, divIcon } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import {
   CircleMarker,
   MapContainer,
+  Marker as LeafletMarker,
   Polygon as LeafletPolygon,
   Polyline as LeafletPolyline,
   TileLayer,
@@ -82,6 +83,7 @@ const WebTileLayer = TileLayer as any;
 const WebLeafletPolygon = LeafletPolygon as any;
 const WebLeafletPolyline = LeafletPolyline as any;
 const WebCircleMarker = CircleMarker as any;
+const WebLeafletMarker = (LeafletMarker as any) || WebCircleMarker;
 const WebTooltip = Tooltip as any;
 
 interface Props {
@@ -236,14 +238,60 @@ function getPoiMarkerColor(types: string[]): string {
   if (typeSet.has("shopping_mall") || typeSet.has("store")) {
     return PoiMarkerColors.shopping;
   }
-  if (typeSet.has("supermarket")) {
+  if (typeSet.has("supermarket") || typeSet.has("grocery_store")) {
     return PoiMarkerColors.supermarket;
   }
-  if (typeSet.has("gym")) {
+  if (typeSet.has("gym") || typeSet.has("sports_club")) {
     return PoiMarkerColors.gym;
   }
 
   return PoiMarkerColors.default;
+}
+
+function getPoiMarkerGlyph(types: string[]): string {
+  const typeSet = new Set(types.map((type) => type.toLowerCase()));
+
+  if (typeSet.has("cafe")) {
+    return "\u2615";
+  }
+  if (typeSet.has("restaurant")) {
+    return "\u{1F37D}";
+  }
+  if (typeSet.has("library")) {
+    return "\u{1F4DA}";
+  }
+  if (typeSet.has("park")) {
+    return "\u{1F333}";
+  }
+  if (typeSet.has("shopping_mall") || typeSet.has("store")) {
+    return "\u{1F6CD}";
+  }
+  if (typeSet.has("supermarket") || typeSet.has("grocery_store")) {
+    return "\u{1F6D2}";
+  }
+  if (typeSet.has("gym") || typeSet.has("sports_club")) {
+    return "\u{1F3CB}";
+  }
+
+  return "\u{1F4CD}";
+}
+
+function createPoiDivIcon(types: string[], isSelected: boolean) {
+  if (typeof divIcon !== "function") {
+    return undefined;
+  }
+
+  const markerSize = isSelected ? 30 : 26;
+  const borderWidth = isSelected ? 3 : 2;
+  const markerColor = getPoiMarkerColor(types);
+  const glyph = getPoiMarkerGlyph(types);
+
+  return divIcon({
+    className: "",
+    html: `<div style="width:${markerSize}px;height:${markerSize}px;border-radius:999px;background:${markerColor};border:${borderWidth}px solid ${PoiMarkerColors.border};display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,0.22);font-size:${isSelected ? 16 : 14}px;line-height:1;color:${PoiMarkerColors.icon};user-select:none;">${glyph}</div>`,
+    iconSize: [markerSize, markerSize],
+    iconAnchor: [markerSize / 2, markerSize / 2],
+  });
 }
 
 function regionToZoom(region: Region): number {
@@ -640,9 +688,9 @@ export default function MapViewer({
       pathname: "/[buildingCode]",
       params: roomName
         ? {
-            buildingCode: selectedBuilding.buildingCode,
-            indoorEndRoom: roomName,
-          }
+          buildingCode: selectedBuilding.buildingCode,
+          indoorEndRoom: roomName,
+        }
         : { buildingCode: selectedBuilding.buildingCode },
     } as any);
   }, [selectedBuilding, selectedSearchLocations.end]);
@@ -667,14 +715,14 @@ export default function MapViewer({
       const trimmedDestinationRoom = destinationRoom?.trim() ?? "";
       const destinationSelection: SearchBuilding | null = trimmedDestinationRoom
         ? {
-            buildingCode: trimmedDestinationRoom,
-            buildingName: trimmedDestinationRoom,
-            address: nextBuilding.address,
-            campus: nextBuilding.campus,
-            parentBuildingCode: nextBuilding.buildingCode,
-            roomName: trimmedDestinationRoom,
-            isIndoorRoom: true,
-          }
+          buildingCode: trimmedDestinationRoom,
+          buildingName: trimmedDestinationRoom,
+          address: nextBuilding.address,
+          campus: nextBuilding.campus,
+          parentBuildingCode: nextBuilding.buildingCode,
+          roomName: trimmedDestinationRoom,
+          isIndoorRoom: true,
+        }
         : null;
 
       if (autoNavigate === "true") {
@@ -757,12 +805,13 @@ export default function MapViewer({
 
   const handlePOIPress = useCallback(
     (poi: POI) => {
+      suppressMapPressOnce();
       setSelectedBuilding(null);
       setSelectedPOI(poi);
       focusCoordinate(poi.geometry.location.lat, poi.geometry.location.lng);
       clearRouteInfo();
     },
-    [clearRouteInfo, focusCoordinate],
+    [clearRouteInfo, focusCoordinate, suppressMapPressOnce],
   );
 
   const requestLocation = useCallback(async () => {
@@ -1315,19 +1364,21 @@ export default function MapViewer({
           {navigationMode === "browse" &&
             filteredPlaces.map((poi) => {
               const isSelected = selectedPOI?.place_id === poi.place_id;
+              const poiIcon = createPoiDivIcon(poi.types ?? [], isSelected);
 
               return (
-                <WebCircleMarker
+                <WebLeafletMarker
                   key={`poi-${poi.place_id}`}
-                  center={[poi.geometry.location.lat, poi.geometry.location.lng]}
-                  radius={isSelected ? 10 : 8}
-                  pathOptions={{
-                    color: PoiMarkerColors.border,
-                    fillColor: getPoiMarkerColor(poi.types ?? []),
-                    fillOpacity: 0.95,
-                    weight: isSelected ? 3 : 2,
+                  position={[poi.geometry.location.lat, poi.geometry.location.lng]}
+                  icon={poiIcon}
+                  zIndexOffset={isSelected ? 1200 : 900}
+                  eventHandlers={{
+                    click: (event: any) => {
+                      event?.originalEvent?.preventDefault?.();
+                      event?.originalEvent?.stopPropagation?.();
+                      handlePOIPress(poi);
+                    },
                   }}
-                  eventHandlers={{ click: () => handlePOIPress(poi) }}
                 />
               );
             })}

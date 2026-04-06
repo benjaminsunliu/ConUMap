@@ -228,8 +228,10 @@ export default function WeeklyCalendarBody({
 
           <View style={styles.columnsContainer}>
             <View
-              style={[StyleSheet.absoluteFillObject, { height: COLUMN_TOTAL_HEIGHT }]}
-              pointerEvents="none"
+              style={[
+                StyleSheet.absoluteFillObject,
+                { height: COLUMN_TOTAL_HEIGHT, pointerEvents: "none" },
+              ]}
             >
               {HOURS.map((hour) => (
                 <View
@@ -244,13 +246,17 @@ export default function WeeklyCalendarBody({
             </View>
 
             <View
-              style={[StyleSheet.absoluteFillObject, { height: COLUMN_TOTAL_HEIGHT }]}
-              pointerEvents="none"
+              style={[
+                StyleSheet.absoluteFillObject,
+                { height: COLUMN_TOTAL_HEIGHT, pointerEvents: "none" },
+              ]}
             >
               {weekDates.some((date) => isToday(date)) && (
                 <View
-                  style={[styles.currentTimeLine, { top: currentTimeY }]}
-                  pointerEvents="none"
+                  style={[
+                    styles.currentTimeLine,
+                    { top: currentTimeY, pointerEvents: "none" },
+                  ]}
                 >
                   <View
                     style={[

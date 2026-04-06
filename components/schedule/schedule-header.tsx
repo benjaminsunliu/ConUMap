@@ -64,7 +64,14 @@ export default function ScheduleHeader({
         styles.container,
         {
           backgroundColor: theme.background,
-          shadowColor: theme.scheduleHeader.shadowColor,
+          ...(Platform.OS === "web"
+            ? { boxShadow: "0px 1px 4px rgba(0, 0, 0, 0.06)" }
+            : {
+              shadowColor: theme.scheduleHeader.shadowColor,
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.06,
+              shadowRadius: 4,
+            }),
         },
       ]}
     >
@@ -158,7 +165,14 @@ export default function ScheduleHeader({
               styles.monthMenu,
               {
                 backgroundColor: theme.scheduleHeader.monthPickerBackground,
-                shadowColor: theme.scheduleHeader.shadowColor,
+                ...(Platform.OS === "web"
+                  ? { boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.15)" }
+                  : {
+                    shadowColor: theme.scheduleHeader.shadowColor,
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.15,
+                    shadowRadius: 12,
+                  }),
               },
             ]}
           >
@@ -178,9 +192,9 @@ export default function ScheduleHeader({
                     styles.monthMenuItemText,
                     { color: theme.scheduleHeader.monthMenuText },
                     index === month &&
-                      styles.monthMenuItemTextActive && {
-                        color: theme.scheduleHeader.monthMenuTextActive,
-                      },
+                    styles.monthMenuItemTextActive && {
+                      color: theme.scheduleHeader.monthMenuTextActive,
+                    },
                   ]}
                 >
                   {name}
@@ -199,9 +213,6 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 10,
     paddingHorizontal: 16,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
     elevation: 2,
   },
   titleRow: {
@@ -289,9 +300,6 @@ const styles = StyleSheet.create({
   monthMenu: {
     borderRadius: 12,
     paddingVertical: 8,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
     elevation: 8,
   },
   monthMenuItem: {

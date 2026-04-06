@@ -1,6 +1,7 @@
 import { Campus, POI } from "@/types/mapTypes";
 import { useEffect, useMemo, useState } from "react";
 import { SGW_CENTER, LOY_CENTER, MAX_RADIUS_METERS } from "@/constants/campusCenters";
+import { Platform } from "react-native";
 
 const SEARCH_TYPES = [
   "restaurant",
@@ -15,6 +16,135 @@ const SEARCH_TYPES = [
 // Cache to store all fetched POIs per campus
 const poiCache = new Map<Campus, POI[]>();
 const fetchingPromise = new Map<Campus, Promise<POI[]>>();
+const isWebRuntime = Platform.OS === "web";
+const isBrowserRuntime = typeof window !== "undefined";
+let webPlacesApiBlocked = false;
+let hasLoggedWebPlacesApiBlocked = false;
+
+function normalizeApiKey(rawApiKey: string | undefined) {
+  return (rawApiKey ?? "").trim().replace(/^['"]|['"]$/g, "");
+}
+function normalizePlacesApiResult(place: any): POI | null {
+  const latitude = place?.location?.latitude;
+  const longitude = place?.location?.longitude;
+
+  if (typeof latitude !== "number" || typeof longitude !== "number") {
+    return null;
+  }
+
+  const placeId =
+    typeof place?.id === "string" && place.id.length > 0
+      ? place.id
+      : `${place?.displayName?.text ?? "poi"}-${latitude}-${longitude}`;
+
+  return {
+    place_id: placeId,
+    name:
+      typeof place?.displayName?.text === "string"
+        ? place.displayName.text
+        : "Unknown POI",
+    vicinity:
+      typeof place?.formattedAddress === "string" ? place.formattedAddress : undefined,
+    rating: typeof place?.rating === "number" ? place.rating : undefined,
+    user_ratings_total:
+      typeof place?.userRatingCount === "number" ? place.userRatingCount : undefined,
+    types: Array.isArray(place?.types)
+      ? place.types.filter((type: unknown): type is string => typeof type === "string")
+      : [],
+    geometry: {
+      location: {
+        lat: latitude,
+        lng: longitude,
+      },
+      viewport: {
+        northeast: {
+          lat: latitude,
+          lng: longitude,
+        },
+        southwest: {
+          lat: latitude,
+          lng: longitude,
+        },
+      },
+    },
+  };
+}
+
+async function fetchPlacesByTypeWithWebApi(
+  region: { latitude: number; longitude: number },
+  type: string,
+  signal: AbortSignal,
+  apiKey: string,
+) {
+  if (webPlacesApiBlocked) {
+    return [];
+  }
+
+  const response = await fetch(
+    `https://places.googleapis.com/v1/places:searchNearby?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: "POST",
+      signal,
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": apiKey,
+        "X-Goog-FieldMask":
+          "places.id,places.displayName,places.formattedAddress,places.location,places.types,places.rating,places.userRatingCount",
+      },
+      body: JSON.stringify({
+        includedTypes: [type],
+        locationRestriction: {
+          circle: {
+            center: {
+              latitude: region.latitude,
+              longitude: region.longitude,
+            },
+            radius: MAX_RADIUS_METERS,
+          },
+        },
+        maxResultCount: 20,
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    const responseText = await response.text().catch(() => "");
+
+    if (response.status === 403) {
+      webPlacesApiBlocked = true;
+      if (!hasLoggedWebPlacesApiBlocked) {
+        console.warn(
+          "Places API (New) request was rejected (403). Verify EXPO_PUBLIC_GOOGLE_API_KEY is valid for this app, key restrictions allow this origin, and places.googleapis.com is enabled.",
+        );
+        hasLoggedWebPlacesApiBlocked = true;
+      }
+      return [];
+    }
+
+    console.error(
+      `Failed to fetch ${type} places on web: ${response.status} ${response.statusText} ${responseText}`,
+    );
+    return [];
+  }
+
+  const data = await (response.json() as Promise<{ places?: any[] }>);
+  const requestedType = type.toLowerCase();
+
+  return (data.places ?? [])
+    .map((result) => normalizePlacesApiResult(result))
+    .filter((result): result is POI => result != null)
+    .map((result) => {
+      const normalizedTypes = new Set(
+        (result.types ?? []).map((poiType) => poiType.toLowerCase()),
+      );
+      normalizedTypes.add(requestedType);
+
+      return {
+        ...result,
+        types: [...normalizedTypes],
+      };
+    });
+}
 
 /**
  * Calculates distance between two coordinates using the Haversine formula (in meters).
@@ -51,7 +181,7 @@ export function calculateDistance(
  * @returns An array of POIs within the specified radius.
  */
 export function usePoi(campus: Campus, radius: number) {
-  const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
+  const GOOGLE_API_KEY = normalizeApiKey(process.env.EXPO_PUBLIC_GOOGLE_API_KEY);
   // cacheVersion is used to trigger a re-render when the cache is updated
   const [cacheVersion, setCacheVersion] = useState(0);
 
@@ -76,6 +206,17 @@ export function usePoi(campus: Campus, radius: number) {
     return [...uniquePOI.values()];
   };
 
+  const dedupePOIs = (places: POI[]) => {
+    const uniquePOI = new Map<string, POI>();
+    places.forEach((place) => {
+      if (place?.place_id) {
+        uniquePOI.set(place.place_id, place);
+      }
+    });
+
+    return [...uniquePOI.values()];
+  };
+
   // Fetch all POIs for a campus
   const fetchAllPOIsForCampus = async (campusToFetch: Campus, signal: AbortSignal) => {
     if (poiCache.has(campusToFetch)) {
@@ -90,26 +231,59 @@ export function usePoi(campus: Campus, radius: number) {
     const fetchPromise = (async () => {
       try {
         const region = campusToFetch === "SGW" ? SGW_CENTER : LOY_CENTER;
+        const shouldUseWebPlacesApi = isWebRuntime || isBrowserRuntime;
 
-        const requests = SEARCH_TYPES.map(async (type) => {
-          const url =
-            `https://maps.googleapis.com/maps/api/place/nearbysearch/json` +
-            `?location=${region.latitude},${region.longitude}` +
-            `&radius=${MAX_RADIUS_METERS}` +
-            `&type=${encodeURIComponent(type)}` +
-            `&key=${GOOGLE_API_KEY}`;
+        if (shouldUseWebPlacesApi && webPlacesApiBlocked) {
+          return [];
+        }
 
-          const response = await fetch(url, { signal });
-          if (!response.ok) {
-            console.error(`${type}: ${response.status} ${response.statusText}`);
+        if (!GOOGLE_API_KEY) {
+          console.warn("EXPO_PUBLIC_GOOGLE_API_KEY is missing. POIs cannot be fetched.");
+          return [];
+        }
+
+        let allPOIs: POI[] = [];
+
+        if (shouldUseWebPlacesApi) {
+          const collectedPOIs: POI[] = [];
+
+          for (const type of SEARCH_TYPES) {
+            if (signal.aborted || webPlacesApiBlocked) {
+              break;
+            }
+
+            const placesByType = await fetchPlacesByTypeWithWebApi(
+              region,
+              type,
+              signal,
+              GOOGLE_API_KEY,
+            );
+            collectedPOIs.push(...placesByType);
           }
-          const data = await (response.json() as Promise<{
-            results?: POI[];
-          }>);
-          return data.results ?? [];
-        });
 
-        const allPOIs = await handlePromises(requests);
+          allPOIs = dedupePOIs(collectedPOIs);
+        } else {
+          const requests = SEARCH_TYPES.map(async (type) => {
+            const url =
+              `https://maps.googleapis.com/maps/api/place/nearbysearch/json` +
+              `?location=${region.latitude},${region.longitude}` +
+              `&radius=${MAX_RADIUS_METERS}` +
+              `&type=${encodeURIComponent(type)}` +
+              `&key=${GOOGLE_API_KEY}`;
+
+            const response = await fetch(url, { signal });
+            if (!response.ok) {
+              console.error(`${type}: ${response.status} ${response.statusText}`);
+            }
+            const data = await (response.json() as Promise<{
+              results?: POI[];
+            }>);
+            return data.results ?? [];
+          });
+
+          allPOIs = await handlePromises(requests);
+        }
+
         poiCache.set(campusToFetch, allPOIs);
         setCacheVersion((prev) => prev + 1);
 
