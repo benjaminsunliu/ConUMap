@@ -69,6 +69,7 @@ export default function MapSettings({
     <>
       <View style={styles.container}>
         <TouchableOpacity
+          testID="SettingsButton"
           style={styles.fab}
           onPress={() => setOpen((prev) => !prev)}
           activeOpacity={0.8}
@@ -118,6 +119,7 @@ export default function MapSettings({
                 key={item.key}
                 style={styles.checkboxRow}
                 onPress={() => togglePOI(item.key as keyof typeof poiFilters)}
+                testID={`poi-settings-checkbox-${item.key}`}
               >
                 <Image
                   source={item.iconSource}

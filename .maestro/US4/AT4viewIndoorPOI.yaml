@@ -1,0 +1,45 @@
+appId: host.exp.exponent
+---
+- runFlow:
+    when:
+      notVisible:
+        id: "building-selection"
+    file: ../openLink.yaml
+- tapOn: "Search building"
+- inputText: "Vanier"
+- tapOn:
+    id: "end-result-VL"
+- assertVisible:
+    id: "rooms-action-button"
+- tapOn:
+    id: "rooms-action-button"
+- tapOn:
+    id: "SettingsButton"
+- assertVisible:
+    id: "poi-settings-checkbox-bathrooms"
+- tapOn:
+    id: "poi-settings-checkbox-bathrooms"
+- assertVisible:
+    id: "poi-settings-checkbox-stairs"
+- tapOn:
+    id: "poi-settings-checkbox-stairs"
+- tapOn:
+    point: "50%,30%"
+- assertVisible:
+    id: "bathroom-highlight-VL1_poi_1"
+- assertVisible:
+    id: "bathroom-highlight-VL1_poi_2"
+- assertVisible:
+    id: "bathroom-highlight-VL1_poi_3"
+- assertVisible:
+    id: "bathroom-highlight-VL1_poi_4"
+- assertVisible:
+    id: "stair-highlight-VL_F1_stair_landing_14"
+- assertVisible:
+    id: "stair-highlight-VL_F1_stair_landing_15"
+- assertVisible:
+    id: "stair-highlight-VL_F1_stair_landing_16"
+- assertVisible:
+    id: "stair-highlight-VL_F1_stair_landing_19"
+- assertVisible:
+    id: "stair-highlight-VL_F1_stair_landing_23"
