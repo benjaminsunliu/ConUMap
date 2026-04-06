@@ -1,11 +1,13 @@
+import { LOY_CENTER, SGW_CENTER } from "@/constants/campusCenters";
 import { CAMPUS_BUILDINGS } from "@/constants/map";
-import { Colors } from "@/constants/theme";
+import { Colors, PoiMarkerColors } from "@/constants/theme";
 import { NavigationLoader } from "@/globals/IndoorNavigationLoader";
 import { IndoorMapSettings } from "@/globals/IndoorMapSettingsStore";
 import { OutdoorRouteStep, OutdoorStepResume } from "@/globals/OutdoorStepResumeStore";
 import { ColorSchemeName, useColorScheme } from "@/hooks/use-color-scheme";
+import { usePoi } from "@/hooks/use-poi";
 import { FieldType, SearchBuilding, TransportationMode } from "@/types/buildingTypes";
-import { BuildingInfo, Coordinate, CoordinateDelta, Region } from "@/types/mapTypes";
+import { BuildingInfo, Campus, Coordinate, CoordinateDelta, POI, Region } from "@/types/mapTypes";
 import { isPointInPolygon } from "@/utils/currentBuilding/pointInPolygon";
 import { decodePolyline } from "@/utils/decodePolyline";
 import { fetchAllDirections } from "@/utils/directions";
@@ -40,6 +42,8 @@ import BuildingSelection, { CURRENT_LOCATION_CODE } from "./building-selection";
 import CampusToggle from "./campus-toggle";
 import LocationButton, { LocationButtonProps } from "./location-button";
 import LocationModal from "./location-modal";
+import OutdoorMapSettings from "./outdoor-map-settings";
+import { POIInfoPopup } from "./poi-info-popup";
 
 interface PolylineSegment {
   coordinates: Coordinate[];
@@ -62,6 +66,16 @@ interface TransitionNode {
 interface MapRefLike {
   animateToRegion: (region: Region) => void;
 }
+
+type PoiTypeFilters = {
+  restaurant: boolean;
+  cafe: boolean;
+  library: boolean;
+  gym: boolean;
+  park: boolean;
+  shopping_mall: boolean;
+  supermarket: boolean;
+};
 
 const WebMapContainer = MapContainer as any;
 const WebTileLayer = TileLayer as any;
@@ -192,6 +206,46 @@ function getPolygonColor(
   return mapColors.polygonFill;
 }
 
+function getCampusForRegion(region: Region): Campus {
+  const sgwDistance = Math.hypot(
+    region.latitude - SGW_CENTER.latitude,
+    region.longitude - SGW_CENTER.longitude,
+  );
+  const loyDistance = Math.hypot(
+    region.latitude - LOY_CENTER.latitude,
+    region.longitude - LOY_CENTER.longitude,
+  );
+  return sgwDistance <= loyDistance ? "SGW" : "LOY";
+}
+
+function getPoiMarkerColor(types: string[]): string {
+  const typeSet = new Set(types.map((type) => type.toLowerCase()));
+
+  if (typeSet.has("cafe")) {
+    return PoiMarkerColors.cafe;
+  }
+  if (typeSet.has("restaurant")) {
+    return PoiMarkerColors.restaurant;
+  }
+  if (typeSet.has("library")) {
+    return PoiMarkerColors.library;
+  }
+  if (typeSet.has("park")) {
+    return PoiMarkerColors.park;
+  }
+  if (typeSet.has("shopping_mall") || typeSet.has("store")) {
+    return PoiMarkerColors.shopping;
+  }
+  if (typeSet.has("supermarket")) {
+    return PoiMarkerColors.supermarket;
+  }
+  if (typeSet.has("gym")) {
+    return PoiMarkerColors.gym;
+  }
+
+  return PoiMarkerColors.default;
+}
+
 function regionToZoom(region: Region): number {
   const delta = Math.max(region.longitudeDelta, 0.0001);
   const zoom = Math.round(Math.log2(360 / delta));
@@ -273,8 +327,22 @@ export default function MapViewer({
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null);
   const [locationState, setLocationState] = useState<LocationButtonProps["state"]>("off");
   const [modalOpen, setModalOpen] = useState(false);
+  const [radius, setRadius] = useState(0);
+  const [searchFieldFocused, setSearchFieldFocused] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
+  const [selectedPOI, setSelectedPOI] = useState<POI | null>(null);
   const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
+  const currCampus = useMemo(() => getCampusForRegion(currentRegion), [currentRegion]);
+  const places = usePoi(currCampus, radius);
+  const [poiFilters, setPoiFilters] = useState<PoiTypeFilters>({
+    restaurant: true,
+    cafe: true,
+    library: true,
+    gym: true,
+    park: true,
+    shopping_mall: true,
+    supermarket: true,
+  });
 
   const [navigationMode, setNavigationMode] = useState<"browse" | "directions">("browse");
   const [shouldDisplayRoutes, setShouldDisplayRoutes] = useState(false);
@@ -460,6 +528,44 @@ export default function MapViewer({
     return codes;
   }, [userLocation]);
 
+  const filteredPlaces = useMemo(() => {
+    const enabledTypes = Object.entries(poiFilters)
+      .filter(([, isEnabled]) => isEnabled)
+      .map(([type]) => type);
+
+    if (enabledTypes.length === 0) {
+      return [];
+    }
+
+    return places.filter((poi) => poi.types?.some((type) => enabledTypes.includes(type)));
+  }, [places, poiFilters]);
+
+  useEffect(() => {
+    if (!selectedPOI) {
+      return;
+    }
+
+    const shouldKeepSelected = filteredPlaces.some(
+      (poi) => poi.place_id === selectedPOI.place_id,
+    );
+
+    if (!shouldKeepSelected) {
+      setSelectedPOI(null);
+    }
+  }, [filteredPlaces, selectedPOI]);
+
+  const focusCoordinate = useCallback(
+    (latitude: number, longitude: number) => {
+      mapViewRef.current?.animateToRegion({
+        latitude,
+        longitude,
+        latitudeDelta: Math.min(currentRegion.latitudeDelta, 0.0025),
+        longitudeDelta: Math.min(currentRegion.longitudeDelta, 0.0025),
+      });
+    },
+    [currentRegion.latitudeDelta, currentRegion.longitudeDelta],
+  );
+
   useEffect(() => {
     if (
       navigationMode === "directions" &&
@@ -500,14 +606,9 @@ export default function MapViewer({
 
   const focusBuilding = useCallback(
     (building: BuildingInfo) => {
-      mapViewRef.current?.animateToRegion({
-        latitude: building.location.latitude,
-        longitude: building.location.longitude,
-        latitudeDelta: Math.min(currentRegion.latitudeDelta, 0.0025),
-        longitudeDelta: Math.min(currentRegion.longitudeDelta, 0.0025),
-      });
+      focusCoordinate(building.location.latitude, building.location.longitude);
     },
-    [currentRegion.latitudeDelta, currentRegion.longitudeDelta],
+    [focusCoordinate],
   );
 
   const openIndoorNavigation = useCallback(() => {
@@ -560,6 +661,7 @@ export default function MapViewer({
 
     const nextBuilding = selectBuildingByCode(buildingId);
     if (nextBuilding) {
+      setSelectedPOI(null);
       focusBuilding(nextBuilding);
 
       const trimmedDestinationRoom = destinationRoom?.trim() ?? "";
@@ -644,22 +746,23 @@ export default function MapViewer({
 
   const handleBuildingPress = useCallback(
     (building: BuildingInfo) => {
+      setSelectedPOI(null);
       suppressNextMapPress.current = true;
       selectBuildingByCode(building.buildingCode);
       focusBuilding(building);
-      setNavigationMode("browse");
-      setShouldDisplayRoutes(false);
-      setRoutePolyline(null);
-      setRouteStops([]);
-      setRouteNodes([]);
-      setNavCoords({ start: null, end: null });
-      setSelectionOverrides({ start: null, end: null });
-
-      requestAnimationFrame(() => {
-        suppressNextMapPress.current = false;
-      });
+      clearRouteInfo();
     },
-    [selectBuildingByCode, focusBuilding],
+    [clearRouteInfo, focusBuilding, selectBuildingByCode],
+  );
+
+  const handlePOIPress = useCallback(
+    (poi: POI) => {
+      setSelectedBuilding(null);
+      setSelectedPOI(poi);
+      focusCoordinate(poi.geometry.location.lat, poi.geometry.location.lng);
+      clearRouteInfo();
+    },
+    [clearRouteInfo, focusCoordinate],
   );
 
   const requestLocation = useCallback(async () => {
@@ -695,6 +798,73 @@ export default function MapViewer({
     setLocationState("centered");
   }, [userLocation, userLocationDelta]);
 
+  const resolveStartLocation = useCallback(() => {
+    let startCoord: Coordinate | null = null;
+    let startLabel: string | null = null;
+
+    if (lastManualStartRef.current.coord && lastManualStartRef.current.label) {
+      startCoord = lastManualStartRef.current.coord;
+      startLabel = lastManualStartRef.current.label;
+    } else if (inBuildingCodes.size > 0) {
+      const firstCode = [...inBuildingCodes][0];
+      const startBuilding = CAMPUS_BUILDINGS.find(
+        (building) => building.buildingCode === firstCode,
+      );
+      startLabel = startBuilding?.buildingName ?? firstCode;
+      startCoord = startBuilding?.location ?? userLocation ?? null;
+    } else if (userLocation) {
+      startLabel = "Current Location";
+      startCoord = userLocation;
+    } else if (lastStartRef.current.coord && lastStartRef.current.label) {
+      startLabel = lastStartRef.current.label;
+      startCoord = lastStartRef.current.coord;
+    }
+
+    if (startCoord && startLabel) {
+      return { coord: startCoord, label: startLabel };
+    }
+
+    return { coord: null, label: null };
+  }, [inBuildingCodes, userLocation]);
+
+  const navigate = useCallback(
+    (
+      endLabel: string,
+      endCoord: Coordinate,
+      selectionContext?: Partial<Record<FieldType, SearchBuilding | null>>,
+    ) => {
+      const { coord: startCoord, label: startLabel } = resolveStartLocation();
+      const startSelection =
+        selectionContext?.start ??
+        lastManualStartSelectionRef.current ??
+        selectedSearchLocations.start ??
+        null;
+
+      if (startCoord && startLabel) {
+        lastStartRef.current = { coord: startCoord, label: startLabel };
+      }
+
+      setSelectionOverrides({
+        start: startLabel,
+        end: endLabel,
+      });
+
+      lastDestinationRef.current = {
+        coord: endCoord,
+        label: endLabel,
+      };
+      userClearedStart.current = false;
+      setSelectedSearchLocations({
+        start: startSelection,
+        end: selectionContext?.end ?? null,
+      });
+      setNavCoords({ start: startCoord, end: endCoord });
+      setNavigationMode("directions");
+      setShouldDisplayRoutes(true);
+    },
+    [resolveStartLocation, selectedSearchLocations.start],
+  );
+
   const navigateToBuilding = useCallback(() => {
     if (!selectedBuilding) {
       return;
@@ -718,58 +888,22 @@ export default function MapViewer({
     const destinationLabel = isRoomDestination
       ? (selectedEndSearch.roomName ?? selectedEndSearch.buildingName)
       : selectedBuilding.buildingName;
-    const startSelection =
-      lastManualStartSelectionRef.current ?? selectedSearchLocations.start ?? null;
 
-    let startCoord: Coordinate | null = null;
-    let startLabel: string | null = null;
-
-    if (lastManualStartRef.current.coord && lastManualStartRef.current.label) {
-      startCoord = lastManualStartRef.current.coord;
-      startLabel = lastManualStartRef.current.label;
-    } else if (inBuildingCodes.size > 0) {
-      const firstCode = [...inBuildingCodes][0];
-      const startBuilding = CAMPUS_BUILDINGS.find(
-        (building) => building.buildingCode === firstCode,
-      );
-      startLabel = startBuilding?.buildingName ?? firstCode;
-      startCoord = startBuilding?.location ?? userLocation ?? null;
-    } else if (userLocation) {
-      startLabel = "Current Location";
-      startCoord = userLocation;
-    } else if (lastStartRef.current.coord && lastStartRef.current.label) {
-      startLabel = lastStartRef.current.label;
-      startCoord = lastStartRef.current.coord;
-    }
-
-    if (startCoord && startLabel) {
-      lastStartRef.current = { coord: startCoord, label: startLabel };
-    }
-
-    setSelectionOverrides({
-      start: startLabel,
-      end: destinationLabel,
-    });
-
-    lastDestinationRef.current = {
-      coord: mapBuilding.location,
-      label: destinationLabel,
-    };
-    userClearedStart.current = false;
-    setSelectedSearchLocations({
-      start: startSelection,
+    navigate(destinationLabel, mapBuilding.location, {
       end: isRoomDestination ? selectedEndSearch : null,
     });
-    setNavCoords({ start: startCoord, end: mapBuilding.location });
-    setNavigationMode("directions");
-    setShouldDisplayRoutes(true);
-  }, [
-    selectedBuilding,
-    selectedSearchLocations.end,
-    selectedSearchLocations.start,
-    inBuildingCodes,
-    userLocation,
-  ]);
+  }, [navigate, selectedBuilding, selectedSearchLocations.end]);
+
+  const navigateToPOI = useCallback(() => {
+    if (!selectedPOI) {
+      return;
+    }
+
+    navigate(selectedPOI.name, {
+      latitude: selectedPOI.geometry.location.lat,
+      longitude: selectedPOI.geometry.location.lng,
+    });
+  }, [navigate, selectedPOI]);
 
   const setBuildingAsStart = useCallback(() => {
     if (!selectedBuilding) {
@@ -922,6 +1056,7 @@ export default function MapViewer({
 
       const selectedBuildingCode = getSelectedBuildingCode(selected);
       if (selectedBuildingCode) {
+        setSelectedPOI(null);
         const nextBuilding = selectBuildingByCode(selectedBuildingCode);
         if (nextBuilding) {
           focusBuilding(nextBuilding);
@@ -1017,6 +1152,11 @@ export default function MapViewer({
     };
   }, [selectedBuilding, selectedSearchLocations.end, getSelectedBuildingCode]);
 
+  const hasVisiblePopup =
+    modalOpen ||
+    navigationMode === "directions" ||
+    (navigationMode === "browse" && (selectedBuilding != null || selectedPOI != null));
+
   const onMapRegionChangeComplete = useCallback(
     (region: Region) => {
       setCurrentRegion(region);
@@ -1040,15 +1180,9 @@ export default function MapViewer({
     }
 
     setSelectedBuilding(null);
-    setNavigationMode("browse");
-    setShouldDisplayRoutes(false);
-    setRoutePolyline(null);
-    setRouteStops([]);
-    setRouteNodes([]);
-    setNavCoords({ start: null, end: null });
-    setSelectionOverrides({ start: null, end: null });
-    setSelectedSearchLocations({ start: null, end: null });
-  }, []);
+    setSelectedPOI(null);
+    clearRouteInfo();
+  }, [clearRouteInfo]);
 
   useEffect(() => {
     if (locationState !== "centered" || !userLocation || !leafletMapRef.current) {
@@ -1071,6 +1205,7 @@ export default function MapViewer({
         startOverride={selectionOverrides.start}
         endOverride={selectionOverrides.end}
         startHint={showStartHint ? "Please select a start location" : null}
+        onFocusChange={setSearchFieldFocused}
         onSwap={handleSwapFields}
         onSelect={(
           buildings: Record<FieldType, SearchBuilding | null>,
@@ -1177,6 +1312,26 @@ export default function MapViewer({
             ];
           })}
 
+          {navigationMode === "browse" &&
+            filteredPlaces.map((poi) => {
+              const isSelected = selectedPOI?.place_id === poi.place_id;
+
+              return (
+                <WebCircleMarker
+                  key={`poi-${poi.place_id}`}
+                  center={[poi.geometry.location.lat, poi.geometry.location.lng]}
+                  radius={isSelected ? 10 : 8}
+                  pathOptions={{
+                    color: PoiMarkerColors.border,
+                    fillColor: getPoiMarkerColor(poi.types ?? []),
+                    fillOpacity: 0.95,
+                    weight: isSelected ? 3 : 2,
+                  }}
+                  eventHandlers={{ click: () => handlePOIPress(poi) }}
+                />
+              );
+            })}
+
           {routePolyline?.map((segment, index) => (
             <WebLeafletPolyline
               key={`route-seg-${index}-${segment.color}`}
@@ -1281,6 +1436,15 @@ export default function MapViewer({
 
       <LocationModal visible={modalOpen} onRequestClose={() => setModalOpen(false)} />
 
+      <OutdoorMapSettings
+        radius={radius}
+        setRadius={setRadius}
+        poiFilters={poiFilters}
+        setPoiFilters={setPoiFilters}
+        hasVisiblePopup={hasVisiblePopup}
+        searchFieldFocused={searchFieldFocused}
+      />
+
       {navigationMode === "browse" && selectedBuilding && (
         <BuildingInfoPopup
           building={selectedBuilding}
@@ -1289,6 +1453,10 @@ export default function MapViewer({
           onExploreRooms={openIndoorNavigation}
           roomContext={selectedRoomContext}
         />
+      )}
+
+      {navigationMode === "browse" && selectedPOI && (
+        <POIInfoPopup poi={selectedPOI} onNavigate={navigateToPOI} />
       )}
 
       {navigationMode === "directions" && (

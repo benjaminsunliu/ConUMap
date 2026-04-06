@@ -6,10 +6,13 @@ const mockPush = jest.fn();
 const mockSetParams = jest.fn();
 const mockFetchAllDirections = jest.fn();
 const mockEnrichRoutesWithIndoorTransitions = jest.fn(async (routes) => routes);
+const mockUsePoi = jest.fn(() => []);
 
 let latestBuildingSelectionProps: any;
 let latestBuildingInfoPopupProps: any;
 let latestRoutesInfoPopupProps: any;
+let latestOutdoorMapSettingsProps: any;
+let latestPoiInfoPopupProps: any;
 
 jest.mock("@/hooks/use-color-scheme", () => ({
   useColorScheme: () => "light",
@@ -100,7 +103,7 @@ jest.mock("@/constants/map", () => ({
 }));
 
 jest.mock("@/hooks/use-poi", () => ({
-  usePoi: () => [],
+  usePoi: (...args: unknown[]) => mockUsePoi(...args),
 }));
 
 jest.mock("@/globals/IndoorMapSettingsStore", () => ({
@@ -158,6 +161,22 @@ jest.mock("@/components/map/location-modal", () => ({
   default: () => null,
 }));
 
+jest.mock("@/components/map/outdoor-map-settings", () => ({
+  __esModule: true,
+  default: (props: any) => {
+    latestOutdoorMapSettingsProps = props;
+    return null;
+  },
+}));
+
+jest.mock("@/components/map/poi-info-popup", () => ({
+  __esModule: true,
+  POIInfoPopup: (props: any) => {
+    latestPoiInfoPopupProps = props;
+    return null;
+  },
+}));
+
 const MapViewerWebClient = require("@/components/map/map-viewer.web.client").default;
 
 function makeRoomSelection(buildingCode: string, roomName: string): SearchBuilding {
@@ -172,7 +191,7 @@ function makeRoomSelection(buildingCode: string, roomName: string): SearchBuildi
   };
 }
 
-describe("map-viewer.web.client room selections", () => {
+describe("map-viewer.web.client", () => {
   const mbRoomOne = makeRoomSelection("MB", "MB 1.115");
   const mbRoomTwo = makeRoomSelection("MB", "MB 1.130");
   const hRoom = makeRoomSelection("H", "H 8.001");
@@ -195,13 +214,43 @@ describe("map-viewer.web.client room selections", () => {
       shuttle: [],
     });
     mockEnrichRoutesWithIndoorTransitions.mockClear();
+    mockUsePoi.mockReset();
+    mockUsePoi.mockReturnValue([]);
     latestBuildingSelectionProps = undefined;
     latestBuildingInfoPopupProps = undefined;
     latestRoutesInfoPopupProps = undefined;
+    latestOutdoorMapSettingsProps = undefined;
+    latestPoiInfoPopupProps = undefined;
     global.requestAnimationFrame = ((callback: FrameRequestCallback) => {
       callback(0);
       return 0;
     }) as typeof requestAnimationFrame;
+  });
+
+  it("renders the outdoor POI settings on web in browse mode", () => {
+    mockUsePoi.mockReturnValue([
+      {
+        place_id: "poi-1",
+        name: "Campus Cafe",
+        types: ["cafe"],
+        geometry: {
+          location: { lat: 45.4955, lng: -73.5791 },
+          viewport: {
+            northeast: { lat: 45.4956, lng: -73.579 },
+            southwest: { lat: 45.4954, lng: -73.5792 },
+          },
+        },
+      },
+    ]);
+
+    render(<MapViewerWebClient />);
+
+    expect(latestOutdoorMapSettingsProps).toMatchObject({
+      radius: 0,
+      hasVisiblePopup: false,
+      searchFieldFocused: false,
+    });
+    expect(latestPoiInfoPopupProps).toBeUndefined();
   });
 
   it("opens indoor room-to-room navigation on web when both selections are rooms in the same building", async () => {
