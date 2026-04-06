@@ -37,24 +37,13 @@ appId: host.exp.exponent
 - tapOn:
     id: "indoor-create-path-button"
 - assertVisible:
+    id: "indoor-path-edge-0"
+- assertVisible:
     id: "next-button"
-- tapOn:
-    id: "next-button"
-- tapOn:
-    id: "next-button"
-- tapOn:
-    id: "next-button"
-- tapOn:
-    id: "next-button"
-- tapOn:
-    id: "next-button"
-- tapOn:
-    id: "next-button"
-- tapOn:
-    id: "next-button"
-- tapOn:
-    id: "next-button"
-- tapOn:
-    id: "next-button"
-- tapOn:
-    id: "next-button"
+- repeat:
+    while:
+      visible:
+        id: "next-button"
+    commands:
+      - tapOn:
+          id: "next-button"
