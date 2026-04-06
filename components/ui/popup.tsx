@@ -1,5 +1,12 @@
 import React, { ReactElement, useEffect, useRef, useState } from "react";
-import { Animated, PanResponder, StyleSheet, ScrollView, View } from "react-native";
+import {
+  Animated,
+  PanResponder,
+  Platform,
+  StyleSheet,
+  ScrollView,
+  View,
+} from "react-native";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 
@@ -7,6 +14,7 @@ interface Props {
   shouldDisplay: boolean;
   header: ReactElement;
   testID?: string;
+  renderChildrenWhenCollapsed?: boolean;
 }
 
 const CLOSE_HEIGHT = 520;
@@ -22,12 +30,14 @@ export default function InfoPopup(props: React.PropsWithChildren<Props>) {
   const translateY = useRef(new Animated.Value(COLLAPSED_TRANSLATE_Y)).current;
   const currentTranslateY = useRef(COLLAPSED_TRANSLATE_Y);
   const [expanded, setExpanded] = useState(false);
+  const dragThreshold = Platform.OS === "web" ? 12 : 5;
+  const canUseNativeDriver = Platform.OS !== "web";
 
   useEffect(() => {
     if (props.shouldDisplay) {
       Animated.spring(translateY, {
         toValue: COLLAPSED_TRANSLATE_Y,
-        useNativeDriver: true,
+        useNativeDriver: canUseNativeDriver,
       }).start(() => {
         currentTranslateY.current = COLLAPSED_TRANSLATE_Y;
       });
@@ -35,14 +45,15 @@ export default function InfoPopup(props: React.PropsWithChildren<Props>) {
     } else {
       Animated.spring(translateY, {
         toValue: CLOSE_HEIGHT,
-        useNativeDriver: true,
+        useNativeDriver: canUseNativeDriver,
       }).start();
     }
   }, [props.shouldDisplay, translateY]);
 
   const panResponder = useRef(
     PanResponder.create({
-      onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dy) > 5,
+      onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dy) > dragThreshold,
+      onMoveShouldSetPanResponderCapture: () => false,
       onPanResponderGrant: () =>
         translateY.stopAnimation((y) => {
           currentTranslateY.current = y;
@@ -64,12 +75,13 @@ export default function InfoPopup(props: React.PropsWithChildren<Props>) {
           velocity: g.vy,
           tension: 80,
           friction: 14,
-          useNativeDriver: true,
+          useNativeDriver: canUseNativeDriver,
         }).start(() => {
           currentTranslateY.current = snapPoint;
         });
         setExpanded(expand);
       },
+      onPanResponderTerminationRequest: () => false,
     }),
   ).current;
 
@@ -84,7 +96,11 @@ export default function InfoPopup(props: React.PropsWithChildren<Props>) {
       <View style={styles.handle} />
       {props.header}
       <View style={styles.rule} />
-      {expanded && <ScrollView style={styles.ScrollView}>{props.children}</ScrollView>}
+      {(expanded || props.renderChildrenWhenCollapsed) && (
+        <ScrollView style={styles.ScrollView} scrollEnabled={expanded}>
+          {props.children}
+        </ScrollView>
+      )}
     </Animated.View>
   );
 }
@@ -96,6 +112,7 @@ const makeStyles = (theme: typeof Colors.light) =>
       bottom: 0,
       left: 0,
       right: 0,
+      overflow: "hidden",
       backgroundColor: theme.buildingInfoPopup.background,
       paddingTop: 10,
       borderTopLeftRadius: 20,

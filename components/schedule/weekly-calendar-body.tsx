@@ -1,5 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Dimensions, ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
+import {
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import DayColumn from "./day-column";
 import {
   CALENDAR_END_HOUR,
@@ -16,9 +24,8 @@ import { Colors } from "@/constants/theme";
 import { ClassSchedule } from "@/hooks/use-calendar";
 import { DayOfWeek } from "@/types/dayOfWeek";
 import { router } from "expo-router";
-import { buildClassMapNavigationParams } from "@/utils/classMapDestination";
+import { buildClassDirectionsNavigationParams } from "@/utils/classMapDestination";
 
-const SCREEN_WIDTH = Dimensions.get("window").width;
 const HOURS = Array.from(
   { length: CALENDAR_END_HOUR - CALENDAR_START_HOUR },
   (_, i) => CALENDAR_START_HOUR + i,
@@ -82,6 +89,10 @@ export default function WeeklyCalendarBody({
 }: Readonly<WeeklyCalendarBodyProps>) {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
+  const { width: windowWidth } = useWindowDimensions();
+  const isCompactWebLayout = Platform.OS === "web" && windowWidth < 720;
+  const nextClassButtonMaxWidth =
+    Platform.OS === "web" ? Math.max(Math.min(windowWidth - 24, 360), 0) : undefined;
 
   // Time state for horizontal time bar
   const [currentTimeY, setCurrentTimeY] = useState(() => getCurrentTimeY());
@@ -122,7 +133,7 @@ export default function WeeklyCalendarBody({
 
   async function handleNextClassPress() {
     if (!nextClass) return;
-    const params = await buildClassMapNavigationParams(nextClass);
+    const params = await buildClassDirectionsNavigationParams(nextClass);
     router.navigate({
       pathname: "/",
       params,
@@ -275,18 +286,26 @@ export default function WeeklyCalendarBody({
         </View>
       </ScrollView>
 
-      <View style={[styles.nextClassButtonContainer]}>
+      <View
+        style={[
+          styles.nextClassButtonContainer,
+          isCompactWebLayout && styles.nextClassButtonContainerCompact,
+        ]}
+      >
         <Pressable
           onPress={() => {
             handleNextClassPress();
           }}
           style={[
             styles.nextClassButton,
+            nextClassButtonMaxWidth !== undefined && {
+              maxWidth: nextClassButtonMaxWidth,
+            },
             { backgroundColor: theme.weeklyCalendarBody.nextClassButtonColor },
           ]}
           accessibilityLabel="Jump to next class"
         >
-          <View>
+          <View style={styles.nextClassButtonCopy}>
             <Text
               testID="next-class"
               style={[
@@ -309,7 +328,7 @@ export default function WeeklyCalendarBody({
           </View>
           <MaterialIcons
             name="location-pin"
-            size={40}
+            size={isCompactWebLayout ? 34 : 40}
             color={theme.weeklyCalendarBody.nextClassButtonText}
           />
         </Pressable>
@@ -334,6 +353,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 8,
     borderLeftWidth: StyleSheet.hairlineWidth,
+    minWidth: 0,
   },
   dayLabel: {
     fontSize: 10,
@@ -358,7 +378,8 @@ const styles = StyleSheet.create({
   },
   bodyRow: {
     flexDirection: "row",
-    width: SCREEN_WIDTH,
+    width: "100%",
+    minWidth: 0,
   },
   timeGutter: {
     width: TIME_GUTTER_WIDTH,
@@ -377,6 +398,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     position: "relative",
+    minWidth: 0,
   },
   hourLine: {
     position: "absolute",
@@ -409,12 +431,23 @@ const styles = StyleSheet.create({
     zIndex: 20,
     elevation: 8,
   },
+  nextClassButtonContainerCompact: {
+    right: 12,
+    left: 12,
+    bottom: 12,
+  },
   nextClassButton: {
     flexDirection: "row",
     alignItems: "center",
     borderRadius: 10,
     padding: 10,
     opacity: 0.8,
+    maxWidth: "100%",
+  },
+  nextClassButtonCopy: {
+    flex: 1,
+    minWidth: 0,
+    marginRight: 8,
   },
   nextClassButtonTitle: {
     fontWeight: "700",

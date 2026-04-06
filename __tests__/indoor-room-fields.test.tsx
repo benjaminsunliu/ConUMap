@@ -1,6 +1,7 @@
 import IndoorRoomFields from "@/components/map/indoor-room-fields";
 import { fireEvent, render } from "@testing-library/react-native";
 import React, { useState } from "react";
+import { StyleSheet } from "react-native";
 
 jest.mock("@/hooks/use-color-scheme", () => ({
   useColorScheme: () => "light",
@@ -212,6 +213,31 @@ describe("IndoorRoomFields", () => {
 
     expect(screen.getByTestId("indoor-start-room-input").props.value).toBe("");
     expect(screen.getByTestId("indoor-end-room-input").props.value).toBe("");
+  });
+
+  it("lets room inputs shrink so clear buttons stay inside the fields on web", () => {
+    const screen = render(
+      <IndoorRoomFields
+        buildingCode="MB"
+        startRoom="MB 1.315"
+        endRoom="MB S2.245"
+        roomSuggestions={ROOM_SUGGESTIONS}
+        canCreatePath
+        onChangeStartRoom={jest.fn()}
+        onChangeEndRoom={jest.fn()}
+        onCreatePath={jest.fn()}
+      />,
+    );
+
+    const startInputStyle = StyleSheet.flatten(
+      screen.getByTestId("indoor-start-room-input").props.style,
+    );
+    const endInputStyle = StyleSheet.flatten(
+      screen.getByTestId("indoor-end-room-input").props.style,
+    );
+
+    expect(startInputStyle).toMatchObject({ flexShrink: 1, minWidth: 0 });
+    expect(endInputStyle).toMatchObject({ flexShrink: 1, minWidth: 0 });
   });
 
   it("keeps invalid room input while typing", () => {

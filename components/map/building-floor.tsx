@@ -6,7 +6,7 @@ import {
   IndoorNavigationPath,
 } from "@/types/mapTypes";
 import { useMemo, useRef, type ReactElement } from "react";
-import { Image, StyleSheet, View } from "react-native";
+import { Image, Platform, StyleSheet, View } from "react-native";
 import Svg, { Circle, G, Image as SvgImage, Line, Rect } from "react-native-svg";
 
 type PoiFilters = {
@@ -46,25 +46,25 @@ export default function BuildingFloor({
   const viewContainerRef = useRef(null);
 
   const imageSize = useMemo(() => {
-    const imageInfo = Image.resolveAssetSource(info.images[floor]);
-    return imageInfo?.width && imageInfo?.height
+    const imageInfo = resolveAssetMetadata(info.images[floor]);
+    return imageInfo.width && imageInfo.height
       ? { width: imageInfo.width, height: imageInfo.height }
       : { width: 0, height: 0 };
   }, [info.images, floor]);
   const bathroomIconUri = useMemo(() => {
-    return Image.resolveAssetSource(require("@/assets/icons/bathroom.png")).uri;
+    return resolveAssetMetadata(require("@/assets/icons/bathroom.png")).uri;
   }, []);
   const waterFountainIconUri = useMemo(() => {
-    return Image.resolveAssetSource(require("@/assets/icons/water_fountain.png")).uri;
+    return resolveAssetMetadata(require("@/assets/icons/water_fountain.png")).uri;
   }, []);
   const elevatorIconUri = useMemo(() => {
-    return Image.resolveAssetSource(require("@/assets/icons/elevator.png")).uri;
+    return resolveAssetMetadata(require("@/assets/icons/elevator.png")).uri;
   }, []);
   const stairwayIconUri = useMemo(() => {
-    return Image.resolveAssetSource(require("@/assets/icons/stairway.png")).uri;
+    return resolveAssetMetadata(require("@/assets/icons/stairway.png")).uri;
   }, []);
   const escalatorIconUri = useMemo(() => {
-    return Image.resolveAssetSource(require("@/assets/icons/escalator.png")).uri;
+    return resolveAssetMetadata(require("@/assets/icons/escalator.png")).uri;
   }, []);
 
   const nodes = useMemo(() => {
@@ -137,11 +137,13 @@ export default function BuildingFloor({
 
   return (
     <View style={styles.container} ref={viewContainerRef}>
-      <Image source={info.images[floor]} style={styles.image} resizeMode="contain" />
-      <Svg style={styles.svg} viewBox={`0 0 ${imageSize.width} ${imageSize.height}`}>
-        {nodes}
-        {lines}
-      </Svg>
+      <View style={styles.mapCanvas}>
+        <Image source={info.images[floor]} style={styles.image} resizeMode="contain" />
+        <Svg style={styles.svg} viewBox={`0 0 ${imageSize.width} ${imageSize.height}`}>
+          {nodes}
+          {lines}
+        </Svg>
+      </View>
     </View>
   );
 }
@@ -518,10 +520,49 @@ function buildNavigationLines({
   return result;
 }
 
+function resolveAssetMetadata(source: unknown) {
+  const resolver = (Image as unknown as { resolveAssetSource?: (asset: unknown) => any })
+    .resolveAssetSource;
+  if (typeof resolver === "function") {
+    return resolver(source) ?? { uri: "", width: 0, height: 0 };
+  }
+
+  if (source && typeof source === "object") {
+    const candidate = source as {
+      uri?: string;
+      width?: number;
+      height?: number;
+      default?: { uri?: string; width?: number; height?: number };
+    };
+    if (candidate.uri || candidate.width || candidate.height) {
+      return {
+        uri: candidate.uri ?? "",
+        width: candidate.width ?? 0,
+        height: candidate.height ?? 0,
+      };
+    }
+    if (candidate.default) {
+      return {
+        uri: candidate.default.uri ?? "",
+        width: candidate.default.width ?? 0,
+        height: candidate.default.height ?? 0,
+      };
+    }
+  }
+
+  return { uri: "", width: 0, height: 0 };
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     overflow: "hidden",
+    paddingTop: Platform.OS === "web" ? 126 : 112,
+    paddingBottom: Platform.OS === "web" ? 92 : 80,
+    paddingHorizontal: 8,
+  },
+  mapCanvas: {
+    flex: 1,
   },
   image: {
     width: "100%",

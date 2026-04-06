@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { StyleSheet, Text, TouchableOpacity, Image, View } from "react-native";
+import { Platform, StyleSheet, Text, TouchableOpacity, Image, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/theme";
 import InfoPopup from "../ui/popup";
@@ -237,7 +237,12 @@ export default function RoutesInfoPopup({
     );
 
   return (
-    <InfoPopup shouldDisplay={isOpen} header={header} testID="routes-info-popup">
+    <InfoPopup
+      shouldDisplay={isOpen}
+      header={header}
+      testID="routes-info-popup"
+      renderChildrenWhenCollapsed={true}
+    >
       {selectedRoute ? (
         <>
           <TouchableOpacity
@@ -364,15 +369,19 @@ const makeOverviewStyles = (theme: typeof Colors.light) =>
   StyleSheet.create({
     overviewContainer: {
       padding: 20,
-      shadowColor: theme.routesInfoPopup.icon,
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.25,
-      shadowRadius: 10,
       elevation: 1,
       borderRadius: 10,
+      ...(Platform.OS === "web"
+        ? { boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.25)" }
+        : {
+            shadowColor: theme.routesInfoPopup.icon,
+            shadowOffset: {
+              width: 0,
+              height: 2,
+            },
+            shadowOpacity: 0.25,
+            shadowRadius: 10,
+          }),
     },
     overviewText: {
       fontSize: 25,

@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Modal,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { MONTHS } from "@/constants/scheduleConstant";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -34,6 +42,8 @@ export default function ScheduleHeader({
 }: Readonly<ScheduleHeaderProps>) {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
+  const { width: windowWidth } = useWindowDimensions();
+  const shouldStackControls = Platform.OS === "web" && windowWidth < 640;
 
   const [monthPickerVisible, setMonthPickerVisible] = useState(false);
 
@@ -59,14 +69,29 @@ export default function ScheduleHeader({
       ]}
     >
       <View style={styles.titleRow}>
-        <Text style={[styles.title, { color: theme.tint }]}>Class Schedule</Text>
+        <Text
+          style={[
+            styles.title,
+            shouldStackControls && styles.titleCompact,
+            { color: theme.tint },
+          ]}
+        >
+          Class Schedule
+        </Text>
       </View>
 
-      <View style={styles.controlsRow}>
-        <View style={styles.monthButtonContainer}>
+      <View
+        style={[styles.controlsRow, shouldStackControls && styles.controlsRowCompact]}
+      >
+        <View
+          style={[
+            styles.monthButtonContainer,
+            shouldStackControls && styles.monthButtonContainerCompact,
+          ]}
+        >
           <Pressable
             onPress={() => setMonthPickerVisible(true)}
-            style={[styles.monthButton]}
+            style={[styles.monthButton, shouldStackControls && styles.monthButtonCompact]}
             accessibilityLabel="Change month"
           >
             <Text
@@ -85,11 +110,17 @@ export default function ScheduleHeader({
           </Pressable>
         </View>
 
-        <View style={styles.todayButtonContainer}>
+        <View
+          style={[
+            styles.todayButtonContainer,
+            shouldStackControls && styles.todayButtonContainerCompact,
+          ]}
+        >
           <Pressable
             onPress={onTodayPress}
             style={[
               styles.todayButton,
+              shouldStackControls && styles.todayButtonCompact,
               { backgroundColor: theme.icon, borderColor: theme.icon },
             ]}
             accessibilityLabel="Jump to today"
@@ -184,6 +215,9 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: -0.3,
   },
+  titleCompact: {
+    fontSize: 21,
+  },
 
   // Row with month picker and today button
   controlsRow: {
@@ -191,10 +225,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
   },
+  controlsRowCompact: {
+    flexWrap: "wrap",
+    justifyContent: "center",
+    rowGap: 8,
+  },
   monthButtonContainer: {
     flex: 3,
     alignItems: "center",
     paddingRight: 5,
+  },
+  monthButtonContainerCompact: {
+    flexBasis: "100%",
+    flexGrow: 0,
+    paddingRight: 0,
   },
   monthButton: {
     flexDirection: "row",
@@ -202,6 +246,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 20,
+  },
+  monthButtonCompact: {
+    alignSelf: "center",
   },
   monthButtonText: {
     fontSize: 15,
@@ -212,11 +259,20 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     paddingLeft: 20,
   },
+  todayButtonContainerCompact: {
+    flexBasis: "100%",
+    flexGrow: 0,
+    alignItems: "center",
+    paddingLeft: 0,
+  },
   todayButton: {
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 20,
     borderWidth: 1.5,
+  },
+  todayButtonCompact: {
+    alignSelf: "center",
   },
   todayButtonText: {
     fontSize: 15,

@@ -7,8 +7,8 @@ import { useContext } from "react";
 export function useIsLoggedIn() {
   const authContext = useContext(AuthContext);
 
-  const { isLoading, data: isLoggedIn } = useQuery({
-    queryKey: ["fetching-login", authContext],
+  const { isLoading, data: storedLoginFound } = useQuery({
+    queryKey: ["fetching-login"],
     queryFn: async () => {
       if (authContext.isLoggedIn) {
         return true;
@@ -22,9 +22,13 @@ export function useIsLoggedIn() {
     },
     refetchOnMount: false,
     refetchOnWindowFocus: false,
+    enabled: !authContext.isLoggedIn,
   });
 
-  return { isLoading, isLoggedIn };
+  return {
+    isLoading: !authContext.isLoggedIn && isLoading,
+    isLoggedIn: authContext.isLoggedIn || storedLoginFound === true,
+  };
 }
 
 export function useLogin() {

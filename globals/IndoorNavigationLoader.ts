@@ -5,8 +5,8 @@ import {
   RawFloorGraph,
 } from "@/types/mapTypes";
 import { Asset } from "expo-asset";
-import { File } from "expo-file-system";
 import { ImageRequireSource } from "react-native";
+import { Platform } from "react-native";
 
 class IndoorNavigationLoader {
   private loadedBuildings: BuildingFloorInfo[] = [];
@@ -120,7 +120,21 @@ class IndoorNavigationLoader {
 
   private async loadTextFromFile(moduleNumber: number) {
     const asset = await Asset.loadAsync(moduleNumber);
-    return await new File(asset[0].localUri!).text();
+    const resolvedUri = asset[0].localUri ?? asset[0].uri;
+    if (!resolvedUri) {
+      throw new Error("Failed to resolve indoor map asset URI.");
+    }
+
+    if (Platform.OS === "web") {
+      const response = await fetch(asset[0].uri ?? resolvedUri);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch indoor map asset: ${response.status}`);
+      }
+      return await response.text();
+    }
+
+    const { File } = await import("expo-file-system");
+    return await new File(resolvedUri).text();
   }
 
   private saveToCache(floorInfo: BuildingFloorInfo) {

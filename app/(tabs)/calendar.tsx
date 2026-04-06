@@ -5,7 +5,7 @@ import { ClassSchedule, useCalendar } from "@/hooks/use-calendar";
 import { useIsLoggedIn, useLogin, useLogout } from "@/hooks/use-login";
 import { DayOfWeek } from "@/types/dayOfWeek";
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Text, View } from "react-native";
+import { Button, StyleSheet, Text, View } from "react-native";
 import { Directions, Gesture, GestureDetector } from "react-native-gesture-handler";
 
 function sortCalendarData(
@@ -34,7 +34,9 @@ export default function CalendarScreen() {
   const { isLoading: logginOut, logout } = useLogout();
   const {
     isLoading: calendarLoading,
+    isFetching: calendarFetching,
     data: calendarData,
+    error: calendarError,
     refetch: fetchCalendar,
   } = useCalendar(date);
 
@@ -64,10 +66,27 @@ export default function CalendarScreen() {
     }
   }, [isLoggedIn, date, fetchCalendar]);
 
-  if (fetchingLogin || logginIn || logginOut || calendarLoading) {
+  if (fetchingLogin || logginIn || logginOut || calendarLoading || calendarFetching) {
     return (
-      <View>
+      <View style={styles.stateContainer}>
         <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  if (isLoggedIn && calendarError) {
+    return (
+      <View style={styles.stateContainer} testID="calendar-error-view">
+        <Text style={styles.errorTitle}>Couldn't load your calendar.</Text>
+        <Text style={styles.errorMessage}>
+          {calendarError instanceof Error
+            ? calendarError.message
+            : "Try signing in again."}
+        </Text>
+        <View style={styles.errorActions}>
+          <Button title="Try Again" onPress={() => fetchCalendar()} />
+          <Button title="Logout" onPress={() => logout()} />
+        </View>
       </View>
     );
   }
@@ -86,3 +105,28 @@ export default function CalendarScreen() {
   // really important to not render the web view when you are not logged in
   return <AuthWebView onLogin={login} />;
 }
+
+const styles = StyleSheet.create({
+  stateContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+    gap: 12,
+  },
+  errorTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+  errorMessage: {
+    fontSize: 15,
+    lineHeight: 22,
+    textAlign: "center",
+  },
+  errorActions: {
+    width: "100%",
+    maxWidth: 280,
+    gap: 12,
+  },
+});

@@ -91,10 +91,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderColor: PoiMarkerColors.border,
     borderWidth: 2,
-    shadowColor: PoiMarkerColors.shadow,
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    shadowOffset: { width: 0, height: 1 },
     elevation: 3,
+    ...(Platform.OS === "web"
+      ? { boxShadow: "0px 1px 3px rgba(0, 0, 0, 0.2)" }
+      : {
+          shadowColor: PoiMarkerColors.shadow,
+          shadowOpacity: 0.2,
+          shadowRadius: 3,
+          shadowOffset: { width: 0, height: 1 },
+        }),
   },
 });

@@ -3,15 +3,19 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ]
     },
-    "types": ["jest"]
+    "types": [
+      "jest"
+    ]
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
+    "scripts/extract-building-info.ts",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts",
-    "scripts/extract-building-info.ts"
+    "expo-env.d.ts"
   ]
 }

@@ -14,6 +14,9 @@ import {
   Text,
   StyleSheet,
   Platform,
+  useWindowDimensions,
+  type StyleProp,
+  type ViewStyle,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -50,6 +53,8 @@ const getSelectionDisplayLabel = (selection: SearchBuilding) => {
 
 type UpdateQuery = (type: FieldType, value: string) => void;
 type SetSelectedBuildings = Dispatch<SetStateAction<SearchInput>>;
+
+const isWeb = Platform.OS === "web";
 
 function shouldPreserveRoomSelection(
   currentSelection: SearchBuilding | null | undefined,
@@ -143,6 +148,11 @@ export default function BuildingSelection({
 }: Props) {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
+  const { width: windowWidth } = useWindowDimensions();
+  const shouldUseHorizontalWebDirectionsLayout =
+    isWeb && mode === "directions" && windowWidth >= 1100;
+  const shouldUseStackedWebDirectionsLayout =
+    isWeb && mode === "directions" && !shouldUseHorizontalWebDirectionsLayout;
 
   const { queries, updateQuery, swapQueries, results } = useBuildingSearch({
     currentBuildingCodes,
@@ -157,6 +167,12 @@ export default function BuildingSelection({
 
   const startInputRef = useRef<TextInput>(null);
   const endInputRef = useRef<TextInput>(null);
+  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSelectionPressRef = useRef<{
+    type: FieldType;
+    buildingCode: string;
+    timestamp: number;
+  } | null>(null);
   const selectedBuildingsRef = useRef(selectedBuildings);
   const selectedBuildingRef = useRef(selectedBuilding);
   const suppressSelectionChangeRef = useRef<Record<FieldType, boolean>>({
@@ -164,14 +180,41 @@ export default function BuildingSelection({
     end: false,
   });
 
-  const removeInputFocus = useCallback((type: FieldType) => {
-    if (type === "start") {
-      startInputRef.current?.blur();
-    } else {
-      endInputRef.current?.blur();
+  const clearBlurTimeout = useCallback(() => {
+    if (blurTimeoutRef.current) {
+      clearTimeout(blurTimeoutRef.current);
+      blurTimeoutRef.current = null;
     }
-    setFocusedField(null);
   }, []);
+
+  const scheduleBlur = useCallback(
+    (field: FieldType) => {
+      clearBlurTimeout();
+      blurTimeoutRef.current = setTimeout(() => {
+        setFocusedField((prev) => (prev === field ? null : prev));
+      }, 120);
+    },
+    [clearBlurTimeout],
+  );
+
+  const removeInputFocus = useCallback(
+    (type: FieldType) => {
+      clearBlurTimeout();
+      if (type === "start") {
+        startInputRef.current?.blur();
+      } else {
+        endInputRef.current?.blur();
+      }
+      setFocusedField(null);
+    },
+    [clearBlurTimeout],
+  );
+
+  useEffect(() => {
+    return () => {
+      clearBlurTimeout();
+    };
+  }, [clearBlurTimeout]);
 
   useEffect(() => {
     if (startOverride !== undefined) updateQuery("start", startOverride ?? "");
@@ -195,6 +238,24 @@ export default function BuildingSelection({
 
   const handleSelect = useCallback(
     (building: SearchBuilding, type: FieldType) => {
+      const now = Date.now();
+      const lastSelection = lastSelectionPressRef.current;
+      if (
+        lastSelection &&
+        lastSelection.type === type &&
+        lastSelection.buildingCode === building.buildingCode &&
+        now - lastSelection.timestamp < 250
+      ) {
+        return;
+      }
+
+      lastSelectionPressRef.current = {
+        type,
+        buildingCode: building.buildingCode,
+        timestamp: now,
+      };
+
+      clearBlurTimeout();
       suppressSelectionChangeRef.current[type] = true;
       updateQuery(type, getSelectionDisplayLabel(building));
       const updated = { ...selectedBuildingsRef.current, [type]: building };
@@ -202,7 +263,7 @@ export default function BuildingSelection({
       onSelect(updated, type);
       removeInputFocus(type);
     },
-    [updateQuery, onSelect, removeInputFocus],
+    [clearBlurTimeout, updateQuery, onSelect, removeInputFocus],
   );
 
   const clearField = useCallback(
@@ -270,7 +331,13 @@ export default function BuildingSelection({
   }, [focusedField, onFocusChange]);
 
   const renderInput = useCallback(
-    (type: FieldType, placeholder: string) => {
+    (
+      type: FieldType,
+      placeholder: string,
+      options?: {
+        inputWrapperStyle?: StyleProp<ViewStyle>;
+      },
+    ) => {
       const value = queries[type] || "";
       const hasMagnifier = mode === "browse";
 
@@ -279,12 +346,14 @@ export default function BuildingSelection({
           style={[
             { backgroundColor: theme.buildingSelection.inputBackground },
             styles.inputWrapper,
+            shouldUseStackedWebDirectionsLayout && styles.inputWrapperStackedWeb,
+            options?.inputWrapperStyle,
           ]}
         >
           {hasMagnifier && (
             <Ionicons
               name="search"
-              size={18}
+              size={isWeb ? 21 : 18}
               color={theme.buildingSelection.magnifierColor}
               style={styles.magnifierIcon}
             />
@@ -296,18 +365,29 @@ export default function BuildingSelection({
             placeholderTextColor={theme.placeholder}
             value={value}
             onFocus={() => {
+              clearBlurTimeout();
               suppressSelectionChangeRef.current[type] = false;
               setFocusedField(type);
             }}
-            onBlur={() => setFocusedField((prev) => (prev === type ? null : prev))}
+            onBlur={() => {
+              const shouldDelayBlur =
+                mode === "browse" || (mode === "directions" && results[type].length > 0);
+              if (shouldDelayBlur) {
+                scheduleBlur(type);
+                return;
+              }
+              setFocusedField((prev) => (prev === type ? null : prev));
+            }}
             onChangeText={(text) => handleChange(text, type)}
             textAlign="left"
             style={[
               styles.input,
+              shouldUseStackedWebDirectionsLayout && styles.inputStackedWeb,
               {
                 backgroundColor: theme.buildingSelection.inputBackground,
                 borderColor: theme.buildingSelection.borderColor,
                 color: theme.buildingSelection.inputText,
+                fontSize: shouldUseStackedWebDirectionsLayout ? 16 : isWeb ? 18 : 16,
                 paddingLeft: hasMagnifier ? 0 : 8,
               },
             ]}
@@ -318,9 +398,11 @@ export default function BuildingSelection({
               onPress={() => clearField(type)}
               style={styles.clearButton}
             >
-              <Text style={{ color: theme.buildingSelection.clearButton, fontSize: 18 }}>
-                ×
-              </Text>
+              <Ionicons
+                name="close-circle"
+                size={isWeb ? 20 : 18}
+                color={theme.buildingSelection.clearButton}
+              />
             </TouchableOpacity>
           )}
         </View>
@@ -329,14 +411,18 @@ export default function BuildingSelection({
     [
       queries,
       mode,
+      results,
       theme.buildingSelection.inputBackground,
       theme.buildingSelection.magnifierColor,
       theme.buildingSelection.borderColor,
       theme.buildingSelection.inputText,
       theme.buildingSelection.clearButton,
       theme.placeholder,
+      clearBlurTimeout,
+      scheduleBlur,
       handleChange,
       clearField,
+      shouldUseStackedWebDirectionsLayout,
     ],
   );
 
@@ -374,6 +460,7 @@ export default function BuildingSelection({
                   styles.resultItem,
                   { borderBottomColor: theme.buildingInfoPopup.divider },
                 ]}
+                onPressIn={() => handleSelect(item, type)}
                 onPress={() => handleSelect(item, type)}
                 testID={`${type}-result-${item.buildingCode.toUpperCase()}`}
               >
@@ -384,10 +471,10 @@ export default function BuildingSelection({
                   ]}
                 >
                   {isSentinel ? (
-                    "📍 Current Location"
+                    "• Current Location"
                   ) : (
                     <>
-                      {isCurrent && "📍 "}
+                      {isCurrent && "• "}
                       {resultLabel}
                       {isCurrent && (
                         <Text style={styles.currentLabel}> (Current Building)</Text>
@@ -429,9 +516,18 @@ export default function BuildingSelection({
             style={[
               { backgroundColor: theme.buildingSelection.containerBackground },
               styles.directionContainer,
+              shouldUseHorizontalWebDirectionsLayout &&
+              styles.directionContainerHorizontal,
+              shouldUseStackedWebDirectionsLayout && styles.directionContainerStackedWeb,
             ]}
           >
-            <View style={styles.icons}>
+            <View
+              style={[
+                styles.icons,
+                shouldUseHorizontalWebDirectionsLayout && styles.iconsHorizontal,
+                shouldUseStackedWebDirectionsLayout && styles.iconsStackedWeb,
+              ]}
+            >
               <Ionicons
                 name="ellipse-outline"
                 size={15}
@@ -449,32 +545,92 @@ export default function BuildingSelection({
               />
               <Ionicons name="pin" size={24} color={theme.buildingSelection.swapButton} />
             </View>
-            <View>
-              {renderInput("start", "Your location")}
-              {!!startHint && (
-                <Text
-                  style={[
-                    styles.startHint,
-                    { color: theme.buildingSelection.resultTitle },
-                  ]}
-                  testID="start-hint"
-                >
-                  {startHint}
-                </Text>
-              )}
-              {renderInput("end", "Destination")}
-            </View>
-            <TouchableOpacity
-              testID="swap-fields"
-              onPress={swapFields}
-              style={styles.swapButton}
+            <View
+              style={[
+                styles.directionFields,
+                shouldUseHorizontalWebDirectionsLayout &&
+                styles.directionFieldsHorizontal,
+              ]}
             >
-              <Ionicons
-                name="swap-vertical"
-                size={24}
-                color={theme.buildingSelection.swapButton}
-              />
-            </TouchableOpacity>
+              <View
+                style={[
+                  styles.directionFieldGroup,
+                  shouldUseHorizontalWebDirectionsLayout &&
+                  styles.directionFieldGroupHorizontal,
+                ]}
+              >
+                {renderInput(
+                  "start",
+                  "Your location",
+                  shouldUseHorizontalWebDirectionsLayout
+                    ? { inputWrapperStyle: styles.inputWrapperHorizontal }
+                    : undefined,
+                )}
+                {shouldUseHorizontalWebDirectionsLayout ? (
+                  <View style={styles.hintSlotHorizontal}>
+                    {!!startHint && (
+                      <Text
+                        style={[
+                          styles.startHint,
+                          styles.startHintHorizontal,
+                          { color: theme.buildingSelection.resultTitle },
+                        ]}
+                        testID="start-hint"
+                      >
+                        {startHint}
+                      </Text>
+                    )}
+                  </View>
+                ) : (
+                  !!startHint && (
+                    <Text
+                      style={[
+                        styles.startHint,
+                        shouldUseStackedWebDirectionsLayout &&
+                        styles.startHintStackedWeb,
+                        { color: theme.buildingSelection.resultTitle },
+                      ]}
+                      testID="start-hint"
+                    >
+                      {startHint}
+                    </Text>
+                  )
+                )}
+              </View>
+              <TouchableOpacity
+                testID="swap-fields"
+                onPress={swapFields}
+                style={[
+                  styles.swapButton,
+                  shouldUseHorizontalWebDirectionsLayout && styles.swapButtonHorizontal,
+                  shouldUseStackedWebDirectionsLayout && styles.swapButtonStackedWeb,
+                ]}
+              >
+                <Ionicons
+                  name="swap-vertical"
+                  size={24}
+                  color={theme.buildingSelection.swapButton}
+                />
+              </TouchableOpacity>
+              <View
+                style={[
+                  styles.directionFieldGroup,
+                  shouldUseHorizontalWebDirectionsLayout &&
+                  styles.directionFieldGroupHorizontal,
+                ]}
+              >
+                {renderInput(
+                  "end",
+                  "Destination",
+                  shouldUseHorizontalWebDirectionsLayout
+                    ? { inputWrapperStyle: styles.inputWrapperHorizontal }
+                    : undefined,
+                )}
+                {shouldUseHorizontalWebDirectionsLayout ? (
+                  <View style={styles.hintSlotHorizontal} />
+                ) : null}
+              </View>
+            </View>
           </View>
         )}
       </View>
@@ -493,14 +649,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   directionContainer: {
-    borderRadius: 16,
+    borderRadius: isWeb ? 18 : 16,
     flexDirection: "row",
     width: "95%",
     paddingRight: 40,
     paddingLeft: 10,
-    paddingBottom: 10,
+    paddingBottom: isWeb ? 10 : 10,
     borderWidth: 1.5,
-    marginTop: 10,
+    marginTop: isWeb ? 12 : 10,
+  },
+  directionContainerHorizontal: {
+    alignItems: "center",
+    paddingRight: 18,
+    paddingLeft: 14,
+    paddingTop: 6,
+    paddingBottom: 8,
+  },
+  directionContainerStackedWeb: {
+    marginTop: 8,
+    paddingRight: 24,
+    paddingLeft: 8,
+    paddingBottom: 6,
   },
   buildingSelectionContainer: {
     position: "absolute",
@@ -516,21 +685,50 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flex: 1,
     marginHorizontal: 4,
-    marginTop: 10,
+    marginTop: isWeb ? 12 : 10,
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderRadius: 16,
+    borderRadius: isWeb ? 18 : 16,
     maxWidth: "95%",
     overflow: "hidden",
     paddingRight: "8%",
-    minHeight: Platform.OS === "ios" ? 38 : undefined,
-    paddingVertical: Platform.OS === "ios" ? 4 : 0,
+    minHeight: isWeb ? 44 : Platform.OS === "ios" ? 38 : undefined,
+    paddingVertical: isWeb ? 4 : Platform.OS === "ios" ? 4 : 0,
+  },
+  inputWrapperHorizontal: {
+    maxWidth: "100%",
+    marginTop: 0,
+    marginHorizontal: 0,
+  },
+  inputWrapperStackedWeb: {
+    marginTop: 8,
+    minHeight: 38,
+    paddingVertical: 2,
   },
   input: {
     paddingRight: "10%",
     width: "100%",
     textAlign: "left",
+    minHeight: isWeb ? 44 : undefined,
+  },
+  inputStackedWeb: {
+    minHeight: 38,
+  },
+  directionFields: {
+    flex: 1,
+  },
+  directionFieldsHorizontal: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  directionFieldGroup: {
+    flexShrink: 1,
+  },
+  directionFieldGroupHorizontal: {
+    flex: 1,
+    minWidth: 0,
+    paddingTop: 8,
   },
   clearButton: {
     position: "absolute",
@@ -545,6 +743,16 @@ const styles = StyleSheet.create({
     paddingLeft: "0%",
     marginLeft: "0%",
   },
+  swapButtonHorizontal: {
+    paddingHorizontal: 14,
+    paddingRight: 14,
+    alignSelf: "center",
+    marginTop: 4,
+  },
+  swapButtonStackedWeb: {
+    paddingTop: 4,
+    paddingBottom: 0,
+  },
   results: {
     maxHeight: 180,
     borderRadius: 8,
@@ -552,25 +760,46 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   resultItem: {
-    padding: 8,
+    padding: isWeb ? 10 : 8,
     borderBottomWidth: 1,
   },
   resultTitle: {
     fontWeight: "600",
+    fontSize: isWeb ? 15 : 14,
   },
   resultAddress: {
-    fontSize: 12,
+    fontSize: isWeb ? 13 : 12,
   },
   currentLabel: {
     fontSize: 11,
   },
   startHint: {
-    fontSize: 12,
+    fontSize: isWeb ? 13 : 12,
     marginLeft: 6,
     marginBottom: 2,
   },
+  startHintStackedWeb: {
+    fontSize: 12,
+    marginBottom: 0,
+  },
+  startHintHorizontal: {
+    marginLeft: 2,
+    marginTop: 2,
+    marginBottom: 0,
+  },
+  hintSlotHorizontal: {
+    minHeight: 20,
+    justifyContent: "flex-start",
+  },
   magnifierIcon: {
+    marginRight: isWeb ? 12 : 10,
+    marginLeft: isWeb ? 12 : 10,
+  },
+  iconsHorizontal: {
+    paddingTop: 0,
     marginRight: 10,
-    marginLeft: 10,
+  },
+  iconsStackedWeb: {
+    paddingTop: 0,
   },
 });

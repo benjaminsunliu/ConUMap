@@ -82,6 +82,23 @@ describe("Calendar View", () => {
     const webView = calendarView.queryByTestId("auth-web-view");
     expect(webView).toBeNull();
   });
+
+  it("Shows a calendar error when the token is invalid", async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue({
+      text: jest.fn().mockResolvedValue(`'${JSON.stringify({ errorMessage: "Invalid Token" })}'`),
+    });
+
+    const calendarView = render(
+      <AuthContext value={loggedInContext}>
+        <QueryClientProvider client={testQueryClient}>
+          <CalendarScreen />
+        </QueryClientProvider>
+      </AuthContext>,
+    );
+
+    expect(await calendarView.findByTestId("calendar-error-view")).toBeVisible();
+    expect(calendarView.getByText("Invalid Token")).toBeVisible();
+  });
 });
 
 const loggedOutContext: LoggedOutContext = {
