@@ -120,6 +120,7 @@ export default function MapSettings({
                 key={item.key}
                 style={styles.checkboxRow}
                 onPress={() => togglePOI(item.key as keyof typeof poiFilters)}
+                testID={`poi-settings-checkbox-${item.key}`}
               >
                 <Image
                   source={item.iconSource}

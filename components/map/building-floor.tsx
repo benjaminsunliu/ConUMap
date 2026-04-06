@@ -194,6 +194,7 @@ function renderActiveEdgeOutline({
   return (
     <Line
       key={`active-outline-${current.id}-${next.id}-${floor}`}
+      testID={`active-outline-${current.id}-${next.id}-${floor}`}
       x1={current.x}
       y1={current.y}
       x2={next.x}
