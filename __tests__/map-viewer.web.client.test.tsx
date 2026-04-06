@@ -7,6 +7,7 @@ const mockSetParams = jest.fn();
 const mockFetchAllDirections = jest.fn();
 const mockEnrichRoutesWithIndoorTransitions = jest.fn(async (routes) => routes);
 const mockUsePoi = jest.fn(() => []);
+const mockDivIcon = jest.fn((options: any) => ({ options }));
 
 let latestBuildingSelectionProps: any;
 let latestBuildingInfoPopupProps: any;
@@ -21,7 +22,8 @@ jest.mock("@/hooks/use-color-scheme", () => ({
 jest.mock("leaflet/dist/leaflet.css", () => ({}), { virtual: true });
 
 jest.mock("leaflet", () => ({
-  Map: function MockLeafletMap() {},
+  Map: function MockLeafletMap() { },
+  divIcon: (...args: unknown[]) => mockDivIcon(...args),
 }));
 
 jest.mock("react-leaflet", () => {
@@ -44,6 +46,7 @@ jest.mock("react-leaflet", () => {
     Polygon: ({ children, ...props }: any) => <View {...props}>{children}</View>,
     Polyline: ({ children, ...props }: any) => <View {...props}>{children}</View>,
     CircleMarker: ({ children, ...props }: any) => <View {...props}>{children}</View>,
+    Marker: ({ children, ...props }: any) => <View {...props}>{children}</View>,
     Tooltip: ({ children }: any) => <>{children}</>,
     useMap: () => mapApi,
     useMapEvents: () => mapApi,
@@ -216,6 +219,7 @@ describe("map-viewer.web.client", () => {
     mockEnrichRoutesWithIndoorTransitions.mockClear();
     mockUsePoi.mockReset();
     mockUsePoi.mockReturnValue([]);
+    mockDivIcon.mockClear();
     latestBuildingSelectionProps = undefined;
     latestBuildingInfoPopupProps = undefined;
     latestRoutesInfoPopupProps = undefined;
@@ -251,6 +255,52 @@ describe("map-viewer.web.client", () => {
       searchFieldFocused: false,
     });
     expect(latestPoiInfoPopupProps).toBeUndefined();
+  });
+
+  it("clusters buildings to a campus marker on web at low zoom", () => {
+    render(<MapViewerWebClient />);
+
+    expect(mockDivIcon).toHaveBeenCalled();
+    expect(mockDivIcon.mock.calls[0][0]).toEqual(
+      expect.objectContaining({
+        className: "",
+        iconSize: [46, 26],
+        iconAnchor: [23, 13],
+      }),
+    );
+    expect(mockDivIcon).toHaveBeenCalledTimes(2);
+    const campusHtml = mockDivIcon.mock.calls.map((call) => call[0].html).join(" ");
+    expect(campusHtml).toContain("SGW");
+    expect(campusHtml).toContain("LOY");
+    expect(campusHtml).toContain("font-size:12px");
+    expect(campusHtml).toContain("border:1.5px solid");
+    expect(campusHtml).toContain("border-radius:999px");
+    expect(campusHtml).toContain("#5e0e16");
+    expect(campusHtml).not.toContain("rotate(45deg)");
+  });
+
+  it("renders building markers as smaller maroon rounded badges when zoomed in", () => {
+    render(
+      <MapViewerWebClient
+        initialRegion={{
+          latitude: 45.495,
+          longitude: -73.579,
+          latitudeDelta: 0.001,
+          longitudeDelta: 0.001,
+        }}
+      />,
+    );
+
+    expect(mockDivIcon).toHaveBeenCalled();
+    expect(mockDivIcon.mock.calls[0][0]).toEqual(
+      expect.objectContaining({
+        className: "",
+        iconSize: [34, 28],
+        iconAnchor: [17, 28],
+      }),
+    );
+    expect(mockDivIcon.mock.calls[0][0].html).toContain("border-radius:999px");
+    expect(mockDivIcon.mock.calls[0][0].html).toContain("#5e0e16");
   });
 
   it("opens indoor room-to-room navigation on web when both selections are rooms in the same building", async () => {

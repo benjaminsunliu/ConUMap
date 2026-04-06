@@ -294,6 +294,107 @@ function createPoiDivIcon(types: string[], isSelected: boolean) {
   });
 }
 
+function createBuildingDivIcon(buildingCode: string, isSelected: boolean, colorScheme: ColorSchemeName) {
+  if (typeof divIcon !== "function") {
+    return undefined;
+  }
+
+  const mapColors = Colors[colorScheme].map;
+  const markerWidth = isSelected ? 38 : 34;
+  const markerBubbleHeight = isSelected ? 24 : 22;
+  const markerPointerHeight = isSelected ? 7 : 6;
+  const markerHeight = markerBubbleHeight + markerPointerHeight;
+
+  return divIcon({
+    className: "",
+    html: `
+      <div style="position:relative;width:${markerWidth}px;height:${markerHeight}px;filter:drop-shadow(0 10px 18px ${isSelected ? mapColors.buildingMarkerShadowSelected : mapColors.buildingMarkerShadow});user-select:none;">
+        <div
+          style="
+            width:${markerWidth}px;
+            height:${markerBubbleHeight}px;
+            box-sizing:border-box;
+            padding:0 5px;
+            border-radius:999px;
+            background:${isSelected ? mapColors.buildingMarkerBackgroundSelected : mapColors.buildingMarkerBackground};
+            border:1.5px solid ${isSelected ? mapColors.buildingMarkerBorderSelected : mapColors.buildingMarkerBorder};
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:${mapColors.buildingMarkerText};
+            font-size:${isSelected ? 12 : 11}px;
+            font-weight:800;
+            letter-spacing:0.08em;
+            line-height:1;
+            text-transform:uppercase;
+            position:relative;
+            z-index:1;
+          "
+        >
+          <span>${buildingCode}</span>
+        </div>
+        <div
+          style="
+            position:absolute;
+            left:50%;
+            bottom:1px;
+            width:12px;
+            height:12px;
+            transform:translateX(-50%) rotate(45deg);
+            background:${isSelected ? mapColors.buildingMarkerBackgroundSelected : mapColors.buildingMarkerBackground};
+            border-right:1.5px solid ${isSelected ? mapColors.buildingMarkerBorderSelected : mapColors.buildingMarkerBorder};
+            border-bottom:1.5px solid ${isSelected ? mapColors.buildingMarkerBorderSelected : mapColors.buildingMarkerBorder};
+            border-radius:2px;
+          "
+        />
+      </div>
+    `,
+    iconSize: [markerWidth, markerHeight],
+    iconAnchor: [markerWidth / 2, markerHeight],
+  });
+}
+
+function createCampusDivIcon(campus: Campus, colorScheme: ColorSchemeName) {
+  if (typeof divIcon !== "function") {
+    return undefined;
+  }
+
+  const mapColors = Colors[colorScheme].map;
+  const markerWidth = 50;
+  const markerHeight = 30;
+
+  return divIcon({
+    className: "",
+    html: `
+      <div style="
+        width:${markerWidth}px;
+        height:${markerHeight}px;
+        box-sizing:border-box;
+        padding:0 7px;
+        border-radius:999px;
+        background:${mapColors.buildingMarkerBackground};
+        border:1.5px solid ${mapColors.buildingMarkerBorder};
+        filter:drop-shadow(0 10px 18px ${mapColors.buildingMarkerShadow});
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:${mapColors.buildingMarkerText};
+        font-size:12px;
+        font-weight:800;
+        letter-spacing:0.08em;
+        line-height:1;
+        text-transform:uppercase;
+        user-select:none;
+      ">
+        <span>${campus}</span>
+      </div>
+    `,
+    iconSize: [markerWidth, markerHeight],
+    iconAnchor: [markerWidth / 2, markerHeight / 2],
+  });
+}
+const BUILDING_CLUSTER_ZOOM_THRESHOLD = 14;
+
 function regionToZoom(region: Region): number {
   const delta = Math.max(region.longitudeDelta, 0.0001);
   const zoom = Math.round(Math.log2(360 / delta));
@@ -379,8 +480,10 @@ export default function MapViewer({
   const [searchFieldFocused, setSearchFieldFocused] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState<BuildingInfo | null>(null);
   const [selectedPOI, setSelectedPOI] = useState<POI | null>(null);
-  const [currentRegion, setCurrentRegion] = useState<Region>(defaultInitialRegion);
+  const [currentRegion, setCurrentRegion] = useState<Region>(initialRegion);
   const currCampus = useMemo(() => getCampusForRegion(currentRegion), [currentRegion]);
+  const currentZoom = useMemo(() => regionToZoom(currentRegion), [currentRegion]);
+  const clusterBuildingsByCampus = currentZoom <= BUILDING_CLUSTER_ZOOM_THRESHOLD;
   const places = usePoi(currCampus, radius);
   const [poiFilters, setPoiFilters] = useState<PoiTypeFilters>({
     restaurant: true,
@@ -655,6 +758,14 @@ export default function MapViewer({
   const focusBuilding = useCallback(
     (building: BuildingInfo) => {
       focusCoordinate(building.location.latitude, building.location.longitude);
+    },
+    [focusCoordinate],
+  );
+
+  const focusCampusCluster = useCallback(
+    (campus: Campus) => {
+      const center = campus === "SGW" ? SGW_CENTER : LOY_CENTER;
+      focusCoordinate(center.latitude, center.longitude);
     },
     [focusCoordinate],
   );
@@ -1323,43 +1434,51 @@ export default function MapViewer({
             const isInBuilding = inBuildingCodes.has(building.buildingCode);
             const polygonColor = getPolygonColor(isSelected, isInBuilding, colorScheme);
 
-            return [
-              ...building.polygons.map((polygonData, polygonIndex) => (
-                <WebLeafletPolygon
-                  key={`poly-${buildingIndex}-${polygonIndex}-${isInBuilding}`}
-                  positions={polygonData.map((point) => [
-                    point.latitude,
-                    point.longitude,
-                  ])}
-                  pathOptions={{
-                    color: mapColors.polygonStroke,
-                    fillColor: polygonColor,
-                    fillOpacity: 0.7,
-                    weight: 2,
-                  }}
-                  eventHandlers={{ click: () => handleBuildingPress(building) }}
-                />
-              )),
-              <WebCircleMarker
-                key={`marker-${building.buildingCode}`}
-                center={[building.location.latitude, building.location.longitude]}
-                radius={8}
+            return building.polygons.map((polygonData, polygonIndex) => (
+              <WebLeafletPolygon
+                key={`poly-${buildingIndex}-${polygonIndex}-${isInBuilding}`}
+                positions={polygonData.map((point) => [
+                  point.latitude,
+                  point.longitude,
+                ])}
                 pathOptions={{
-                  color: isSelected
-                    ? mapColors.markerBorderSelected
-                    : mapColors.markerBorder,
-                  fillColor: isSelected ? mapColors.markerSelected : mapColors.marker,
-                  fillOpacity: 1,
+                  color: mapColors.polygonStroke,
+                  fillColor: polygonColor,
+                  fillOpacity: 0.7,
                   weight: 2,
                 }}
                 eventHandlers={{ click: () => handleBuildingPress(building) }}
-              >
-                <WebTooltip direction="top" offset={[0, -6]} opacity={1} permanent>
-                  {building.buildingCode}
-                </WebTooltip>
-              </WebCircleMarker>,
-            ];
+              />
+            ));
           })}
+
+          {clusterBuildingsByCampus ? (
+            (["SGW", "LOY"] as Campus[]).map((campus) => (
+              <WebLeafletMarker
+                key={`campus-cluster-${campus}`}
+                position={[
+                  campus === "SGW" ? SGW_CENTER.latitude : LOY_CENTER.latitude,
+                  campus === "SGW" ? SGW_CENTER.longitude : LOY_CENTER.longitude,
+                ]}
+                icon={createCampusDivIcon(campus, colorScheme)}
+                zIndexOffset={campus === currCampus ? 1200 : 1180}
+                eventHandlers={{ click: () => focusCampusCluster(campus) }}
+              />
+            ))
+          ) : (
+            CAMPUS_BUILDINGS.map((building) => {
+              const isSelected = selectedBuilding?.buildingCode === building.buildingCode;
+              return (
+                <WebLeafletMarker
+                  key={`marker-${building.buildingCode}`}
+                  position={[building.location.latitude, building.location.longitude]}
+                  icon={createBuildingDivIcon(building.buildingCode, isSelected, colorScheme)}
+                  zIndexOffset={isSelected ? 1100 : 1000}
+                  eventHandlers={{ click: () => handleBuildingPress(building) }}
+                />
+              );
+            })
+          )}
 
           {navigationMode === "browse" &&
             filteredPlaces.map((poi) => {
