@@ -24,7 +24,7 @@ appId: host.exp.exponent
 - tapOn:
     id: "indoor-create-path-button"
 - assertVisible:
-    id: "active-outline-H_110_4-Hall_F1_hallway_waypoint_31"
+    id: "active-outline-H_110_4-Hall_F1_hallway_waypoint_31-1"
 - tapOn:
     id: "indoor-clear-end-room"
 - tapOn:
@@ -35,11 +35,11 @@ appId: host.exp.exponent
 - tapOn:
     id: "indoor-create-path-button"
 - assertVisible:
-    id: "active-outline-H_110_4-Hall_F1_hallway_waypoint_31"
+    id: "active-outline-H_110_4-Hall_F1_hallway_waypoint_31-1"
 - tapOn:
     id: "next-button"
 - assertVisible:
-    id: "active-outline-Hall_F1_hallway_waypoint_31-Hall_F1_hallway_waypoint_25"
+    id: "active-outline-Hall_F1_hallway_waypoint_31-Hall_F1_hallway_waypoint_25-1"
 - tapOn:
     id: "indoor-clear-start-room"
 - tapOn:
@@ -50,4 +50,4 @@ appId: host.exp.exponent
 - tapOn:
     id: "indoor-create-path-button"
 - assertVisible:
-    id: "active-outline-H_102_N2-Hall_F1_hallway_waypoint_29"
+    id: "active-outline-H_102_N2-Hall_F1_hallway_waypoint_29-1"
