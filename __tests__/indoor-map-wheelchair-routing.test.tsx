@@ -35,22 +35,22 @@ jest.mock("expo-secure-store", () => {
   };
 });
 
-jest.mock("@/components/map/building-floor", () => (props: unknown) => {
+jest.mock("@/components/map/indoor-map/building-floor", () => (props: unknown) => {
   mockBuildingFloor(props);
   return null;
 });
 
-jest.mock("@/components/map/indoor-room-fields", () => (props: unknown) => {
+jest.mock("@/components/map/indoor-map/indoor-room-fields", () => (props: unknown) => {
   mockIndoorRoomFields(props);
   return null;
 });
 
-jest.mock("@/components/map/indoor-map-settings", () => (props: unknown) => {
+jest.mock("@/components/map/indoor-map/indoor-map-settings", () => (props: unknown) => {
   mockMapSettings(props);
   return null;
 });
 
-jest.mock("@/components/map/indoor-navigation-controls", () => () => null);
+jest.mock("@/components/map/indoor-map/indoor-navigation-controls", () => () => null);
 
 const getLatestFloorProps = () => mockBuildingFloor.mock.calls.at(-1)?.[0] as any;
 const getLatestRoomFieldsProps = () => mockIndoorRoomFields.mock.calls.at(-1)?.[0] as any;
