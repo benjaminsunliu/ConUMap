@@ -6,7 +6,7 @@ import {
   IndoorNavigationPath,
   PoiFilters,
 } from "@/types/mapTypes";
-import { useMemo, useRef, type ReactElement } from "react";
+import { useMemo, type ReactElement } from "react";
 import { Image, StyleSheet, View } from "react-native";
 import Svg, { Line } from "react-native-svg";
 import defaultMarkerFactory from "./indoor-poi/default-marker-factory";
