@@ -69,6 +69,7 @@ export default function MapSettings({
     <>
       <View style={styles.container}>
         <TouchableOpacity
+          testID="SettingsButton"
           style={styles.fab}
           onPress={() => setOpen((prev) => !prev)}
           activeOpacity={0.8}
@@ -97,6 +98,7 @@ export default function MapSettings({
               <Switch
                 value={wheelchairOnly}
                 onValueChange={setWheelchairOnly}
+                testID="wheelchair-accessibility-toggle"
                 thumbColor={
                   wheelchairOnly
                     ? theme.mapSettings.toggleTrue
