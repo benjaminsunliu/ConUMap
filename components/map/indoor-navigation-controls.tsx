@@ -50,7 +50,6 @@ export default function IndoorNavigationControls({
         style={[styles.sideButton, !nextCommand.canExecute && styles.disabled]}
         testID="next-button"
         onPress={nextCommand.execute}
-        testID="next-button"
         disabled={!nextCommand.canExecute}
       >
         <Text style={styles.sideText}>{nextCommand.label}</Text>
