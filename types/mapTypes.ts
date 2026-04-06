@@ -134,3 +134,11 @@ export type FloorImages = {
 };
 
 export type IndoorNavigationPath = FloorCheckpointId[];
+
+export type PoiFilters = {
+  bathrooms: boolean;
+  elevators: boolean;
+  waterFountains: boolean;
+  stairs: boolean;
+  escalators: boolean;
+};

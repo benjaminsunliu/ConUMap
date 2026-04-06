@@ -1,5 +1,6 @@
 appId: com.anonymous.client
 ---
+# E1 E2E TESTS
 - runFlow:
     file: launchApp.yaml
 - runFlow:
@@ -11,6 +12,7 @@ appId: com.anonymous.client
 - runFlow:
     file: ../US1/AT4buildingPopup.yaml
 
+# E2 E2E TESTS
 - runFlow:
     file: launchApp.yaml
 - runFlow:

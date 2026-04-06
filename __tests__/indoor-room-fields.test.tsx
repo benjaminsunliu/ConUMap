@@ -1,4 +1,4 @@
-import IndoorRoomFields from "@/components/map/indoor-room-fields";
+import IndoorRoomFields from "@/components/map/indoor-map/indoor-room-fields";
 import { fireEvent, render } from "@testing-library/react-native";
 import React, { useState } from "react";
 

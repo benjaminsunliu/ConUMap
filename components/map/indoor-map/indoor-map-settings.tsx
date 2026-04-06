@@ -98,6 +98,7 @@ export default function MapSettings({
               <Switch
                 value={wheelchairOnly}
                 onValueChange={setWheelchairOnly}
+                testID="wheelchair-accessibility-toggle"
                 thumbColor={
                   wheelchairOnly
                     ? theme.mapSettings.toggleTrue
