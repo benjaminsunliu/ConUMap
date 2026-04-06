@@ -1,0 +1,71 @@
+appId: host.exp.Exponent
+---
+- runFlow:
+    when:
+      notVisible:
+        id: "building-selection"
+    file: ../openLink.yaml
+
+# Select start and destination buildings
+- assertVisible: "Search building"
+- tapOn: "Search building"
+- inputText: "Hall"
+- assertVisible: "H – Henry F. Hall Building"
+- tapOn: "H – Henry F. Hall Building"
+
+# Open directions panel
+- assertVisible:
+    id: "directions-action-button"
+- tapOn:
+    id: "directions-action-button"
+
+# Select destination
+- assertVisible: "Your location"
+- tapOn: "Your location"
+- inputText: "Grey Nuns"
+- assertVisible: "GN – Grey Nuns Building"
+- tapOn: "GN – Grey Nuns Building"
+
+# Test Walking Mode
+- assertVisible:
+    id: "walking-selector"
+- tapOn:
+    id: "walking-selector"
+- swipe:
+    start: 45%, 74%
+    end: 45%, 40%
+- assertVisible:
+    id: "walking-route-0"
+- tapOn:
+    id: "walking-route-0"
+
+# Test Transit Mode
+- assertVisible:
+    id: "transit-selector"
+- tapOn:
+    id: "transit-selector"
+- assertVisible:
+    id: "transit-route-0"
+- tapOn:
+    id: "transit-route-0"
+
+# Test Driving Mode
+- assertVisible:
+    id: "driving-selector"
+- tapOn:
+    id: "driving-selector"
+- assertVisible:
+    id: "driving-route-0"
+- tapOn:
+    id: "driving-route-0"
+
+# Test Bicycling Mode
+- assertVisible:
+    id: "bicycling-selector"
+- tapOn:
+    id: "bicycling-selector"
+- assertVisible:
+    id: "bicycling-route-0"
+- tapOn:
+    id: "bicycling-route-0"
+# No shuttle test implemented

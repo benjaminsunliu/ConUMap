@@ -1,0 +1,84 @@
+appId: host.exp.exponent
+---
+- runFlow:
+    when:
+      notVisible:
+        id: "building-selection"
+    file: ../openLink.yaml
+- tapOn:
+    text: "Search building"
+- inputText: "MB 1.115"
+- assertVisible: "MB – MB 1.115"
+- tapOn:
+    text: "MB – MB 1.115"
+
+- assertVisible:
+    text: "Set Start"
+- tapOn:
+    text: "Set Start"
+
+- assertVisible:
+    text: "Destination"
+- tapOn:
+    text: "Destination"
+- inputText: "VL 212"
+- assertVisible: "VL – VL 212"
+- tapOn:
+    text: "VL – VL 212"
+
+- assertVisible:
+    id: "walking-selector"
+- swipe:
+    from:
+      id: "routes-info-popup"
+    direction: UP
+- tapOn:
+    id: "walking-selector"
+- assertVisible:
+    id: "walking-route-0"
+- tapOn:
+    id: "walking-route-0"
+- assertVisible:
+    id: "walking-step-0"
+- tapOn:
+    id: "walking-step-0"
+- assertVisible:
+    id: "next-button"
+- tapOn:
+    id: "next-button"
+- tapOn:
+    id: "next-button"
+- tapOn:
+    id: "next-button"
+- tapOn:
+    id: "next-button"
+- swipe:
+    start: 50%, 70%
+    end: 50%, 10%
+    duration: 1200
+- assertVisible:
+    id: "walking-step-10"
+- tapOn:
+    id: "walking-step-10"
+- assertVisible:
+    id: "next-button"
+- tapOn:
+    id: "next-button"
+- tapOn:
+    id: "next-button"
+- tapOn:
+    id: "next-button"
+- tapOn:
+    id: "next-button"
+- tapOn:
+    id: "next-button"
+- tapOn:
+    id: "next-button"
+- tapOn:
+    id: "next-button"
+- tapOn:
+    id: "next-button"
+- tapOn:
+    id: "next-button"
+- tapOn:
+    id: "next-button"

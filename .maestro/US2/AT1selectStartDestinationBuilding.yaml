@@ -1,0 +1,39 @@
+appId: host.exp.Exponent
+---
+- runFlow:
+    when:
+      notVisible:
+        id: "building-selection"
+    file: ../openLink.yaml
+
+# Select start location: Henry F. Hall Building
+- assertVisible: "Search building"
+- tapOn: "Search building"
+- inputText: "Henry"
+- assertVisible: "H – Henry F. Hall Building"
+- tapOn: "H – Henry F. Hall Building"
+
+# Open directions panel
+- assertVisible:
+    id: "directions-action-button"
+- tapOn:
+    id: "directions-action-button"
+
+# Select intermediate location: Faubourg Ste-Catherine
+- assertVisible: "Current Location"
+- tapOn: "Current Location"
+- eraseText
+- inputText: "FG"
+- assertVisible: "FG – Faubourg Ste-Catherine Building"
+- tapOn: "FG – Faubourg Ste-Catherine Building"
+
+# Clear and select final destination: Hingston Hall
+- assertVisible:
+    id: "clear-end"
+- tapOn:
+    id: "clear-end"
+- assertVisible: "Destination"
+- tapOn: "Destination"
+- inputText: "HA"
+- assertVisible: "HA – Hingston Hall, wing HA"
+- tapOn: "HA – Hingston Hall, wing HA"
