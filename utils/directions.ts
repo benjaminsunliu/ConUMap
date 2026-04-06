@@ -518,16 +518,13 @@ async function handleShuttleRouting(
   }
   // if directTransit route is available, do early check to save time
 
-  if (directTransit == null) {
-    console.log("no direct transit route");
-  } else {
-    if (
-      preShuttlePath.totalDurationSeconds + shuttleTransitTime >=
+  if (
+    directTransit !== null &&
+    preShuttlePath.totalDurationSeconds + shuttleTransitTime >=
       directTransit.totalDurationSeconds
-    ) {
-      console.log("direct transit route is faster than pre + shuttle");
-      return [];
-    }
+  ) {
+    console.log("direct transit route is faster than pre + shuttle");
+    return [];
   }
 
   const postShuttlePath = await chooseShuttleSegmentPath(
