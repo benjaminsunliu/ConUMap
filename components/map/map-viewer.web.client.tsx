@@ -393,7 +393,7 @@ function createCampusDivIcon(campus: Campus, colorScheme: ColorSchemeName) {
     iconAnchor: [markerWidth / 2, markerHeight / 2],
   });
 }
-const BUILDING_CLUSTER_ZOOM_THRESHOLD = 14;
+const BUILDING_CLUSTER_ZOOM_THRESHOLD = 13.9;
 
 function regionToZoom(region: Region): number {
   const delta = Math.max(region.longitudeDelta, 0.0001);

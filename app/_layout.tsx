@@ -1,10 +1,11 @@
 import AuthContextProvider from "@/components/authentication/AuthContextProvider";
-import { Stack } from "expo-router";
+import { Stack, usePathname } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { queryClient } from "@/hooks/query";
 import { QueryClientProvider } from "@tanstack/react-query";
-import React from "react";
+import React, { useEffect } from "react";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 
@@ -15,6 +16,14 @@ export const unstable_settings = {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const headerTintColor = Colors[colorScheme].background;
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (Platform.OS === "web") {
+      document.title = "ConUMaps";
+    }
+  }, [pathname]);
+
   return (
     <AuthContextProvider>
       <GestureHandlerRootView>

@@ -302,6 +302,7 @@ const makePopupStyles = (theme: typeof Colors.light) =>
       fontSize: 40,
       fontWeight: "bold",
       marginVertical: 10,
+      marginLeft: 18,
       color: theme.buildingInfoPopup.title,
     },
     headerBackButton: {
@@ -374,14 +375,14 @@ const makeOverviewStyles = (theme: typeof Colors.light) =>
       ...(Platform.OS === "web"
         ? { boxShadow: "0px 2px 10px rgba(0, 0, 0, 0.25)" }
         : {
-            shadowColor: theme.routesInfoPopup.icon,
-            shadowOffset: {
-              width: 0,
-              height: 2,
-            },
-            shadowOpacity: 0.25,
-            shadowRadius: 10,
-          }),
+          shadowColor: theme.routesInfoPopup.icon,
+          shadowOffset: {
+            width: 0,
+            height: 2,
+          },
+          shadowOpacity: 0.25,
+          shadowRadius: 10,
+        }),
     },
     overviewText: {
       fontSize: 25,
