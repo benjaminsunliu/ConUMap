@@ -33,7 +33,9 @@ export default function OutdoorMapSettings({
 }: Readonly<OutdoorMapSettingsProps>) {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme];
-  const styles = makeStyles(theme);
+  const isMobileWeb =
+    Platform.OS === "web" && typeof window !== "undefined" && window.innerWidth <= 768;
+  const styles = makeStyles(theme, isMobileWeb);
 
   const [open, setOpen] = useState(false);
   const [displayRadius, setDisplayRadius] = useState(radius);
@@ -53,21 +55,21 @@ export default function OutdoorMapSettings({
     key: keyof OutdoorMapSettingsProps["poiFilters"];
     label: string;
     icon:
-      | "restaurant-outline"
-      | "cafe-outline"
-      | "library-outline"
-      | "barbell-outline"
-      | "leaf-outline"
-      | "cart-outline";
+    | "restaurant-outline"
+    | "cafe-outline"
+    | "library-outline"
+    | "barbell-outline"
+    | "leaf-outline"
+    | "cart-outline";
   }[] = [
-    { key: "restaurant", label: "Restaurants", icon: "restaurant-outline" },
-    { key: "cafe", label: "Cafes", icon: "cafe-outline" },
-    { key: "library", label: "Libraries", icon: "library-outline" },
-    { key: "gym", label: "Gyms", icon: "barbell-outline" },
-    { key: "park", label: "Parks", icon: "leaf-outline" },
-    { key: "shopping_mall", label: "Malls", icon: "cart-outline" },
-    { key: "supermarket", label: "Supermarkets", icon: "cart-outline" },
-  ];
+      { key: "restaurant", label: "Restaurants", icon: "restaurant-outline" },
+      { key: "cafe", label: "Cafes", icon: "cafe-outline" },
+      { key: "library", label: "Libraries", icon: "library-outline" },
+      { key: "gym", label: "Gyms", icon: "barbell-outline" },
+      { key: "park", label: "Parks", icon: "leaf-outline" },
+      { key: "shopping_mall", label: "Malls", icon: "cart-outline" },
+      { key: "supermarket", label: "Supermarkets", icon: "cart-outline" },
+    ];
 
   if (hasVisiblePopup || searchFieldFocused) {
     return null;
@@ -82,9 +84,9 @@ export default function OutdoorMapSettings({
             styles.fab,
             open
               ? {
-                  backgroundColor: theme.mapSettings.icon,
-                  borderColor: theme.mapSettings.icon,
-                }
+                backgroundColor: theme.mapSettings.icon,
+                borderColor: theme.mapSettings.icon,
+              }
               : null,
           ]}
           onPress={() => setOpen((prev) => !prev)}
@@ -185,11 +187,14 @@ export default function OutdoorMapSettings({
   );
 }
 
-const makeStyles = (theme: typeof Colors.light | typeof Colors.dark) =>
+const makeStyles = (
+  theme: typeof Colors.light | typeof Colors.dark,
+  isMobileWeb: boolean,
+) =>
   StyleSheet.create({
     container: {
       position: "absolute",
-      top: "10%",
+      top: isMobileWeb ? "12%" : "10%",
       right: 16,
       zIndex: 20,
       alignItems: "flex-end",
@@ -221,14 +226,14 @@ const makeStyles = (theme: typeof Colors.light | typeof Colors.dark) =>
       ...(Platform.OS === "web"
         ? { boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.18)" }
         : {
-            shadowColor: "#000",
-            shadowOffset: {
-              width: 0,
-              height: 4,
-            },
-            shadowOpacity: 0.18,
-            shadowRadius: 8,
-          }),
+          shadowColor: "#000",
+          shadowOffset: {
+            width: 0,
+            height: 4,
+          },
+          shadowOpacity: 0.18,
+          shadowRadius: 8,
+        }),
     },
 
     fabLabel: {

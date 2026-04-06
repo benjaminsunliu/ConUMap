@@ -151,6 +151,8 @@ export default function BuildingSelection({
   const { width: windowWidth } = useWindowDimensions();
   const shouldUseHorizontalWebDirectionsLayout =
     isWeb && mode === "directions" && windowWidth >= 1100;
+  const shouldUseStackedWebDirectionsLayout =
+    isWeb && mode === "directions" && !shouldUseHorizontalWebDirectionsLayout;
 
   const { queries, updateQuery, swapQueries, results } = useBuildingSearch({
     currentBuildingCodes,
@@ -344,6 +346,7 @@ export default function BuildingSelection({
           style={[
             { backgroundColor: theme.buildingSelection.inputBackground },
             styles.inputWrapper,
+            shouldUseStackedWebDirectionsLayout && styles.inputWrapperStackedWeb,
             options?.inputWrapperStyle,
           ]}
         >
@@ -379,11 +382,12 @@ export default function BuildingSelection({
             textAlign="left"
             style={[
               styles.input,
+              shouldUseStackedWebDirectionsLayout && styles.inputStackedWeb,
               {
                 backgroundColor: theme.buildingSelection.inputBackground,
                 borderColor: theme.buildingSelection.borderColor,
                 color: theme.buildingSelection.inputText,
-                fontSize: isWeb ? 18 : 16,
+                fontSize: shouldUseStackedWebDirectionsLayout ? 16 : isWeb ? 18 : 16,
                 paddingLeft: hasMagnifier ? 0 : 8,
               },
             ]}
@@ -418,6 +422,7 @@ export default function BuildingSelection({
       scheduleBlur,
       handleChange,
       clearField,
+      shouldUseStackedWebDirectionsLayout,
     ],
   );
 
@@ -512,13 +517,15 @@ export default function BuildingSelection({
               { backgroundColor: theme.buildingSelection.containerBackground },
               styles.directionContainer,
               shouldUseHorizontalWebDirectionsLayout &&
-                styles.directionContainerHorizontal,
+              styles.directionContainerHorizontal,
+              shouldUseStackedWebDirectionsLayout && styles.directionContainerStackedWeb,
             ]}
           >
             <View
               style={[
                 styles.icons,
                 shouldUseHorizontalWebDirectionsLayout && styles.iconsHorizontal,
+                shouldUseStackedWebDirectionsLayout && styles.iconsStackedWeb,
               ]}
             >
               <Ionicons
@@ -542,14 +549,14 @@ export default function BuildingSelection({
               style={[
                 styles.directionFields,
                 shouldUseHorizontalWebDirectionsLayout &&
-                  styles.directionFieldsHorizontal,
+                styles.directionFieldsHorizontal,
               ]}
             >
               <View
                 style={[
                   styles.directionFieldGroup,
                   shouldUseHorizontalWebDirectionsLayout &&
-                    styles.directionFieldGroupHorizontal,
+                  styles.directionFieldGroupHorizontal,
                 ]}
               >
                 {renderInput(
@@ -579,6 +586,8 @@ export default function BuildingSelection({
                     <Text
                       style={[
                         styles.startHint,
+                        shouldUseStackedWebDirectionsLayout &&
+                        styles.startHintStackedWeb,
                         { color: theme.buildingSelection.resultTitle },
                       ]}
                       testID="start-hint"
@@ -594,6 +603,7 @@ export default function BuildingSelection({
                 style={[
                   styles.swapButton,
                   shouldUseHorizontalWebDirectionsLayout && styles.swapButtonHorizontal,
+                  shouldUseStackedWebDirectionsLayout && styles.swapButtonStackedWeb,
                 ]}
               >
                 <Ionicons
@@ -606,7 +616,7 @@ export default function BuildingSelection({
                 style={[
                   styles.directionFieldGroup,
                   shouldUseHorizontalWebDirectionsLayout &&
-                    styles.directionFieldGroupHorizontal,
+                  styles.directionFieldGroupHorizontal,
                 ]}
               >
                 {renderInput(
@@ -655,6 +665,12 @@ const styles = StyleSheet.create({
     paddingTop: 6,
     paddingBottom: 8,
   },
+  directionContainerStackedWeb: {
+    marginTop: 8,
+    paddingRight: 24,
+    paddingLeft: 8,
+    paddingBottom: 6,
+  },
   buildingSelectionContainer: {
     position: "absolute",
     width: "100%",
@@ -685,11 +701,19 @@ const styles = StyleSheet.create({
     marginTop: 0,
     marginHorizontal: 0,
   },
+  inputWrapperStackedWeb: {
+    marginTop: 8,
+    minHeight: 38,
+    paddingVertical: 2,
+  },
   input: {
     paddingRight: "10%",
     width: "100%",
     textAlign: "left",
     minHeight: isWeb ? 44 : undefined,
+  },
+  inputStackedWeb: {
+    minHeight: 38,
   },
   directionFields: {
     flex: 1,
@@ -725,6 +749,10 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginTop: 4,
   },
+  swapButtonStackedWeb: {
+    paddingTop: 4,
+    paddingBottom: 0,
+  },
   results: {
     maxHeight: 180,
     borderRadius: 8,
@@ -750,6 +778,10 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     marginBottom: 2,
   },
+  startHintStackedWeb: {
+    fontSize: 12,
+    marginBottom: 0,
+  },
   startHintHorizontal: {
     marginLeft: 2,
     marginTop: 2,
@@ -766,5 +798,8 @@ const styles = StyleSheet.create({
   iconsHorizontal: {
     paddingTop: 0,
     marginRight: 10,
+  },
+  iconsStackedWeb: {
+    paddingTop: 0,
   },
 });

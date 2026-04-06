@@ -16,6 +16,46 @@ export default function Root({ children }: { children: React.ReactNode }) {
           content="width=device-width, initial-scale=1, viewport-fit=cover"
         />
 
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `@media (max-width: 768px) {
+              html {
+                -webkit-text-size-adjust: 100%;
+                text-size-adjust: 100%;
+              }
+
+              input,
+              textarea,
+              select {
+                font-size: 16px !important;
+              }
+            }`,
+          }}
+        />
+
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function () {
+              var uaData = navigator.userAgentData;
+              var isMobileByUAData = !!(uaData && uaData.mobile);
+              var isMobileByUA = /Mobi|Android|iPhone|iPod|iPad/i.test(navigator.userAgent);
+              if (!isMobileByUAData && !isMobileByUA) {
+                return;
+              }
+
+              var viewport = document.querySelector('meta[name="viewport"]');
+              if (!viewport) {
+                return;
+              }
+
+              viewport.setAttribute(
+                'content',
+                'width=device-width, initial-scale=0.70, minimum-scale=0.70, maximum-scale=0.70, user-scalable=no, viewport-fit=cover',
+              );
+            })();`,
+          }}
+        />
+
         <script
           dangerouslySetInnerHTML={{
             __html: `(function (m, a, z, e) {
