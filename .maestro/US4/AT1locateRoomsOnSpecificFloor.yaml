@@ -1,0 +1,21 @@
+appId: host.exp.exponent
+---
+- runFlow:
+    when:
+      notVisible:
+        id: "building-selection"
+    file: ../openLink.yaml
+- tapOn:
+    text: "Search building"
+- inputText: "MB 1.115"
+- assertVisible: "MB – MB 1.115"
+- tapOn:
+    text: "MB – MB 1.115"
+- assertVisible:
+    id: "rooms-action-button"
+- tapOn:
+    id: "rooms-action-button"
+- assertVisible:
+    id: "next-button"
+- tapOn:
+    id: "next-button"
