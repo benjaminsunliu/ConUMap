@@ -25,3 +25,11 @@ appId: com.anonymous.client
     file: launchApp.yaml
 - runFlow:
     file: ../US2/AT3.1routeBetweenCampus.yaml
+
+# E4 E2E TESTS
+- runFlow:
+    file: ../US4/AT1locateRoomsOnSpecificFloor.yaml
+
+# E5 E2E TESTS
+- runFlow:
+    file: ../US5/AT2directionsPOI.yaml
