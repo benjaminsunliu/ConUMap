@@ -8,9 +8,9 @@ appId: host.exp.exponent
 - tapOn:
     text: "Search building"
 - inputText: "MB 1.115"
-- assertVisible: "MB 1.115"
+- assertVisible: "MB MB 1.115"
 - tapOn:
-    text: "MB 1.115"
+    text: "MB MB 1.115"
 - assertVisible:
     id: "rooms-action-button"
 - tapOn:
