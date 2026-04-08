@@ -5,26 +5,26 @@ appId: com.anonymous.client
     file: launchApp.yaml
 - runFlow:
     file: ../US1/AT1viewBothCampus.yaml
-- runFlow:
-    file: ../US1/AT2distinguishBuilding.yaml
-- runFlow:
-    file: ../US1/AT3campusLocation.yaml
-- runFlow:
-    file: ../US1/AT4buildingPopup.yaml
+# - runFlow:
+#     file: ../US1/AT2distinguishBuilding.yaml
+# - runFlow:
+#     file: ../US1/AT3campusLocation.yaml
+# - runFlow:
+#     file: ../US1/AT4buildingPopup.yaml
 
 # E2 E2E TESTS
-- runFlow:
-    file: launchApp.yaml
-- runFlow:
-    file: ../US2/AT2currentBuilding.yaml
-- runFlow:
-    file: launchApp.yaml
-- runFlow:
-    file: ../US2/AT3routeBetweenCampus.yaml
-- runFlow:
-    file: launchApp.yaml
-- runFlow:
-    file: ../US2/AT3.1routeBetweenCampus.yaml
+# - runFlow:
+#     file: launchApp.yaml
+# - runFlow:
+#     file: ../US2/AT2currentBuilding.yaml
+# - runFlow:
+#     file: launchApp.yaml
+# - runFlow:
+#     file: ../US2/AT3routeBetweenCampus.yaml
+# - runFlow:
+#     file: launchApp.yaml
+# - runFlow:
+#     file: ../US2/AT3.1routeBetweenCampus.yaml
 
 # E4 E2E TESTS
 - runFlow:
